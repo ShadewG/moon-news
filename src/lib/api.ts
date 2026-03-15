@@ -8,6 +8,8 @@ import type {
   ResearchSource,
   ResearchSummary,
   FootageAsset,
+  VisualRecommendation,
+  VisualsData,
   MusicAsset,
   TranscriptJob,
   Transcript,
@@ -50,6 +52,8 @@ function normalizeScriptLine(raw: any): ScriptLine {
     footage_status: raw.footageStatus ?? raw.footage_status ?? "pending",
     image_status: raw.imageStatus ?? raw.image_status ?? "pending",
     video_status: raw.videoStatus ?? raw.video_status ?? "pending",
+    line_content_category: raw.lineContentCategory ?? raw.line_content_category ?? null,
+    classification_json: raw.classificationJson ?? raw.classification_json ?? null,
   };
 }
 
@@ -93,6 +97,43 @@ function normalizeResearchSummary(raw: any): ResearchSummary {
     summary: raw.summary,
     confidence_score: raw.confidenceScore ?? raw.confidence_score ?? 0,
     model: raw.model ?? "unknown",
+  };
+}
+function normalizeFootageAsset(raw: any): FootageAsset {
+  return {
+    id: raw.id,
+    footage_search_run_id: raw.footageSearchRunId ?? raw.footage_search_run_id,
+    script_line_id: raw.scriptLineId ?? raw.script_line_id,
+    provider: raw.provider,
+    media_type: raw.mediaType ?? raw.media_type ?? "video",
+    external_asset_id: raw.externalAssetId ?? raw.external_asset_id,
+    title: raw.title,
+    preview_url: raw.previewUrl ?? raw.preview_url ?? null,
+    source_url: raw.sourceUrl ?? raw.source_url,
+    license_type: raw.licenseType ?? raw.license_type ?? null,
+    duration_ms: raw.durationMs ?? raw.duration_ms ?? 0,
+    width: raw.width ?? 0,
+    height: raw.height ?? 0,
+    match_score: raw.matchScore ?? raw.match_score ?? 0,
+    is_primary_source: raw.isPrimarySource ?? raw.is_primary_source ?? false,
+    upload_date: raw.uploadDate ?? raw.upload_date ?? null,
+    channel_or_contributor: raw.channelOrContributor ?? raw.channel_or_contributor ?? null,
+    score_breakdown_json: raw.scoreBreakdownJson ?? raw.score_breakdown_json ?? null,
+    metadata_json: raw.metadataJson ?? raw.metadata_json ?? null,
+  };
+}
+
+function normalizeRecommendation(raw: any): VisualRecommendation {
+  return {
+    id: raw.id,
+    project_id: raw.projectId ?? raw.project_id,
+    script_line_id: raw.scriptLineId ?? raw.script_line_id,
+    recommendation_type: raw.recommendationType ?? raw.recommendation_type,
+    reason: raw.reason,
+    suggested_prompt: raw.suggestedPrompt ?? raw.suggested_prompt ?? null,
+    suggested_style: raw.suggestedStyle ?? raw.suggested_style ?? null,
+    confidence: raw.confidence ?? 0,
+    dismissed: raw.dismissed ?? false,
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -181,13 +222,46 @@ export async function triggerResearch(projectId: string, lineId: string): Promis
   });
 }
 
-// ─── Footage ───
+// ─── Investigation (Video-First Research) ───
+
+export async function triggerInvestigation(projectId: string, lineId: string): Promise<{
+  lineId: string;
+  execution: { mode: string; triggerRunId: string | null };
+}> {
+  return apiFetch(`/api/projects/${projectId}/lines/${lineId}/investigate`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
+export async function getVisuals(projectId: string, lineId: string): Promise<VisualsData> {
+  const raw = await apiFetch<{ assets: unknown[]; recommendations: unknown[] }>(
+    `/api/projects/${projectId}/lines/${lineId}/visuals`
+  );
+  return {
+    assets: (raw.assets || []).map(normalizeFootageAsset),
+    recommendations: (raw.recommendations || []).map(normalizeRecommendation),
+  };
+}
+
+export async function dismissRecommendation(
+  projectId: string,
+  lineId: string,
+  recId: string
+): Promise<void> {
+  await apiFetch(
+    `/api/projects/${projectId}/lines/${lineId}/recommendations/${recId}`,
+    { method: "PATCH", body: JSON.stringify({}) }
+  );
+}
+
+// ─── Footage (legacy + new) ───
 
 export async function getFootage(projectId: string, lineId: string): Promise<FootageAsset[]> {
-  const raw = await apiFetch<{ assets: FootageAsset[] }>(
+  const raw = await apiFetch<{ assets: unknown[] }>(
     `/api/projects/${projectId}/lines/${lineId}/footage`
   );
-  return raw.assets || [];
+  return (raw.assets || []).map(normalizeFootageAsset);
 }
 
 export async function triggerFootageSearch(projectId: string, lineId: string, providers?: string[]): Promise<{ runId: string }> {

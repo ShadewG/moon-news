@@ -1,9 +1,11 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -41,6 +43,10 @@ export const providerEnum = pgEnum("provider", [
   "artlist",
   "elevenlabs",
   "internal",
+  "youtube",
+  "internet_archive",
+  "getty",
+  "google_images",
 ]);
 
 export const researchSourceTypeEnum = pgEnum("research_source_type", [
@@ -50,6 +56,30 @@ export const researchSourceTypeEnum = pgEnum("research_source_type", [
   "video",
   "academic",
   "unknown",
+]);
+
+export const lineContentCategoryEnum = pgEnum("line_content_category", [
+  "concrete_event",
+  "named_person",
+  "abstract_concept",
+  "quote_claim",
+  "historical_period",
+  "transition",
+  "sample_story",
+]);
+
+export const mediaTypeEnum = pgEnum("media_type", [
+  "video",
+  "image",
+  "stock_video",
+  "stock_image",
+  "article",
+]);
+
+export const recommendationTypeEnum = pgEnum("recommendation_type", [
+  "ai_video",
+  "ai_image",
+  "stock_fallback",
 ]);
 
 export const projects = pgTable(
@@ -118,6 +148,8 @@ export const scriptLines = pgTable(
     videoStatus: processingStatusEnum("video_status")
       .notNull()
       .default("pending"),
+    lineContentCategory: lineContentCategoryEnum("line_content_category"),
+    classificationJson: jsonb("classification_json"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -215,5 +247,99 @@ export const researchSummaries = pgTable(
   },
   (table) => [
     uniqueIndex("research_summaries_run_id_unique").on(table.researchRunId),
+  ]
+);
+
+// ─── Visual Research Pipeline ───
+
+export const footageSearchRuns = pgTable(
+  "footage_search_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    scriptLineId: uuid("script_line_id")
+      .notNull()
+      .references(() => scriptLines.id, { onDelete: "cascade" }),
+    provider: providerEnum("provider").notNull(),
+    status: processingStatusEnum("status").notNull().default("pending"),
+    query: text("query"),
+    resultsCount: integer("results_count").notNull().default(0),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("footage_search_runs_line_id_index").on(table.scriptLineId),
+    index("footage_search_runs_project_id_index").on(table.projectId),
+  ]
+);
+
+export const footageAssets = pgTable(
+  "footage_assets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    footageSearchRunId: uuid("footage_search_run_id")
+      .notNull()
+      .references(() => footageSearchRuns.id, { onDelete: "cascade" }),
+    scriptLineId: uuid("script_line_id")
+      .notNull()
+      .references(() => scriptLines.id, { onDelete: "cascade" }),
+    provider: providerEnum("provider").notNull(),
+    mediaType: mediaTypeEnum("media_type").notNull(),
+    externalAssetId: text("external_asset_id").notNull(),
+    title: text("title").notNull(),
+    previewUrl: text("preview_url"),
+    sourceUrl: text("source_url").notNull(),
+    licenseType: text("license_type"),
+    durationMs: integer("duration_ms"),
+    width: integer("width"),
+    height: integer("height"),
+    matchScore: integer("match_score").notNull().default(0),
+    isPrimarySource: boolean("is_primary_source").notNull().default(false),
+    uploadDate: text("upload_date"),
+    channelOrContributor: text("channel_or_contributor"),
+    scoreBreakdownJson: jsonb("score_breakdown_json"),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("footage_assets_run_id_index").on(table.footageSearchRunId),
+    index("footage_assets_line_id_index").on(table.scriptLineId),
+  ]
+);
+
+export const visualRecommendations = pgTable(
+  "visual_recommendations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    scriptLineId: uuid("script_line_id")
+      .notNull()
+      .references(() => scriptLines.id, { onDelete: "cascade" }),
+    recommendationType: recommendationTypeEnum("recommendation_type").notNull(),
+    reason: text("reason").notNull(),
+    suggestedPrompt: text("suggested_prompt"),
+    suggestedStyle: text("suggested_style"),
+    confidence: real("confidence").notNull().default(0),
+    dismissed: boolean("dismissed").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("visual_recommendations_line_id_index").on(table.scriptLineId),
+    index("visual_recommendations_project_id_index").on(table.projectId),
   ]
 );

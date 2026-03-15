@@ -50,7 +50,18 @@ export interface ScriptLine {
   footage_status: JobStatus;
   image_status: JobStatus;
   video_status: JobStatus;
+  line_content_category: LineContentCategory | null;
+  classification_json: Record<string, unknown> | null;
 }
+
+export type LineContentCategory =
+  | "concrete_event"
+  | "named_person"
+  | "abstract_concept"
+  | "quote_claim"
+  | "historical_period"
+  | "transition"
+  | "sample_story";
 
 // Helper for display
 export function formatTimestamp(ms: number): string {
@@ -123,21 +134,46 @@ export interface FootageSearchRun {
   error_message: string | null;
 }
 
+export type MediaType = "video" | "image" | "stock_video" | "stock_image" | "article";
+export type VisualProvider = "youtube" | "internet_archive" | "getty" | "google_images" | "storyblocks" | "artlist";
+
 export interface FootageAsset {
   id: string;
   footage_search_run_id: string;
   script_line_id: string;
-  provider: "storyblocks" | "artlist";
+  provider: VisualProvider | string;
+  media_type: MediaType;
   external_asset_id: string;
   title: string;
-  preview_url: string;
-  license_type: string;
-  price_label: string;
+  preview_url: string | null;
+  source_url: string;
+  license_type: string | null;
   duration_ms: number;
   width: number;
   height: number;
   match_score: number;
+  is_primary_source: boolean;
+  upload_date: string | null;
+  channel_or_contributor: string | null;
+  score_breakdown_json: Record<string, unknown> | null;
   metadata_json: Record<string, unknown> | null;
+}
+
+export interface VisualRecommendation {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  recommendation_type: "ai_video" | "ai_image" | "stock_fallback";
+  reason: string;
+  suggested_prompt: string | null;
+  suggested_style: string | null;
+  confidence: number;
+  dismissed: boolean;
+}
+
+export interface VisualsData {
+  assets: FootageAsset[];
+  recommendations: VisualRecommendation[];
 }
 
 // ─── Music ───
@@ -313,6 +349,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "complete",
     image_status: "complete",
     video_status: "running",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-2",
@@ -328,6 +366,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "complete",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-3",
@@ -343,6 +383,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "complete",
     image_status: "complete",
     video_status: "queued",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-4",
@@ -358,6 +400,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-5",
@@ -373,6 +417,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "running",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-6",
@@ -388,6 +434,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "complete",
     image_status: "running",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-7",
@@ -403,6 +451,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-8",
@@ -418,6 +468,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-9",
@@ -433,6 +485,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-10",
@@ -448,6 +502,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-11",
@@ -463,6 +519,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
   {
     id: "line-12",
@@ -478,6 +536,8 @@ export const sampleScript: ScriptLine[] = [
     footage_status: "pending",
     image_status: "pending",
     video_status: "pending",
+    line_content_category: null,
+    classification_json: null,
   },
 ];
 
@@ -782,48 +842,63 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       id: "fa_01",
       footage_search_run_id: "fsr_01",
       script_line_id: "line-1",
-      provider: "storyblocks",
-      external_asset_id: "sb_892341",
-      title: "Podcast Studio Setup — Professional Recording",
-      preview_url: "#",
-      license_type: "Standard",
-      price_label: "Included",
-      duration_ms: 15000,
-      width: 3840,
-      height: 2160,
+      provider: "youtube",
+      media_type: "video",
+      external_asset_id: "dQw4w9WgXcQ",
+      title: "CIA Podcast Media Strategy — News Analysis",
+      preview_url: null,
+      source_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      license_type: "YouTube Standard",
+      duration_ms: 420000,
+      width: 1920,
+      height: 1080,
       match_score: 94,
-      metadata_json: { fps: 24, codec: "h264" },
+      is_primary_source: false,
+      upload_date: "2023-05-12",
+      channel_or_contributor: "CBS News",
+      score_breakdown_json: { relevanceScore: 48, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 2, repostPenalty: 0 },
+      metadata_json: { viewCount: 125000 },
     },
     {
       id: "fa_02",
       footage_search_run_id: "fsr_01",
       script_line_id: "line-1",
       provider: "storyblocks",
-      external_asset_id: "sb_741259",
-      title: "CIA Headquarters — Aerial Drone Shot",
-      preview_url: "#",
-      license_type: "Editorial",
-      price_label: "Included",
-      duration_ms: 12000,
+      media_type: "stock_video",
+      external_asset_id: "sb_892341",
+      title: "Podcast Studio Setup — Professional Recording",
+      preview_url: null,
+      source_url: "https://www.storyblocks.com/video/sb_892341",
+      license_type: "Storyblocks License",
+      duration_ms: 15000,
       width: 3840,
       height: 2160,
-      match_score: 91,
+      match_score: 65,
+      is_primary_source: false,
+      upload_date: null,
+      channel_or_contributor: null,
+      score_breakdown_json: { relevanceScore: 45, mediaTypeBonus: 10, provenanceBonus: 5, dateBonus: 0, repostPenalty: 0 },
       metadata_json: null,
     },
     {
       id: "fa_03",
       footage_search_run_id: "fsr_02",
       script_line_id: "line-1",
-      provider: "artlist",
-      external_asset_id: "al_f_33021",
-      title: "Langley Virginia Campus — News Archive",
-      preview_url: "#",
-      license_type: "Editorial",
-      price_label: "Included",
-      duration_ms: 22000,
-      width: 1920,
-      height: 1080,
-      match_score: 87,
+      provider: "google_images",
+      media_type: "image",
+      external_asset_id: "gi_cia_langley_aerial",
+      title: "CIA Headquarters — Langley Aerial View",
+      preview_url: null,
+      source_url: "https://example.com/cia-langley.jpg",
+      license_type: null,
+      duration_ms: 0,
+      width: 2400,
+      height: 1600,
+      match_score: 78,
+      is_primary_source: false,
+      upload_date: null,
+      channel_or_contributor: "Reuters",
+      score_breakdown_json: { relevanceScore: 42, mediaTypeBonus: 20, provenanceBonus: 8, dateBonus: 0, repostPenalty: 0 },
       metadata_json: null,
     },
   ],
@@ -832,49 +907,64 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       id: "fa_04",
       footage_search_run_id: "fsr_03",
       script_line_id: "line-2",
-      provider: "artlist",
-      external_asset_id: "al_f_18292",
-      title: "1950s Newsroom — Black & White Archive",
-      preview_url: "#",
-      license_type: "Public Domain",
-      price_label: "Free",
-      duration_ms: 30000,
-      width: 1920,
-      height: 1080,
-      match_score: 96,
-      metadata_json: { era: "1950s", restored: true },
+      provider: "internet_archive",
+      media_type: "video",
+      external_asset_id: "OperationMockingbird_1977",
+      title: "Church Committee Hearing — Operation Mockingbird Testimony",
+      preview_url: "https://archive.org/services/img/OperationMockingbird_1977",
+      source_url: "https://archive.org/details/OperationMockingbird_1977",
+      license_type: "Public Domain / Open",
+      duration_ms: 1800000,
+      width: 720,
+      height: 480,
+      match_score: 98,
+      is_primary_source: true,
+      upload_date: "1977",
+      channel_or_contributor: "US Senate",
+      score_breakdown_json: { relevanceScore: 50, mediaTypeBonus: 30, provenanceBonus: 20, dateBonus: 10, repostPenalty: 0 },
+      metadata_json: { collection: "prelinger", description: "Senate Church Committee hearings on CIA domestic activities" },
     },
     {
       id: "fa_05",
       footage_search_run_id: "fsr_03",
       script_line_id: "line-2",
-      provider: "storyblocks",
-      external_asset_id: "sb_554821",
-      title: "Vintage Newspaper Printing Press",
-      preview_url: "#",
-      license_type: "Standard",
-      price_label: "Included",
-      duration_ms: 18000,
-      width: 3840,
-      height: 2160,
-      match_score: 89,
-      metadata_json: null,
+      provider: "youtube",
+      media_type: "video",
+      external_asset_id: "mockingbird_doc_yt",
+      title: "Operation Mockingbird — CIA Media Control Documentary",
+      preview_url: null,
+      source_url: "https://www.youtube.com/watch?v=mockingbird_doc_yt",
+      license_type: "YouTube Standard",
+      duration_ms: 2700000,
+      width: 1920,
+      height: 1080,
+      match_score: 85,
+      is_primary_source: false,
+      upload_date: "2019-03-15",
+      channel_or_contributor: "The Documentary Network",
+      score_breakdown_json: { relevanceScore: 47, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 4, repostPenalty: 0 },
+      metadata_json: { viewCount: 890000 },
     },
     {
       id: "fa_06",
       footage_search_run_id: "fsr_04",
       script_line_id: "line-2",
-      provider: "artlist",
-      external_asset_id: "al_f_44120",
-      title: "Cold War Era CIA Recruitment Film",
-      preview_url: "#",
-      license_type: "Public Domain",
-      price_label: "Free",
-      duration_ms: 105000,
-      width: 1280,
-      height: 720,
-      match_score: 93,
-      metadata_json: { era: "1950s", source: "National Archives" },
+      provider: "storyblocks",
+      media_type: "stock_video",
+      external_asset_id: "sb_554821",
+      title: "Vintage Newspaper Printing Press — 1950s",
+      preview_url: null,
+      source_url: "https://www.storyblocks.com/video/sb_554821",
+      license_type: "Storyblocks License",
+      duration_ms: 18000,
+      width: 3840,
+      height: 2160,
+      match_score: 55,
+      is_primary_source: false,
+      upload_date: null,
+      channel_or_contributor: null,
+      score_breakdown_json: { relevanceScore: 40, mediaTypeBonus: 10, provenanceBonus: 5, dateBonus: 0, repostPenalty: 0 },
+      metadata_json: null,
     },
   ],
   "line-3": [
@@ -882,49 +972,64 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       id: "fa_07",
       footage_search_run_id: "fsr_05",
       script_line_id: "line-3",
-      provider: "storyblocks",
-      external_asset_id: "sb_663912",
-      title: "Pentagon Building — Establishing Shot",
-      preview_url: "#",
-      license_type: "Standard",
-      price_label: "Included",
-      duration_ms: 10000,
-      width: 3840,
-      height: 2160,
-      match_score: 95,
-      metadata_json: null,
+      provider: "youtube",
+      media_type: "video",
+      external_asset_id: "pentagon_mfm_cspan",
+      title: "Pentagon Message Force Multipliers — NYT Investigation",
+      preview_url: null,
+      source_url: "https://www.youtube.com/watch?v=pentagon_mfm_cspan",
+      license_type: "YouTube Standard",
+      duration_ms: 540000,
+      width: 1920,
+      height: 1080,
+      match_score: 92,
+      is_primary_source: false,
+      upload_date: "2008-04-20",
+      channel_or_contributor: "NYT Video",
+      score_breakdown_json: { relevanceScore: 48, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 10, repostPenalty: 0 },
+      metadata_json: { viewCount: 250000 },
     },
     {
       id: "fa_08",
       footage_search_run_id: "fsr_06",
       script_line_id: "line-3",
-      provider: "artlist",
-      external_asset_id: "al_f_77501",
-      title: "Iraq War 2003 — TV News Compilation",
-      preview_url: "#",
-      license_type: "Editorial",
-      price_label: "Included",
-      duration_ms: 150000,
-      width: 1920,
-      height: 1080,
-      match_score: 97,
+      provider: "internet_archive",
+      media_type: "video",
+      external_asset_id: "IraqWar_CableNews_2003",
+      title: "Iraq War 2003 — Cable News Coverage Compilation",
+      preview_url: "https://archive.org/services/img/IraqWar_CableNews_2003",
+      source_url: "https://archive.org/details/IraqWar_CableNews_2003",
+      license_type: "Public Domain / Open",
+      duration_ms: 3600000,
+      width: 720,
+      height: 480,
+      match_score: 88,
+      is_primary_source: true,
+      upload_date: "2003",
+      channel_or_contributor: "TV Archive",
+      score_breakdown_json: { relevanceScore: 45, mediaTypeBonus: 30, provenanceBonus: 20, dateBonus: 10, repostPenalty: 0 },
       metadata_json: null,
     },
     {
       id: "fa_09",
       footage_search_run_id: "fsr_05",
       script_line_id: "line-3",
-      provider: "storyblocks",
-      external_asset_id: "sb_221098",
-      title: "Military Analyst on Cable News — 2003",
-      preview_url: "#",
-      license_type: "Public Domain",
-      price_label: "Free",
-      duration_ms: 195000,
-      width: 1280,
-      height: 720,
-      match_score: 92,
-      metadata_json: { source: "C-SPAN Archive" },
+      provider: "google_images",
+      media_type: "image",
+      external_asset_id: "pentagon_aerial_ap",
+      title: "Pentagon Building — Aerial View",
+      preview_url: null,
+      source_url: "https://example.com/pentagon-aerial.jpg",
+      license_type: null,
+      duration_ms: 0,
+      width: 3840,
+      height: 2160,
+      match_score: 72,
+      is_primary_source: false,
+      upload_date: null,
+      channel_or_contributor: "AP Images",
+      score_breakdown_json: { relevanceScore: 44, mediaTypeBonus: 20, provenanceBonus: 8, dateBonus: 0, repostPenalty: 0 },
+      metadata_json: null,
     },
   ],
   "line-6": [
@@ -932,32 +1037,42 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       id: "fa_10",
       footage_search_run_id: "fsr_07",
       script_line_id: "line-6",
-      provider: "storyblocks",
-      external_asset_id: "sb_998102",
-      title: "John Kiriakou — Senate Hearing Testimony",
-      preview_url: "#",
-      license_type: "Public Domain",
-      price_label: "Free",
+      provider: "youtube",
+      media_type: "video",
+      external_asset_id: "kiriakou_cspan",
+      title: "John Kiriakou — Senate Hearing Testimony (C-SPAN)",
+      preview_url: null,
+      source_url: "https://www.youtube.com/watch?v=kiriakou_cspan",
+      license_type: "YouTube Standard",
       duration_ms: 320000,
       width: 1920,
       height: 1080,
       match_score: 99,
-      metadata_json: { source: "C-SPAN" },
+      is_primary_source: true,
+      upload_date: "2014-09-17",
+      channel_or_contributor: "C-SPAN",
+      score_breakdown_json: { relevanceScore: 50, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 7, repostPenalty: 0 },
+      metadata_json: { viewCount: 450000 },
     },
     {
       id: "fa_11",
       footage_search_run_id: "fsr_08",
       script_line_id: "line-6",
-      provider: "artlist",
-      external_asset_id: "al_f_55003",
-      title: "Whistleblower Documentary — 'Silenced' Clip",
-      preview_url: "#",
-      license_type: "Fair Use",
-      price_label: "Free (clip)",
-      duration_ms: 105000,
+      provider: "internet_archive",
+      media_type: "video",
+      external_asset_id: "SilencedDocumentary_2014",
+      title: "Whistleblower Documentary — 'Silenced' (2014)",
+      preview_url: "https://archive.org/services/img/SilencedDocumentary_2014",
+      source_url: "https://archive.org/details/SilencedDocumentary_2014",
+      license_type: "Public Domain / Open",
+      duration_ms: 5400000,
       width: 1920,
       height: 1080,
       match_score: 94,
+      is_primary_source: true,
+      upload_date: "2014",
+      channel_or_contributor: "James Spione",
+      score_breakdown_json: { relevanceScore: 47, mediaTypeBonus: 30, provenanceBonus: 20, dateBonus: 7, repostPenalty: 0 },
       metadata_json: null,
     },
   ],

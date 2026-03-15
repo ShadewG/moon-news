@@ -11,7 +11,7 @@ type RouteContext = {
 
 export async function GET(_: Request, context: RouteContext) {
   const { projectId, lineId } = await context.params;
-  const { assets } = await getVisualsForLine(projectId, lineId);
+  const result = await getVisualsForLine(projectId, lineId);
 
-  return NextResponse.json({ assets });
+  return NextResponse.json(result);
 }

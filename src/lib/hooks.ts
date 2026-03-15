@@ -6,6 +6,7 @@ import * as sample from "./sample-data";
 import type {
   ResearchData,
   FootageAsset,
+  VisualsData,
   MusicAsset,
   TranscriptJob,
   Transcript,
@@ -131,6 +132,40 @@ export function useTriggerResearch(projectId: string | null) {
   }, [projectId]);
 
   return { trigger, triggering };
+}
+
+// ─── Investigation ───
+
+export function useTriggerInvestigation(projectId: string | null) {
+  const [triggering, setTriggering] = useState(false);
+
+  const trigger = useCallback(async (lineId: string) => {
+    if (!projectId) return null;
+    setTriggering(true);
+    try {
+      return await api.triggerInvestigation(projectId, lineId);
+    } finally {
+      setTriggering(false);
+    }
+  }, [projectId]);
+
+  return { trigger, triggering };
+}
+
+// ─── Visuals (unified footage + recommendations) ───
+
+export function useVisuals(
+  projectId: string | null,
+  lineId: string | null
+) {
+  return useFetch(
+    async (): Promise<VisualsData> => {
+      if (!projectId || !lineId) return { assets: [], recommendations: [] };
+      return api.getVisuals(projectId, lineId);
+    },
+    { assets: [], recommendations: [] },
+    [projectId, lineId]
+  );
 }
 
 // ─── Footage ───

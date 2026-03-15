@@ -8,6 +8,13 @@
       "when": 1773601745991,
       "tag": "0000_shallow_bruce_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773606025060,
+      "tag": "0001_happy_swordsman",
+      "breakpoints": true
     }
   ]
 }
