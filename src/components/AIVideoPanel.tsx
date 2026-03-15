@@ -11,8 +11,7 @@ import {
   Clock,
   Palette,
   Cpu,
-  Timer,
-  Image,
+  Image as ImageIcon,
   AlertCircle,
 } from "lucide-react";
 import {
@@ -33,7 +32,7 @@ const statusConfig = {
 
 export default function AIVideoPanel() {
   const { projectId, selectedLineId, selectedLine } = useProjectContext();
-  const { data: jobs } = useVideoJobs(projectId, selectedLineId);
+  const { data: jobs } = useVideoJobs(projectId, selectedLineId, selectedLine?.line_key ?? null);
   const line = selectedLine;
 
   return (
@@ -154,7 +153,7 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
           </div>
           {job.source_image_asset_id && (
             <div className="flex items-center gap-1">
-              <Image size={10} className="text-[var(--text-muted)]" />
+              <ImageIcon size={10} className="text-[var(--text-muted)]" />
               <span className="text-[10px] text-[var(--text-muted)]">
                 Source: {job.source_image_asset_id}
               </span>

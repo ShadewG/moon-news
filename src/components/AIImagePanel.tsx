@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Image,
+  Image as ImageIcon,
   RefreshCcw,
   Download,
   Wand2,
@@ -37,7 +37,7 @@ const statusConfig = {
 
 export default function AIImagePanel() {
   const { projectId, selectedLineId, selectedLine } = useProjectContext();
-  const { data: jobs } = useImageJobs(projectId, selectedLineId);
+  const { data: jobs } = useImageJobs(projectId, selectedLineId, selectedLine?.line_key ?? null);
   const line = selectedLine;
 
   const openaiCount = jobs.filter((j) => j.provider === "openai").length;
@@ -71,7 +71,7 @@ export default function AIImagePanel() {
       {/* Header */}
       <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image size={16} className="text-[var(--accent-orange)]" />
+          <ImageIcon size={16} className="text-[var(--accent-orange)]" />
           <h3 className="text-sm font-semibold">AI Images</h3>
           {jobs.length > 0 && (
             <>
@@ -122,7 +122,7 @@ function ImageJobCard({ job }: { job: ImageGenerationJob }) {
       {/* Thumbnail */}
       <div className="relative h-48 bg-[var(--bg-tertiary)] overflow-hidden">
         <div className="w-full h-full bg-gradient-to-br from-[var(--bg-tertiary)] via-[var(--accent-orange)]/5 to-[var(--bg-elevated)] flex items-center justify-center">
-          <Image size={28} className="text-[var(--text-muted)]/20" />
+          <ImageIcon size={28} className="text-[var(--text-muted)]/20" />
         </div>
 
         <div className="absolute top-2 left-2 flex items-center gap-1.5">
@@ -214,7 +214,7 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-8">
       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--accent-orange)]/10 to-[var(--accent-yellow)]/10 flex items-center justify-center mb-4">
-        <Image size={20} className="text-[var(--accent-orange)]" />
+        <ImageIcon size={20} className="text-[var(--accent-orange)]" />
       </div>
       <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-1">No Images Generated</h4>
       <p className="text-xs text-[var(--text-muted)] mb-4 max-w-[280px]">

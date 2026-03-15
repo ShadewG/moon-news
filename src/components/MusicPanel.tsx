@@ -19,6 +19,13 @@ function formatMusicDuration(ms: number): string {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
+function getWaveHeights(seed: string, length = 40) {
+  return Array.from({ length }, (_, index) => {
+    const charCode = seed.charCodeAt(index % seed.length) || 0;
+    return 4 + ((charCode + index * 7) % 16);
+  });
+}
+
 export default function MusicPanel() {
   const { projectId } = useProjectContext();
   const { data: music } = useMusic(projectId);
@@ -74,6 +81,8 @@ export default function MusicPanel() {
 }
 
 function MusicCard({ track }: { track: MusicAsset }) {
+  const waveformHeights = getWaveHeights(track.external_asset_id || track.id);
+
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-light)] transition-colors group p-4">
       <div className="flex items-start gap-3">
@@ -124,11 +133,11 @@ function MusicCard({ track }: { track: MusicAsset }) {
 
           {/* Waveform placeholder */}
           <div className="mt-2 h-6 rounded bg-[var(--bg-tertiary)] flex items-center px-2 gap-px">
-            {Array.from({ length: 40 }).map((_, i) => (
+            {waveformHeights.map((height, i) => (
               <div
                 key={i}
                 className="w-1 rounded-full bg-[var(--accent-green)]/30"
-                style={{ height: `${Math.random() * 16 + 4}px` }}
+                style={{ height: `${height}px` }}
               />
             ))}
           </div>

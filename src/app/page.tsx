@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   BookOpen,
   Film,
@@ -9,7 +9,6 @@ import {
   Image,
   Video,
   BarChart3,
-  CheckCircle2,
   Clock,
   Layers,
   Sparkles,
@@ -19,7 +18,7 @@ import {
 import { ProjectProvider, useProjectContext } from "@/lib/project-context";
 import { useProjects } from "@/lib/hooks";
 import * as api from "@/lib/api";
-import { formatTimestamp, sampleProject, sampleScript } from "@/lib/sample-data";
+import { formatTimestamp } from "@/lib/sample-data";
 import Topbar from "@/components/Topbar";
 import ScriptPanel from "@/components/ScriptPanel";
 import ResearchPanel from "@/components/ResearchPanel";
@@ -43,41 +42,29 @@ const tabs: { id: Tab; label: string; icon: typeof BookOpen; color: string }[] =
 ];
 
 export default function Home() {
-  const [projectId, setProjectId] = useState<string | null>(null);
-  const [seeding, setSeeding] = useState(false);
+  const [bootstrappedProjectId, setBootstrappedProjectId] = useState<string | null>(null);
+  const bootstrapStartedRef = useRef(false);
   const { data: projects, loading: loadingProjects, refetch: refetchProjects } = useProjects();
+  const projectId = projects[0]?.id ?? bootstrappedProjectId ?? null;
 
   // Auto-select first project or seed one
   useEffect(() => {
     if (loadingProjects) return;
-    if (projects.length > 0) {
-      setProjectId(projects[0].id);
-    } else if (!seeding) {
-      // No projects in DB — try to seed from sample script
-      setSeeding(true);
+    if (projects.length === 0 && !bootstrapStartedRef.current && !projectId) {
+      bootstrapStartedRef.current = true;
       api
-        .createProject({
-          title: sampleProject.title,
-          rawScript: sampleScript.map((l) => l.text).join("\n"),
-          lines: sampleScript.map((l) => ({
-            lineKey: l.line_key,
-            lineIndex: l.line_index,
-            text: l.text,
-            lineType: l.line_type,
-            timestampStartMs: l.timestamp_start_ms,
-            durationMs: l.duration_ms,
-          })),
-        })
+        .bootstrapProject()
         .then((res) => {
-          setProjectId(res.project.id);
+          if (res.project) {
+            setBootstrappedProjectId(res.project.id);
+          }
           refetchProjects();
         })
         .catch(() => {
           // DB not available — projectId stays null, will use sample data via fallback
-          setSeeding(false);
         });
     }
-  }, [projects, loadingProjects, seeding, refetchProjects]);
+  }, [loadingProjects, projectId, projects.length, refetchProjects]);
 
   return (
     <ProjectProvider projectId={projectId}>
@@ -87,18 +74,64 @@ export default function Home() {
 }
 
 function AppShell() {
-  const { stats, isLive, selectedLineId, setSelectedLineId } = useProjectContext();
+  const { project, lines, stats, isLive, refetchProject } = useProjectContext();
   const [activeTab, setActiveTab] = useState<Tab>("research");
   const [exportOpen, setExportOpen] = useState(false);
+  const [researchAllRunning, setResearchAllRunning] = useState(false);
 
   const totalDomains = stats.totalLines * 4;
   const completeDomains =
     stats.researchComplete + stats.footageComplete + stats.imagesGenerated + stats.videosGenerated;
   const progressPct = totalDomains > 0 ? Math.round((completeDomains / totalDomains) * 100) : 0;
+  const researchableLines = lines.filter(
+    (line) => line.research_status === "pending" || line.research_status === "failed"
+  );
+  const hasActiveResearch = lines.some(
+    (line) => line.research_status === "queued" || line.research_status === "running"
+  );
+
+  useEffect(() => {
+    if (!hasActiveResearch) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      refetchProject();
+    }, 3000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [hasActiveResearch, refetchProject]);
+
+  const handleResearchAllClick = async () => {
+    if (!project?.id || researchAllRunning || researchableLines.length === 0) {
+      return;
+    }
+
+    setResearchAllRunning(true);
+
+    try {
+      await Promise.all(
+        researchableLines.map((line) =>
+          api.triggerResearch(project.id, line.id).catch(() => null)
+        )
+      );
+      refetchProject();
+      setActiveTab("research");
+    } finally {
+      setResearchAllRunning(false);
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col">
-      <Topbar onExportClick={() => setExportOpen(true)} />
+      <Topbar
+        onExportClick={() => setExportOpen(true)}
+        onResearchAllClick={handleResearchAllClick}
+        researchAllDisabled={!project?.id || researchableLines.length === 0}
+        researchAllRunning={researchAllRunning || hasActiveResearch}
+      />
 
       {/* Stats Bar */}
       <div className="h-10 border-b border-[var(--border)] flex items-center px-4 gap-5 bg-[var(--bg-secondary)]">

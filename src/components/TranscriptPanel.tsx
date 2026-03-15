@@ -19,7 +19,7 @@ import { useTranscript } from "@/lib/hooks";
 
 export default function TranscriptPanel() {
   const { projectId, selectedLineId, selectedLine } = useProjectContext();
-  const { data } = useTranscript(projectId, selectedLineId);
+  const { data } = useTranscript(projectId, selectedLineId, selectedLine?.line_key ?? null);
   const line = selectedLine;
 
   return (

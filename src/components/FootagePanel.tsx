@@ -35,7 +35,7 @@ function formatResolution(w: number, h: number): string {
 
 export default function FootagePanel() {
   const { projectId, selectedLineId, selectedLine } = useProjectContext();
-  const { data: footage } = useFootage(projectId, selectedLineId);
+  const { data: footage } = useFootage(projectId, selectedLineId, selectedLine?.line_key ?? null);
   const line = selectedLine;
 
   const storyblocksCount = footage.filter((f) => f.provider === "storyblocks").length;

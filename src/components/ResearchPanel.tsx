@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   ExternalLink,
   BookOpen,
@@ -41,15 +42,57 @@ const typeColors: Record<string, string> = {
 
 export default function ResearchPanel() {
   const { projectId, selectedLineId, selectedLine, refetchProject } = useProjectContext();
-  const { data: research, loading, refetch } = useResearch(projectId, selectedLineId);
+  const { data: research, loading, refetch } = useResearch(
+    projectId,
+    selectedLineId,
+    selectedLine?.line_key ?? null
+  );
   const { trigger, triggering } = useTriggerResearch(projectId);
+  const researchStatus = research?.run.status ?? selectedLine?.research_status ?? "pending";
+  const isResearchRunning = researchStatus === "queued" || researchStatus === "running";
+
+  useEffect(() => {
+    if (!isResearchRunning) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      refetch();
+      refetchProject();
+    }, 3000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isResearchRunning, refetch, refetchProject]);
 
   const handleStartResearch = async () => {
-    if (!selectedLineId) return;
+    if (!projectId || !selectedLineId) return;
     await trigger(selectedLineId);
     refetch();
     refetchProject();
   };
+
+  const parallelStatus =
+    research?.run.status === "complete"
+      ? "complete"
+      : research?.run.status === "queued" || research?.run.status === "running"
+        ? "running"
+        : research?.run.status === "failed"
+          ? "partial"
+          : "pending";
+  const firecrawlStatus = research?.sources.some((source) => source.extracted_text_path)
+    ? "complete"
+    : research?.sources.length
+      ? "partial"
+      : parallelStatus === "running"
+        ? "running"
+        : "pending";
+  const openAiStatus = research?.summary
+    ? "complete"
+    : firecrawlStatus === "running"
+      ? "running"
+      : "pending";
 
   return (
     <div className="flex-1 flex flex-col min-w-0">
@@ -64,11 +107,15 @@ export default function ResearchPanel() {
               {selectedLine.line_type}
             </span>
             <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-              selectedLine.research_status === "complete" ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]" :
-              selectedLine.research_status === "running" ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]" :
-              "bg-[var(--bg-hover)] text-[var(--text-muted)]"
+              researchStatus === "complete"
+                ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]"
+                : researchStatus === "queued" || researchStatus === "running"
+                  ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
+                  : researchStatus === "failed"
+                    ? "bg-[var(--accent-red)]/10 text-[var(--accent-red)]"
+                    : "bg-[var(--bg-hover)] text-[var(--text-muted)]"
             }`}>
-              Research: {selectedLine.research_status}
+              Research: {researchStatus}
             </span>
           </div>
           <p className="text-sm text-[var(--text-primary)] leading-relaxed">{selectedLine.text}</p>
@@ -79,11 +126,11 @@ export default function ResearchPanel() {
         <>
           {/* Pipeline indicator */}
           <div className="px-4 py-2.5 border-b border-[var(--border)] flex items-center gap-4">
-            <PipelineStep icon={Globe} label="Parallel" status="complete" />
+            <PipelineStep icon={Globe} label="Parallel" status={parallelStatus} />
             <PipelineArrow />
-            <PipelineStep icon={Zap} label="Firecrawl" status={research.sources.some(s => s.extracted_text_path) ? "complete" : "partial"} />
+            <PipelineStep icon={Zap} label="Firecrawl" status={firecrawlStatus} />
             <PipelineArrow />
-            <PipelineStep icon={Brain} label="OpenAI" status={research.summary ? "complete" : "pending"} />
+            <PipelineStep icon={Brain} label="OpenAI" status={openAiStatus} />
           </div>
 
           {/* Summary */}
@@ -109,7 +156,7 @@ export default function ResearchPanel() {
             </div>
             <button
               onClick={handleStartResearch}
-              disabled={triggering}
+              disabled={triggering || !selectedLineId}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
             >
               <RotateCcw size={12} className={triggering ? "animate-spin" : ""} />
@@ -134,12 +181,20 @@ export default function ResearchPanel() {
             )}
           </div>
           <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-1">
-            {loading ? "Loading..." : triggering ? "Starting Research..." : "No Research Yet"}
+            {!selectedLine
+              ? "Select a Line"
+              : loading
+                ? "Loading..."
+                : triggering
+                  ? "Starting Research..."
+                  : "No Research Yet"}
           </h4>
           <p className="text-xs text-[var(--text-muted)] mb-4 max-w-[280px]">
-            Start deep research via Parallel + Firecrawl + OpenAI for this script line.
+            {!selectedLine
+              ? "Choose a script line to run Parallel research, Firecrawl extraction, and OpenAI synthesis."
+              : "Start deep research via Parallel + Firecrawl + OpenAI for this script line."}
           </p>
-          {!loading && !triggering && (
+          {!loading && !triggering && selectedLine && (
             <button
               onClick={handleStartResearch}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors"

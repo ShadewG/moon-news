@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import * as api from "./api";
 import * as sample from "./sample-data";
 import type {
-  ScriptLine,
   ResearchData,
   FootageAsset,
   MusicAsset,
@@ -17,6 +16,12 @@ import type {
 } from "./sample-data";
 
 // ─── Generic fetch hook with sample-data fallback ───
+
+function getSampleLineKey(fallbackLineKey?: string | null) {
+  return fallbackLineKey && fallbackLineKey in sample.sampleResearch
+    ? fallbackLineKey
+    : null;
+}
 
 function useFetch<T>(
   fetcher: () => Promise<T>,
@@ -95,13 +100,19 @@ export function useProjects() {
 
 // ─── Research ───
 
-export function useResearch(projectId: string | null, lineId: string | null) {
+export function useResearch(
+  projectId: string | null,
+  lineId: string | null,
+  fallbackLineKey?: string | null
+) {
+  const sampleLineKey = getSampleLineKey(fallbackLineKey);
+
   return useFetch(
     async (): Promise<ResearchData | null> => {
       if (!projectId || !lineId) return null;
       return api.getResearch(projectId, lineId);
     },
-    lineId ? (sample.sampleResearch[lineId] ?? null) : null,
+    sampleLineKey ? (sample.sampleResearch[sampleLineKey] ?? null) : null,
     [projectId, lineId]
   );
 }
@@ -124,13 +135,19 @@ export function useTriggerResearch(projectId: string | null) {
 
 // ─── Footage ───
 
-export function useFootage(projectId: string | null, lineId: string | null) {
+export function useFootage(
+  projectId: string | null,
+  lineId: string | null,
+  fallbackLineKey?: string | null
+) {
+  const sampleLineKey = fallbackLineKey && fallbackLineKey in sample.sampleFootage ? fallbackLineKey : null;
+
   return useFetch(
     async (): Promise<FootageAsset[]> => {
       if (!projectId || !lineId) return [];
       return api.getFootage(projectId, lineId);
     },
-    lineId ? (sample.sampleFootage[lineId] ?? []) : [],
+    sampleLineKey ? (sample.sampleFootage[sampleLineKey] ?? []) : [],
     [projectId, lineId]
   );
 }
@@ -150,14 +167,21 @@ export function useMusic(projectId: string | null) {
 
 // ─── Transcripts ───
 
-export function useTranscript(projectId: string | null, lineId: string | null) {
+export function useTranscript(
+  projectId: string | null,
+  lineId: string | null,
+  fallbackLineKey?: string | null
+) {
+  const sampleLineKey =
+    fallbackLineKey && fallbackLineKey in sample.sampleTranscripts ? fallbackLineKey : null;
+
   return useFetch(
     async (): Promise<{ job: TranscriptJob | null; transcript: Transcript | null }> => {
       if (!projectId || !lineId) return { job: null, transcript: null };
       return api.getTranscript(projectId, lineId);
     },
-    lineId && sample.sampleTranscripts[lineId]
-      ? sample.sampleTranscripts[lineId]
+    sampleLineKey && sample.sampleTranscripts[sampleLineKey]
+      ? sample.sampleTranscripts[sampleLineKey]
       : { job: null, transcript: null },
     [projectId, lineId]
   );
@@ -165,26 +189,40 @@ export function useTranscript(projectId: string | null, lineId: string | null) {
 
 // ─── Image Jobs ───
 
-export function useImageJobs(projectId: string | null, lineId: string | null) {
+export function useImageJobs(
+  projectId: string | null,
+  lineId: string | null,
+  fallbackLineKey?: string | null
+) {
+  const sampleLineKey =
+    fallbackLineKey && fallbackLineKey in sample.sampleImageJobs ? fallbackLineKey : null;
+
   return useFetch(
     async (): Promise<ImageGenerationJob[]> => {
       if (!projectId || !lineId) return [];
       return api.getImageJobs(projectId, lineId);
     },
-    lineId ? (sample.sampleImageJobs[lineId] ?? []) : [],
+    sampleLineKey ? (sample.sampleImageJobs[sampleLineKey] ?? []) : [],
     [projectId, lineId]
   );
 }
 
 // ─── Video Jobs ───
 
-export function useVideoJobs(projectId: string | null, lineId: string | null) {
+export function useVideoJobs(
+  projectId: string | null,
+  lineId: string | null,
+  fallbackLineKey?: string | null
+) {
+  const sampleLineKey =
+    fallbackLineKey && fallbackLineKey in sample.sampleVideoJobs ? fallbackLineKey : null;
+
   return useFetch(
     async (): Promise<VideoGenerationJob[]> => {
       if (!projectId || !lineId) return [];
       return api.getVideoJobs(projectId, lineId);
     },
-    lineId ? (sample.sampleVideoJobs[lineId] ?? []) : [],
+    sampleLineKey ? (sample.sampleVideoJobs[sampleLineKey] ?? []) : [],
     [projectId, lineId]
   );
 }

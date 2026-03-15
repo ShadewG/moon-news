@@ -9,6 +9,7 @@ import {
   Zap,
   ChevronDown,
   GitBranch,
+  Loader2,
 } from "lucide-react";
 import { useProjectContext } from "@/lib/project-context";
 
@@ -23,12 +24,22 @@ const statusColors: Record<string, string> = {
 
 interface TopbarProps {
   onExportClick: () => void;
+  onResearchAllClick: () => void;
+  researchAllDisabled: boolean;
+  researchAllRunning: boolean;
 }
 
-export default function Topbar({ onExportClick }: TopbarProps) {
-  const { project } = useProjectContext();
+export default function Topbar({
+  onExportClick,
+  onResearchAllClick,
+  researchAllDisabled,
+  researchAllRunning,
+}: TopbarProps) {
+  const { project, lines } = useProjectContext();
   const title = project?.title ?? "Untitled Project";
   const status = project?.status ?? "draft";
+  const versionNumber = 1;
+  const hasLines = lines.length > 0;
 
   return (
     <header className="h-14 border-b border-[var(--border)] flex items-center justify-between px-4 glass">
@@ -56,13 +67,17 @@ export default function Topbar({ onExportClick }: TopbarProps) {
 
         <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--bg-tertiary)]">
           <GitBranch size={12} className="text-[var(--text-muted)]" />
-          <span className="text-xs text-[var(--text-muted)]">v1</span>
+          <span className="text-xs text-[var(--text-muted)]">v{versionNumber}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">
-          <Zap size={14} />
+        <button
+          onClick={onResearchAllClick}
+          disabled={researchAllDisabled || !hasLines}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[var(--text-secondary)]"
+        >
+          {researchAllRunning ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
           Research All
         </button>
         <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">

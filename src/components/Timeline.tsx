@@ -5,8 +5,6 @@ import { formatTimestamp, type ScriptLine } from "@/lib/sample-data";
 import { useProjectContext } from "@/lib/project-context";
 import { useTimeline } from "@/lib/hooks";
 
-const totalDurationMs = 117000;
-
 function getSegmentColor(line: ScriptLine): string {
   if (line.research_status === "complete" && line.footage_status === "complete")
     return "from-[var(--accent-green)]/40 to-[var(--accent-green)]/20";
@@ -20,12 +18,11 @@ function getSegmentColor(line: ScriptLine): string {
 export default function Timeline() {
   const { projectId, lines, selectedLineId, setSelectedLineId } = useProjectContext();
   const { data: timelineItems } = useTimeline(projectId);
+  const totalDurationMs = lines.reduce((sum, line) => sum + line.duration_ms, 0) || 117000;
 
   const videoItems = timelineItems.filter((t) => t.track_type === "video");
   const aiImageItems = timelineItems.filter((t) => t.track_type === "ai-image");
   const aiVideoItems = timelineItems.filter((t) => t.track_type === "ai-video");
-  const musicItems = timelineItems.filter((t) => t.track_type === "music");
-  const narrationItems = timelineItems.filter((t) => t.track_type === "narration");
 
   return (
     <div className="h-[160px] border-t border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col">
@@ -62,7 +59,9 @@ export default function Timeline() {
         <TrackRow icon={Film} label="Video" color="text-[var(--text-muted)]">
           {lines.map((line) => {
             const pct = (line.duration_ms / totalDurationMs) * 100;
-            const hasTimelineItem = videoItems.some((t) => t.script_line_id === line.id);
+            const hasTimelineItem = videoItems.some(
+              (t) => t.script_line_id === line.id || t.script_line_id === line.line_key
+            );
             return (
               <button
                 key={line.id}
@@ -91,7 +90,9 @@ export default function Timeline() {
         <TrackRow icon={Image} label="AI Img" color="text-[var(--accent-orange)]">
           {lines.map((line) => {
             const pct = (line.duration_ms / totalDurationMs) * 100;
-            const hasItem = aiImageItems.some((t) => t.script_line_id === line.id);
+            const hasItem = aiImageItems.some(
+              (t) => t.script_line_id === line.id || t.script_line_id === line.line_key
+            );
             return (
               <div
                 key={line.id}
@@ -110,7 +111,9 @@ export default function Timeline() {
         <TrackRow icon={Sparkles} label="AI Vid" color="text-[var(--accent-red)]">
           {lines.map((line) => {
             const pct = (line.duration_ms / totalDurationMs) * 100;
-            const hasItem = aiVideoItems.some((t) => t.script_line_id === line.id);
+            const hasItem = aiVideoItems.some(
+              (t) => t.script_line_id === line.id || t.script_line_id === line.line_key
+            );
             return (
               <div
                 key={line.id}

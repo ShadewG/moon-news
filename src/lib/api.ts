@@ -133,6 +133,24 @@ export async function createProject(input: {
   return apiFetch("/api/projects", { method: "POST", body: JSON.stringify(input) });
 }
 
+export async function bootstrapProject(): Promise<{
+  project: ApiProject | null;
+  lines: ScriptLine[];
+}> {
+  const raw = await apiFetch<{ project: ApiProject | null; lines: unknown[] }>(
+    "/api/projects/bootstrap",
+    {
+      method: "POST",
+      body: JSON.stringify({}),
+    }
+  );
+
+  return {
+    project: raw.project,
+    lines: (raw.lines || []).map(normalizeScriptLine),
+  };
+}
+
 // ─── Research ───
 
 export async function getResearch(projectId: string, lineId: string): Promise<ResearchData | null> {
