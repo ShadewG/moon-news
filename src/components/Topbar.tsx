@@ -7,9 +7,30 @@ import {
   Settings,
   Share2,
   Zap,
+  ChevronDown,
+  GitBranch,
 } from "lucide-react";
+import { sampleProject, sampleScriptVersion } from "@/lib/sample-data";
 
-export default function Topbar() {
+const statusColors: Record<string, string> = {
+  draft: "bg-[var(--accent-orange)]/15 text-[var(--accent-orange)]",
+  in_progress: "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)]",
+  review: "bg-[var(--accent-purple)]/15 text-[var(--accent-purple)]",
+  published: "bg-[var(--accent-green)]/15 text-[var(--accent-green)]",
+};
+
+const statusLabels: Record<string, string> = {
+  draft: "Draft",
+  in_progress: "In Progress",
+  review: "Review",
+  published: "Published",
+};
+
+interface TopbarProps {
+  onExportClick: () => void;
+}
+
+export default function Topbar({ onExportClick }: TopbarProps) {
   return (
     <header className="h-14 border-b border-[var(--border)] flex items-center justify-between px-4 glass">
       <div className="flex items-center gap-3">
@@ -18,17 +39,28 @@ export default function Topbar() {
             <Moon size={18} className="text-white" />
           </div>
           <span className="font-semibold text-lg tracking-tight">
-            Moon <span className="text-[var(--accent-blue)]">News</span> <span className="text-[var(--text-secondary)] font-normal">Studio</span>
+            Moon <span className="text-[var(--accent-blue)]">News</span>{" "}
+            <span className="text-[var(--text-secondary)] font-normal">Studio</span>
           </span>
         </div>
 
         <div className="h-6 w-px bg-[var(--border)] mx-2" />
 
-        <div className="flex items-center gap-2">
+        {/* Project selector */}
+        <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--bg-hover)] transition-colors">
           <span className="text-sm text-[var(--text-secondary)]">Project:</span>
-          <span className="text-sm font-medium">CIA Podcast Infiltration</span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent-orange)]/15 text-[var(--accent-orange)] font-medium">
-            Draft
+          <span className="text-sm font-medium">{sampleProject.title}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[sampleProject.status]}`}>
+            {statusLabels[sampleProject.status]}
+          </span>
+          <ChevronDown size={12} className="text-[var(--text-muted)]" />
+        </button>
+
+        {/* Script version */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--bg-tertiary)]">
+          <GitBranch size={12} className="text-[var(--text-muted)]" />
+          <span className="text-xs text-[var(--text-muted)]">
+            v{sampleScriptVersion.version_number}
           </span>
         </div>
       </div>
@@ -36,7 +68,7 @@ export default function Topbar() {
       <div className="flex items-center gap-2">
         <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">
           <Zap size={14} />
-          Auto-Research All
+          Research All
         </button>
         <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">
           <Play size={14} />
@@ -52,7 +84,10 @@ export default function Topbar() {
 
         <div className="h-6 w-px bg-[var(--border)] mx-1" />
 
-        <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors">
+        <button
+          onClick={onExportClick}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors"
+        >
           <Download size={14} />
           Export
         </button>

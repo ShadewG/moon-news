@@ -1,562 +1,1298 @@
+// ─── Domain status enums (matches backend schema) ───
+
+export type JobStatus = "pending" | "queued" | "running" | "complete" | "failed" | "needs_review";
+
+// Computed aggregate for UI display
+export type AggregateStatus = "researched" | "in-progress" | "pending" | "footage-found" | "ready" | "error";
+
+export function computeAggregateStatus(line: ScriptLine): AggregateStatus {
+  if (line.research_status === "failed" || line.footage_status === "failed" || line.image_status === "failed" || line.video_status === "failed") return "error";
+  if (line.research_status === "running" || line.footage_status === "running" || line.image_status === "running" || line.video_status === "running") return "in-progress";
+  if (line.research_status === "queued" || line.footage_status === "queued" || line.image_status === "queued" || line.video_status === "queued") return "in-progress";
+  if (line.footage_status === "complete") return "footage-found";
+  if (line.research_status === "complete") return "researched";
+  if (line.image_status === "complete" && line.video_status === "complete") return "ready";
+  return "pending";
+}
+
+// ─── Project ───
+
+export interface Project {
+  id: string;
+  title: string;
+  slug: string;
+  status: "draft" | "in_progress" | "review" | "published";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScriptVersion {
+  id: string;
+  project_id: string;
+  version_number: number;
+  raw_script: string;
+  created_at: string;
+}
+
+// ─── Script Lines ───
+
 export interface ScriptLine {
   id: string;
-  timestamp: string;
-  duration: string;
+  project_id: string;
+  script_version_id: string;
+  line_key: string;
+  line_index: number;
+  timestamp_start_ms: number;
+  duration_ms: number;
   text: string;
-  type: "narration" | "quote" | "transition" | "headline";
-  status: "researched" | "in-progress" | "pending" | "footage-found";
+  line_type: "narration" | "quote" | "transition" | "headline";
+  research_status: JobStatus;
+  footage_status: JobStatus;
+  image_status: JobStatus;
+  video_status: JobStatus;
 }
 
-export interface ResearchResult {
+// Helper for display
+export function formatTimestamp(ms: number): string {
+  const totalSecs = Math.floor(ms / 1000);
+  const mins = Math.floor(totalSecs / 60);
+  const secs = totalSecs % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+export function formatDuration(ms: number): string {
+  return `${Math.round(ms / 1000)}s`;
+}
+
+// ─── Research ───
+
+export interface ResearchRun {
   id: string;
-  lineId: string;
+  project_id: string;
+  script_line_id: string;
+  provider: "parallel";
+  status: JobStatus;
+  query: string;
+  parallel_job_id: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface ResearchSource {
+  id: string;
+  research_run_id: string;
+  script_line_id: string;
   title: string;
-  source: string;
-  sourceUrl: string;
+  source_name: string;
+  source_url: string;
+  published_at: string;
   snippet: string;
-  relevanceScore: number;
-  type: "article" | "document" | "book" | "video" | "academic";
-  date: string;
+  extracted_text_path: string | null; // Firecrawl extracted text stored on volume
+  relevance_score: number;
+  source_type: "article" | "document" | "book" | "video" | "academic";
+  citation_json: Record<string, string> | null;
 }
 
-export interface FootageResult {
+export interface ResearchSummary {
   id: string;
-  lineId: string;
+  research_run_id: string;
+  script_line_id: string;
+  summary: string;
+  confidence_score: number;
+  model: string; // e.g. "gpt-4o"
+}
+
+export interface ResearchData {
+  run: ResearchRun;
+  sources: ResearchSource[];
+  summary: ResearchSummary | null;
+}
+
+// ─── Footage ───
+
+export interface FootageSearchRun {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  provider: "storyblocks" | "artlist";
+  status: JobStatus;
+  query: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface FootageAsset {
+  id: string;
+  footage_search_run_id: string;
+  script_line_id: string;
+  provider: "storyblocks" | "artlist";
+  external_asset_id: string;
   title: string;
-  source: string;
-  thumbnailUrl: string;
-  duration: string;
-  resolution: string;
-  type: "stock" | "news" | "documentary" | "archive" | "b-roll";
-  matchScore: number;
-  previewUrl: string;
-  license: string;
-  price: string;
+  preview_url: string;
+  license_type: string;
+  price_label: string;
+  duration_ms: number;
+  width: number;
+  height: number;
+  match_score: number;
+  metadata_json: Record<string, unknown> | null;
 }
 
-export interface AIVideoOption {
+// ─── Music ───
+
+export interface MusicAsset {
   id: string;
-  lineId: string;
-  style: string;
-  description: string;
-  estimatedTime: string;
-  status: "ready" | "generating" | "complete" | "queued";
-  progress: number;
-  thumbnailUrl: string;
-  model: string;
+  project_id: string;
+  script_line_id: string | null; // null = project-level soundtrack
+  provider: "artlist";
+  external_asset_id: string;
+  title: string;
+  artist: string;
+  preview_url: string;
+  license_type: string;
+  duration_ms: number;
+  bpm: number | null;
+  mood: string;
+  genre: string;
+  match_score: number;
 }
+
+// ─── Transcripts ───
+
+export interface TranscriptJob {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  provider: "elevenlabs";
+  status: JobStatus;
+  input_media_path: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface Transcript {
+  id: string;
+  transcript_job_id: string;
+  script_line_id: string;
+  full_text: string;
+  language_code: string;
+  speaker_count: number;
+  words_json: { word: string; start_ms: number; end_ms: number; speaker?: string }[];
+  segments_json: { text: string; start_ms: number; end_ms: number; speaker?: string }[];
+}
+
+// ─── Generation ───
+
+export interface ImageGenerationJob {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  provider: "openai" | "gemini";
+  status: JobStatus;
+  prompt: string;
+  style_label: string;
+  model: string;
+  progress: number;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface VideoGenerationJob {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  provider: "openai";
+  status: JobStatus;
+  prompt: string;
+  style_label: string;
+  model: string;
+  source_image_asset_id: string | null;
+  progress: number;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface GeneratedAsset {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  job_type: "image" | "video";
+  job_id: string;
+  provider: "openai" | "gemini";
+  asset_kind: "still" | "animation" | "clip";
+  file_path: string;
+  mime_type: string;
+  duration_ms: number | null;
+  width: number;
+  height: number;
+  metadata_json: Record<string, unknown> | null;
+}
+
+// ─── Timeline ───
+
+export interface TimelineItem {
+  id: string;
+  project_id: string;
+  script_line_id: string;
+  track_type: "video" | "ai-image" | "ai-video" | "music" | "narration";
+  asset_type: "footage" | "generated" | "music" | "audio";
+  asset_id: string;
+  start_ms: number;
+  end_ms: number;
+  layer_index: number;
+  selected: boolean;
+}
+
+// ─── Export ───
+
+export interface ExportJob {
+  id: string;
+  project_id: string;
+  status: JobStatus;
+  output_path: string | null;
+  format: "mp4" | "mov" | "webm";
+  resolution: "1080p" | "4K" | "720p";
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+// ─── Project Stats ───
+
+export interface ProjectStats {
+  totalLines: number;
+  researchComplete: number;
+  researchRunning: number;
+  footageComplete: number;
+  imagesGenerated: number;
+  videosGenerated: number;
+  transcriptsComplete: number;
+  musicSelected: number;
+  totalDurationMs: number;
+  estimatedCost: string;
+}
+
+// ═══════════════════════════════════════════
+// SAMPLE DATA
+// ═══════════════════════════════════════════
+
+export const sampleProject: Project = {
+  id: "proj_01",
+  title: "CIA Podcast Infiltration",
+  slug: "cia-podcast-infiltration",
+  status: "in_progress",
+  created_at: "2026-03-10T14:00:00Z",
+  updated_at: "2026-03-15T09:30:00Z",
+};
+
+export const sampleScriptVersion: ScriptVersion = {
+  id: "sv_01",
+  project_id: "proj_01",
+  version_number: 2,
+  raw_script: "", // omitted for brevity
+  created_at: "2026-03-12T10:00:00Z",
+};
 
 export const sampleScript: ScriptLine[] = [
   {
     id: "line-1",
-    timestamp: "00:00",
-    duration: "8s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-1",
+    line_index: 0,
+    timestamp_start_ms: 0,
+    duration_ms: 8000,
     text: "The CIA has been on every podcast you listen to. And no, that's not a conspiracy theory — it's a documented media strategy decades in the making.",
-    type: "headline",
-    status: "researched",
+    line_type: "headline",
+    research_status: "complete",
+    footage_status: "complete",
+    image_status: "complete",
+    video_status: "running",
   },
   {
     id: "line-2",
-    timestamp: "00:08",
-    duration: "12s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-2",
+    line_index: 1,
+    timestamp_start_ms: 8000,
+    duration_ms: 12000,
     text: "In the 1950s, the agency launched Operation Mockingbird — a covert campaign to influence domestic and foreign media by recruiting journalists, editors, and media executives.",
-    type: "narration",
-    status: "researched",
+    line_type: "narration",
+    research_status: "complete",
+    footage_status: "complete",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-3",
-    timestamp: "00:20",
-    duration: "10s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-3",
+    line_index: 2,
+    timestamp_start_ms: 20000,
+    duration_ms: 10000,
     text: "Fast forward to 2002: the Pentagon deployed 'message force multipliers' — retired military analysts planted across TV networks to shape public opinion on the Iraq War.",
-    type: "narration",
-    status: "footage-found",
+    line_type: "narration",
+    research_status: "complete",
+    footage_status: "complete",
+    image_status: "complete",
+    video_status: "queued",
   },
   {
     id: "line-4",
-    timestamp: "00:30",
-    duration: "9s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-4",
+    line_index: 3,
+    timestamp_start_ms: 30000,
+    duration_ms: 9000,
     text: "Today, podcasting has become the CIA's latest frontier. Former operatives are everywhere — Joe Rogan, Lex Fridman, Shawn Ryan Show, and dozens more.",
-    type: "narration",
-    status: "in-progress",
+    line_type: "narration",
+    research_status: "running",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-5",
-    timestamp: "00:39",
-    duration: "11s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-5",
+    line_index: 4,
+    timestamp_start_ms: 39000,
+    duration_ms: 11000,
     text: "\"Every podcast quote from a former CIA officer was read and approved by the CIA before you ever heard it.\" — CIA Prepublication Review Board requirement",
-    type: "quote",
-    status: "researched",
+    line_type: "quote",
+    research_status: "complete",
+    footage_status: "running",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-6",
-    timestamp: "00:50",
-    duration: "10s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-6",
+    line_index: 5,
+    timestamp_start_ms: 50000,
+    duration_ms: 10000,
     text: "John Kiriakou was imprisoned for exposing the CIA's torture programs. Now he appears across major podcasts with what critics call 'remarkable consistency' in his messaging.",
-    type: "narration",
-    status: "footage-found",
+    line_type: "narration",
+    research_status: "complete",
+    footage_status: "complete",
+    image_status: "running",
+    video_status: "pending",
   },
   {
     id: "line-7",
-    timestamp: "01:00",
-    duration: "9s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-7",
+    line_index: 6,
+    timestamp_start_ms: 60000,
+    duration_ms: 9000,
     text: "Andrew Bustamante, former covert officer, repackages CIA recruitment tactics as self-help content through his 'EverydaySpy' platform — monetizing espionage for the masses.",
-    type: "narration",
-    status: "pending",
+    line_type: "narration",
+    research_status: "queued",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-8",
-    timestamp: "01:09",
-    duration: "11s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-8",
+    line_index: 7,
+    timestamp_start_ms: 69000,
+    duration_ms: 11000,
     text: "Mike Baker has appeared on Joe Rogan over 21 times. He openly admits to CIA interference in foreign elections while casually framing it as 'obvious' and unremarkable.",
-    type: "narration",
-    status: "in-progress",
+    line_type: "narration",
+    research_status: "running",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-9",
-    timestamp: "01:20",
-    duration: "8s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-9",
+    line_index: 8,
+    timestamp_start_ms: 80000,
+    duration_ms: 8000,
     text: "Intelligence analysts call this a 'limited hangout' — admit something controversial, but present it so casually that it loses its power to shock.",
-    type: "narration",
-    status: "pending",
+    line_type: "narration",
+    research_status: "pending",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-10",
-    timestamp: "01:28",
-    duration: "10s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-10",
+    line_index: 9,
+    timestamp_start_ms: 88000,
+    duration_ms: 10000,
     text: "The best way to hide a secret is to surround it with so much noise that no one can pick it out. That's not paranoia — that's information warfare.",
-    type: "headline",
-    status: "pending",
+    line_type: "headline",
+    research_status: "pending",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-11",
-    timestamp: "01:38",
-    duration: "7s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-11",
+    line_index: 10,
+    timestamp_start_ms: 98000,
+    duration_ms: 7000,
     text: "[TRANSITION: Cut to montage of podcast clips featuring former intelligence officers]",
-    type: "transition",
-    status: "pending",
+    line_type: "transition",
+    research_status: "pending",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
   {
     id: "line-12",
-    timestamp: "01:45",
-    duration: "12s",
+    project_id: "proj_01",
+    script_version_id: "sv_01",
+    line_key: "line-12",
+    line_index: 11,
+    timestamp_start_ms: 105000,
+    duration_ms: 12000,
     text: "So the next time a former CIA officer shows up on your favorite podcast sounding reasonable, relatable, and refreshingly honest — ask yourself: who approved this message?",
-    type: "headline",
-    status: "pending",
+    line_type: "headline",
+    research_status: "pending",
+    footage_status: "pending",
+    image_status: "pending",
+    video_status: "pending",
   },
 ];
 
-export const sampleResearch: Record<string, ResearchResult[]> = {
-  "line-1": [
-    {
-      id: "r1-1",
-      lineId: "line-1",
-      title: "CIA's Evolving Media Strategy: From Print to Podcasts",
-      source: "The Intercept",
-      sourceUrl: "https://theintercept.com/cia-media-strategy",
-      snippet: "Declassified documents reveal the CIA has systematically adapted its media influence operations for each new communication platform, from newspapers to radio, television, and now digital media including podcasts...",
-      relevanceScore: 97,
-      type: "article",
-      date: "2024-03-15",
-    },
-    {
-      id: "r1-2",
-      lineId: "line-1",
-      title: "Manufacturing Consent in the Digital Age",
-      source: "Columbia Journalism Review",
-      sourceUrl: "https://cjr.org/digital-age-consent",
-      snippet: "Media scholars have noted an unprecedented surge in former intelligence community members appearing across independent media platforms, raising questions about the boundary between transparency and strategic communication...",
-      relevanceScore: 89,
-      type: "academic",
-      date: "2024-01-22",
-    },
-    {
-      id: "r1-3",
-      lineId: "line-1",
-      title: "The Intelligence Community's Public Relations Playbook",
-      source: "Foreign Policy",
-      sourceUrl: "https://foreignpolicy.com/ic-pr-playbook",
-      snippet: "Former directors have acknowledged that the intelligence community actively manages its public image through strategic media engagement, including podcast appearances...",
-      relevanceScore: 85,
-      type: "article",
-      date: "2023-11-08",
-    },
-  ],
-  "line-2": [
-    {
-      id: "r2-1",
-      lineId: "line-2",
-      title: "Operation Mockingbird: CIA Media Manipulation (Declassified)",
-      source: "National Security Archive",
-      sourceUrl: "https://nsarchive.gwu.edu/mockingbird",
-      snippet: "Church Committee hearings in 1975 revealed the CIA maintained relationships with over 50 U.S. journalists and media figures, including editors at major publications...",
-      relevanceScore: 98,
-      type: "document",
-      date: "1975-04-26",
-    },
-    {
-      id: "r2-2",
-      lineId: "line-2",
-      title: "The CIA and the Media: Carl Bernstein's Investigation",
-      source: "Rolling Stone",
-      sourceUrl: "https://rollingstone.com/bernstein-cia-media",
-      snippet: "Bernstein's landmark 1977 investigation revealed that more than 400 American journalists had carried out assignments for the Central Intelligence Agency over the previous 25 years...",
-      relevanceScore: 95,
-      type: "article",
-      date: "1977-10-20",
-    },
-    {
-      id: "r2-3",
-      lineId: "line-2",
-      title: "Legacy of Ashes: The History of the CIA",
-      source: "Tim Weiner — Doubleday",
-      sourceUrl: "https://books.example.com/legacy-of-ashes",
-      snippet: "Weiner's Pulitzer Prize-winning history documents how the CIA recruited assets within every major American news organization during the Cold War era...",
-      relevanceScore: 91,
-      type: "book",
-      date: "2007-06-22",
-    },
-  ],
-  "line-3": [
-    {
-      id: "r3-1",
-      lineId: "line-3",
-      title: "Pentagon's 'Message Force Multiplier' Program Exposed",
-      source: "New York Times",
-      sourceUrl: "https://nytimes.com/pentagon-analysts",
-      snippet: "A 2008 NYT investigation by David Barstow revealed the Pentagon recruited over 75 retired military analysts to serve as TV commentators, secretly coordinating their talking points...",
-      relevanceScore: 99,
-      type: "article",
-      date: "2008-04-20",
-    },
-    {
-      id: "r3-2",
-      lineId: "line-3",
-      title: "DoD Inspector General Report on Media Analyst Program",
-      source: "Department of Defense",
-      sourceUrl: "https://dodig.mil/reports/media-analysts",
-      snippet: "The IG report found that the Pentagon provided retired military analysts with classified intelligence briefings and coordinated talking points before their television appearances...",
-      relevanceScore: 94,
-      type: "document",
-      date: "2009-01-14",
-    },
-  ],
-  "line-5": [
-    {
-      id: "r5-1",
-      lineId: "line-5",
-      title: "CIA Prepublication Review Board: Rules and Controversies",
-      source: "Lawfare Blog",
-      sourceUrl: "https://lawfaremedia.org/cia-prepub-review",
-      snippet: "All current and former CIA employees must submit any public statements — including podcast appearances — to the CIA's Publications Review Board before dissemination. Failure to comply can result in legal action...",
-      relevanceScore: 96,
-      type: "article",
-      date: "2023-09-14",
-    },
-    {
-      id: "r5-2",
-      lineId: "line-5",
-      title: "Snepp v. United States (1980) — Prepublication Review Precedent",
-      source: "Supreme Court Records",
-      sourceUrl: "https://supremecourt.gov/snepp-v-us",
-      snippet: "The Supreme Court upheld the CIA's prepublication review requirement, establishing that former employees have a contractual obligation to submit all writings for review...",
-      relevanceScore: 92,
-      type: "document",
-      date: "1980-02-19",
-    },
-  ],
-  "line-6": [
-    {
-      id: "r6-1",
-      lineId: "line-6",
-      title: "John Kiriakou: The CIA Whistleblower Who Went to Prison",
-      source: "The Guardian",
-      sourceUrl: "https://theguardian.com/kiriakou-whistleblower",
-      snippet: "Kiriakou became the first CIA officer to publicly confirm the agency's use of waterboarding. He was subsequently charged under the Espionage Act and served 30 months in federal prison...",
-      relevanceScore: 97,
-      type: "article",
-      date: "2015-02-09",
-    },
-    {
-      id: "r6-2",
-      lineId: "line-6",
-      title: "Doing Time Like a Spy: How the CIA Taught Me to Survive Prison",
-      source: "John Kiriakou — Rare Bird Books",
-      sourceUrl: "https://books.example.com/doing-time-spy",
-      snippet: "Kiriakou's memoir details his transition from CIA counterterrorism officer to federal prisoner, and his subsequent media career as a commentator on intelligence community affairs...",
-      relevanceScore: 88,
-      type: "book",
-      date: "2017-04-11",
-    },
-  ],
-};
+// ─── Research sample data (normalized) ───
 
-export const sampleFootage: Record<string, FootageResult[]> = {
-  "line-1": [
-    {
-      id: "f1-1",
-      lineId: "line-1",
-      title: "Podcast Studio Setup — Professional Recording",
-      source: "Shutterstock",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "0:15",
-      resolution: "4K",
-      type: "stock",
-      matchScore: 94,
-      previewUrl: "#",
-      license: "Standard",
-      price: "$79",
-    },
-    {
-      id: "f1-2",
-      lineId: "line-1",
-      title: "CIA Headquarters — Aerial Drone Shot",
-      source: "Getty Images",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "0:12",
-      resolution: "4K",
-      type: "stock",
-      matchScore: 91,
-      previewUrl: "#",
-      license: "Editorial",
-      price: "$199",
-    },
-    {
-      id: "f1-3",
-      lineId: "line-1",
-      title: "Langley Virginia Campus — News Archive",
-      source: "AP Archive",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "0:22",
-      resolution: "1080p",
-      type: "archive",
-      matchScore: 87,
-      previewUrl: "#",
-      license: "Editorial",
-      price: "$149",
-    },
-  ],
-  "line-2": [
-    {
-      id: "f2-1",
-      lineId: "line-2",
-      title: "1950s Newsroom — Black & White Archive",
-      source: "Prelinger Archives",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "0:30",
-      resolution: "1080p (upscaled)",
-      type: "archive",
-      matchScore: 96,
-      previewUrl: "#",
-      license: "Public Domain",
-      price: "Free",
-    },
-    {
-      id: "f2-2",
-      lineId: "line-2",
-      title: "Vintage Newspaper Printing Press",
-      source: "Pond5",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "0:18",
-      resolution: "4K",
-      type: "stock",
-      matchScore: 89,
-      previewUrl: "#",
-      license: "Standard",
-      price: "$49",
-    },
-    {
-      id: "f2-3",
-      lineId: "line-2",
-      title: "Cold War Era CIA Recruitment Film",
-      source: "National Archives",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "1:45",
-      resolution: "720p (restored)",
-      type: "documentary",
-      matchScore: 93,
-      previewUrl: "#",
-      license: "Public Domain",
-      price: "Free",
-    },
-  ],
-  "line-3": [
-    {
-      id: "f3-1",
-      lineId: "line-3",
-      title: "Pentagon Building — Establishing Shot",
-      source: "Shutterstock",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "0:10",
-      resolution: "4K",
-      type: "stock",
-      matchScore: 95,
-      previewUrl: "#",
-      license: "Standard",
-      price: "$79",
-    },
-    {
-      id: "f3-2",
-      lineId: "line-3",
-      title: "Iraq War 2003 — TV News Compilation",
-      source: "CNN Archive",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "2:30",
-      resolution: "1080p",
-      type: "news",
-      matchScore: 97,
-      previewUrl: "#",
-      license: "Editorial",
-      price: "$299",
-    },
-    {
-      id: "f3-3",
-      lineId: "line-3",
-      title: "Military Analyst on Cable News — 2003",
-      source: "C-SPAN Archive",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "3:15",
-      resolution: "720p",
-      type: "news",
-      matchScore: 92,
-      previewUrl: "#",
-      license: "Public Domain",
-      price: "Free",
-    },
-  ],
-  "line-6": [
-    {
-      id: "f6-1",
-      lineId: "line-6",
-      title: "John Kiriakou — Senate Hearing Testimony",
-      source: "C-SPAN",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "5:20",
-      resolution: "1080p",
-      type: "news",
-      matchScore: 99,
-      previewUrl: "#",
-      license: "Public Domain",
-      price: "Free",
-    },
-    {
-      id: "f6-2",
-      lineId: "line-6",
-      title: "Whistleblower Documentary — 'Silenced' Clip",
-      source: "Documentary Archive",
-      thumbnailUrl: "/api/placeholder/320/180",
-      duration: "1:45",
-      resolution: "1080p",
-      type: "documentary",
-      matchScore: 94,
-      previewUrl: "#",
-      license: "Fair Use",
-      price: "$0 (clip)",
-    },
-  ],
-};
-
-export const sampleAIOptions: Record<string, AIVideoOption[]> = {
-  "line-1": [
-    {
-      id: "ai-1-1",
-      lineId: "line-1",
-      style: "Cinematic Documentary",
-      description: "Dark, moody establishing shot of a podcast studio that slowly reveals CIA imagery blending into the microphone reflections",
-      estimatedTime: "~45s",
+export const sampleResearch: Record<string, ResearchData> = {
+  "line-1": {
+    run: {
+      id: "rr_01",
+      project_id: "proj_01",
+      script_line_id: "line-1",
+      provider: "parallel",
       status: "complete",
-      progress: 100,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Sora v2",
+      query: "CIA media strategy podcasts influence operations documented history",
+      parallel_job_id: "par_abc123",
+      started_at: "2026-03-15T09:00:00Z",
+      completed_at: "2026-03-15T09:00:47Z",
+      error_message: null,
+    },
+    sources: [
+      {
+        id: "rs_01",
+        research_run_id: "rr_01",
+        script_line_id: "line-1",
+        title: "CIA's Evolving Media Strategy: From Print to Podcasts",
+        source_name: "The Intercept",
+        source_url: "https://theintercept.com/cia-media-strategy",
+        published_at: "2024-03-15",
+        snippet: "Declassified documents reveal the CIA has systematically adapted its media influence operations for each new communication platform, from newspapers to radio, television, and now digital media including podcasts...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_01.txt",
+        relevance_score: 97,
+        source_type: "article",
+        citation_json: { apa: "The Intercept. (2024). CIA's Evolving Media Strategy." },
+      },
+      {
+        id: "rs_02",
+        research_run_id: "rr_01",
+        script_line_id: "line-1",
+        title: "Manufacturing Consent in the Digital Age",
+        source_name: "Columbia Journalism Review",
+        source_url: "https://cjr.org/digital-age-consent",
+        published_at: "2024-01-22",
+        snippet: "Media scholars have noted an unprecedented surge in former intelligence community members appearing across independent media platforms, raising questions about the boundary between transparency and strategic communication...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_02.txt",
+        relevance_score: 89,
+        source_type: "academic",
+        citation_json: null,
+      },
+      {
+        id: "rs_03",
+        research_run_id: "rr_01",
+        script_line_id: "line-1",
+        title: "The Intelligence Community's Public Relations Playbook",
+        source_name: "Foreign Policy",
+        source_url: "https://foreignpolicy.com/ic-pr-playbook",
+        published_at: "2023-11-08",
+        snippet: "Former directors have acknowledged that the intelligence community actively manages its public image through strategic media engagement, including podcast appearances...",
+        extracted_text_path: null,
+        relevance_score: 85,
+        source_type: "article",
+        citation_json: null,
+      },
+    ],
+    summary: {
+      id: "rsum_01",
+      research_run_id: "rr_01",
+      script_line_id: "line-1",
+      summary: "Multiple credible sources confirm the CIA has a documented, evolving media influence strategy spanning decades. The agency has systematically adapted its approach from print media (Operation Mockingbird) through television to modern digital platforms including podcasts. Former intelligence officials' podcast appearances are subject to mandatory prepublication review, indicating institutional coordination rather than spontaneous transparency.",
+      confidence_score: 94,
+      model: "gpt-4o",
+    },
+  },
+  "line-2": {
+    run: {
+      id: "rr_02",
+      project_id: "proj_01",
+      script_line_id: "line-2",
+      provider: "parallel",
+      status: "complete",
+      query: "Operation Mockingbird CIA 1950s covert media influence journalists recruitment",
+      parallel_job_id: "par_def456",
+      started_at: "2026-03-15T09:01:00Z",
+      completed_at: "2026-03-15T09:01:38Z",
+      error_message: null,
+    },
+    sources: [
+      {
+        id: "rs_04",
+        research_run_id: "rr_02",
+        script_line_id: "line-2",
+        title: "Operation Mockingbird: CIA Media Manipulation (Declassified)",
+        source_name: "National Security Archive",
+        source_url: "https://nsarchive.gwu.edu/mockingbird",
+        published_at: "1975-04-26",
+        snippet: "Church Committee hearings in 1975 revealed the CIA maintained relationships with over 50 U.S. journalists and media figures, including editors at major publications...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_04.txt",
+        relevance_score: 98,
+        source_type: "document",
+        citation_json: { apa: "Church Committee. (1975). Final Report, Book I." },
+      },
+      {
+        id: "rs_05",
+        research_run_id: "rr_02",
+        script_line_id: "line-2",
+        title: "The CIA and the Media: Carl Bernstein's Investigation",
+        source_name: "Rolling Stone",
+        source_url: "https://rollingstone.com/bernstein-cia-media",
+        published_at: "1977-10-20",
+        snippet: "Bernstein's landmark 1977 investigation revealed that more than 400 American journalists had carried out assignments for the Central Intelligence Agency over the previous 25 years...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_05.txt",
+        relevance_score: 95,
+        source_type: "article",
+        citation_json: null,
+      },
+      {
+        id: "rs_06",
+        research_run_id: "rr_02",
+        script_line_id: "line-2",
+        title: "Legacy of Ashes: The History of the CIA",
+        source_name: "Tim Weiner — Doubleday",
+        source_url: "https://books.example.com/legacy-of-ashes",
+        published_at: "2007-06-22",
+        snippet: "Weiner's Pulitzer Prize-winning history documents how the CIA recruited assets within every major American news organization during the Cold War era...",
+        extracted_text_path: null,
+        relevance_score: 91,
+        source_type: "book",
+        citation_json: null,
+      },
+    ],
+    summary: {
+      id: "rsum_02",
+      research_run_id: "rr_02",
+      script_line_id: "line-2",
+      summary: "Operation Mockingbird is extensively documented through both declassified government records (Church Committee) and investigative journalism (Bernstein, Weiner). The program involved recruiting 400+ journalists and maintaining relationships with editors at every major U.S. publication. The scale of media infiltration during the Cold War era is well-established in the historical record.",
+      confidence_score: 97,
+      model: "gpt-4o",
+    },
+  },
+  "line-3": {
+    run: {
+      id: "rr_03",
+      project_id: "proj_01",
+      script_line_id: "line-3",
+      provider: "parallel",
+      status: "complete",
+      query: "Pentagon message force multipliers 2002 military analysts TV networks Iraq War",
+      parallel_job_id: "par_ghi789",
+      started_at: "2026-03-15T09:02:00Z",
+      completed_at: "2026-03-15T09:02:42Z",
+      error_message: null,
+    },
+    sources: [
+      {
+        id: "rs_07",
+        research_run_id: "rr_03",
+        script_line_id: "line-3",
+        title: "Pentagon's 'Message Force Multiplier' Program Exposed",
+        source_name: "New York Times",
+        source_url: "https://nytimes.com/pentagon-analysts",
+        published_at: "2008-04-20",
+        snippet: "A 2008 NYT investigation by David Barstow revealed the Pentagon recruited over 75 retired military analysts to serve as TV commentators, secretly coordinating their talking points...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_07.txt",
+        relevance_score: 99,
+        source_type: "article",
+        citation_json: { apa: "Barstow, D. (2008). Behind TV Analysts, Pentagon's Hidden Hand. NYT." },
+      },
+      {
+        id: "rs_08",
+        research_run_id: "rr_03",
+        script_line_id: "line-3",
+        title: "DoD Inspector General Report on Media Analyst Program",
+        source_name: "Department of Defense",
+        source_url: "https://dodig.mil/reports/media-analysts",
+        published_at: "2009-01-14",
+        snippet: "The IG report found that the Pentagon provided retired military analysts with classified intelligence briefings and coordinated talking points before their television appearances...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_08.txt",
+        relevance_score: 94,
+        source_type: "document",
+        citation_json: null,
+      },
+    ],
+    summary: {
+      id: "rsum_03",
+      research_run_id: "rr_03",
+      script_line_id: "line-3",
+      summary: "The Pentagon's 'message force multiplier' program is documented by a Pulitzer Prize-winning NYT investigation and a DoD Inspector General report. Over 75 retired military analysts were recruited as TV commentators with coordinated talking points, operating from 2002-2008 primarily around the Iraq War narrative.",
+      confidence_score: 98,
+      model: "gpt-4o",
+    },
+  },
+  "line-5": {
+    run: {
+      id: "rr_05",
+      project_id: "proj_01",
+      script_line_id: "line-5",
+      provider: "parallel",
+      status: "complete",
+      query: "CIA prepublication review board podcast appearances former officers approval requirement",
+      parallel_job_id: "par_mno345",
+      started_at: "2026-03-15T09:04:00Z",
+      completed_at: "2026-03-15T09:04:35Z",
+      error_message: null,
+    },
+    sources: [
+      {
+        id: "rs_09",
+        research_run_id: "rr_05",
+        script_line_id: "line-5",
+        title: "CIA Prepublication Review Board: Rules and Controversies",
+        source_name: "Lawfare Blog",
+        source_url: "https://lawfaremedia.org/cia-prepub-review",
+        published_at: "2023-09-14",
+        snippet: "All current and former CIA employees must submit any public statements — including podcast appearances — to the CIA's Publications Review Board before dissemination...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_09.txt",
+        relevance_score: 96,
+        source_type: "article",
+        citation_json: null,
+      },
+      {
+        id: "rs_10",
+        research_run_id: "rr_05",
+        script_line_id: "line-5",
+        title: "Snepp v. United States (1980) — Prepublication Review Precedent",
+        source_name: "Supreme Court Records",
+        source_url: "https://supremecourt.gov/snepp-v-us",
+        published_at: "1980-02-19",
+        snippet: "The Supreme Court upheld the CIA's prepublication review requirement, establishing that former employees have a contractual obligation to submit all writings for review...",
+        extracted_text_path: null,
+        relevance_score: 92,
+        source_type: "document",
+        citation_json: null,
+      },
+    ],
+    summary: {
+      id: "rsum_05",
+      research_run_id: "rr_05",
+      script_line_id: "line-5",
+      summary: "The CIA Prepublication Review Board requirement is legally established (Snepp v. United States, 1980) and applies to all former officers' public communications including podcast appearances. This is a factual, verifiable claim supported by Supreme Court precedent and current CIA policy.",
+      confidence_score: 96,
+      model: "gpt-4o",
+    },
+  },
+  "line-6": {
+    run: {
+      id: "rr_06",
+      project_id: "proj_01",
+      script_line_id: "line-6",
+      provider: "parallel",
+      status: "complete",
+      query: "John Kiriakou CIA whistleblower prison torture waterboarding podcast appearances",
+      parallel_job_id: "par_pqr678",
+      started_at: "2026-03-15T09:05:00Z",
+      completed_at: "2026-03-15T09:05:41Z",
+      error_message: null,
+    },
+    sources: [
+      {
+        id: "rs_11",
+        research_run_id: "rr_06",
+        script_line_id: "line-6",
+        title: "John Kiriakou: The CIA Whistleblower Who Went to Prison",
+        source_name: "The Guardian",
+        source_url: "https://theguardian.com/kiriakou-whistleblower",
+        published_at: "2015-02-09",
+        snippet: "Kiriakou became the first CIA officer to publicly confirm the agency's use of waterboarding. He was subsequently charged under the Espionage Act and served 30 months in federal prison...",
+        extracted_text_path: "/data/media/projects/proj_01/research-cache/rs_11.txt",
+        relevance_score: 97,
+        source_type: "article",
+        citation_json: null,
+      },
+      {
+        id: "rs_12",
+        research_run_id: "rr_06",
+        script_line_id: "line-6",
+        title: "Doing Time Like a Spy: How the CIA Taught Me to Survive Prison",
+        source_name: "John Kiriakou — Rare Bird Books",
+        source_url: "https://books.example.com/doing-time-spy",
+        published_at: "2017-04-11",
+        snippet: "Kiriakou's memoir details his transition from CIA counterterrorism officer to federal prisoner, and his subsequent media career as a commentator on intelligence community affairs...",
+        extracted_text_path: null,
+        relevance_score: 88,
+        source_type: "book",
+        citation_json: null,
+      },
+    ],
+    summary: {
+      id: "rsum_06",
+      research_run_id: "rr_06",
+      script_line_id: "line-6",
+      summary: "John Kiriakou's imprisonment for exposing CIA torture is well-documented. His subsequent prolific podcast presence and consistent messaging patterns are observable but the 'remarkable consistency' framing is editorial interpretation. The core facts (whistleblower, imprisonment, media presence) are strongly supported.",
+      confidence_score: 91,
+      model: "gpt-4o",
+    },
+  },
+};
+
+// ─── Footage sample data (with providers) ───
+
+export const sampleFootage: Record<string, FootageAsset[]> = {
+  "line-1": [
+    {
+      id: "fa_01",
+      footage_search_run_id: "fsr_01",
+      script_line_id: "line-1",
+      provider: "storyblocks",
+      external_asset_id: "sb_892341",
+      title: "Podcast Studio Setup — Professional Recording",
+      preview_url: "#",
+      license_type: "Standard",
+      price_label: "Included",
+      duration_ms: 15000,
+      width: 3840,
+      height: 2160,
+      match_score: 94,
+      metadata_json: { fps: 24, codec: "h264" },
     },
     {
-      id: "ai-1-2",
-      lineId: "line-1",
-      style: "Motion Graphics",
-      description: "Animated infographic showing podcast icons connected by network lines to a central CIA seal, data-visualization style",
-      estimatedTime: "~30s",
-      status: "ready",
-      progress: 0,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Runway Gen-3",
+      id: "fa_02",
+      footage_search_run_id: "fsr_01",
+      script_line_id: "line-1",
+      provider: "storyblocks",
+      external_asset_id: "sb_741259",
+      title: "CIA Headquarters — Aerial Drone Shot",
+      preview_url: "#",
+      license_type: "Editorial",
+      price_label: "Included",
+      duration_ms: 12000,
+      width: 3840,
+      height: 2160,
+      match_score: 91,
+      metadata_json: null,
     },
     {
-      id: "ai-1-3",
-      lineId: "line-1",
-      style: "Realistic B-Roll",
-      description: "Photorealistic CIA headquarters exterior transitioning into a modern podcast studio interior",
-      estimatedTime: "~60s",
-      status: "generating",
-      progress: 67,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Kling v2",
+      id: "fa_03",
+      footage_search_run_id: "fsr_02",
+      script_line_id: "line-1",
+      provider: "artlist",
+      external_asset_id: "al_f_33021",
+      title: "Langley Virginia Campus — News Archive",
+      preview_url: "#",
+      license_type: "Editorial",
+      price_label: "Included",
+      duration_ms: 22000,
+      width: 1920,
+      height: 1080,
+      match_score: 87,
+      metadata_json: null,
     },
   ],
   "line-2": [
     {
-      id: "ai-2-1",
-      lineId: "line-2",
-      style: "Historical Recreation",
-      description: "1950s-style black and white footage of journalists in a newsroom, with subtle CIA documents visible on desks",
-      estimatedTime: "~50s",
-      status: "ready",
-      progress: 0,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Sora v2",
+      id: "fa_04",
+      footage_search_run_id: "fsr_03",
+      script_line_id: "line-2",
+      provider: "artlist",
+      external_asset_id: "al_f_18292",
+      title: "1950s Newsroom — Black & White Archive",
+      preview_url: "#",
+      license_type: "Public Domain",
+      price_label: "Free",
+      duration_ms: 30000,
+      width: 1920,
+      height: 1080,
+      match_score: 96,
+      metadata_json: { era: "1950s", restored: true },
     },
     {
-      id: "ai-2-2",
-      lineId: "line-2",
-      style: "Animated Explainer",
-      description: "Paper-craft style animation showing newspaper headlines being 'controlled' by invisible puppet strings",
-      estimatedTime: "~35s",
-      status: "queued",
-      progress: 0,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Runway Gen-3",
+      id: "fa_05",
+      footage_search_run_id: "fsr_03",
+      script_line_id: "line-2",
+      provider: "storyblocks",
+      external_asset_id: "sb_554821",
+      title: "Vintage Newspaper Printing Press",
+      preview_url: "#",
+      license_type: "Standard",
+      price_label: "Included",
+      duration_ms: 18000,
+      width: 3840,
+      height: 2160,
+      match_score: 89,
+      metadata_json: null,
+    },
+    {
+      id: "fa_06",
+      footage_search_run_id: "fsr_04",
+      script_line_id: "line-2",
+      provider: "artlist",
+      external_asset_id: "al_f_44120",
+      title: "Cold War Era CIA Recruitment Film",
+      preview_url: "#",
+      license_type: "Public Domain",
+      price_label: "Free",
+      duration_ms: 105000,
+      width: 1280,
+      height: 720,
+      match_score: 93,
+      metadata_json: { era: "1950s", source: "National Archives" },
     },
   ],
   "line-3": [
     {
-      id: "ai-3-1",
-      lineId: "line-3",
-      style: "News Recreation",
-      description: "Stylized recreation of a Pentagon briefing room with retired generals reviewing talking points before going on camera",
-      estimatedTime: "~55s",
-      status: "generating",
-      progress: 34,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Sora v2",
+      id: "fa_07",
+      footage_search_run_id: "fsr_05",
+      script_line_id: "line-3",
+      provider: "storyblocks",
+      external_asset_id: "sb_663912",
+      title: "Pentagon Building — Establishing Shot",
+      preview_url: "#",
+      license_type: "Standard",
+      price_label: "Included",
+      duration_ms: 10000,
+      width: 3840,
+      height: 2160,
+      match_score: 95,
+      metadata_json: null,
+    },
+    {
+      id: "fa_08",
+      footage_search_run_id: "fsr_06",
+      script_line_id: "line-3",
+      provider: "artlist",
+      external_asset_id: "al_f_77501",
+      title: "Iraq War 2003 — TV News Compilation",
+      preview_url: "#",
+      license_type: "Editorial",
+      price_label: "Included",
+      duration_ms: 150000,
+      width: 1920,
+      height: 1080,
+      match_score: 97,
+      metadata_json: null,
+    },
+    {
+      id: "fa_09",
+      footage_search_run_id: "fsr_05",
+      script_line_id: "line-3",
+      provider: "storyblocks",
+      external_asset_id: "sb_221098",
+      title: "Military Analyst on Cable News — 2003",
+      preview_url: "#",
+      license_type: "Public Domain",
+      price_label: "Free",
+      duration_ms: 195000,
+      width: 1280,
+      height: 720,
+      match_score: 92,
+      metadata_json: { source: "C-SPAN Archive" },
     },
   ],
-  "line-10": [
+  "line-6": [
     {
-      id: "ai-10-1",
-      lineId: "line-10",
-      style: "Abstract Visual",
-      description: "Visual metaphor of signal vs. noise — a clear truth slowly being buried under layers of information static",
-      estimatedTime: "~40s",
-      status: "ready",
-      progress: 0,
-      thumbnailUrl: "/api/placeholder/320/180",
-      model: "Kling v2",
+      id: "fa_10",
+      footage_search_run_id: "fsr_07",
+      script_line_id: "line-6",
+      provider: "storyblocks",
+      external_asset_id: "sb_998102",
+      title: "John Kiriakou — Senate Hearing Testimony",
+      preview_url: "#",
+      license_type: "Public Domain",
+      price_label: "Free",
+      duration_ms: 320000,
+      width: 1920,
+      height: 1080,
+      match_score: 99,
+      metadata_json: { source: "C-SPAN" },
+    },
+    {
+      id: "fa_11",
+      footage_search_run_id: "fsr_08",
+      script_line_id: "line-6",
+      provider: "artlist",
+      external_asset_id: "al_f_55003",
+      title: "Whistleblower Documentary — 'Silenced' Clip",
+      preview_url: "#",
+      license_type: "Fair Use",
+      price_label: "Free (clip)",
+      duration_ms: 105000,
+      width: 1920,
+      height: 1080,
+      match_score: 94,
+      metadata_json: null,
     },
   ],
 };
 
-export interface ProjectStats {
-  totalLines: number;
-  researched: number;
-  footageFound: number;
-  aiGenerated: number;
-  totalDuration: string;
-  estimatedCost: string;
-}
+// ─── Music sample data ───
+
+export const sampleMusic: Record<string, MusicAsset[]> = {
+  "project": [
+    {
+      id: "ma_01",
+      project_id: "proj_01",
+      script_line_id: null,
+      provider: "artlist",
+      external_asset_id: "al_m_10234",
+      title: "Dark Revelation",
+      artist: "Ambient Waves",
+      preview_url: "#",
+      license_type: "Standard",
+      duration_ms: 185000,
+      bpm: 72,
+      mood: "Dark, Suspenseful",
+      genre: "Cinematic",
+      match_score: 96,
+    },
+    {
+      id: "ma_02",
+      project_id: "proj_01",
+      script_line_id: null,
+      provider: "artlist",
+      external_asset_id: "al_m_20891",
+      title: "Echoes of Deception",
+      artist: "The Score Project",
+      preview_url: "#",
+      license_type: "Standard",
+      duration_ms: 210000,
+      bpm: 85,
+      mood: "Tense, Building",
+      genre: "Documentary",
+      match_score: 93,
+    },
+    {
+      id: "ma_03",
+      project_id: "proj_01",
+      script_line_id: null,
+      provider: "artlist",
+      external_asset_id: "al_m_31456",
+      title: "Under Surveillance",
+      artist: "Noir Collective",
+      preview_url: "#",
+      license_type: "Standard",
+      duration_ms: 156000,
+      bpm: 68,
+      mood: "Mysterious, Cold",
+      genre: "Electronic",
+      match_score: 90,
+    },
+    {
+      id: "ma_04",
+      project_id: "proj_01",
+      script_line_id: null,
+      provider: "artlist",
+      external_asset_id: "al_m_42103",
+      title: "Truth Serum",
+      artist: "Glass Horizon",
+      preview_url: "#",
+      license_type: "Standard",
+      duration_ms: 198000,
+      bpm: 90,
+      mood: "Urgent, Investigative",
+      genre: "Cinematic",
+      match_score: 88,
+    },
+  ],
+};
+
+// ─── Transcript sample data ───
+
+export const sampleTranscripts: Record<string, { job: TranscriptJob; transcript: Transcript | null }> = {
+  "line-6": {
+    job: {
+      id: "tj_01",
+      project_id: "proj_01",
+      script_line_id: "line-6",
+      provider: "elevenlabs",
+      status: "complete",
+      input_media_path: "/data/media/projects/proj_01/uploads/kiriakou-hearing.mp4",
+      started_at: "2026-03-15T09:10:00Z",
+      completed_at: "2026-03-15T09:10:32Z",
+      error_message: null,
+    },
+    transcript: {
+      id: "t_01",
+      transcript_job_id: "tj_01",
+      script_line_id: "line-6",
+      full_text: "I was the first CIA officer to publicly acknowledge that the agency was using torture. And for that, they put me in prison. Not for the torture itself — for talking about it.",
+      language_code: "en",
+      speaker_count: 1,
+      words_json: [
+        { word: "I", start_ms: 0, end_ms: 120 },
+        { word: "was", start_ms: 140, end_ms: 280 },
+        { word: "the", start_ms: 300, end_ms: 380 },
+        { word: "first", start_ms: 400, end_ms: 620 },
+        { word: "CIA", start_ms: 640, end_ms: 920 },
+        { word: "officer", start_ms: 940, end_ms: 1200 },
+      ],
+      segments_json: [
+        { text: "I was the first CIA officer to publicly acknowledge that the agency was using torture.", start_ms: 0, end_ms: 4200, speaker: "John Kiriakou" },
+        { text: "And for that, they put me in prison.", start_ms: 4400, end_ms: 6800, speaker: "John Kiriakou" },
+        { text: "Not for the torture itself — for talking about it.", start_ms: 7000, end_ms: 9800, speaker: "John Kiriakou" },
+      ],
+    },
+  },
+  "line-3": {
+    job: {
+      id: "tj_02",
+      project_id: "proj_01",
+      script_line_id: "line-3",
+      provider: "elevenlabs",
+      status: "running",
+      input_media_path: "/data/media/projects/proj_01/uploads/pentagon-analysts-cspan.mp4",
+      started_at: "2026-03-15T09:12:00Z",
+      completed_at: null,
+      error_message: null,
+    },
+    transcript: null,
+  },
+};
+
+// ─── Image generation sample data ───
+
+export const sampleImageJobs: Record<string, ImageGenerationJob[]> = {
+  "line-1": [
+    {
+      id: "igj_01",
+      project_id: "proj_01",
+      script_line_id: "line-1",
+      provider: "openai",
+      status: "complete",
+      prompt: "A dark, cinematic wide shot of a professional podcast studio with two microphones, faintly visible CIA seal reflected in the polished desk surface, moody blue lighting",
+      style_label: "Cinematic Documentary",
+      model: "dall-e-4",
+      progress: 100,
+      started_at: "2026-03-15T09:20:00Z",
+      completed_at: "2026-03-15T09:20:18Z",
+      error_message: null,
+    },
+    {
+      id: "igj_02",
+      project_id: "proj_01",
+      script_line_id: "line-1",
+      provider: "gemini",
+      status: "complete",
+      prompt: "Infographic-style illustration: podcast icons connected by glowing network lines to a central intelligence agency seal, dark background, data visualization aesthetic",
+      style_label: "Motion Graphics Still",
+      model: "imagen-3",
+      progress: 100,
+      started_at: "2026-03-15T09:20:30Z",
+      completed_at: "2026-03-15T09:20:45Z",
+      error_message: null,
+    },
+  ],
+  "line-3": [
+    {
+      id: "igj_03",
+      project_id: "proj_01",
+      script_line_id: "line-3",
+      provider: "openai",
+      status: "complete",
+      prompt: "Pentagon briefing room, retired military generals in suits reviewing papers before going on camera, warm overhead lighting, documentary photography style",
+      style_label: "News Recreation",
+      model: "dall-e-4",
+      progress: 100,
+      started_at: "2026-03-15T09:21:00Z",
+      completed_at: "2026-03-15T09:21:15Z",
+      error_message: null,
+    },
+  ],
+  "line-6": [
+    {
+      id: "igj_04",
+      project_id: "proj_01",
+      script_line_id: "line-6",
+      provider: "openai",
+      status: "running",
+      prompt: "Split composition: left side shows a man in a suit at a congressional hearing, right side shows the same figure behind prison bars, connected by a dividing line, documentary style",
+      style_label: "Editorial Split",
+      model: "dall-e-4",
+      progress: 72,
+      started_at: "2026-03-15T09:22:00Z",
+      completed_at: null,
+      error_message: null,
+    },
+  ],
+};
+
+// ─── Video generation sample data ───
+
+export const sampleVideoJobs: Record<string, VideoGenerationJob[]> = {
+  "line-1": [
+    {
+      id: "vgj_01",
+      project_id: "proj_01",
+      script_line_id: "line-1",
+      provider: "openai",
+      status: "running",
+      prompt: "Slow cinematic push-in on a dark podcast studio, camera moves through a microphone revealing a ghostly CIA seal in the background, atmospheric lighting shifts from warm to cold blue",
+      style_label: "Cinematic Documentary",
+      model: "sora",
+      source_image_asset_id: "ga_01",
+      progress: 67,
+      started_at: "2026-03-15T09:25:00Z",
+      completed_at: null,
+      error_message: null,
+    },
+  ],
+  "line-3": [
+    {
+      id: "vgj_02",
+      project_id: "proj_01",
+      script_line_id: "line-3",
+      provider: "openai",
+      status: "queued",
+      prompt: "Stylized recreation of a Pentagon briefing room, retired generals review papers then walk to a TV camera setup, documentary tone with subtle tension",
+      style_label: "News Recreation",
+      model: "sora",
+      source_image_asset_id: "ga_03",
+      progress: 0,
+      started_at: null,
+      completed_at: null,
+      error_message: null,
+    },
+  ],
+};
+
+// ─── Timeline sample data ───
+
+export const sampleTimeline: TimelineItem[] = [
+  {
+    id: "ti_01",
+    project_id: "proj_01",
+    script_line_id: "line-1",
+    track_type: "video",
+    asset_type: "footage",
+    asset_id: "fa_02",
+    start_ms: 0,
+    end_ms: 8000,
+    layer_index: 0,
+    selected: true,
+  },
+  {
+    id: "ti_02",
+    project_id: "proj_01",
+    script_line_id: "line-2",
+    track_type: "video",
+    asset_type: "footage",
+    asset_id: "fa_04",
+    start_ms: 8000,
+    end_ms: 20000,
+    layer_index: 0,
+    selected: true,
+  },
+  {
+    id: "ti_03",
+    project_id: "proj_01",
+    script_line_id: "line-3",
+    track_type: "video",
+    asset_type: "footage",
+    asset_id: "fa_08",
+    start_ms: 20000,
+    end_ms: 30000,
+    layer_index: 0,
+    selected: true,
+  },
+  {
+    id: "ti_04",
+    project_id: "proj_01",
+    script_line_id: "line-1",
+    track_type: "ai-video",
+    asset_type: "generated",
+    asset_id: "vgj_01",
+    start_ms: 0,
+    end_ms: 8000,
+    layer_index: 1,
+    selected: false,
+  },
+  {
+    id: "ti_05",
+    project_id: "proj_01",
+    script_line_id: "line-1",
+    track_type: "ai-image",
+    asset_type: "generated",
+    asset_id: "igj_01",
+    start_ms: 0,
+    end_ms: 8000,
+    layer_index: 2,
+    selected: false,
+  },
+  {
+    id: "ti_06",
+    project_id: "proj_01",
+    script_line_id: "line-1",
+    track_type: "music",
+    asset_type: "music",
+    asset_id: "ma_01",
+    start_ms: 0,
+    end_ms: 117000,
+    layer_index: 0,
+    selected: true,
+  },
+  {
+    id: "ti_07",
+    project_id: "proj_01",
+    script_line_id: "line-1",
+    track_type: "narration",
+    asset_type: "audio",
+    asset_id: "narration_full",
+    start_ms: 0,
+    end_ms: 117000,
+    layer_index: 0,
+    selected: true,
+  },
+];
+
+// ─── Project stats (computed) ───
 
 export const projectStats: ProjectStats = {
   totalLines: 12,
-  researched: 5,
-  footageFound: 3,
-  aiGenerated: 2,
-  totalDuration: "1:57",
-  estimatedCost: "$854",
+  researchComplete: 5,
+  researchRunning: 2,
+  footageComplete: 4,
+  imagesGenerated: 3,
+  videosGenerated: 0,
+  transcriptsComplete: 1,
+  musicSelected: 1,
+  totalDurationMs: 117000,
+  estimatedCost: "$0 (Storyblocks + Artlist subscriptions)",
 };

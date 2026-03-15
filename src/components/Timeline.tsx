@@ -1,14 +1,23 @@
 "use client";
 
-import { Film, Sparkles, Clock, Volume2 } from "lucide-react";
-import { sampleScript } from "@/lib/sample-data";
+import { Film, Sparkles, Music, Mic, Image, Volume2 } from "lucide-react";
+import {
+  sampleScript,
+  sampleTimeline,
+  formatTimestamp,
+} from "@/lib/sample-data";
 
-const segmentColors: Record<string, string> = {
-  "researched": "from-[var(--accent-green)]/40 to-[var(--accent-green)]/20",
-  "in-progress": "from-[var(--accent-blue)]/40 to-[var(--accent-blue)]/20",
-  "pending": "from-[var(--bg-hover)] to-[var(--bg-tertiary)]",
-  "footage-found": "from-[var(--accent-purple)]/40 to-[var(--accent-purple)]/20",
-};
+const totalDurationMs = 117000;
+
+function getSegmentColor(line: (typeof sampleScript)[0]): string {
+  if (line.research_status === "complete" && line.footage_status === "complete")
+    return "from-[var(--accent-green)]/40 to-[var(--accent-green)]/20";
+  if (line.research_status === "complete")
+    return "from-[var(--accent-blue)]/40 to-[var(--accent-blue)]/20";
+  if (line.research_status === "running" || line.research_status === "queued")
+    return "from-[var(--accent-orange)]/40 to-[var(--accent-orange)]/20";
+  return "from-[var(--bg-hover)] to-[var(--bg-tertiary)]";
+}
 
 interface TimelineProps {
   selectedLine: string;
@@ -16,23 +25,25 @@ interface TimelineProps {
 }
 
 export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) {
+  const videoItems = sampleTimeline.filter((t) => t.track_type === "video");
+  const aiImageItems = sampleTimeline.filter((t) => t.track_type === "ai-image");
+  const aiVideoItems = sampleTimeline.filter((t) => t.track_type === "ai-video");
+  const musicItems = sampleTimeline.filter((t) => t.track_type === "music");
+  const narrationItems = sampleTimeline.filter((t) => t.track_type === "narration");
+
   return (
-    <div className="h-[140px] border-t border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col">
+    <div className="h-[160px] border-t border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col">
       {/* Timeline Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
         <div className="flex items-center gap-4">
-          <span className="text-xs font-semibold text-[var(--text-secondary)]">
-            Timeline
-          </span>
+          <span className="text-xs font-semibold text-[var(--text-secondary)]">Timeline</span>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-[var(--text-muted)] font-mono">
-              00:00
-            </span>
+            <span className="text-[10px] text-[var(--text-muted)] font-mono">00:00</span>
             <div className="w-[200px] h-1 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
               <div className="w-[30%] h-full bg-[var(--accent-blue)] rounded-full" />
             </div>
             <span className="text-[10px] text-[var(--text-muted)] font-mono">
-              01:57
+              {formatTimestamp(totalDurationMs)}
             </span>
           </div>
         </div>
@@ -44,93 +55,121 @@ export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) 
             </div>
           </div>
           <span className="text-[10px] text-[var(--text-muted)]">
-            12 segments
+            {sampleTimeline.length} items · 5 tracks
           </span>
         </div>
       </div>
 
-      {/* Timeline Tracks */}
-      <div className="flex-1 px-4 py-2 overflow-x-auto">
-        {/* Video Track */}
-        <div className="flex items-center gap-1 mb-1.5">
-          <div className="w-16 shrink-0 flex items-center gap-1">
-            <Film size={10} className="text-[var(--text-muted)]" />
-            <span className="text-[10px] text-[var(--text-muted)]">Video</span>
-          </div>
-          <div className="flex-1 flex gap-[2px] timeline-track rounded-md overflow-hidden p-[2px]">
-            {sampleScript.map((line) => {
-              const durationNum = parseInt(line.duration);
-              const widthPercent = (durationNum / 117) * 100;
+      {/* Tracks */}
+      <div className="flex-1 px-4 py-1.5 overflow-x-auto space-y-1">
+        {/* Video track */}
+        <TrackRow icon={Film} label="Video" color="text-[var(--text-muted)]">
+          {sampleScript.map((line) => {
+            const pct = (line.duration_ms / totalDurationMs) * 100;
+            const hasTimelineItem = videoItems.some((t) => t.script_line_id === line.id);
+            return (
+              <button
+                key={line.id}
+                onClick={() => onSelectLine(line.id)}
+                className={`h-7 rounded-md bg-gradient-to-b transition-all relative ${
+                  hasTimelineItem ? getSegmentColor(line) : "from-[var(--bg-hover)]/50 to-[var(--bg-tertiary)]/50"
+                } ${
+                  selectedLine === line.id
+                    ? "ring-1 ring-[var(--accent-blue)] ring-offset-1 ring-offset-[var(--bg-secondary)]"
+                    : "hover:brightness-125"
+                }`}
+                style={{ width: `${pct}%`, minWidth: "20px" }}
+                title={line.text.slice(0, 60)}
+              >
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden px-1">
+                  <span className="text-[7px] text-white/40 truncate">
+                    {formatTimestamp(line.timestamp_start_ms)}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </TrackRow>
 
-              return (
-                <button
-                  key={line.id}
-                  onClick={() => onSelectLine(line.id)}
-                  className={`h-8 rounded-md bg-gradient-to-b transition-all relative group ${
-                    segmentColors[line.status]
-                  } ${
-                    selectedLine === line.id
-                      ? "ring-1 ring-[var(--accent-blue)] ring-offset-1 ring-offset-[var(--bg-secondary)]"
-                      : "hover:brightness-125"
-                  }`}
-                  style={{ width: `${widthPercent}%`, minWidth: "24px" }}
-                  title={line.text.slice(0, 60)}
-                >
-                  {/* Tiny label */}
-                  <div className="absolute inset-0 flex items-center justify-center overflow-hidden px-1">
-                    <span className="text-[8px] text-white/50 truncate">
-                      {line.timestamp}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* AI Image track */}
+        <TrackRow icon={Image} label="AI Img" color="text-[var(--accent-orange)]">
+          {sampleScript.map((line) => {
+            const pct = (line.duration_ms / totalDurationMs) * 100;
+            const hasItem = aiImageItems.some((t) => t.script_line_id === line.id);
+            return (
+              <div
+                key={line.id}
+                className={`h-4 rounded-sm ${
+                  hasItem
+                    ? "bg-gradient-to-r from-[var(--accent-orange)]/30 to-[var(--accent-yellow)]/30 border border-[var(--accent-orange)]/20"
+                    : "bg-[var(--bg-tertiary)]/20"
+                }`}
+                style={{ width: `${pct}%`, minWidth: "20px" }}
+              />
+            );
+          })}
+        </TrackRow>
 
-        {/* AI Track */}
-        <div className="flex items-center gap-1 mb-1.5">
-          <div className="w-16 shrink-0 flex items-center gap-1">
-            <Sparkles size={10} className="text-[var(--text-muted)]" />
-            <span className="text-[10px] text-[var(--text-muted)]">AI</span>
-          </div>
-          <div className="flex-1 flex gap-[2px] rounded-md overflow-hidden p-[2px]">
-            {sampleScript.map((line) => {
-              const durationNum = parseInt(line.duration);
-              const widthPercent = (durationNum / 117) * 100;
-              const hasAI = ["line-1", "line-2", "line-3", "line-10"].includes(
-                line.id
-              );
+        {/* AI Video track */}
+        <TrackRow icon={Sparkles} label="AI Vid" color="text-[var(--accent-red)]">
+          {sampleScript.map((line) => {
+            const pct = (line.duration_ms / totalDurationMs) * 100;
+            const hasItem = aiVideoItems.some((t) => t.script_line_id === line.id);
+            return (
+              <div
+                key={line.id}
+                className={`h-4 rounded-sm ${
+                  hasItem
+                    ? "bg-gradient-to-r from-[var(--accent-red)]/30 to-[var(--accent-purple)]/30 border border-[var(--accent-red)]/20"
+                    : "bg-[var(--bg-tertiary)]/20"
+                }`}
+                style={{ width: `${pct}%`, minWidth: "20px" }}
+              />
+            );
+          })}
+        </TrackRow>
 
-              return (
-                <div
-                  key={line.id}
-                  className={`h-5 rounded-sm ${
-                    hasAI
-                      ? "bg-gradient-to-r from-[var(--accent-purple)]/30 to-[var(--accent-blue)]/30 border border-[var(--accent-purple)]/20"
-                      : "bg-[var(--bg-tertiary)]/30"
-                  }`}
-                  style={{ width: `${widthPercent}%`, minWidth: "24px" }}
-                />
-              );
-            })}
+        {/* Music track */}
+        <TrackRow icon={Music} label="Music" color="text-[var(--accent-green)]">
+          <div className="flex-1 h-4 rounded-sm bg-gradient-to-r from-[var(--accent-green)]/20 via-[var(--accent-green)]/30 to-[var(--accent-green)]/10 flex items-center justify-center border border-[var(--accent-green)]/15">
+            <span className="text-[7px] text-[var(--accent-green)]/50">
+              Dark Revelation — Artlist
+            </span>
           </div>
-        </div>
+        </TrackRow>
 
-        {/* Audio Track */}
-        <div className="flex items-center gap-1">
-          <div className="w-16 shrink-0 flex items-center gap-1">
-            <Clock size={10} className="text-[var(--text-muted)]" />
-            <span className="text-[10px] text-[var(--text-muted)]">Audio</span>
+        {/* Narration track */}
+        <TrackRow icon={Mic} label="Voice" color="text-[var(--accent-yellow)]">
+          <div className="flex-1 h-4 rounded-sm bg-gradient-to-r from-[var(--accent-yellow)]/15 via-[var(--accent-yellow)]/25 to-[var(--accent-yellow)]/10 flex items-center justify-center border border-[var(--accent-yellow)]/15">
+            <span className="text-[7px] text-[var(--accent-yellow)]/50">
+              Narration · {formatTimestamp(totalDurationMs)}
+            </span>
           </div>
-          <div className="flex-1 h-5 rounded-md bg-[var(--bg-tertiary)] overflow-hidden p-[2px]">
-            <div className="w-full h-full rounded-sm bg-gradient-to-r from-[var(--accent-green)]/20 via-[var(--accent-green)]/30 to-[var(--accent-green)]/10 flex items-center justify-center">
-              <span className="text-[8px] text-[var(--accent-green)]/60">
-                Narration Track — 1:57
-              </span>
-            </div>
-          </div>
-        </div>
+        </TrackRow>
+      </div>
+    </div>
+  );
+}
+
+function TrackRow({
+  icon: Icon,
+  label,
+  color,
+  children,
+}: {
+  icon: typeof Film;
+  label: string;
+  color: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <div className="w-14 shrink-0 flex items-center gap-1">
+        <Icon size={9} className={color} />
+        <span className={`text-[9px] ${color}`}>{label}</span>
+      </div>
+      <div className="flex-1 flex gap-[2px] rounded-md overflow-hidden p-[1px]">
+        {children}
       </div>
     </div>
   );

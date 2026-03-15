@@ -1,8 +1,7 @@
 "use client";
 
 import {
-  Video,
-  Play,
+  Image,
   RefreshCcw,
   Download,
   Wand2,
@@ -11,33 +10,41 @@ import {
   Clock,
   Palette,
   Cpu,
-  Timer,
-  Image,
+  Eye,
+  Sparkles,
   AlertCircle,
 } from "lucide-react";
 import {
-  sampleVideoJobs,
+  sampleImageJobs,
   sampleScript,
   formatTimestamp,
-  type VideoGenerationJob,
+  type ImageGenerationJob,
 } from "@/lib/sample-data";
+
+const providerConfig: Record<string, { color: string; label: string }> = {
+  openai: { color: "text-[var(--accent-green)]", label: "OpenAI" },
+  gemini: { color: "text-[var(--accent-blue)]", label: "Gemini" },
+};
 
 const statusConfig = {
   pending: { icon: Clock, color: "text-[var(--text-muted)]", label: "Pending" },
-  queued: { icon: Clock, color: "text-[var(--accent-blue)]", label: "Queued" },
+  queued: { icon: Clock, color: "text-[var(--text-muted)]", label: "Queued" },
   running: { icon: Loader2, color: "text-[var(--accent-orange)]", label: "Generating" },
   complete: { icon: Check, color: "text-[var(--accent-green)]", label: "Complete" },
   failed: { icon: AlertCircle, color: "text-[var(--accent-red)]", label: "Failed" },
   needs_review: { icon: AlertCircle, color: "text-[var(--accent-yellow)]", label: "Review" },
 };
 
-interface AIVideoPanelProps {
+interface AIImagePanelProps {
   selectedLine: string;
 }
 
-export default function AIVideoPanel({ selectedLine }: AIVideoPanelProps) {
-  const jobs = sampleVideoJobs[selectedLine] || [];
+export default function AIImagePanel({ selectedLine }: AIImagePanelProps) {
+  const jobs = sampleImageJobs[selectedLine] || [];
   const line = sampleScript.find((l) => l.id === selectedLine);
+
+  const openaiCount = jobs.filter((j) => j.provider === "openai").length;
+  const geminiCount = jobs.filter((j) => j.provider === "gemini").length;
 
   return (
     <div className="flex-1 flex flex-col min-w-0">
@@ -49,13 +56,13 @@ export default function AIVideoPanel({ selectedLine }: AIVideoPanelProps) {
               {formatTimestamp(line.timestamp_start_ms)}
             </span>
             <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-              line.video_status === "complete"
+              line.image_status === "complete"
                 ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]"
-                : line.video_status === "running"
+                : line.image_status === "running"
                 ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
                 : "bg-[var(--bg-hover)] text-[var(--text-muted)]"
             }`}>
-              Video: {line.video_status}
+              Images: {line.image_status}
             </span>
           </div>
           <p className="text-sm text-[var(--text-primary)] leading-relaxed line-clamp-2">
@@ -67,25 +74,39 @@ export default function AIVideoPanel({ selectedLine }: AIVideoPanelProps) {
       {/* Header */}
       <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Video size={16} className="text-[var(--accent-red)]" />
-          <h3 className="text-sm font-semibold">AI Video</h3>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium">
-            OpenAI Sora
-          </span>
+          <Image size={16} className="text-[var(--accent-orange)]" />
+          <h3 className="text-sm font-semibold">AI Images</h3>
           {jobs.length > 0 && (
-            <span className="text-xs text-[var(--text-muted)]">{jobs.length} jobs</span>
+            <>
+              {openaiCount > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[var(--accent-green)]/10 text-[var(--accent-green)]">
+                  OpenAI: {openaiCount}
+                </span>
+              )}
+              {geminiCount > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]">
+                  Gemini: {geminiCount}
+                </span>
+              )}
+            </>
           )}
         </div>
-        <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
-          <Wand2 size={12} />
-          Generate Video
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
+            <Wand2 size={12} />
+            Generate with OpenAI
+          </button>
+          <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
+            <Sparkles size={12} />
+            Gemini Fallback
+          </button>
+        </div>
       </div>
 
       {/* Jobs */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {jobs.length > 0 ? (
-          jobs.map((job) => <VideoJobCard key={job.id} job={job} />)
+          jobs.map((job) => <ImageJobCard key={job.id} job={job} />)
         ) : (
           <EmptyState />
         )}
@@ -94,16 +115,17 @@ export default function AIVideoPanel({ selectedLine }: AIVideoPanelProps) {
   );
 }
 
-function VideoJobCard({ job }: { job: VideoGenerationJob }) {
+function ImageJobCard({ job }: { job: ImageGenerationJob }) {
   const status = statusConfig[job.status];
   const StatusIcon = status.icon;
+  const provider = providerConfig[job.provider];
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-light)] transition-colors group overflow-hidden">
-      {/* Preview */}
-      <div className="relative h-44 bg-[var(--bg-tertiary)] overflow-hidden">
-        <div className="w-full h-full bg-gradient-to-br from-[var(--bg-tertiary)] via-[var(--accent-red)]/5 to-[var(--bg-elevated)] flex items-center justify-center">
-          <Video size={28} className="text-[var(--text-muted)]/20" />
+      {/* Thumbnail */}
+      <div className="relative h-48 bg-[var(--bg-tertiary)] overflow-hidden">
+        <div className="w-full h-full bg-gradient-to-br from-[var(--bg-tertiary)] via-[var(--accent-orange)]/5 to-[var(--bg-elevated)] flex items-center justify-center">
+          <Image size={28} className="text-[var(--text-muted)]/20" />
         </div>
 
         <div className="absolute top-2 left-2 flex items-center gap-1.5">
@@ -114,8 +136,8 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
         </div>
 
         <div className="absolute top-2 right-2 flex items-center gap-1.5">
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md glass text-[var(--accent-green)]">
-            OpenAI
+          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md glass ${provider.color}`}>
+            {provider.label}
           </span>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md glass text-[var(--text-secondary)]">
             {job.model}
@@ -125,7 +147,7 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
         {job.status === "running" && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--bg-primary)]">
             <div
-              className="h-full bg-gradient-to-r from-[var(--accent-red)] to-[var(--accent-orange)] transition-all duration-1000"
+              className="h-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--accent-yellow)] transition-all duration-1000"
               style={{ width: `${job.progress}%` }}
             />
           </div>
@@ -133,8 +155,8 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
 
         {job.status === "complete" && (
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-            <button className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center hover:bg-white/30 transition-colors">
-              <Play size={22} className="text-white ml-0.5" />
+            <button className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center hover:bg-white/30 transition-colors">
+              <Eye size={18} className="text-white" />
             </button>
           </div>
         )}
@@ -155,14 +177,9 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
             <Cpu size={10} className="text-[var(--text-muted)]" />
             <span className="text-[10px] text-[var(--text-muted)]">{job.model}</span>
           </div>
-          {job.source_image_asset_id && (
-            <div className="flex items-center gap-1">
-              <Image size={10} className="text-[var(--text-muted)]" />
-              <span className="text-[10px] text-[var(--text-muted)]">
-                Source: {job.source_image_asset_id}
-              </span>
-            </div>
-          )}
+          <span className="text-[10px] text-[var(--text-muted)]">
+            Job: {job.id}
+          </span>
           {job.status === "running" && (
             <span className="text-[10px] font-mono text-[var(--accent-orange)]">{job.progress}%</span>
           )}
@@ -182,17 +199,12 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
           ) : job.status === "running" ? (
             <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs text-[var(--accent-orange)] bg-[var(--accent-orange)]/5">
               <Loader2 size={12} className="animate-spin" />
-              Generating via Sora...
-            </div>
-          ) : job.status === "queued" ? (
-            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs text-[var(--accent-blue)] bg-[var(--accent-blue)]/5">
-              <Clock size={12} />
-              Queued
+              Generating...
             </div>
           ) : (
-            <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-[var(--accent-red)] to-[var(--accent-orange)] text-white hover:opacity-90 transition-opacity">
+            <button className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white hover:opacity-90 transition-opacity">
               <Wand2 size={12} />
-              Generate Video
+              Generate
             </button>
           )}
         </div>
@@ -204,17 +216,23 @@ function VideoJobCard({ job }: { job: VideoGenerationJob }) {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-8">
-      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--accent-red)]/10 to-[var(--accent-orange)]/10 flex items-center justify-center mb-4">
-        <Video size={20} className="text-[var(--accent-red)]" />
+      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--accent-orange)]/10 to-[var(--accent-yellow)]/10 flex items-center justify-center mb-4">
+        <Image size={20} className="text-[var(--accent-orange)]" />
       </div>
-      <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-1">No Videos Generated</h4>
+      <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-1">No Images Generated</h4>
       <p className="text-xs text-[var(--text-muted)] mb-4 max-w-[280px]">
-        Generate video clips via OpenAI Sora. Optionally use an AI-generated image as a source frame for the video.
+        Generate stills for this line using OpenAI (primary) or Gemini (fallback). Images can be used as source frames for video generation.
       </p>
-      <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-[var(--accent-red)] to-[var(--accent-orange)] text-white hover:opacity-90 transition-opacity">
-        <Wand2 size={14} />
-        Generate with Sora
-      </button>
+      <div className="flex items-center gap-2">
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--accent-green)]/90 text-white hover:opacity-90 transition-opacity">
+          <Wand2 size={14} />
+          OpenAI
+        </button>
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--accent-blue)]/90 text-white hover:opacity-90 transition-opacity">
+          <Sparkles size={14} />
+          Gemini
+        </button>
+      </div>
     </div>
   );
 }

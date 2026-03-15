@@ -11,11 +11,18 @@ import {
   Copy,
   RotateCcw,
   Star,
+  CheckCircle2,
+  Loader2,
+  Zap,
+  Globe,
+  Brain,
 } from "lucide-react";
 import {
   sampleResearch,
   sampleScript,
-  type ResearchResult,
+  formatTimestamp,
+  type ResearchData,
+  type ResearchSource,
 } from "@/lib/sample-data";
 
 const typeIcons = {
@@ -39,7 +46,7 @@ interface ResearchPanelProps {
 }
 
 export default function ResearchPanel({ selectedLine }: ResearchPanelProps) {
-  const research = sampleResearch[selectedLine] || [];
+  const research = sampleResearch[selectedLine];
   const line = sampleScript.find((l) => l.id === selectedLine);
 
   return (
@@ -49,10 +56,19 @@ export default function ResearchPanel({ selectedLine }: ResearchPanelProps) {
         <div className="p-4 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-mono text-[var(--text-muted)]">
-              {line.timestamp}
+              {formatTimestamp(line.timestamp_start_ms)}
             </span>
             <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-hover)] text-[var(--text-muted)] capitalize">
-              {line.type}
+              {line.line_type}
+            </span>
+            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+              line.research_status === "complete"
+                ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]"
+                : line.research_status === "running"
+                ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
+                : "bg-[var(--bg-hover)] text-[var(--text-muted)]"
+            }`}>
+              Research: {line.research_status}
             </span>
           </div>
           <p className="text-sm text-[var(--text-primary)] leading-relaxed">
@@ -61,91 +77,148 @@ export default function ResearchPanel({ selectedLine }: ResearchPanelProps) {
         </div>
       )}
 
-      {/* Research Header */}
-      <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BookOpen size={16} className="text-[var(--accent-blue)]" />
-          <h3 className="text-sm font-semibold">Deep Research</h3>
-          {research.length > 0 && (
-            <span className="text-xs text-[var(--text-muted)]">
-              {research.length} sources found
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
-            <RotateCcw size={12} />
-            Re-research
-          </button>
-        </div>
-      </div>
+      {research ? (
+        <>
+          {/* Pipeline indicator */}
+          <div className="px-4 py-2.5 border-b border-[var(--border)] flex items-center gap-4">
+            <PipelineStep icon={Globe} label="Parallel" provider="parallel" status="complete" />
+            <PipelineArrow />
+            <PipelineStep icon={Zap} label="Firecrawl" provider="firecrawl" status={research.sources.some(s => s.extracted_text_path) ? "complete" : "partial"} />
+            <PipelineArrow />
+            <PipelineStep icon={Brain} label="OpenAI" provider="openai" status={research.summary ? "complete" : "pending"} />
+          </div>
 
-      {/* Research Results */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {research.length > 0 ? (
-          research.map((result) => (
-            <ResearchCard key={result.id} result={result} />
-          ))
-        ) : (
-          <EmptyResearchState selectedLine={selectedLine} />
-        )}
-      </div>
+          {/* Summary card */}
+          {research.summary && (
+            <div className="mx-4 mt-4 p-3 rounded-xl border border-[var(--accent-blue)]/20 bg-[var(--accent-blue)]/5">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain size={12} className="text-[var(--accent-blue)]" />
+                <span className="text-xs font-semibold text-[var(--accent-blue)]">AI Summary</span>
+                <span className="text-[10px] text-[var(--text-muted)] ml-auto">
+                  {research.summary.model} · {research.summary.confidence_score}% confidence
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                {research.summary.summary}
+              </p>
+            </div>
+          )}
+
+          {/* Research Header */}
+          <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between mt-2">
+            <div className="flex items-center gap-2">
+              <BookOpen size={16} className="text-[var(--accent-blue)]" />
+              <h3 className="text-sm font-semibold">Sources</h3>
+              <span className="text-xs text-[var(--text-muted)]">
+                {research.sources.length} found via Parallel
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-[var(--text-muted)]">
+                Run: {research.run.id}
+              </span>
+              <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
+                <RotateCcw size={12} />
+                Re-research
+              </button>
+            </div>
+          </div>
+
+          {/* Source cards */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {research.sources.map((source) => (
+              <SourceCard key={source.id} source={source} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <EmptyResearchState selectedLine={selectedLine} />
+      )}
     </div>
   );
 }
 
-function ResearchCard({ result }: { result: ResearchResult }) {
-  const TypeIcon = typeIcons[result.type];
+function PipelineStep({ icon: Icon, label, provider, status }: {
+  icon: typeof Globe;
+  label: string;
+  provider: string;
+  status: "complete" | "partial" | "pending" | "running";
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className={`p-1 rounded-md ${
+        status === "complete" ? "bg-[var(--accent-green)]/10" :
+        status === "partial" ? "bg-[var(--accent-yellow)]/10" :
+        status === "running" ? "bg-[var(--accent-blue)]/10" :
+        "bg-[var(--bg-hover)]"
+      }`}>
+        <Icon size={11} className={
+          status === "complete" ? "text-[var(--accent-green)]" :
+          status === "partial" ? "text-[var(--accent-yellow)]" :
+          status === "running" ? "text-[var(--accent-blue)]" :
+          "text-[var(--text-muted)]"
+        } />
+      </div>
+      <span className="text-[10px] font-medium text-[var(--text-secondary)]">{label}</span>
+      {status === "complete" && <CheckCircle2 size={9} className="text-[var(--accent-green)]" />}
+      {status === "running" && <Loader2 size={9} className="text-[var(--accent-blue)] animate-spin" />}
+    </div>
+  );
+}
+
+function PipelineArrow() {
+  return <div className="w-4 h-px bg-[var(--border-light)]" />;
+}
+
+function SourceCard({ source }: { source: ResearchSource }) {
+  const TypeIcon = typeIcons[source.source_type];
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-light)] transition-colors group">
       <div className="p-4">
-        {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="flex items-start gap-2 min-w-0">
-            <div
-              className={`mt-0.5 p-1 rounded-md bg-[var(--bg-tertiary)] ${typeColors[result.type]}`}
-            >
+            <div className={`mt-0.5 p-1 rounded-md bg-[var(--bg-tertiary)] ${typeColors[source.source_type]}`}>
               <TypeIcon size={12} />
             </div>
             <div className="min-w-0">
               <h4 className="text-sm font-medium text-[var(--text-primary)] leading-snug">
-                {result.title}
+                {source.title}
               </h4>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-[var(--accent-blue)]">
-                  {result.source}
-                </span>
-                <span className="text-xs text-[var(--text-muted)]">
-                  {result.date}
-                </span>
+                <span className="text-xs text-[var(--accent-blue)]">{source.source_name}</span>
+                <span className="text-xs text-[var(--text-muted)]">{source.published_at}</span>
+                {source.extracted_text_path && (
+                  <span className="text-[10px] px-1 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)]">
+                    Firecrawl extracted
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Relevance Score */}
           <div className="flex items-center gap-1 shrink-0">
             <Star size={10} className="text-[var(--accent-yellow)]" />
-            <span
-              className={`text-xs font-mono font-medium ${
-                result.relevanceScore >= 95
-                  ? "text-[var(--accent-green)]"
-                  : result.relevanceScore >= 85
-                  ? "text-[var(--accent-blue)]"
-                  : "text-[var(--text-secondary)]"
-              }`}
-            >
-              {result.relevanceScore}%
+            <span className={`text-xs font-mono font-medium ${
+              source.relevance_score >= 95 ? "text-[var(--accent-green)]" :
+              source.relevance_score >= 85 ? "text-[var(--accent-blue)]" :
+              "text-[var(--text-secondary)]"
+            }`}>
+              {source.relevance_score}%
             </span>
           </div>
         </div>
 
-        {/* Snippet */}
         <p className="text-xs text-[var(--text-secondary)] leading-relaxed mt-2">
-          {result.snippet}
+          {source.snippet}
         </p>
 
-        {/* Actions */}
+        {source.citation_json && (
+          <div className="mt-2 px-2 py-1 rounded-md bg-[var(--bg-tertiary)] text-[10px] text-[var(--text-muted)] font-mono">
+            {source.citation_json.apa}
+          </div>
+        )}
+
         <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
             <ExternalLink size={10} />
@@ -167,25 +240,32 @@ function ResearchCard({ result }: { result: ResearchResult }) {
 
 function EmptyResearchState({ selectedLine }: { selectedLine: string }) {
   const line = sampleScript.find((l) => l.id === selectedLine);
-  const isPending = line?.status === "pending";
+  const isPending = line?.research_status === "pending";
+  const isRunning = line?.research_status === "running" || line?.research_status === "queued";
 
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center px-8">
+    <div className="flex-1 flex flex-col items-center justify-center h-full text-center px-8">
       <div className="w-12 h-12 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center mb-4">
-        <BookOpen size={20} className="text-[var(--text-muted)]" />
+        {isRunning ? (
+          <Loader2 size={20} className="text-[var(--accent-blue)] animate-spin" />
+        ) : (
+          <BookOpen size={20} className="text-[var(--text-muted)]" />
+        )}
       </div>
       <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-1">
-        {isPending ? "Research Not Started" : "No Research Yet"}
+        {isRunning ? "Research In Progress" : isPending ? "Research Not Started" : "No Research Data"}
       </h4>
       <p className="text-xs text-[var(--text-muted)] mb-4 max-w-[280px]">
-        {isPending
-          ? "Click below to start deep research on this script line. We'll find relevant sources, documents, and context."
-          : "Select a researched line to view findings, or start research on this line."}
+        {isRunning
+          ? "Parallel is finding sources, Firecrawl is extracting content, OpenAI will synthesize a summary."
+          : "Start deep research via Parallel + Firecrawl + OpenAI for this script line."}
       </p>
-      <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors">
-        <BookOpen size={14} />
-        Start Deep Research
-      </button>
+      {!isRunning && (
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors">
+          <BookOpen size={14} />
+          Start Deep Research
+        </button>
+      )}
     </div>
   );
 }
