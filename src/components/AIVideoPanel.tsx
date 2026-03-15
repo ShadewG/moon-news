@@ -16,11 +16,11 @@ import {
   AlertCircle,
 } from "lucide-react";
 import {
-  sampleVideoJobs,
-  sampleScript,
   formatTimestamp,
   type VideoGenerationJob,
 } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
+import { useVideoJobs } from "@/lib/hooks";
 
 const statusConfig = {
   pending: { icon: Clock, color: "text-[var(--text-muted)]", label: "Pending" },
@@ -31,13 +31,10 @@ const statusConfig = {
   needs_review: { icon: AlertCircle, color: "text-[var(--accent-yellow)]", label: "Review" },
 };
 
-interface AIVideoPanelProps {
-  selectedLine: string;
-}
-
-export default function AIVideoPanel({ selectedLine }: AIVideoPanelProps) {
-  const jobs = sampleVideoJobs[selectedLine] || [];
-  const line = sampleScript.find((l) => l.id === selectedLine);
+export default function AIVideoPanel() {
+  const { projectId, selectedLineId, selectedLine } = useProjectContext();
+  const { data: jobs } = useVideoJobs(projectId, selectedLineId);
+  const line = selectedLine;
 
   return (
     <div className="flex-1 flex flex-col min-w-0">

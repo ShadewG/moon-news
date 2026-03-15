@@ -8,11 +8,11 @@ import {
   Eye,
 } from "lucide-react";
 import {
-  sampleFootage,
-  sampleScript,
   formatTimestamp,
   type FootageAsset,
 } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
+import { useFootage } from "@/lib/hooks";
 
 const providerColors: Record<string, { bg: string; text: string; label: string }> = {
   storyblocks: { bg: "bg-[var(--accent-blue)]/10", text: "text-[var(--accent-blue)]", label: "Storyblocks" },
@@ -33,13 +33,10 @@ function formatResolution(w: number, h: number): string {
   return `${w}x${h}`;
 }
 
-interface FootagePanelProps {
-  selectedLine: string;
-}
-
-export default function FootagePanel({ selectedLine }: FootagePanelProps) {
-  const footage = sampleFootage[selectedLine] || [];
-  const line = sampleScript.find((l) => l.id === selectedLine);
+export default function FootagePanel() {
+  const { projectId, selectedLineId, selectedLine } = useProjectContext();
+  const { data: footage } = useFootage(projectId, selectedLineId);
+  const line = selectedLine;
 
   const storyblocksCount = footage.filter((f) => f.provider === "storyblocks").length;
   const artlistCount = footage.filter((f) => f.provider === "artlist").length;

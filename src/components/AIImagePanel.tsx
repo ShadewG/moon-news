@@ -15,11 +15,11 @@ import {
   AlertCircle,
 } from "lucide-react";
 import {
-  sampleImageJobs,
-  sampleScript,
   formatTimestamp,
   type ImageGenerationJob,
 } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
+import { useImageJobs } from "@/lib/hooks";
 
 const providerConfig: Record<string, { color: string; label: string }> = {
   openai: { color: "text-[var(--accent-green)]", label: "OpenAI" },
@@ -35,13 +35,10 @@ const statusConfig = {
   needs_review: { icon: AlertCircle, color: "text-[var(--accent-yellow)]", label: "Review" },
 };
 
-interface AIImagePanelProps {
-  selectedLine: string;
-}
-
-export default function AIImagePanel({ selectedLine }: AIImagePanelProps) {
-  const jobs = sampleImageJobs[selectedLine] || [];
-  const line = sampleScript.find((l) => l.id === selectedLine);
+export default function AIImagePanel() {
+  const { projectId, selectedLineId, selectedLine } = useProjectContext();
+  const { data: jobs } = useImageJobs(projectId, selectedLineId);
+  const line = selectedLine;
 
   const openaiCount = jobs.filter((j) => j.provider === "openai").length;
   const geminiCount = jobs.filter((j) => j.provider === "gemini").length;

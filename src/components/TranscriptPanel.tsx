@@ -10,20 +10,17 @@ import {
   Play,
 } from "lucide-react";
 import {
-  sampleTranscripts,
-  sampleScript,
   formatTimestamp,
   type Transcript,
   type TranscriptJob,
 } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
+import { useTranscript } from "@/lib/hooks";
 
-interface TranscriptPanelProps {
-  selectedLine: string;
-}
-
-export default function TranscriptPanel({ selectedLine }: TranscriptPanelProps) {
-  const data = sampleTranscripts[selectedLine];
-  const line = sampleScript.find((l) => l.id === selectedLine);
+export default function TranscriptPanel() {
+  const { projectId, selectedLineId, selectedLine } = useProjectContext();
+  const { data } = useTranscript(projectId, selectedLineId);
+  const line = selectedLine;
 
   return (
     <div className="flex-1 flex flex-col min-w-0">

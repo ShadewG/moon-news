@@ -15,9 +15,8 @@ import {
   Image,
   Video,
 } from "lucide-react";
+import { useProjectContext } from "@/lib/project-context";
 import {
-  sampleScript,
-  computeAggregateStatus,
   formatTimestamp,
   formatDuration,
   type ScriptLine,
@@ -49,36 +48,29 @@ const typeColors = {
   headline: "border-l-[var(--accent-orange)]",
 };
 
-interface ScriptPanelProps {
-  selectedLine: string;
-  onSelectLine: (id: string) => void;
-}
-
-export default function ScriptPanel({ selectedLine, onSelectLine }: ScriptPanelProps) {
+export default function ScriptPanel() {
+  const { lines, selectedLineId, setSelectedLineId } = useProjectContext();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredLines = sampleScript.filter((line) =>
+  const filteredLines = lines.filter((line) =>
     line.text.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const counts = {
-    complete: sampleScript.filter((l) => l.research_status === "complete").length,
-    running: sampleScript.filter((l) => l.research_status === "running" || l.research_status === "queued").length,
-    pending: sampleScript.filter((l) => l.research_status === "pending").length,
-    failed: sampleScript.filter((l) => l.research_status === "failed").length,
+    complete: lines.filter((l) => l.research_status === "complete").length,
+    running: lines.filter((l) => l.research_status === "running" || l.research_status === "queued").length,
+    pending: lines.filter((l) => l.research_status === "pending").length,
+    failed: lines.filter((l) => l.research_status === "failed").length,
   };
 
   return (
     <div className="w-[380px] min-w-[380px] border-r border-[var(--border)] flex flex-col bg-[var(--bg-secondary)]">
-      {/* Header */}
       <div className="p-3 border-b border-[var(--border)]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <FileText size={16} className="text-[var(--text-secondary)]" />
             <h2 className="text-sm font-semibold">Script</h2>
-            <span className="text-xs text-[var(--text-muted)]">
-              {sampleScript.length} lines
-            </span>
+            <span className="text-xs text-[var(--text-muted)]">{lines.length} lines</span>
           </div>
           <button className="p-1.5 rounded-md hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">
             <Plus size={14} />
@@ -86,10 +78,7 @@ export default function ScriptPanel({ selectedLine, onSelectLine }: ScriptPanelP
         </div>
 
         <div className="relative">
-          <Search
-            size={14}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-          />
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
           <input
             type="text"
             placeholder="Search script lines..."
@@ -100,7 +89,6 @@ export default function ScriptPanel({ selectedLine, onSelectLine }: ScriptPanelP
         </div>
       </div>
 
-      {/* Stats Bar */}
       <div className="px-3 py-2 border-b border-[var(--border)] flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-1.5">
           <div className="w-2 h-2 rounded-full bg-[var(--accent-green)]" />
@@ -122,19 +110,17 @@ export default function ScriptPanel({ selectedLine, onSelectLine }: ScriptPanelP
         )}
       </div>
 
-      {/* Script Lines */}
       <div className="flex-1 overflow-y-auto">
         {filteredLines.map((line) => (
           <ScriptLineItem
             key={line.id}
             line={line}
-            isSelected={selectedLine === line.id}
-            onClick={() => onSelectLine(line.id)}
+            isSelected={selectedLineId === line.id}
+            onClick={() => setSelectedLineId(line.id)}
           />
         ))}
       </div>
 
-      {/* Import */}
       <div className="p-3 border-t border-[var(--border)]">
         <button className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-[var(--border-light)] text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--accent-blue)]/30 hover:bg-[var(--bg-tertiary)] transition-colors">
           <Sparkles size={14} />
@@ -155,25 +141,13 @@ function DomainDot({ status, label }: { status: JobStatus; label: string }) {
   );
 }
 
-function ScriptLineItem({
-  line,
-  isSelected,
-  onClick,
-}: {
-  line: ScriptLine;
-  isSelected: boolean;
-  onClick: () => void;
-}) {
+function ScriptLineItem({ line, isSelected, onClick }: { line: ScriptLine; isSelected: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
       className={`w-full text-left p-3 border-b border-[var(--border)] border-l-2 transition-all ${
         typeColors[line.line_type]
-      } ${
-        isSelected
-          ? "bg-[var(--accent-blue)]/5 border-l-[var(--accent-blue)]"
-          : "hover:bg-[var(--bg-tertiary)]"
-      }`}
+      } ${isSelected ? "bg-[var(--accent-blue)]/5 border-l-[var(--accent-blue)]" : "hover:bg-[var(--bg-tertiary)]"}`}
     >
       <div className="flex items-start gap-2">
         <span className="text-[10px] font-mono text-[var(--text-muted)] mt-1 min-w-[36px]">
@@ -182,41 +156,20 @@ function ScriptLineItem({
         <div className="flex-1 min-w-0">
           <p
             className={`text-xs leading-relaxed ${
-              line.line_type === "transition"
-                ? "text-[var(--text-muted)] italic"
-                : line.line_type === "quote"
-                ? "text-[var(--accent-yellow)]/80"
-                : "text-[var(--text-secondary)]"
+              line.line_type === "transition" ? "text-[var(--text-muted)] italic" :
+              line.line_type === "quote" ? "text-[var(--accent-yellow)]/80" :
+              "text-[var(--text-secondary)]"
             } ${isSelected ? "text-[var(--text-primary)]" : ""}`}
           >
             {line.text.length > 120 ? line.text.slice(0, 120) + "..." : line.text}
           </p>
-
-          {/* Per-domain status dots */}
           <div className="flex items-center gap-3 mt-1.5">
-            <div className="flex items-center gap-1">
-              <BookOpen size={9} className="text-[var(--text-muted)]" />
-              <DomainDot status={line.research_status} label="Research" />
-            </div>
-            <div className="flex items-center gap-1">
-              <Film size={9} className="text-[var(--text-muted)]" />
-              <DomainDot status={line.footage_status} label="Footage" />
-            </div>
-            <div className="flex items-center gap-1">
-              <Image size={9} className="text-[var(--text-muted)]" />
-              <DomainDot status={line.image_status} label="Image" />
-            </div>
-            <div className="flex items-center gap-1">
-              <Video size={9} className="text-[var(--text-muted)]" />
-              <DomainDot status={line.video_status} label="Video" />
-            </div>
-
-            <span className="text-[10px] text-[var(--text-muted)] ml-auto">
-              {formatDuration(line.duration_ms)}
-            </span>
-            <span className="text-[10px] text-[var(--text-muted)] capitalize">
-              {line.line_type}
-            </span>
+            <div className="flex items-center gap-1"><BookOpen size={9} className="text-[var(--text-muted)]" /><DomainDot status={line.research_status} label="Research" /></div>
+            <div className="flex items-center gap-1"><Film size={9} className="text-[var(--text-muted)]" /><DomainDot status={line.footage_status} label="Footage" /></div>
+            <div className="flex items-center gap-1"><Image size={9} className="text-[var(--text-muted)]" /><DomainDot status={line.image_status} label="Image" /></div>
+            <div className="flex items-center gap-1"><Video size={9} className="text-[var(--text-muted)]" /><DomainDot status={line.video_status} label="Video" /></div>
+            <span className="text-[10px] text-[var(--text-muted)] ml-auto">{formatDuration(line.duration_ms)}</span>
+            <span className="text-[10px] text-[var(--text-muted)] capitalize">{line.line_type}</span>
           </div>
         </div>
       </div>

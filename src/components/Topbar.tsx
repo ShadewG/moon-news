@@ -10,20 +10,15 @@ import {
   ChevronDown,
   GitBranch,
 } from "lucide-react";
-import { sampleProject, sampleScriptVersion } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[var(--accent-orange)]/15 text-[var(--accent-orange)]",
+  active: "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)]",
   in_progress: "bg-[var(--accent-blue)]/15 text-[var(--accent-blue)]",
   review: "bg-[var(--accent-purple)]/15 text-[var(--accent-purple)]",
   published: "bg-[var(--accent-green)]/15 text-[var(--accent-green)]",
-};
-
-const statusLabels: Record<string, string> = {
-  draft: "Draft",
-  in_progress: "In Progress",
-  review: "Review",
-  published: "Published",
+  archived: "bg-[var(--text-muted)]/15 text-[var(--text-muted)]",
 };
 
 interface TopbarProps {
@@ -31,6 +26,10 @@ interface TopbarProps {
 }
 
 export default function Topbar({ onExportClick }: TopbarProps) {
+  const { project } = useProjectContext();
+  const title = project?.title ?? "Untitled Project";
+  const status = project?.status ?? "draft";
+
   return (
     <header className="h-14 border-b border-[var(--border)] flex items-center justify-between px-4 glass">
       <div className="flex items-center gap-3">
@@ -46,22 +45,18 @@ export default function Topbar({ onExportClick }: TopbarProps) {
 
         <div className="h-6 w-px bg-[var(--border)] mx-2" />
 
-        {/* Project selector */}
         <button className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--bg-hover)] transition-colors">
           <span className="text-sm text-[var(--text-secondary)]">Project:</span>
-          <span className="text-sm font-medium">{sampleProject.title}</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[sampleProject.status]}`}>
-            {statusLabels[sampleProject.status]}
+          <span className="text-sm font-medium">{title}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[status] ?? statusColors.draft}`}>
+            {status.replace("_", " ")}
           </span>
           <ChevronDown size={12} className="text-[var(--text-muted)]" />
         </button>
 
-        {/* Script version */}
         <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--bg-tertiary)]">
           <GitBranch size={12} className="text-[var(--text-muted)]" />
-          <span className="text-xs text-[var(--text-muted)]">
-            v{sampleScriptVersion.version_number}
-          </span>
+          <span className="text-xs text-[var(--text-muted)]">v1</span>
         </div>
       </div>
 

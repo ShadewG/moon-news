@@ -8,7 +8,9 @@ import {
   Waves,
   Heart,
 } from "lucide-react";
-import { sampleMusic, type MusicAsset } from "@/lib/sample-data";
+import { type MusicAsset } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
+import { useMusic } from "@/lib/hooks";
 
 function formatMusicDuration(ms: number): string {
   const totalSecs = Math.floor(ms / 1000);
@@ -17,12 +19,9 @@ function formatMusicDuration(ms: number): string {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
-interface MusicPanelProps {
-  selectedLine: string;
-}
-
-export default function MusicPanel({ selectedLine }: MusicPanelProps) {
-  const music = sampleMusic["project"] || [];
+export default function MusicPanel() {
+  const { projectId } = useProjectContext();
+  const { data: music } = useMusic(projectId);
 
   return (
     <div className="flex-1 flex flex-col min-w-0">

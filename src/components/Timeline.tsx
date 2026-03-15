@@ -1,15 +1,13 @@
 "use client";
 
 import { Film, Sparkles, Music, Mic, Image, Volume2 } from "lucide-react";
-import {
-  sampleScript,
-  sampleTimeline,
-  formatTimestamp,
-} from "@/lib/sample-data";
+import { formatTimestamp, type ScriptLine } from "@/lib/sample-data";
+import { useProjectContext } from "@/lib/project-context";
+import { useTimeline } from "@/lib/hooks";
 
 const totalDurationMs = 117000;
 
-function getSegmentColor(line: (typeof sampleScript)[0]): string {
+function getSegmentColor(line: ScriptLine): string {
   if (line.research_status === "complete" && line.footage_status === "complete")
     return "from-[var(--accent-green)]/40 to-[var(--accent-green)]/20";
   if (line.research_status === "complete")
@@ -19,17 +17,15 @@ function getSegmentColor(line: (typeof sampleScript)[0]): string {
   return "from-[var(--bg-hover)] to-[var(--bg-tertiary)]";
 }
 
-interface TimelineProps {
-  selectedLine: string;
-  onSelectLine: (id: string) => void;
-}
+export default function Timeline() {
+  const { projectId, lines, selectedLineId, setSelectedLineId } = useProjectContext();
+  const { data: timelineItems } = useTimeline(projectId);
 
-export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) {
-  const videoItems = sampleTimeline.filter((t) => t.track_type === "video");
-  const aiImageItems = sampleTimeline.filter((t) => t.track_type === "ai-image");
-  const aiVideoItems = sampleTimeline.filter((t) => t.track_type === "ai-video");
-  const musicItems = sampleTimeline.filter((t) => t.track_type === "music");
-  const narrationItems = sampleTimeline.filter((t) => t.track_type === "narration");
+  const videoItems = timelineItems.filter((t) => t.track_type === "video");
+  const aiImageItems = timelineItems.filter((t) => t.track_type === "ai-image");
+  const aiVideoItems = timelineItems.filter((t) => t.track_type === "ai-video");
+  const musicItems = timelineItems.filter((t) => t.track_type === "music");
+  const narrationItems = timelineItems.filter((t) => t.track_type === "narration");
 
   return (
     <div className="h-[160px] border-t border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col">
@@ -55,7 +51,7 @@ export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) 
             </div>
           </div>
           <span className="text-[10px] text-[var(--text-muted)]">
-            {sampleTimeline.length} items · 5 tracks
+            {timelineItems.length} items · 5 tracks
           </span>
         </div>
       </div>
@@ -64,17 +60,17 @@ export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) 
       <div className="flex-1 px-4 py-1.5 overflow-x-auto space-y-1">
         {/* Video track */}
         <TrackRow icon={Film} label="Video" color="text-[var(--text-muted)]">
-          {sampleScript.map((line) => {
+          {lines.map((line) => {
             const pct = (line.duration_ms / totalDurationMs) * 100;
             const hasTimelineItem = videoItems.some((t) => t.script_line_id === line.id);
             return (
               <button
                 key={line.id}
-                onClick={() => onSelectLine(line.id)}
+                onClick={() => setSelectedLineId(line.id)}
                 className={`h-7 rounded-md bg-gradient-to-b transition-all relative ${
                   hasTimelineItem ? getSegmentColor(line) : "from-[var(--bg-hover)]/50 to-[var(--bg-tertiary)]/50"
                 } ${
-                  selectedLine === line.id
+                  selectedLineId === line.id
                     ? "ring-1 ring-[var(--accent-blue)] ring-offset-1 ring-offset-[var(--bg-secondary)]"
                     : "hover:brightness-125"
                 }`}
@@ -93,7 +89,7 @@ export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) 
 
         {/* AI Image track */}
         <TrackRow icon={Image} label="AI Img" color="text-[var(--accent-orange)]">
-          {sampleScript.map((line) => {
+          {lines.map((line) => {
             const pct = (line.duration_ms / totalDurationMs) * 100;
             const hasItem = aiImageItems.some((t) => t.script_line_id === line.id);
             return (
@@ -112,7 +108,7 @@ export default function Timeline({ selectedLine, onSelectLine }: TimelineProps) 
 
         {/* AI Video track */}
         <TrackRow icon={Sparkles} label="AI Vid" color="text-[var(--accent-red)]">
-          {sampleScript.map((line) => {
+          {lines.map((line) => {
             const pct = (line.duration_ms / totalDurationMs) * 100;
             const hasItem = aiVideoItems.some((t) => t.script_line_id === line.id);
             return (
