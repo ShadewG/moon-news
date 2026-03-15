@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Clapperboard,
+  Moon,
   Download,
   Play,
   Settings,
@@ -15,10 +15,10 @@ export default function Topbar() {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-blue)] to-[var(--accent-purple)] flex items-center justify-center">
-            <Clapperboard size={18} className="text-white" />
+            <Moon size={18} className="text-white" />
           </div>
           <span className="font-semibold text-lg tracking-tight">
-            Source<span className="text-[var(--accent-blue)]">Reel</span>
+            Moon <span className="text-[var(--accent-blue)]">News</span> <span className="text-[var(--text-secondary)] font-normal">Studio</span>
           </span>
         </div>
 

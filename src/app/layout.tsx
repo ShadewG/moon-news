@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SourceReel — AI Video Research Studio",
+  title: "Moon News Studio — AI Video Research Studio",
   description: "Deep research and source footage for every line of your script",
 };
 
