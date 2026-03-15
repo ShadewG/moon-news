@@ -15,7 +15,6 @@ import {
 import { scrapeResearchSource } from "@/server/providers/firecrawl";
 import { summarizeResearch } from "@/server/providers/openai";
 import { searchLineResearch } from "@/server/providers/parallel";
-import { writeProjectFile } from "@/server/storage/files";
 
 export const RESEARCH_LINE_TASK_ID = "research-line";
 
@@ -132,21 +131,11 @@ export async function runResearchLineTask(input: { researchRunId: string }) {
       searchResult.results.map(async (result) => {
         let extractedMarkdown = "";
         let sourceName = new URL(result.url).hostname;
-        let extractedTextPath: string | null = null;
 
         try {
           const scrapeResult = await scrapeResearchSource(result.url);
           extractedMarkdown = scrapeResult.markdown;
           sourceName = scrapeResult.sourceName ?? sourceName;
-
-          if (extractedMarkdown) {
-            extractedTextPath = await writeProjectFile({
-              projectId: runRecord.project.id,
-              category: `research-cache/${input.researchRunId}`,
-              fileName: result.title,
-              content: extractedMarkdown,
-            });
-          }
         } catch {
           // Keep the search result even when full-page extraction fails.
         }
@@ -157,7 +146,6 @@ export async function runResearchLineTask(input: { researchRunId: string }) {
           sourceUrl: result.url,
           publishedAt: result.publishedAt,
           snippet: result.snippet,
-          extractedTextPath,
           extractedMarkdown,
           relevanceScore: result.relevanceScore,
         };
@@ -174,7 +162,7 @@ export async function runResearchLineTask(input: { researchRunId: string }) {
           sourceUrl: source.sourceUrl,
           publishedAt: source.publishedAt,
           snippet: source.snippet,
-          extractedTextPath: source.extractedTextPath,
+          extractedTextPath: null,
           relevanceScore: source.relevanceScore,
           sourceType: "unknown" as const,
           citationJson: {

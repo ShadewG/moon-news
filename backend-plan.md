@@ -54,7 +54,10 @@ The UI already defines the backend shape:
 - Transcript provider: `ElevenLabs STT`
 - YouTube transcript extraction: `youtube-transcript-api` (for YT source clips)
 - Video generation provider: `OpenAI`
+- Secondary video providers available from existing envs: `Runway`, `Kling`
 - Image generation provider: `OpenAI` first, `Gemini` second
+- Experimental model gateway available from existing envs: `Fal`
+- Editorial review handoff available from existing envs: `Frame.io`
 
 ## Opinionated Notes
 
@@ -65,6 +68,7 @@ The UI already defines the backend shape:
   - no built-in CDN behavior
   - harder migration path if asset throughput grows
   - backups and replication need to be handled intentionally
+- Railway does not currently let this project mount one shared volume across both `moon-news-web` and `moon-news-worker`, so assume separate per-service volumes unless and until media moves to object storage.
 - Because of that, volumes should be treated as the source of persisted generated files and cached provider downloads for v1, not as a permanent final-state media architecture.
 
 ## Railway Topology
@@ -84,7 +88,8 @@ Create a dedicated Railway project for this repo instead of reusing the currentl
 3. `moon-news-worker`
    - Trigger.dev worker runtime
    - can live as its own service or share the repo with a separate root/start command
-   - mounts the same volume path only if local media access is required by job steps
+   - in the current Railway setup, it cannot share the exact same volume instance as `moon-news-web`
+   - if local media access is required by job steps, either mirror the directory layout on a second worker volume or move cross-service assets behind route handlers/object storage
 
 4. `moon-news-redis` (optional)
    - only add if a queue/cache need emerges outside Trigger.dev
@@ -115,6 +120,8 @@ Suggested directories:
 /data/media/projects/<projectId>/exports
 ```
 
+In the current deployed Railway project, keep the same directory layout on both service volumes if both services need filesystem access. Do not assume writes from web are visible to worker without an explicit sync or download step.
+
 ## Code Layout
 
 Add these server-side areas:
@@ -135,7 +142,7 @@ Suggested responsibility split:
 - `config`: env parsing and runtime guards
 - `db`: Drizzle schema, migrations, db client
 - `domain`: shared business types and status enums
-- `providers`: thin SDK wrappers for Parallel, Perplexity, Firecrawl, OpenAI, Gemini, Storyblocks, Artlist, YouTube, Getty, InternetArchive, GoogleImages, ElevenLabs
+- `providers`: thin SDK wrappers for Parallel, Perplexity, Firecrawl, OpenAI, Gemini, Runway, Kling, Fal, Storyblocks, Artlist, YouTube, Getty, InternetArchive, GoogleImages, ElevenLabs, Frame.io
 - `services`: orchestration helpers used by route handlers and tasks
 - `storage`: volume path helpers, file metadata, cleanup helpers
 - `trigger`: task definitions and task-trigger helpers
@@ -598,6 +605,46 @@ Use for:
 - word-level timestamps
 - speaker diarization where useful
 
+### Runway
+
+Use for:
+
+- optional secondary video generation when OpenAI output quality is weak
+- style-specific motion generation experiments for lines that need a more cinematic pass
+- fallback runs on manually selected high-priority lines rather than all lines
+
+Keep Runway behind an explicit provider toggle. It is available in existing envs, but it should not replace OpenAI as the default path until output quality and turnaround are compared on real prompts.
+
+### Kling
+
+Use for:
+
+- optional alternate video generation
+- side-by-side comparison against OpenAI and Runway on the same source prompt
+- lines where stronger motion stylization matters more than strict prompt adherence
+
+Kling credentials already exist in the inspected Railway envs, so it is a realistic fallback path. Treat it as an experimental provider until its API reliability, moderation behavior, and cost profile are measured in this app.
+
+### Fal
+
+Use for:
+
+- experimental model routing when direct provider SDK support is inconvenient
+- trying additional image/video models without committing them to the primary architecture
+- fast evaluation spikes before deciding whether a provider deserves a first-class wrapper
+
+Do not make Fal the core abstraction. Use it as an experimentation lane, not the default production dependency.
+
+### Frame.io
+
+Use for:
+
+- review delivery after export
+- sending draft cuts or selected assets into a review workflow
+- attaching project/export metadata to an editorial review surface
+
+This belongs after export, not in the critical path for research or generation. Keep the first integration minimal: push finished exports or review renders only.
+
 ## Trigger.dev Task Graph
 
 Define tasks in a separate `trigger` area of the repo.
@@ -720,6 +767,7 @@ Define tasks in a separate `trigger` area of the repo.
 
 - build prompt from line text plus selected still/reference
 - call OpenAI video generation
+- optionally route to Runway or Kling for provider-specific retries on flagged lines
 - poll provider until completion
 - write output to volume
 - persist generated asset row
@@ -731,6 +779,7 @@ Define tasks in a separate `trigger` area of the repo.
 - run rendering pipeline
 - write output file to volume
 - persist export status
+- optionally push the finished export into Frame.io for review
 
 ## Status Model
 
@@ -793,6 +842,12 @@ GETTY_API_KEY=
 GOOGLE_CSE_API_KEY=
 GOOGLE_CSE_CX=
 ELEVENLABS_API_KEY=
+RUNWAY_API_KEY=
+RUNWAY_MODEL=
+KLING_ACCESS_KEY=
+KLING_SECRET_KEY=
+FAL_API_KEY=
+FRAMEIO_API_TOKEN=
 TRIGGER_SECRET_KEY=
 TRIGGER_PROJECT_REF=
 ```
@@ -809,6 +864,37 @@ MAX_TRANSCRIPT_FILE_SIZE_MB=512
 YOUTUBE_DAILY_QUOTA_LIMIT=10000
 PERPLEXITY_MAX_REQUESTS_PER_DAY=50
 ```
+
+## Current Secret Inventory
+
+After inspecting the existing `Autobot`, `discord-scheduler`, and `style-lab` Railway services, these provider keys are already available somewhere in current Railway infrastructure:
+
+- `OPENAI_API_KEY`
+- `PARALLEL_API_KEY`
+- `FIRECRAWL_API_KEY`
+- `ELEVENLABS_API_KEY`
+- `GEMINI_API_KEY`
+- `YOUTUBE_API_KEY`
+- `RUNWAY_API_KEY`
+- `RUNWAY_MODEL`
+- `KLING_ACCESS_KEY`
+- `KLING_SECRET_KEY`
+- `FAL_API_KEY`
+- `FRAMEIO_API_TOKEN`
+
+These planned providers were not present in the inspected envs and still need fresh secrets or account setup before implementation:
+
+- `STORYBLOCKS_API_KEY`
+- `ARTLIST_API_KEY`
+- `GETTY_API_KEY`
+- `PERPLEXITY_API_KEY`
+- `GOOGLE_CSE_API_KEY`
+- `GOOGLE_CSE_CX`
+
+Practical implication:
+
+- the next backend slices can immediately use `OpenAI`, `Parallel`, `Firecrawl`, `ElevenLabs`, `Gemini`, `YouTube`, `Runway`, `Kling`, `Fal`, and `Frame.io`
+- stock footage/music and deep-research expansion still require new secret provisioning
 
 ## Rollout Order
 
@@ -871,11 +957,25 @@ PERPLEXITY_MAX_REQUESTS_PER_DAY=50
 - implement OpenAI video generation
 - persist generated assets on Railway volume
 
+### Phase 5b: alternate generation providers
+
+- add Gemini image runs as a first-class fallback path, not just an internal retry
+- integrate Runway as an optional video fallback for selected lines
+- integrate Kling as an experimental video comparison provider
+- use Fal only for fast model evaluation or temporary experiments
+- add provider comparison metadata so the UI can show which model produced which asset
+
 ### Phase 6: export
 
 - define export manifest from timeline selections
 - implement export task
 - persist downloadable file metadata
+
+### Phase 6b: review delivery
+
+- push selected exports to Frame.io
+- store Frame.io asset/review links against the export record
+- keep review delivery optional so export completion does not depend on Frame.io uptime
 
 ## What To Implement First In This Repo
 
@@ -905,6 +1005,9 @@ That gives the prototype real research + multi-source footage with provenance ra
 - decide whether the Trigger worker is a separate Railway service or a separate start command in the same project root
 - decide whether volume files need signed download URLs or can be served through authenticated route handlers
 - decide whether transcript ingestion starts from uploaded files, provider URLs, or manually pasted links
+- decide whether Runway and Kling are manual fallback providers or part of the default video generation policy
+- decide whether Fal should be enabled in production at all or remain an internal experimentation tool
+- decide whether Frame.io is export-only or also used for intermediary review renders
 - set up a Google Cloud project and enable YouTube Data API v3 + Custom Search API
 - apply for Getty Images API access (requires sales contact)
 - create a Perplexity API account and note the Sonar Deep Research pricing tier
@@ -950,7 +1053,9 @@ Implement the backend in this exact order:
 8. Provenance ranking and `is_primary_source` logic
 9. ElevenLabs transcripts + youtube-transcript-api
 10. OpenAI image/video generation
-11. Timeline persistence
-12. Export pipeline
+11. Gemini image fallback + Runway/Kling evaluation path
+12. Timeline persistence
+13. Export pipeline
+14. Frame.io review delivery
 
 Do not start with generation or export. The product becomes usable as soon as research plus multi-provider footage search with provenance ranking work against real data.
