@@ -2,6 +2,8 @@ import "server-only";
 
 import { and, desc, eq, sql } from "drizzle-orm";
 
+import OpenAI from "openai";
+
 import { requireEnv } from "@/server/config/env";
 import { getDb } from "@/server/db/client";
 import {
@@ -14,18 +16,13 @@ import {
   boardStorySources,
 } from "@/server/db/schema";
 
-import type OpenAI from "openai";
-
 // ─── OpenAI Client (follows same pattern as providers/openai.ts) ───
 
 let openaiClient: OpenAI | undefined;
 
 function getOpenAIClient(): OpenAI {
   if (!openaiClient) {
-    // Dynamic require to avoid circular dependency with server-only guard
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { default: OpenAIClass } = require("openai") as { default: typeof OpenAI };
-    openaiClient = new OpenAIClass({
+    openaiClient = new OpenAI({
       apiKey: requireEnv("OPENAI_API_KEY"),
     });
   }

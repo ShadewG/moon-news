@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, eq, gt, gte, lt, lte, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
