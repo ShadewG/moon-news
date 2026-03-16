@@ -4,6 +4,7 @@ import { getDb } from "@/server/db/client";
 import { clipLibrary, clipSearchQuotes } from "@/server/db/schema";
 import LibraryClient from "./library-client";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Clip Library — Moon News Studio" };
 
 export default async function LibraryPage() {
