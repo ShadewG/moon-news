@@ -272,19 +272,14 @@ export async function runVisualSearchTask(input: {
 
           // Quality gate — mark failures but still store them
           const withQuality = rawResults.map((r) => {
-            const passes = passesQualityGate({
+            const gate = passesQualityGate({
               provider: r.provider,
               title: r.title,
               durationMs: r.durationMs,
               channelOrContributor: r.channelOrContributor,
               viewCount: r.viewCount,
             });
-            let filterReason: string | null = null;
-            if (!passes) {
-              if (r.durationMs && r.durationMs < 60_000) filterReason = "Too short (<60s)";
-              else filterReason = "Low quality channel";
-            }
-            return { ...r, qualityPasses: passes, filterReason };
+            return { ...r, qualityPasses: gate.passes, filterReason: gate.reason };
           });
 
           // AI relevance scoring on all results (even filtered ones get scored)

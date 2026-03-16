@@ -9,6 +9,7 @@ import {
   scriptLines,
   visualRecommendations,
 } from "@/server/db/schema";
+import CopyLinksButton from "./copy-links";
 
 type Props = {
   params: Promise<{ projectId: string }>;
@@ -42,8 +43,8 @@ export default async function ReportPage({ params }: Props) {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-        <p className="text-[var(--text-muted)]">Project not found</p>
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+        <p className="text-[#71717a]">Project not found</p>
       </div>
     );
   }
@@ -54,30 +55,37 @@ export default async function ReportPage({ params }: Props) {
     .where(eq(scriptLines.projectId, projectId))
     .orderBy(scriptLines.lineIndex);
 
-  // Fetch all data in parallel
   const [allAssets, allQuotes, allSources, allRecs] = await Promise.all([
-    db.select().from(footageAssets)
-      .innerJoin(
-        scriptLines,
-        eq(scriptLines.id, footageAssets.scriptLineId)
-      )
+    db
+      .select()
+      .from(footageAssets)
+      .innerJoin(scriptLines, eq(scriptLines.id, footageAssets.scriptLineId))
       .where(eq(scriptLines.projectId, projectId))
       .orderBy(desc(footageAssets.matchScore)),
-    db.select().from(footageQuotes)
+    db
+      .select()
+      .from(footageQuotes)
       .innerJoin(scriptLines, eq(scriptLines.id, footageQuotes.scriptLineId))
       .where(eq(scriptLines.projectId, projectId))
       .orderBy(desc(footageQuotes.relevanceScore)),
-    db.select().from(researchSources)
+    db
+      .select()
+      .from(researchSources)
       .innerJoin(scriptLines, eq(scriptLines.id, researchSources.scriptLineId))
       .where(eq(scriptLines.projectId, projectId)),
-    db.select().from(visualRecommendations)
+    db
+      .select()
+      .from(visualRecommendations)
       .where(eq(visualRecommendations.projectId, projectId)),
   ]);
 
-  const totalVisible = allAssets.filter(
-    (a) => !a.footage_assets.filtered
-  ).length;
+  const totalVisible = allAssets.filter((a) => !a.footage_assets.filtered).length;
   const totalFiltered = allAssets.length - totalVisible;
+
+  // Collect ALL source URLs for copy button
+  const allLinks = allAssets
+    .filter((a) => !a.footage_assets.filtered)
+    .map((a) => a.footage_assets.sourceUrl);
 
   const now = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -88,32 +96,34 @@ export default async function ReportPage({ params }: Props) {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-[#e4e4e7]">
+    <div className="min-h-screen bg-[#09090b] text-[#e4e4e7]">
       {/* Header */}
-      <header className="border-b border-[#27272a] bg-[#0f0f11]">
-        <div className="max-w-5xl mx-auto px-6 py-8">
-          <div className="flex items-center gap-2 text-xs text-[#71717a] mb-3">
-            <span>Moon News Studio</span>
-            <span>/</span>
-            <span>Investigation Report</span>
+      <header className="border-b border-[#1e1e22] bg-[#0c0c0f] sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-xs text-[#52525b] mb-2">
+                <span>Moon News Studio</span>
+                <span>/</span>
+                <span>Investigation Report</span>
+              </div>
+              <h1 className="text-xl font-bold text-white">{project.title}</h1>
+              <p className="text-xs text-[#52525b] mt-1">{now}</p>
+            </div>
+            <CopyLinksButton links={allLinks} />
           </div>
-          <h1 className="text-2xl font-bold text-white">{project.title}</h1>
-          <p className="text-sm text-[#a1a1aa] mt-2">
-            Generated {now}
-          </p>
           <div className="flex gap-6 mt-4 text-sm">
             <Stat label="Lines" value={lines.length} />
             <Stat label="Footage" value={totalVisible} />
             <Stat label="Filtered" value={totalFiltered} />
             <Stat label="Quotes" value={allQuotes.length} />
             <Stat label="Articles" value={allSources.length} />
-            <Stat label="AI Recs" value={allRecs.length} />
           </div>
         </div>
       </header>
 
       {/* Lines */}
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-10">
+      <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         {lines.map((line) => {
           const lineAssets = allAssets
             .filter((a) => a.footage_assets.scriptLineId === line.id)
@@ -134,185 +144,138 @@ export default async function ReportPage({ params }: Props) {
           for (const a of visible)
             byProvider[a.provider] = (byProvider[a.provider] ?? 0) + 1;
 
+          const lineLinks = visible.map((a) => a.sourceUrl);
+
           return (
             <section
               key={line.id}
               id={line.lineKey}
-              className="border border-[#27272a] rounded-xl bg-[#0f0f11] overflow-hidden"
+              className="border border-[#1e1e22] rounded-xl bg-[#0c0c0f] overflow-hidden"
             >
               {/* Line header */}
-              <div className="px-6 py-4 border-b border-[#27272a] bg-[#141416]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs font-mono text-[#71717a]">
+              <div className="px-5 py-4 border-b border-[#1e1e22] bg-[#111114]">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="text-xs font-mono text-[#52525b]">
                     {line.lineKey}
                   </span>
                   {line.lineContentCategory && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#27272a] text-[#a1a1aa]">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1e1e22] text-[#a1a1aa]">
                       {line.lineContentCategory.replace(/_/g, " ")}
                     </span>
                   )}
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#27272a] text-[#71717a]">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1e1e22] text-[#52525b]">
                     {line.lineType}
                   </span>
                   <div className="flex-1" />
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1">
                     {Object.entries(byProvider).map(([p, c]) => (
                       <span
                         key={p}
-                        className={`text-[10px] px-1.5 py-0.5 rounded ${providerStyle(p)}`}
+                        className={`text-[10px] px-1.5 py-0.5 rounded ${pStyle(p)}`}
                       >
-                        {p === "internet_archive" ? "IA" : p === "google_images" ? "GI" : p}: {c}
+                        {pLabel(p)}: {c}
                       </span>
                     ))}
                   </div>
+                  {lineLinks.length > 0 && (
+                    <CopyLinksButton links={lineLinks} label="Copy links" small />
+                  )}
                 </div>
-                <p className="text-sm text-[#e4e4e7] leading-relaxed">
+                <p className="text-sm text-[#d4d4d8] leading-relaxed">
                   {line.text}
                 </p>
               </div>
 
-              {/* Content */}
-              <div className="px-6 py-4 space-y-4">
-                {/* Recommendations */}
-                {lineRecs.length > 0 && (
-                  <div className="space-y-2">
-                    {lineRecs.map((r) => (
-                      <div
-                        key={r.id}
-                        className="flex items-start gap-2 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20"
-                      >
-                        <span className="text-purple-400 text-xs mt-0.5">AI</span>
-                        <div>
-                          <p className="text-xs text-[#e4e4e7]">
-                            Recommend {r.recommendationType.replace(/_/g, " ")}
-                          </p>
-                          <p className="text-[11px] text-[#71717a]">{r.reason}</p>
-                        </div>
-                      </div>
-                    ))}
+              <div className="px-5 py-4 space-y-5">
+                {/* Recs */}
+                {lineRecs.map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-start gap-2 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20 text-xs"
+                  >
+                    <span className="text-purple-400 mt-0.5">AI</span>
+                    <div>
+                      <span className="text-[#d4d4d8]">
+                        Recommend {r.recommendationType.replace(/_/g, " ")}
+                      </span>
+                      <span className="text-[#52525b] ml-2">{r.reason}</span>
+                    </div>
                   </div>
-                )}
+                ))}
 
                 {/* Quotes */}
                 {lineQuotes.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-semibold text-[#a1a1aa] mb-2 uppercase tracking-wider">
-                      Extracted Quotes
+                    <h4 className="text-[10px] font-semibold text-[#71717a] mb-2 uppercase tracking-widest">
+                      Quotes
                     </h4>
-                    <div className="space-y-2">
-                      {lineQuotes.map((q) => {
-                        const m = Math.floor(q.startMs / 60000);
-                        const s = Math.floor((q.startMs % 60000) / 1000);
-                        return (
-                          <div
-                            key={q.id}
-                            className="p-3 rounded-lg bg-[#1a1a1e] border border-[#27272a]"
-                          >
-                            <p className="text-sm text-[#e4e4e7] italic">
-                              &ldquo;{q.quoteText}&rdquo;
-                            </p>
-                            <div className="flex items-center gap-3 mt-2 text-[11px] text-[#71717a]">
-                              <span className="font-mono">
-                                [{m}:{String(s).padStart(2, "0")}]
-                              </span>
-                              {q.speaker && (
-                                <span className="text-[#a1a1aa]">
-                                  — {q.speaker}
-                                </span>
-                              )}
-                              <span>{q.relevanceScore}/100 relevance</span>
-                            </div>
-                            {q.context && (
-                              <p className="text-[11px] text-[#52525b] mt-1">
-                                {q.context}
-                              </p>
+                    {lineQuotes.map((q) => {
+                      const m = Math.floor(q.startMs / 60000);
+                      const s = Math.floor((q.startMs % 60000) / 1000);
+                      return (
+                        <div
+                          key={q.id}
+                          className="p-3 rounded-lg bg-[#141418] border border-[#1e1e22] mb-2"
+                        >
+                          <p className="text-sm text-[#d4d4d8] italic leading-relaxed">
+                            &ldquo;{q.quoteText}&rdquo;
+                          </p>
+                          <div className="flex items-center gap-3 mt-2 text-[11px] text-[#52525b]">
+                            <span className="font-mono text-[#71717a]">
+                              [{m}:{String(s).padStart(2, "0")}]
+                            </span>
+                            {q.speaker && (
+                              <span className="text-[#a1a1aa]">— {q.speaker}</span>
                             )}
+                            <span>{q.relevanceScore}/100</span>
                           </div>
-                        );
-                      })}
-                    </div>
+                          {q.context && (
+                            <p className="text-[11px] text-[#3f3f46] mt-1">
+                              {q.context}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
-                {/* Footage */}
+                {/* Footage with embedded players */}
                 {visible.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-semibold text-[#a1a1aa] mb-2 uppercase tracking-wider">
+                    <h4 className="text-[10px] font-semibold text-[#71717a] mb-3 uppercase tracking-widest">
                       Footage ({visible.length})
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {visible.slice(0, 8).map((a) => {
-                        const views = (
-                          a.metadataJson as Record<string, unknown> | null
-                        )?.viewCount;
-                        return (
-                          <a
-                            key={a.id}
-                            href={a.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex gap-3 p-3 rounded-lg bg-[#1a1a1e] border border-[#27272a] hover:border-[#3f3f46] transition-colors group"
-                          >
-                            {a.previewUrl && (
-                              <img
-                                src={a.previewUrl}
-                                alt=""
-                                className="w-24 h-16 object-cover rounded flex-shrink-0"
-                              />
-                            )}
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs text-[#e4e4e7] line-clamp-2 group-hover:text-white">
-                                {a.title}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1 text-[10px] text-[#71717a]">
-                                <span className={providerStyle(a.provider)}>
-                                  {a.provider}
-                                </span>
-                                <span>{a.matchScore}pts</span>
-                                {a.channelOrContributor && (
-                                  <span className="truncate">
-                                    {a.channelOrContributor}
-                                  </span>
-                                )}
-                                {views != null && (
-                                  <span>
-                                    {Number(views as number).toLocaleString()} views
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </a>
-                        );
-                      })}
+                    <div className="space-y-3">
+                      {visible.map((a) => (
+                        <FootageCard key={a.id} asset={a} />
+                      ))}
                     </div>
-                    {visible.length > 8 && (
-                      <p className="text-[11px] text-[#52525b] mt-2">
-                        +{visible.length - 8} more results
-                      </p>
-                    )}
                   </div>
                 )}
 
                 {/* Filtered */}
                 {filtered.length > 0 && (
-                  <details className="text-[11px] text-[#52525b]">
-                    <summary className="cursor-pointer hover:text-[#71717a]">
-                      {filtered.length} filtered results (lower relevance)
+                  <details className="text-[11px] text-[#3f3f46]">
+                    <summary className="cursor-pointer hover:text-[#52525b] py-1">
+                      {filtered.length} filtered results
                     </summary>
-                    <div className="mt-2 space-y-1 pl-4">
+                    <div className="mt-2 space-y-1 pl-3 border-l border-[#1e1e22]">
                       {filtered.map((a) => (
                         <div key={a.id} className="flex gap-2">
-                          <span className="text-[#3f3f46]">{a.matchScore}pts</span>
+                          <span className="text-[#27272a] w-8 text-right flex-shrink-0">
+                            {a.matchScore}
+                          </span>
                           <a
                             href={a.sourceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-[#71717a] truncate"
+                            className="hover:text-[#52525b] truncate"
                           >
                             [{a.provider}] {a.title}
                           </a>
                           {a.filterReason && (
-                            <span className="text-[#3f3f46] flex-shrink-0">
+                            <span className="text-[#27272a] flex-shrink-0">
                               — {a.filterReason}
                             </span>
                           )}
@@ -325,39 +288,34 @@ export default async function ReportPage({ params }: Props) {
                 {/* Articles */}
                 {lineSources.length > 0 && (
                   <details>
-                    <summary className="text-xs text-[#71717a] cursor-pointer hover:text-[#a1a1aa]">
+                    <summary className="text-[11px] text-[#52525b] cursor-pointer hover:text-[#71717a] py-1">
                       {lineSources.length} article sources
                     </summary>
-                    <div className="mt-2 space-y-1 pl-4">
+                    <div className="mt-2 space-y-1 pl-3 border-l border-[#1e1e22]">
                       {lineSources.map((s) => (
                         <a
                           key={s.id}
                           href={s.sourceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block text-[11px] text-[#52525b] hover:text-[#71717a] truncate"
+                          className="block text-[11px] text-[#3f3f46] hover:text-[#52525b]"
                         >
-                          [{s.sourceName}] {s.title}
+                          <span className="text-[#52525b]">[{s.sourceName}]</span>{" "}
+                          {s.title}
                         </a>
                       ))}
                     </div>
                   </details>
                 )}
 
-                {/* Empty state */}
+                {/* Empty states */}
                 {visible.length === 0 &&
                   lineQuotes.length === 0 &&
                   lineSources.length === 0 &&
                   lineRecs.length === 0 &&
-                  line.lineContentCategory !== "transition" && (
-                    <p className="text-xs text-[#3f3f46] italic">
-                      No results yet — run investigation for this line
-                    </p>
-                  )}
-                {line.lineContentCategory === "transition" &&
-                  visible.length === 0 && (
-                    <p className="text-xs text-[#3f3f46] italic">
-                      Transition line — no visual search needed
+                  line.lineContentCategory === "transition" && (
+                    <p className="text-xs text-[#27272a] italic">
+                      Transition — no search needed
                     </p>
                   )}
               </div>
@@ -366,32 +324,153 @@ export default async function ReportPage({ params }: Props) {
         })}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-[#27272a] py-6 text-center text-xs text-[#3f3f46]">
-        Generated by Moon News Studio
+      <footer className="border-t border-[#1e1e22] py-6 text-center text-xs text-[#27272a]">
+        Moon News Studio
       </footer>
+    </div>
+  );
+}
+
+function FootageCard({
+  asset,
+}: {
+  asset: typeof footageAssets.$inferSelect;
+}) {
+  const views = (asset.metadataJson as Record<string, unknown> | null)
+    ?.viewCount;
+  const isYouTube = asset.provider === "youtube";
+  const isTwitter = asset.provider === "twitter";
+
+  // Extract YouTube video ID for embed
+  const ytId = isYouTube ? asset.externalAssetId : null;
+
+  // Extract Twitter post ID for embed
+  const tweetId = isTwitter
+    ? asset.sourceUrl.match(/status\/(\d+)/)?.[1]
+    : null;
+
+  return (
+    <div className="rounded-lg border border-[#1e1e22] bg-[#111114] overflow-hidden">
+      {/* Embed */}
+      {ytId && (
+        <div className="aspect-video">
+          <iframe
+            src={`https://www.youtube.com/embed/${ytId}`}
+            className="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
+      {isTwitter && !ytId && (
+        <div className="p-4 bg-[#0c0c0f] border-b border-[#1e1e22]">
+          <p className="text-sm text-[#a1a1aa] leading-relaxed">
+            {asset.title}
+          </p>
+          {tweetId && (
+            <a
+              href={asset.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-2 text-xs text-sky-400 hover:text-sky-300"
+            >
+              View on X →
+            </a>
+          )}
+        </div>
+      )}
+      {!isYouTube && !isTwitter && asset.previewUrl && (
+        <img
+          src={asset.previewUrl}
+          alt={asset.title}
+          className="w-full h-40 object-cover"
+        />
+      )}
+
+      {/* Info */}
+      <div className="px-4 py-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <a
+              href={asset.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#d4d4d8] hover:text-white leading-snug line-clamp-2 block"
+            >
+              {decodeHTMLEntities(asset.title)}
+            </a>
+            {asset.channelOrContributor && (
+              <p className="text-[11px] text-[#52525b] mt-0.5">
+                {asset.channelOrContributor}
+              </p>
+            )}
+          </div>
+          <span className="text-xs font-mono text-[#52525b] flex-shrink-0">
+            {asset.matchScore}pts
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mt-2 text-[10px] text-[#3f3f46] flex-wrap">
+          <span className={pStyle(asset.provider)}>{pLabel(asset.provider)}</span>
+          {asset.durationMs && asset.durationMs > 0 && (
+            <span>
+              {Math.floor(asset.durationMs / 60000)}:
+              {String(Math.floor((asset.durationMs % 60000) / 1000)).padStart(2, "0")}
+            </span>
+          )}
+          {views != null && (
+            <span>{Number(views as number).toLocaleString()} views</span>
+          )}
+          {asset.uploadDate && (
+            <span>{String(asset.uploadDate).slice(0, 10)}</span>
+          )}
+          {asset.licenseType && <span>{asset.licenseType}</span>}
+          {asset.isPrimarySource && (
+            <span className="text-amber-500">Primary Source</span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div>
+    <div className="text-sm">
       <span className="text-white font-semibold">{value}</span>{" "}
-      <span className="text-[#71717a]">{label}</span>
+      <span className="text-[#52525b]">{label}</span>
     </div>
   );
 }
 
-function providerStyle(provider: string): string {
-  const styles: Record<string, string> = {
+function pStyle(p: string): string {
+  const m: Record<string, string> = {
     youtube: "text-red-400",
     twitter: "text-sky-400",
     internet_archive: "text-amber-400",
     google_images: "text-blue-400",
     getty: "text-emerald-400",
     storyblocks: "text-indigo-400",
-    parallel: "text-[#71717a]",
   };
-  return styles[provider] ?? "text-[#71717a]";
+  return m[p] ?? "text-[#52525b]";
+}
+
+function pLabel(p: string): string {
+  const m: Record<string, string> = {
+    youtube: "YT",
+    twitter: "X",
+    internet_archive: "IA",
+    google_images: "GI",
+    getty: "Getty",
+    storyblocks: "SB",
+  };
+  return m[p] ?? p;
+}
+
+function decodeHTMLEntities(text: string): string {
+  return text
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
 }

@@ -47,10 +47,14 @@ const QUALITY_CHANNELS = [
 ];
 
 const JUNK_CHANNEL_INDICATORS = [
-  "ai story", "ai narrat", "ai generat", "wikitubia",
-  "#shorts", "story telling", "golden history", "minor profundity",
-  "covert tales", "alterno archivo", "prompt voyager",
+  "ai story", "ai narrat", "ai generat", "ai visual", "ai history",
+  "wikitubia", "#shorts", "story telling", "golden history",
+  "minor profundity", "covert tales", "alterno archivo", "prompt voyager",
+  "facts about", "amazing facts", "cinematicai", "ai facts",
+  "proven conspiracies", "stateless standard",
 ];
+
+const MIN_VIEW_COUNT = 5000; // Minimum views for YouTube/Twitter
 
 const REPOST_INDICATORS = [
   "reupload", "re-upload", "compilation", "best of", "top 10",
@@ -193,21 +197,38 @@ export function passesQualityGate(input: {
   durationMs: number | null;
   channelOrContributor: string | null;
   viewCount: number;
-}): boolean {
+}): { passes: boolean; reason: string | null } {
   const lowerTitle = input.title.toLowerCase();
   const lowerChannel = (input.channelOrContributor ?? "").toLowerCase();
 
   // Filter YouTube Shorts (< 60s)
   if (input.provider === "youtube" && input.durationMs && input.durationMs < MIN_VIDEO_DURATION_MS) {
-    return false;
+    return { passes: false, reason: "Too short (<60s)" };
+  }
+
+  // Minimum view count for YouTube and Twitter
+  if (
+    (input.provider === "youtube" || input.provider === "twitter") &&
+    input.viewCount > 0 &&
+    input.viewCount < MIN_VIEW_COUNT
+  ) {
+    return { passes: false, reason: `Low views (<${MIN_VIEW_COUNT.toLocaleString()})` };
   }
 
   // Filter obviously AI-generated/bot content
   for (const jc of JUNK_CHANNEL_INDICATORS) {
     if (lowerChannel.includes(jc) || lowerTitle.includes(jc)) {
-      return false;
+      return { passes: false, reason: "AI-generated or low quality channel" };
     }
   }
 
-  return true;
+  // Title-level AI detection
+  if (
+    (lowerTitle.includes("#aivisual") || lowerTitle.includes("cinematicai") || lowerTitle.includes("ai-generated")) &&
+    !lowerTitle.includes("about ai")
+  ) {
+    return { passes: false, reason: "AI-generated content" };
+  }
+
+  return { passes: true, reason: null };
 }
