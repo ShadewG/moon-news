@@ -119,15 +119,33 @@ export async function scoreStory(
     25
   );
 
-  // 3. Timeliness Score (20pts): based on age
-  let timelinessScore = 5;
+  // 3. Timeliness — this is now a MULTIPLIER not just points
+  // Recent stories get full score, old ones decay hard
+  let timelinessScore = 20;
+  let agePenaltyMultiplier = 1.0; // applied to total score at the end
   if (story.lastSeenAt) {
     const ageMs = Date.now() - new Date(story.lastSeenAt).getTime();
     const ageHours = ageMs / (1000 * 60 * 60);
+    const ageDays = ageHours / 24;
+
+    // Timeliness points
     if (ageHours < 6) timelinessScore = 20;
-    else if (ageHours < 24) timelinessScore = 15;
-    else if (ageHours < 168) timelinessScore = 10; // 7 days
-    else timelinessScore = 5;
+    else if (ageHours < 24) timelinessScore = 18;
+    else if (ageHours < 72) timelinessScore = 15; // 3 days
+    else if (ageDays < 7) timelinessScore = 10;
+    else if (ageDays < 14) timelinessScore = 5;
+    else timelinessScore = 0;
+
+    // Age penalty multiplier — old stories get crushed
+    // Unless they have multiple recent sources (= resurgence)
+    if (ageDays > 30) agePenaltyMultiplier = 0.2;      // 1+ month = 20% of score
+    else if (ageDays > 14) agePenaltyMultiplier = 0.4;  // 2+ weeks = 40%
+    else if (ageDays > 7) agePenaltyMultiplier = 0.6;   // 1+ week = 60%
+    else if (ageDays > 3) agePenaltyMultiplier = 0.8;   // 3+ days = 80%
+    else agePenaltyMultiplier = 1.0;                    // recent = full score
+
+    // Surge override: if story has 3+ sources in last 24h, it's resurgent
+    // (handled below in surge detection)
   }
 
   // 4. Competitor Overlap (15pts): check if competitors cover similar topic
@@ -194,9 +212,7 @@ export async function scoreStory(
       .where(eq(boardStoryCandidates.id, storyId));
   }
 
-  // Total — Moon relevance acts as a multiplier
-  // Irrelevant stories (moonRelevance < 15) get max score of 40
-  // Highly relevant (moonRelevance > 60) get full score
+  // Total — apply both Moon relevance AND age penalty
   const relevanceMultiplier = moonRelevance >= 60 ? 1.0
     : moonRelevance >= 30 ? 0.7
     : moonRelevance >= 15 ? 0.5
@@ -209,7 +225,8 @@ export async function scoreStory(
     competitorOverlap +
     visualEvidence;
 
-  const totalScore = Math.round(rawTotal * relevanceMultiplier);
+  // Apply both multipliers: relevance × age
+  const totalScore = Math.round(rawTotal * relevanceMultiplier * agePenaltyMultiplier);
 
   // Surge detection: items_count increased by 3+ in last hour
   let surgeActive = false;
@@ -228,9 +245,20 @@ export async function scoreStory(
       .then((rows) => Number(rows[0]?.count ?? 0));
 
     surgeActive = recentItems >= 3;
+
+    // Surge override: if actively surging, cancel age penalty
+    // Old story resurfacing = worth covering
+    if (surgeActive && agePenaltyMultiplier < 1.0) {
+      agePenaltyMultiplier = 0.9; // slight penalty but mostly restored
+    }
   } catch {
     // Surge check is best-effort
   }
+
+  // Recalculate total with surge override
+  const finalScore = surgeActive && agePenaltyMultiplier < 1.0
+    ? Math.round(rawTotal * relevanceMultiplier * 0.9)
+    : totalScore;
 
   const breakdown: ScoreBreakdown = {
     sourceScore,
@@ -245,16 +273,16 @@ export async function scoreStory(
   await db
     .update(boardStoryCandidates)
     .set({
-      surgeScore: totalScore,
+      surgeScore: finalScore,
       scoreJson: breakdown as unknown as Record<string, unknown>,
       updatedAt: new Date(),
     })
     .where(eq(boardStoryCandidates.id, storyId));
 
   return {
-    totalScore,
+    totalScore: finalScore,
     breakdown,
-    tier: getTier(totalScore),
+    tier: getTier(finalScore),
     surgeActive,
   };
 }
