@@ -16,6 +16,20 @@ The supplied board spec in `/Users/samuelhylton/Documents/moon-news-board (1).ht
 
 This is not the same thing as the current script-line workspace. It should be treated as a separate workflow that feeds the existing video-production flow.
 
+## Macro Coverage
+
+This plan now explicitly incorporates the newsroom-system concepts from `/Users/samuelhylton/Documents/moon-news-board-addendum-2 (1).docx`, adapted for Moon's workflow:
+
+- story-centric architecture rather than feed-item-centric browsing
+- Topic Radar / `Brief Me` story briefings
+- anomaly detection and surge alerts
+- sentiment scoring and controversy ranking
+- rundown-style production queue
+- format recommendations per story
+- correction propagation and version tracking
+- AI editorial tools: `Script Starter`, `Title Generator`, `Thumbnail Analyzer`
+- alert delivery via Discord webhook and browser notifications
+
 ## Architecture Decisions
 
 ### Repo and app shape
@@ -23,11 +37,12 @@ This is not the same thing as the current script-line workspace. It should be tr
 - Keep this in the same repo and the same Next.js app.
 - Add a new route namespace for the board, likely `/board`.
 - Reuse the current `moon-news-web` app service and `moon-news-worker` Trigger worker.
+- Keep the board story-centric. Feeds, competitor posts, alerts, scripts, and queue items should all roll up to a canonical story object.
 
 ### Railway services
 
 - Do **not** add a brand new always-on RSS service first.
-- Use scheduled Trigger.dev tasks for RSS polling, YouTube RSS polling, RSS.app/X ingestion, Apify trend pulls, and periodic recomputation.
+- Use scheduled Trigger.dev tasks for RSS polling, YouTube polling, RSS.app/X ingestion, Apify trend pulls, competitor refreshes, anomaly checks, and periodic recomputation.
 - Only split into a dedicated `moon-news-feeds` service later if ingestion becomes too heavy or needs long-running browser workers.
 
 ### Database decision
@@ -41,6 +56,7 @@ Why:
 - the board will need to link into the existing clip library, project system, and eventually create production projects
 - one DB keeps joins and workflow handoffs simple
 - the current scale does not justify a second operational surface
+- it keeps correction/version history, story clustering, and queue handoff queryable without cross-database plumbing
 
 When to split later:
 
@@ -74,17 +90,17 @@ Recommended tables:
   - fields: `id`, `name`, `kind`, `provider`, `poll_interval_minutes`, `enabled`, `config_json`, `last_polled_at`, `last_success_at`, `last_error`
 - `board_feed_items`
   - raw ingested items from RSS, YouTube RSS, RSS.app/X, Apify, Google Alerts-like sources
-  - fields: `id`, `source_id`, `external_id`, `title`, `url`, `author`, `published_at`, `summary`, `content_hash`, `metadata_json`, `ingested_at`
+  - fields: `id`, `source_id`, `external_id`, `title`, `url`, `author`, `published_at`, `summary`, `content_hash`, `sentiment_score`, `controversy_score`, `entity_keys_json`, `metadata_json`, `ingested_at`
 - `board_story_candidates`
   - deduplicated cluster-level story rows shown on the board
-  - fields: `id`, `canonical_title`, `vertical`, `status`, `story_type`, `surge_score`, `controversy_score`, `sentiment_score`, `items_count`, `sources_count`, `first_seen_at`, `last_seen_at`, `score_json`
+  - fields: `id`, `canonical_title`, `vertical`, `status`, `story_type`, `surge_score`, `controversy_score`, `sentiment_score`, `story_score`, `items_count`, `sources_count`, `first_seen_at`, `last_seen_at`, `score_json`, `formats_json`
 - `board_story_sources`
   - joins candidates to feed items / evidence
   - fields: `id`, `story_id`, `feed_item_id`, `source_weight`, `is_primary`, `evidence_json`
 - `board_story_ai_outputs`
   - cached AI artifacts for a story
-  - fields: `id`, `story_id`, `kind`, `prompt_version`, `model`, `content`, `metadata_json`, `created_at`
-  - `kind` values: `brief`, `script_starter`, `titles`
+  - fields: `id`, `story_id`, `kind`, `prompt_version`, `model`, `content`, `metadata_json`, `created_at`, `expires_at`
+  - `kind` values: `brief`, `script_starter`, `titles`, `thumbnail_analysis`
 - `board_competitor_channels`
   - configured competitor channels/accounts
   - fields: `id`, `name`, `platform`, `tier`, `handle`, `channel_url`, `poll_interval_minutes`, `enabled`, `metadata_json`
@@ -97,6 +113,21 @@ Recommended tables:
 - `board_ticker_events`
   - precomputed ticker items
   - fields: `id`, `story_id`, `label`, `text`, `priority`, `starts_at`, `expires_at`
+- `board_surge_alerts`
+  - anomaly and surge events tied to stories
+  - fields: `id`, `story_id`, `alert_type`, `surge_score`, `baseline_avg`, `current_count`, `window_minutes`, `created_at`, `dismissed_at`
+- `board_feed_item_versions`
+  - wire-style correction and change history for feed items
+  - fields: `id`, `feed_item_id`, `content_hash`, `title`, `content`, `diff_summary`, `is_correction`, `version_number`, `captured_at`
+
+Recommended indexes:
+
+- `board_story_candidates(status)`
+- `board_story_candidates(vertical)`
+- `board_surge_alerts(created_at, dismissed_at)`
+- `board_queue_items(status, position)`
+- `board_feed_item_versions(feed_item_id, version_number)`
+- composite uniqueness/indexing on `board_story_sources(story_id, feed_item_id)`
 
 ### 3. Ingestion pipeline
 
@@ -105,20 +136,26 @@ Build scheduled Trigger tasks instead of a separate Railway service first.
 Recommended tasks:
 
 - `pollBoardRssSources`
-- `pollBoardYoutubeRss`
+- `pollBoardYoutubeSources`
 - `pollBoardTwitterRssApp`
 - `pollBoardApifyTrends`
 - `pollBoardCompetitors`
 - `clusterBoardStories`
 - `scoreBoardStories`
+- `scoreBoardSentiment`
+- `detectBoardAnomalies`
+- `captureBoardCorrections`
 - `refreshBoardTicker`
 - `refreshBoardCompetitorAlerts`
+- `deliverBoardAlerts`
 
 Polling cadence:
 
 - RSS / YouTube RSS / RSS.app: every 15 minutes
 - Apify trends: every 30 to 60 minutes
 - clustering + scoring: after each ingest batch and as a periodic cleanup
+- anomaly detection: every 15 minutes over a rolling 2-hour window vs 7-day topic/entity baseline
+- correction capture: on every repeat fetch of an existing canonical URL
 
 ### 4. Story clustering and scoring
 
@@ -130,6 +167,7 @@ Initial scoring inputs:
 - source count
 - source authority
 - cross-source agreement
+- entity overlap
 - competitor overlap
 - X/Twitter velocity
 - controversy score
@@ -138,6 +176,14 @@ Initial scoring inputs:
 - format suitability (`Full Video`, `Short`, or both)
 
 Persist component scores in `score_json` so frontend can explain why a story is ranked high.
+
+Implementation notes:
+
+- clustering should use keyword overlap plus entity matching, with manual merge/split controls for editors
+- item-level sentiment should start with `VADER` for low-cost local scoring and keep an LLM fallback path for later accuracy upgrades
+- anomaly detection should compute `surge_score = current_window_count / rolling_average`
+- controversy should combine `abs(sentiment)`, engagement/velocity, and recency weighting
+- format recommendations should be derived from story vertical, urgency, and later refined by actual channel performance data
 
 ### 5. API surface
 
@@ -153,16 +199,22 @@ Add board-specific APIs:
   - generate or return cached script opener
 - `POST /api/board/stories/:storyId/titles`
   - generate or return cached titles
+- `POST /api/board/stories/:storyId/thumbnail-analysis`
+  - analyze competitor thumbnails and return visual guidance
 - `POST /api/board/stories/:storyId/queue`
   - add to video queue
 - `POST /api/board/stories/:storyId/create-project`
   - create a production project in the existing workspace flow
+- `POST /api/board/stories/merge`
+- `POST /api/board/stories/:storyId/split`
 - `GET /api/board/queue`
 - `PATCH /api/board/queue/:queueItemId`
 - `GET /api/board/competitors`
 - `GET /api/board/sources`
 - `GET /api/board/health`
 - `GET /api/board/ticker`
+- `GET /api/board/alerts`
+- `POST /api/board/sources/:sourceId/poll`
 
 ### 6. AI tools
 
@@ -174,12 +226,15 @@ Use cached generation, not synchronous repeated calls from the UI.
   - opening paragraph / hook in Moon style
 - `Title Generator`
   - 5-10 titles, optionally bucketed by aggressive vs safer CTR style
+- `Thumbnail Analyzer`
+  - competitor-thumbnail breakdown using YouTube metadata plus vision analysis
 
 Rules:
 
 - cache by `story_id + kind + prompt_version`
 - invalidate when a story gains meaningful new evidence
 - store token/cost metadata for the sidebar cost stats
+- expire `brief` outputs on a short TTL, default `4h`
 
 ### 7. Handoff into the current production app
 
@@ -198,8 +253,8 @@ That lets a story move from discovery to an actual script/footage research proje
 
 #### Phase 1
 
-- schema
-- ingestion tasks
+- board schema
+- real RSS / YouTube / competitor ingestion
 - story clustering
 - `GET /api/board/stories`
 - `GET /api/board/health`
@@ -207,18 +262,27 @@ That lets a story move from discovery to an actual script/footage research proje
 
 #### Phase 2
 
-- story detail API
-- `Brief Me`
-- `Title Generator`
-- queue APIs
-- competitor polling
+- item-level sentiment scoring
+- controversy ranking
+- surge/anomaly detection
+- `GET /api/board/alerts`
+- correction/version tracking
 
 #### Phase 3
 
+- queue APIs
+- format recommendation engine
+- `Brief Me`
+- `Title Generator`
+- create-project handoff
+
+#### Phase 4
+
 - `Script Starter`
-- create-project handoff into existing workspace
-- cached cost metrics
-- correction/update handling
+- `Thumbnail Analyzer`
+- merge/split editorial controls
+- Discord webhook delivery
+- optional real-time queue collaboration
 
 ## Frontend Plan (Claude)
 
@@ -249,6 +313,7 @@ Views to implement:
 - Video Queue
 - Competitor Activity
 - Sources
+- Surge / alert strip
 
 ### 3. Data flow
 
@@ -269,6 +334,10 @@ Use server/client composition like:
 - competitor cards
 - sources catalog grid
 - optimistic UX for `Add to Queue`
+- correction warning badges
+- format recommendation tags
+- surge alert banner and alert-dismiss interactions
+- queue interactions designed so WebSocket updates can be layered in later without a rewrite
 
 ### 5. API integration
 
@@ -279,12 +348,14 @@ Claude should consume these backend contracts:
 - `POST /api/board/stories/:storyId/brief`
 - `POST /api/board/stories/:storyId/script-starter`
 - `POST /api/board/stories/:storyId/titles`
+- `POST /api/board/stories/:storyId/thumbnail-analysis`
 - `POST /api/board/stories/:storyId/queue`
 - `GET /api/board/queue`
 - `GET /api/board/competitors`
 - `GET /api/board/sources`
 - `GET /api/board/health`
 - `GET /api/board/ticker`
+- `GET /api/board/alerts`
 
 ### 6. Frontend phase order
 
@@ -301,10 +372,12 @@ Claude should consume these backend contracts:
 - competitor view
 - sources view
 - ticker and health indicators
+- correction and alert surfaces
 
 #### Phase 3
 
 - AI action integration
+- thumbnail analyzer integration
 - create-project / queue action polish
 - URL state for selected story and filters
 
@@ -318,6 +391,9 @@ These need to stay explicit between backend and frontend:
 - source/provider enum
 - score breakdown shape
 - AI output payloads
+- alert payload shape
+- correction/version payload shape
+- format recommendation payload shape
 
 Frontend should render from backend-owned normalized data, not recreate business logic locally.
 

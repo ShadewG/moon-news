@@ -10,12 +10,14 @@ import {
   gte,
   ilike,
   inArray,
+  isNull,
   or,
   sql,
 } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
+  boardAlertTypeEnum,
   boardAiOutputKindEnum,
   boardCompetitorChannels,
   boardCompetitorPosts,
@@ -25,6 +27,7 @@ import {
   boardStoryAiOutputs,
   boardStoryCandidates,
   boardStorySources,
+  boardSurgeAlerts,
   boardTickerEvents,
   boardStoryStatusEnum,
   boardStoryTypeEnum,
@@ -40,11 +43,13 @@ import {
   boardTickerSeeds,
   type BoardStorySeed,
 } from "./sample-data";
+import { fetchYouTubeChannelUploads } from "@/server/providers/youtube";
 import { fetchBoardRssItems, type BoardRssFeedItem } from "./rss";
 
 export type BoardStoryStatus = (typeof boardStoryStatusEnum.enumValues)[number];
 export type BoardStoryType = (typeof boardStoryTypeEnum.enumValues)[number];
 export type BoardAiOutputKind = (typeof boardAiOutputKindEnum.enumValues)[number];
+export type BoardAlertType = (typeof boardAlertTypeEnum.enumValues)[number];
 export type BoardView = "board" | "controversy";
 
 export interface BoardStorySummary {
@@ -72,6 +77,7 @@ export interface BoardStorySummary {
 
 export interface BoardStorySourcePreview {
   id: string;
+  feedItemId: string;
   name: string;
   kind: string;
   provider: string;
@@ -167,6 +173,39 @@ export interface BoardBootstrapPayload {
   sources: Awaited<ReturnType<typeof listBoardSources>>;
   health: Awaited<ReturnType<typeof getBoardHealth>>;
   ticker: Awaited<ReturnType<typeof listBoardTicker>>;
+  alerts: Awaited<ReturnType<typeof listBoardAlerts>>;
+}
+
+export interface BoardAlertSummary {
+  id: string;
+  storyId: string;
+  storySlug: string | null;
+  alertType: BoardAlertType;
+  headline: string;
+  text: string;
+  surgeScore: number;
+  baselineAvg: number;
+  currentCount: number;
+  windowMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+  dismissedAt: string | null;
+  metadataJson: Record<string, unknown> | null;
+}
+
+export interface MergeBoardStoriesResult {
+  targetStory: BoardStoryDetail;
+  mergedStoryIds: string[];
+  mergedStorySlugs: string[];
+  dedupedFeedItemCount: number;
+  movedFeedItemCount: number;
+}
+
+export interface SplitBoardStoryResult {
+  sourceStoryId: string;
+  sourceStorySlug: string;
+  newStory: BoardStoryDetail;
+  movedFeedItemCount: number;
 }
 
 const DEFAULT_LIMIT = 24;
@@ -174,6 +213,10 @@ const MAX_LIMIT = 60;
 const BOARD_AI_KINDS: BoardAiOutputKind[] = ["brief", "script_starter", "titles"];
 const BOARD_STORY_MATCH_LOOKBACK_DAYS = 45;
 const BOARD_RSS_ITEM_LOOKBACK_DAYS = 21;
+const BOARD_YOUTUBE_ITEM_LOOKBACK_DAYS = 45;
+const BOARD_ALERT_WINDOW_MINUTES = 120;
+const BOARD_ALERT_BASELINE_DAYS = 7;
+const BOARD_ALERT_RECENT_CONTROVERSY_HOURS = 24;
 const BOARD_TITLE_STOPWORDS = new Set([
   "a",
   "an",
@@ -214,6 +257,32 @@ interface BoardRssSourceConfig {
   vertical?: string;
   authorityScore?: number;
   tags: string[];
+}
+
+interface BoardYouTubeSourceConfig {
+  mode: "youtube_channel";
+  channelId: string;
+  uploadsPlaylistId: string;
+  channelHandle?: string;
+  channelUrl?: string;
+  sourceType?: string;
+  vertical?: string;
+  authorityScore?: number;
+  tags: string[];
+  maxResults?: number;
+}
+
+type BoardSourceConfig = BoardRssSourceConfig | BoardYouTubeSourceConfig;
+
+interface BoardSourceFeedItem {
+  externalId: string;
+  title: string;
+  url: string;
+  author: string | null;
+  publishedAt: Date | null;
+  summary: string | null;
+  contentHash: string;
+  metadataJson?: Record<string, unknown> | null;
 }
 
 interface BoardStoryMatchRecord {
@@ -308,6 +377,78 @@ function formatAgeLabel(date: Date | null): string {
   return `${diffDays}d`;
 }
 
+function buildBoardStoryOperationError(status: number, message: string) {
+  const error = new Error(message) as Error & { status?: number };
+  error.status = status;
+  return error;
+}
+
+function getQueueStatusRank(status: string | null | undefined) {
+  switch (status) {
+    case "published":
+      return 6;
+    case "editing":
+      return 5;
+    case "filming":
+      return 4;
+    case "scripting":
+      return 3;
+    case "researching":
+      return 2;
+    case "watching":
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+function mergeUniqueStrings(values: Array<string | null | undefined>) {
+  return Array.from(
+    new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))
+  );
+}
+
+function chooseMergedQueueStatus(values: Array<string | null | undefined>) {
+  return values.reduce<string | null>((best, current) => {
+    if (!current) {
+      return best;
+    }
+
+    if (!best || getQueueStatusRank(current) > getQueueStatusRank(best)) {
+      return current;
+    }
+
+    return best;
+  }, null);
+}
+
+function formatBoardBaselineValue(value: number): string {
+  if (value <= 0) {
+    return "0.0";
+  }
+
+  return value < 10 ? value.toFixed(1) : String(Math.round(value));
+}
+
+function buildBoardAlertText(args: {
+  alertType: BoardAlertType;
+  title: string;
+  currentCount: number;
+  baselineAvg: number;
+  surgeScore: number;
+  controversyScore: number;
+}) {
+  if (args.alertType === "controversy") {
+    return `${args.title} is running hot with controversy ${args.controversyScore} and ${args.currentCount} recent source hits.`;
+  }
+
+  if (args.alertType === "correction") {
+    return `${args.title} picked up a correction/update signal and needs a source check before queueing.`;
+  }
+
+  return `${args.title} is running ${args.surgeScore.toFixed(1)}x above baseline (${args.currentCount} recent hits vs ${formatBoardBaselineValue(args.baselineAvg)} normal).`;
+}
+
 function buildSourceKey(name: string, kind: string): string {
   return `${kind}:${name.toLowerCase()}`;
 }
@@ -355,27 +496,83 @@ function parseBoardRssSourceConfig(value: unknown): BoardRssSourceConfig | null 
   };
 }
 
+function parseBoardYouTubeSourceConfig(value: unknown): BoardYouTubeSourceConfig | null {
+  const config = coerceObject(value);
+
+  if (
+    !config ||
+    config.mode !== "youtube_channel" ||
+    typeof config.channelId !== "string" ||
+    typeof config.uploadsPlaylistId !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    mode: "youtube_channel",
+    channelId: config.channelId,
+    uploadsPlaylistId: config.uploadsPlaylistId,
+    channelHandle:
+      typeof config.channelHandle === "string" ? config.channelHandle : undefined,
+    channelUrl: typeof config.channelUrl === "string" ? config.channelUrl : undefined,
+    sourceType: typeof config.sourceType === "string" ? config.sourceType : undefined,
+    vertical: typeof config.vertical === "string" ? config.vertical : undefined,
+    authorityScore:
+      typeof config.authorityScore === "number" ? Math.round(config.authorityScore) : undefined,
+    tags: coerceStringArray(config.tags),
+    maxResults: typeof config.maxResults === "number" ? Math.round(config.maxResults) : undefined,
+  };
+}
+
+function parseBoardSourceConfig(
+  source: Pick<typeof boardSources.$inferSelect, "kind" | "configJson">
+): BoardSourceConfig | null {
+  if (source.kind === "rss") {
+    return parseBoardRssSourceConfig(source.configJson);
+  }
+
+  if (source.kind === "youtube_channel") {
+    return parseBoardYouTubeSourceConfig(source.configJson);
+  }
+
+  return null;
+}
+
 function isBoardSourcePollable(source: typeof boardSources.$inferSelect): boolean {
   if (!source.enabled) {
     return false;
   }
 
-  if (source.kind !== "rss") {
+  if (source.kind !== "rss" && source.kind !== "youtube_channel") {
     return true;
   }
 
-  return Boolean(parseBoardRssSourceConfig(source.configJson));
+  return Boolean(parseBoardSourceConfig(source));
 }
 
 function needsBoardSourceConfigSync(source: typeof boardSources.$inferSelect): boolean {
   const configuredSource = getBoardSourceSeedConfig(source.name, source.kind);
 
   if (configuredSource) {
-    const config = parseBoardRssSourceConfig(source.configJson);
-    return source.kind === "rss" && (!config || config.feedUrl !== configuredSource.configJson.feedUrl);
+    if (source.kind === "rss" && configuredSource.configJson.mode === "rss_feed") {
+      const config = parseBoardRssSourceConfig(source.configJson);
+      return !config || config.feedUrl !== configuredSource.configJson.feedUrl;
+    }
+
+    if (
+      source.kind === "youtube_channel" &&
+      configuredSource.configJson.mode === "youtube_channel"
+    ) {
+      const config = parseBoardYouTubeSourceConfig(source.configJson);
+      return (
+        !config ||
+        config.channelId !== configuredSource.configJson.channelId ||
+        config.uploadsPlaylistId !== configuredSource.configJson.uploadsPlaylistId
+      );
+    }
   }
 
-  return source.kind === "rss" && source.enabled;
+  return (source.kind === "rss" || source.kind === "youtube_channel") && source.enabled;
 }
 
 function tokenizeBoardTitle(title: string): string[] {
@@ -533,8 +730,8 @@ function buildBoardStoryMatchRecord(
 
 function findMatchingBoardStory(
   stories: BoardStoryMatchRecord[],
-  item: BoardRssFeedItem,
-  config: BoardRssSourceConfig
+  item: BoardSourceFeedItem,
+  config: Pick<BoardSourceConfig, "vertical">
 ): BoardStoryMatchRecord | null {
   const itemTokens = tokenizeBoardTitle(item.title);
   if (itemTokens.length === 0) {
@@ -606,6 +803,7 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
   const rows = await db
     .select({
       storyId: boardStorySources.storyId,
+      feedItemId: boardStorySources.feedItemId,
       sourceId: boardSources.id,
       sourceName: boardSources.name,
       sourceKind: boardSources.kind,
@@ -632,6 +830,7 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
   for (const row of rows) {
     const preview: BoardStorySourcePreview = {
       id: row.sourceId,
+      feedItemId: row.feedItemId,
       name: row.sourceName,
       kind: row.sourceKind,
       provider: row.sourceProvider,
@@ -724,7 +923,10 @@ async function insertBoardSeedData() {
 
     const sourceSeedValues = Array.from(uniqueSources.values()).map((source) => {
       const configuredSource = getBoardSourceSeedConfig(source.name, source.kind);
-      const isPollableRss = source.kind !== "rss" || Boolean(configuredSource);
+      const isConfiguredPollable =
+        source.kind !== "rss" && source.kind !== "youtube_channel"
+          ? true
+          : Boolean(configuredSource);
 
       return {
         name: source.name,
@@ -732,15 +934,15 @@ async function insertBoardSeedData() {
         provider: (configuredSource?.provider ?? source.provider) as (typeof boardSources.$inferInsert)["provider"],
         pollIntervalMinutes:
           configuredSource?.pollIntervalMinutes ?? getPollIntervalMinutes(source.kind),
-        enabled: isPollableRss,
+        enabled: isConfiguredPollable,
         configJson:
           configuredSource?.configJson ??
           ({
             mode: "seed_reference",
             discovery: "html-board-spec",
-            pollable: source.kind !== "rss",
+            pollable: source.kind !== "rss" && source.kind !== "youtube_channel",
           } as Record<string, unknown>),
-        lastPolledAt: isPollableRss ? now : null,
+        lastPolledAt: isConfiguredPollable ? now : null,
         lastSuccessAt: source.lastSuccessAt,
         updatedAt: now,
       };
@@ -971,9 +1173,14 @@ async function syncBoardSourceConfigs() {
   const sources = await db.select().from(boardSources);
 
   await Promise.all(
-    sources.map((source) => {
+    sources
+      .filter((source) => source.kind === "rss" || source.kind === "youtube_channel")
+      .map((source) => {
       const configuredSource = getBoardSourceSeedConfig(source.name, source.kind);
-      const isPollableRss = source.kind !== "rss" || Boolean(configuredSource);
+      const isConfiguredPollable =
+        source.kind !== "rss" && source.kind !== "youtube_channel"
+          ? true
+          : Boolean(configuredSource);
 
       return db
         .update(boardSources)
@@ -981,25 +1188,28 @@ async function syncBoardSourceConfigs() {
           provider: configuredSource?.provider ?? source.provider,
           pollIntervalMinutes:
             configuredSource?.pollIntervalMinutes ?? getPollIntervalMinutes(source.kind),
-          enabled: source.kind === "rss" ? isPollableRss : source.enabled,
+          enabled:
+            source.kind === "rss" || source.kind === "youtube_channel"
+              ? isConfiguredPollable
+              : source.enabled,
           configJson:
             configuredSource?.configJson ??
             ({
               mode: "seed_reference",
               discovery: "html-board-spec",
-              pollable: source.kind !== "rss",
+              pollable: source.kind !== "rss" && source.kind !== "youtube_channel",
             } as Record<string, unknown>),
           updatedAt: now,
         })
         .where(eq(boardSources.id, source.id));
-    })
+      })
   );
 }
 
 async function createBoardStoryFromFeedItem(
-  item: BoardRssFeedItem,
+  item: BoardSourceFeedItem,
   source: typeof boardSources.$inferSelect,
-  config: BoardRssSourceConfig
+  config: BoardSourceConfig
 ) {
   const db = getDb();
   const publishedAt = item.publishedAt ?? new Date();
@@ -1075,16 +1285,163 @@ async function createBoardStoryFromFeedItem(
   return existing ? buildBoardStoryMatchRecord(existing) : null;
 }
 
-async function ingestBoardRssSources() {
-  await syncBoardSourceConfigs();
+function mapRssItemToBoardFeedItem(item: BoardRssFeedItem): BoardSourceFeedItem {
+  return {
+    externalId: item.externalId,
+    title: item.title,
+    url: item.url,
+    author: item.author ?? null,
+    publishedAt: item.publishedAt ?? null,
+    summary: item.summary ?? null,
+    contentHash: item.contentHash,
+    metadataJson: coerceObject(item.metadataJson) ?? null,
+  };
+}
 
+function mapYouTubeItemToBoardFeedItem(
+  item: Awaited<ReturnType<typeof fetchYouTubeChannelUploads>>["items"][number],
+  config: BoardYouTubeSourceConfig,
+  channel: Awaited<ReturnType<typeof fetchYouTubeChannelUploads>>["channel"]
+): BoardSourceFeedItem {
+  const publishedAt = item.publishedAt ? new Date(item.publishedAt) : null;
+
+  return {
+    externalId: item.videoId,
+    title: item.title,
+    url: item.url,
+    author: item.channelTitle || channel?.title || null,
+    publishedAt,
+    summary: item.description ? item.description.slice(0, 1200) : null,
+    contentHash: createHash("sha1")
+      .update(`${item.videoId}:${item.title}:${item.publishedAt}`)
+      .digest("hex"),
+    metadataJson: {
+      thumbnailUrl: item.thumbnailUrl,
+      durationMs: item.durationMs,
+      viewCount: item.viewCount,
+      channelId: item.channelId,
+      channelTitle: item.channelTitle,
+      channelHandle: config.channelHandle ?? null,
+      channelUrl: config.channelUrl ?? channel?.channelUrl ?? null,
+      subscriberCount: channel?.subscriberCount ?? null,
+    },
+  };
+}
+
+function getBoardSourceType(config: BoardSourceConfig, source: typeof boardSources.$inferSelect) {
+  if (config.sourceType) {
+    return config.sourceType;
+  }
+
+  if (source.kind === "youtube_channel") {
+    return "yt";
+  }
+
+  return "news";
+}
+
+async function ingestBoardItemsForSource(args: {
+  source: typeof boardSources.$inferSelect;
+  config: BoardSourceConfig;
+  items: BoardSourceFeedItem[];
+  storyMatches: BoardStoryMatchRecord[];
+}) {
   const db = getDb();
-  const sources = await db
-    .select()
-    .from(boardSources)
-    .where(eq(boardSources.enabled, true))
-    .orderBy(asc(boardSources.name));
+  let feedItemsIngested = 0;
+  let relationsCreated = 0;
+  let storiesCreated = 0;
+  const sourceType = getBoardSourceType(args.config, args.source);
 
+  for (const item of args.items) {
+    const [insertedFeedItem] = await db
+      .insert(boardFeedItems)
+      .values({
+        sourceId: args.source.id,
+        externalId: item.externalId,
+        title: item.title,
+        url: item.url,
+        author: item.author,
+        publishedAt: item.publishedAt,
+        summary: item.summary,
+        contentHash: item.contentHash,
+        metadataJson: {
+          ...(coerceObject(item.metadataJson) ?? {}),
+          ingestKind: args.config.mode,
+          sourceType,
+        },
+        ingestedAt: new Date(),
+      })
+      .onConflictDoNothing()
+      .returning({
+        id: boardFeedItems.id,
+      });
+
+    const feedItem =
+      insertedFeedItem ??
+      (
+        await db
+          .select({ id: boardFeedItems.id })
+          .from(boardFeedItems)
+          .where(
+            and(
+              eq(boardFeedItems.sourceId, args.source.id),
+              eq(boardFeedItems.externalId, item.externalId)
+            )
+          )
+          .limit(1)
+      )[0];
+
+    if (!feedItem) {
+      continue;
+    }
+
+    if (insertedFeedItem) {
+      feedItemsIngested += 1;
+    }
+
+    let matchedStory = findMatchingBoardStory(args.storyMatches, item, args.config);
+    if (!matchedStory) {
+      matchedStory = await createBoardStoryFromFeedItem(item, args.source, args.config);
+      if (matchedStory) {
+        args.storyMatches.push(matchedStory);
+        storiesCreated += 1;
+      }
+    }
+
+    if (!matchedStory) {
+      continue;
+    }
+
+    const [relation] = await db
+      .insert(boardStorySources)
+      .values({
+        storyId: matchedStory.id,
+        feedItemId: feedItem.id,
+        sourceWeight: args.config.authorityScore ?? 70,
+        isPrimary: false,
+        evidenceJson: {
+          sourceType,
+          summary: item.summary,
+          tags: args.config.tags,
+        },
+      })
+      .onConflictDoNothing()
+      .returning({ id: boardStorySources.id });
+
+    if (relation) {
+      relationsCreated += 1;
+    }
+  }
+
+  return {
+    feedItemsIngested,
+    relationsCreated,
+    storiesCreated,
+  };
+}
+
+async function getBoardStoryMatches() {
+  const db = getDb();
   const storyRows = await db
     .select({
       id: boardStoryCandidates.id,
@@ -1103,7 +1460,19 @@ async function ingestBoardRssSources() {
       )
     );
 
-  const storyMatches = storyRows.map((row) => buildBoardStoryMatchRecord(row));
+  return storyRows.map((row) => buildBoardStoryMatchRecord(row));
+}
+
+async function ingestBoardRssSources() {
+  await syncBoardSourceConfigs();
+
+  const db = getDb();
+  const sources = await db
+    .select()
+    .from(boardSources)
+    .where(eq(boardSources.enabled, true))
+    .orderBy(asc(boardSources.name));
+  const storyMatches = await getBoardStoryMatches();
   let sourcesPolled = 0;
   let feedItemsIngested = 0;
   let relationsCreated = 0;
@@ -1135,88 +1504,18 @@ async function ingestBoardRssSources() {
           const rightTime = right.publishedAt?.getTime() ?? 0;
           return rightTime - leftTime;
         })
-        .slice(0, 20);
+        .slice(0, 20)
+        .map((item) => mapRssItemToBoardFeedItem(item));
 
-      for (const item of items) {
-        const [insertedFeedItem] = await db
-          .insert(boardFeedItems)
-          .values({
-            sourceId: source.id,
-            externalId: item.externalId,
-            title: item.title,
-            url: item.url,
-            author: item.author,
-            publishedAt: item.publishedAt,
-            summary: item.summary,
-            contentHash: item.contentHash,
-            metadataJson: {
-              ...(coerceObject(item.metadataJson) ?? {}),
-              ingestKind: "rss",
-              sourceType: config.sourceType ?? "news",
-            },
-            ingestedAt: new Date(),
-          })
-          .onConflictDoNothing()
-          .returning({
-            id: boardFeedItems.id,
-          });
-
-        const feedItem =
-          insertedFeedItem ??
-          (
-            await db
-              .select({ id: boardFeedItems.id })
-              .from(boardFeedItems)
-              .where(
-                and(
-                  eq(boardFeedItems.sourceId, source.id),
-                  eq(boardFeedItems.externalId, item.externalId)
-                )
-              )
-              .limit(1)
-          )[0];
-
-        if (!feedItem) {
-          continue;
-        }
-
-        if (insertedFeedItem) {
-          feedItemsIngested += 1;
-        }
-
-        let matchedStory = findMatchingBoardStory(storyMatches, item, config);
-        if (!matchedStory) {
-          matchedStory = await createBoardStoryFromFeedItem(item, source, config);
-          if (matchedStory) {
-            storyMatches.push(matchedStory);
-            storiesCreated += 1;
-          }
-        }
-
-        if (!matchedStory) {
-          continue;
-        }
-
-        const [relation] = await db
-          .insert(boardStorySources)
-          .values({
-            storyId: matchedStory.id,
-            feedItemId: feedItem.id,
-            sourceWeight: config.authorityScore ?? 70,
-            isPrimary: false,
-            evidenceJson: {
-              sourceType: config.sourceType ?? "news",
-              summary: item.summary,
-              tags: config.tags,
-            },
-          })
-          .onConflictDoNothing()
-          .returning({ id: boardStorySources.id });
-
-        if (relation) {
-          relationsCreated += 1;
-        }
-      }
+      const ingestion = await ingestBoardItemsForSource({
+        source,
+        config,
+        items,
+        storyMatches,
+      });
+      feedItemsIngested += ingestion.feedItemsIngested;
+      relationsCreated += ingestion.relationsCreated;
+      storiesCreated += ingestion.storiesCreated;
 
       await db
         .update(boardSources)
@@ -1234,6 +1533,92 @@ async function ingestBoardRssSources() {
         .set({
           lastPolledAt: new Date(),
           lastError: error instanceof Error ? error.message.slice(0, 500) : "Unknown feed error",
+          updatedAt: new Date(),
+        })
+        .where(eq(boardSources.id, source.id));
+    }
+  }
+
+  return {
+    sourcesPolled,
+    feedItemsIngested,
+    relationsCreated,
+    storiesCreated,
+    failedSources,
+  };
+}
+
+async function ingestBoardYouTubeSources() {
+  await syncBoardSourceConfigs();
+
+  const db = getDb();
+  const sources = await db
+    .select()
+    .from(boardSources)
+    .where(eq(boardSources.enabled, true))
+    .orderBy(asc(boardSources.name));
+  const storyMatches = await getBoardStoryMatches();
+  let sourcesPolled = 0;
+  let feedItemsIngested = 0;
+  let relationsCreated = 0;
+  let storiesCreated = 0;
+  let failedSources = 0;
+
+  for (const source of sources) {
+    const config = parseBoardYouTubeSourceConfig(source.configJson);
+    if (source.kind !== "youtube_channel" || !config) {
+      continue;
+    }
+
+    sourcesPolled += 1;
+
+    try {
+      const { channel, items: uploads } = await fetchYouTubeChannelUploads({
+        channelId: config.channelId,
+        uploadsPlaylistId: config.uploadsPlaylistId,
+        maxResults: config.maxResults ?? 8,
+      });
+
+      const items = uploads
+        .map((item) => mapYouTubeItemToBoardFeedItem(item, config, channel))
+        .filter((item) => {
+          if (!item.publishedAt) {
+            return true;
+          }
+
+          return (
+            Date.now() - item.publishedAt.getTime() <=
+            BOARD_YOUTUBE_ITEM_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
+          );
+        });
+
+      const ingestion = await ingestBoardItemsForSource({
+        source,
+        config,
+        items,
+        storyMatches,
+      });
+      feedItemsIngested += ingestion.feedItemsIngested;
+      relationsCreated += ingestion.relationsCreated;
+      storiesCreated += ingestion.storiesCreated;
+
+      await db
+        .update(boardSources)
+        .set({
+          lastPolledAt: new Date(),
+          lastSuccessAt: new Date(),
+          lastError: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(boardSources.id, source.id));
+    } catch (error) {
+      failedSources += 1;
+      await db
+        .update(boardSources)
+        .set({
+          lastPolledAt: new Date(),
+          lastError:
+            error instanceof Error ? error.message.slice(0, 500) : "Unknown YouTube error",
           updatedAt: new Date(),
         })
         .where(eq(boardSources.id, source.id));
@@ -1375,7 +1760,7 @@ export async function refreshBoardSourceHeartbeat() {
 
   await Promise.all(
     sources
-      .filter((source) => source.kind !== "rss")
+      .filter((source) => source.kind !== "rss" && source.kind !== "youtube_channel")
       .map((source) =>
         db
           .update(boardSources)
@@ -1713,6 +2098,508 @@ export async function createProjectFromBoardStory(storyIdOrSlug: string) {
   };
 }
 
+export async function mergeBoardStories(input: {
+  targetStoryIdOrSlug: string;
+  sourceStoryIdsOrSlugs: string[];
+}): Promise<MergeBoardStoriesResult> {
+  await ensureBoardSeedData();
+
+  const targetStory = await resolveStoryRecord(input.targetStoryIdOrSlug);
+  if (!targetStory) {
+    throw buildBoardStoryOperationError(404, "Target story not found");
+  }
+
+  const uniqueSourceIdsOrSlugs = Array.from(
+    new Set(input.sourceStoryIdsOrSlugs.map((value) => value.trim()).filter(Boolean))
+  );
+
+  if (uniqueSourceIdsOrSlugs.length === 0) {
+    throw buildBoardStoryOperationError(400, "At least one source story is required");
+  }
+
+  const sourceStories = (
+    await Promise.all(uniqueSourceIdsOrSlugs.map((value) => resolveStoryRecord(value)))
+  ).filter((story): story is NonNullable<typeof targetStory> => Boolean(story));
+
+  if (sourceStories.length !== uniqueSourceIdsOrSlugs.length) {
+    throw buildBoardStoryOperationError(404, "One or more source stories were not found");
+  }
+
+  const filteredSourceStories = sourceStories.filter((story) => story.id !== targetStory.id);
+  if (filteredSourceStories.length === 0) {
+    throw buildBoardStoryOperationError(
+      400,
+      "Source stories must be different from the target story"
+    );
+  }
+
+  const db = getDb();
+  const sourceStoryIds = filteredSourceStories.map((story) => story.id);
+  const sourceStorySlugs = filteredSourceStories.map((story) => story.slug);
+  let movedFeedItemCount = 0;
+  let dedupedFeedItemCount = 0;
+
+  await db.transaction(async (tx) => {
+    const [targetRelations, sourceRelations] = await Promise.all([
+      tx
+        .select({
+          id: boardStorySources.id,
+          feedItemId: boardStorySources.feedItemId,
+        })
+        .from(boardStorySources)
+        .where(eq(boardStorySources.storyId, targetStory.id)),
+      tx
+        .select({
+          id: boardStorySources.id,
+          storyId: boardStorySources.storyId,
+          feedItemId: boardStorySources.feedItemId,
+        })
+        .from(boardStorySources)
+        .where(inArray(boardStorySources.storyId, sourceStoryIds)),
+    ]);
+
+    const targetFeedItemIds = new Set(targetRelations.map((row) => row.feedItemId));
+    const relationIdsToMove: string[] = [];
+    const relationIdsToDelete: string[] = [];
+
+    for (const relation of sourceRelations) {
+      if (targetFeedItemIds.has(relation.feedItemId)) {
+        relationIdsToDelete.push(relation.id);
+        dedupedFeedItemCount += 1;
+        continue;
+      }
+
+      targetFeedItemIds.add(relation.feedItemId);
+      relationIdsToMove.push(relation.id);
+      movedFeedItemCount += 1;
+    }
+
+    if (relationIdsToDelete.length > 0) {
+      await tx
+        .delete(boardStorySources)
+        .where(inArray(boardStorySources.id, relationIdsToDelete));
+    }
+
+    if (relationIdsToMove.length > 0) {
+      await tx
+        .update(boardStorySources)
+        .set({ storyId: targetStory.id })
+        .where(inArray(boardStorySources.id, relationIdsToMove));
+    }
+
+    const [targetOutputs, sourceOutputs] = await Promise.all([
+      tx
+        .select({
+          id: boardStoryAiOutputs.id,
+          kind: boardStoryAiOutputs.kind,
+          promptVersion: boardStoryAiOutputs.promptVersion,
+        })
+        .from(boardStoryAiOutputs)
+        .where(eq(boardStoryAiOutputs.storyId, targetStory.id)),
+      tx
+        .select({
+          id: boardStoryAiOutputs.id,
+          kind: boardStoryAiOutputs.kind,
+          promptVersion: boardStoryAiOutputs.promptVersion,
+          updatedAt: boardStoryAiOutputs.updatedAt,
+        })
+        .from(boardStoryAiOutputs)
+        .where(inArray(boardStoryAiOutputs.storyId, sourceStoryIds))
+        .orderBy(desc(boardStoryAiOutputs.updatedAt)),
+    ]);
+
+    const outputKeys = new Set(
+      targetOutputs.map((row) => `${row.kind}:${row.promptVersion}`)
+    );
+    const outputIdsToDelete: string[] = [];
+    const outputIdsToMove: string[] = [];
+
+    for (const output of sourceOutputs) {
+      const key = `${output.kind}:${output.promptVersion}`;
+      if (outputKeys.has(key)) {
+        outputIdsToDelete.push(output.id);
+        continue;
+      }
+
+      outputKeys.add(key);
+      outputIdsToMove.push(output.id);
+    }
+
+    if (outputIdsToDelete.length > 0) {
+      await tx
+        .delete(boardStoryAiOutputs)
+        .where(inArray(boardStoryAiOutputs.id, outputIdsToDelete));
+    }
+
+    if (outputIdsToMove.length > 0) {
+      await tx
+        .update(boardStoryAiOutputs)
+        .set({ storyId: targetStory.id, updatedAt: new Date() })
+        .where(inArray(boardStoryAiOutputs.id, outputIdsToMove));
+    }
+
+    const [targetQueueRows, sourceQueueRows] = await Promise.all([
+      tx
+        .select()
+        .from(boardQueueItems)
+        .where(eq(boardQueueItems.storyId, targetStory.id))
+        .orderBy(desc(boardQueueItems.updatedAt))
+        .limit(1),
+      tx
+        .select()
+        .from(boardQueueItems)
+        .where(inArray(boardQueueItems.storyId, sourceStoryIds))
+        .orderBy(desc(boardQueueItems.updatedAt)),
+    ]);
+
+    const targetQueue = targetQueueRows[0] ?? null;
+    if (!targetQueue && sourceQueueRows.length > 0) {
+      const [firstSourceQueue, ...remainingSourceQueueRows] = sourceQueueRows;
+      const mergedNotes = mergeUniqueStrings([
+        firstSourceQueue.notes,
+        ...remainingSourceQueueRows.map((row) => row.notes),
+      ]).join("\n\n");
+      const mergedFormats = mergeUniqueStrings([
+        firstSourceQueue.format,
+        ...remainingSourceQueueRows.map((row) => row.format),
+      ]).join(" + ");
+      const preferredStatus =
+        chooseMergedQueueStatus([
+          firstSourceQueue.status,
+          ...remainingSourceQueueRows.map((row) => row.status),
+        ]) ?? firstSourceQueue.status;
+      const earliestTargetPublishAt = [
+        firstSourceQueue.targetPublishAt,
+        ...remainingSourceQueueRows.map((row) => row.targetPublishAt),
+      ]
+        .map((value) => coerceDate(value))
+        .filter((value): value is Date => Boolean(value))
+        .sort((left, right) => left.getTime() - right.getTime())[0] ?? null;
+      const assignedTo =
+        firstSourceQueue.assignedTo ??
+        remainingSourceQueueRows.find((row) => row.assignedTo)?.assignedTo ??
+        null;
+      const linkedProjectId =
+        firstSourceQueue.linkedProjectId ??
+        remainingSourceQueueRows.find((row) => row.linkedProjectId)?.linkedProjectId ??
+        null;
+
+      await tx
+        .update(boardQueueItems)
+        .set({
+          storyId: targetStory.id,
+          status: preferredStatus as typeof boardQueueItems.$inferInsert.status,
+          format: mergedFormats || null,
+          assignedTo,
+          linkedProjectId,
+          notes: mergedNotes || null,
+          targetPublishAt: earliestTargetPublishAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(boardQueueItems.id, firstSourceQueue.id));
+
+      if (remainingSourceQueueRows.length > 0) {
+        await tx
+          .delete(boardQueueItems)
+          .where(inArray(boardQueueItems.id, remainingSourceQueueRows.map((row) => row.id)));
+      }
+    } else if (targetQueue && sourceQueueRows.length > 0) {
+      const mergedNotes = mergeUniqueStrings([
+        targetQueue.notes,
+        ...sourceQueueRows.map((row) => row.notes),
+      ]).join("\n\n");
+      const mergedFormats = mergeUniqueStrings([
+        targetQueue.format,
+        ...sourceQueueRows.map((row) => row.format),
+      ]).join(" + ");
+      const preferredStatus =
+        chooseMergedQueueStatus([targetQueue.status, ...sourceQueueRows.map((row) => row.status)]) ??
+        targetQueue.status;
+      const earliestTargetPublishAt = [targetQueue.targetPublishAt, ...sourceQueueRows.map((row) => row.targetPublishAt)]
+        .map((value) => coerceDate(value))
+        .filter((value): value is Date => Boolean(value))
+        .sort((left, right) => left.getTime() - right.getTime())[0] ?? null;
+      const assignedTo =
+        targetQueue.assignedTo ??
+        sourceQueueRows.find((row) => row.assignedTo)?.assignedTo ??
+        null;
+      const linkedProjectId =
+        targetQueue.linkedProjectId ??
+        sourceQueueRows.find((row) => row.linkedProjectId)?.linkedProjectId ??
+        null;
+
+      await tx
+        .update(boardQueueItems)
+        .set({
+          status: preferredStatus as typeof boardQueueItems.$inferInsert.status,
+          format: mergedFormats || null,
+          assignedTo,
+          linkedProjectId,
+          notes: mergedNotes || null,
+          targetPublishAt: earliestTargetPublishAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(boardQueueItems.id, targetQueue.id));
+
+      await tx
+        .delete(boardQueueItems)
+        .where(inArray(boardQueueItems.id, sourceQueueRows.map((row) => row.id)));
+    }
+
+    const [targetAlerts, sourceAlerts] = await Promise.all([
+      tx
+        .select({
+          id: boardSurgeAlerts.id,
+          alertType: boardSurgeAlerts.alertType,
+        })
+        .from(boardSurgeAlerts)
+        .where(
+          and(
+            eq(boardSurgeAlerts.storyId, targetStory.id),
+            isNull(boardSurgeAlerts.dismissedAt)
+          )
+        ),
+      tx
+        .select({
+          id: boardSurgeAlerts.id,
+          alertType: boardSurgeAlerts.alertType,
+          dismissedAt: boardSurgeAlerts.dismissedAt,
+        })
+        .from(boardSurgeAlerts)
+        .where(inArray(boardSurgeAlerts.storyId, sourceStoryIds)),
+    ]);
+
+    const activeTargetAlertTypes = new Set(targetAlerts.map((row) => row.alertType));
+    const sourceAlertIdsToDelete: string[] = [];
+    const sourceAlertIdsToMove: string[] = [];
+
+    for (const alert of sourceAlerts) {
+      if (!alert.dismissedAt && activeTargetAlertTypes.has(alert.alertType)) {
+        sourceAlertIdsToDelete.push(alert.id);
+        continue;
+      }
+
+      if (!alert.dismissedAt) {
+        activeTargetAlertTypes.add(alert.alertType);
+      }
+      sourceAlertIdsToMove.push(alert.id);
+    }
+
+    if (sourceAlertIdsToDelete.length > 0) {
+      await tx
+        .delete(boardSurgeAlerts)
+        .where(inArray(boardSurgeAlerts.id, sourceAlertIdsToDelete));
+    }
+
+    if (sourceAlertIdsToMove.length > 0) {
+      await tx
+        .update(boardSurgeAlerts)
+        .set({ storyId: targetStory.id, updatedAt: new Date() })
+        .where(inArray(boardSurgeAlerts.id, sourceAlertIdsToMove));
+    }
+
+    await tx
+      .update(boardTickerEvents)
+      .set({ storyId: targetStory.id })
+      .where(inArray(boardTickerEvents.storyId, sourceStoryIds));
+
+    const targetMetadata = {
+      ...(coerceObject(targetStory.metadataJson) ?? {}),
+      mergedStoryIds: mergeUniqueStrings([
+        ...(coerceStringArray(coerceObject(targetStory.metadataJson)?.mergedStoryIds) ?? []),
+        ...sourceStoryIds,
+      ]),
+      mergedStorySlugs: mergeUniqueStrings([
+        ...(coerceStringArray(coerceObject(targetStory.metadataJson)?.mergedStorySlugs) ?? []),
+        ...sourceStorySlugs,
+      ]),
+      lastMergedAt: new Date().toISOString(),
+    };
+
+    await tx
+      .update(boardStoryCandidates)
+      .set({
+        metadataJson: targetMetadata,
+        updatedAt: new Date(),
+      })
+      .where(eq(boardStoryCandidates.id, targetStory.id));
+
+    await tx
+      .delete(boardStoryCandidates)
+      .where(inArray(boardStoryCandidates.id, sourceStoryIds));
+  });
+
+  await recomputeBoardStoryMetrics();
+  await detectBoardStoryAlerts();
+
+  const updatedTargetStory = await getBoardStoryDetail(targetStory.id);
+  if (!updatedTargetStory) {
+    throw buildBoardStoryOperationError(500, "Merged story could not be loaded");
+  }
+
+  return {
+    targetStory: updatedTargetStory,
+    mergedStoryIds: sourceStoryIds,
+    mergedStorySlugs: sourceStorySlugs,
+    dedupedFeedItemCount,
+    movedFeedItemCount,
+  };
+}
+
+export async function splitBoardStory(input: {
+  storyIdOrSlug: string;
+  feedItemIds: string[];
+  canonicalTitle?: string;
+}): Promise<SplitBoardStoryResult> {
+  await ensureBoardSeedData();
+
+  const sourceStory = await resolveStoryRecord(input.storyIdOrSlug);
+  if (!sourceStory) {
+    throw buildBoardStoryOperationError(404, "Story not found");
+  }
+
+  const uniqueFeedItemIds = Array.from(
+    new Set(input.feedItemIds.map((value) => value.trim()).filter(Boolean))
+  );
+
+  if (uniqueFeedItemIds.length === 0) {
+    throw buildBoardStoryOperationError(400, "At least one feed item is required");
+  }
+
+  const db = getDb();
+  const [allRelations, selectedRelations] = await Promise.all([
+    db
+      .select({
+        relationId: boardStorySources.id,
+        feedItemId: boardStorySources.feedItemId,
+      })
+      .from(boardStorySources)
+      .where(eq(boardStorySources.storyId, sourceStory.id)),
+    db
+      .select({
+        relationId: boardStorySources.id,
+        feedItemId: boardStorySources.feedItemId,
+        title: boardFeedItems.title,
+        url: boardFeedItems.url,
+        author: boardFeedItems.author,
+        publishedAt: boardFeedItems.publishedAt,
+        sourceId: boardFeedItems.sourceId,
+        summary: boardFeedItems.summary,
+      })
+      .from(boardStorySources)
+      .innerJoin(boardFeedItems, eq(boardFeedItems.id, boardStorySources.feedItemId))
+      .where(
+        and(
+          eq(boardStorySources.storyId, sourceStory.id),
+          inArray(boardStorySources.feedItemId, uniqueFeedItemIds)
+        )
+      )
+      .orderBy(desc(boardFeedItems.publishedAt)),
+  ]);
+
+  if (selectedRelations.length === 0) {
+    throw buildBoardStoryOperationError(
+      404,
+      "None of the selected feed items belong to this story"
+    );
+  }
+
+  if (selectedRelations.length === allRelations.length) {
+    throw buildBoardStoryOperationError(
+      400,
+      "Split requires leaving at least one feed item on the original story"
+    );
+  }
+
+  const selectedDates = selectedRelations
+    .map((relation) => coerceDate(relation.publishedAt))
+    .filter((value): value is Date => Boolean(value));
+  const canonicalTitle =
+    input.canonicalTitle?.trim() || selectedRelations[0]?.title || sourceStory.canonicalTitle;
+  const splitStoryType = inferBoardStoryType(canonicalTitle);
+  const splitSlug = buildBoardStorySlug(
+    canonicalTitle,
+    `split:${sourceStory.id}:${selectedRelations[0]?.feedItemId ?? Date.now()}`
+  );
+  const sourceMetadata = coerceObject(sourceStory.metadataJson) ?? {};
+
+  const [createdStory] = await db
+    .insert(boardStoryCandidates)
+    .values({
+      slug: splitSlug,
+      canonicalTitle,
+      vertical: sourceStory.vertical,
+      status: sourceStory.status === "archived" ? "developing" : sourceStory.status,
+      storyType: splitStoryType,
+      surgeScore: sourceStory.surgeScore,
+      controversyScore: sourceStory.controversyScore,
+      sentimentScore: sourceStory.sentimentScore,
+      itemsCount: 0,
+      sourcesCount: 0,
+      correction: splitStoryType === "correction" || sourceStory.correction,
+      formatsJson: sourceStory.formatsJson,
+      firstSeenAt:
+        selectedDates.sort((left, right) => left.getTime() - right.getTime())[0] ??
+        sourceStory.firstSeenAt,
+      lastSeenAt:
+        selectedDates.sort((left, right) => right.getTime() - left.getTime())[0] ??
+        sourceStory.lastSeenAt,
+      scoreJson: {
+        ...(coerceObject(sourceStory.scoreJson) ?? {}),
+        splitFromStoryId: sourceStory.id,
+        splitFromStorySlug: sourceStory.slug,
+      },
+      metadataJson: {
+        ...sourceMetadata,
+        splitFromStoryId: sourceStory.id,
+        splitFromStorySlug: sourceStory.slug,
+        splitFeedItemIds: selectedRelations.map((relation) => relation.feedItemId),
+        lastSplitAt: new Date().toISOString(),
+      },
+      updatedAt: new Date(),
+    })
+    .returning({ id: boardStoryCandidates.id, slug: boardStoryCandidates.slug });
+
+  await db
+    .update(boardStorySources)
+    .set({ storyId: createdStory.id })
+    .where(inArray(boardStorySources.id, selectedRelations.map((relation) => relation.relationId)));
+
+  await db
+    .update(boardStoryCandidates)
+    .set({
+      metadataJson: {
+        ...sourceMetadata,
+        splitChildStoryIds: mergeUniqueStrings([
+          ...(coerceStringArray(sourceMetadata.splitChildStoryIds) ?? []),
+          createdStory.id,
+        ]),
+        splitChildStorySlugs: mergeUniqueStrings([
+          ...(coerceStringArray(sourceMetadata.splitChildStorySlugs) ?? []),
+          createdStory.slug,
+        ]),
+        lastSplitAt: new Date().toISOString(),
+      },
+      updatedAt: new Date(),
+    })
+    .where(eq(boardStoryCandidates.id, sourceStory.id));
+
+  await recomputeBoardStoryMetrics();
+  await detectBoardStoryAlerts();
+
+  const newStory = await getBoardStoryDetail(createdStory.id);
+  if (!newStory) {
+    throw buildBoardStoryOperationError(500, "Split story could not be loaded");
+  }
+
+  return {
+    sourceStoryId: sourceStory.id,
+    sourceStorySlug: sourceStory.slug,
+    newStory,
+    movedFeedItemCount: selectedRelations.length,
+  };
+}
+
 export async function listBoardQueue() {
   await ensureBoardSeedData();
 
@@ -1859,7 +2746,8 @@ export async function getBoardHealth() {
   await ensureBoardSeedData();
 
   const db = getDb();
-  const [sources, stories, queueItems, latestFeedRows, competitorPosts] = await Promise.all([
+  const [sources, stories, queueItems, latestFeedRows, competitorPosts, activeAlertRows] =
+    await Promise.all([
     db.select().from(boardSources),
     db.select().from(boardStoryCandidates),
     db.select().from(boardQueueItems),
@@ -1870,6 +2758,10 @@ export async function getBoardHealth() {
       })
       .from(boardFeedItems),
     db.select().from(boardCompetitorPosts),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(boardSurgeAlerts)
+      .where(isNull(boardSurgeAlerts.dismissedAt)),
   ]);
 
   const now = Date.now();
@@ -1910,10 +2802,408 @@ export async function getBoardHealth() {
     controversyCount: stories.filter((story) => story.controversyScore >= 75).length,
     correctionCount: stories.filter((story) => story.correction).length,
     queueCount: queueItems.length,
+    alertCount: activeAlertRows[0]?.count ?? 0,
     competitorAlerts: competitorPosts.filter((post) => post.alertLevel !== "none").length,
     latestPublishedAt: toIsoString(latestFeedRows[0]?.latestPublishedAt),
     latestIngestedAt: toIsoString(latestFeedRows[0]?.latestIngestedAt),
   };
+}
+
+function buildBoardAlertKey(storyId: string, alertType: BoardAlertType) {
+  return `${storyId}:${alertType}`;
+}
+
+async function upsertBoardAlert(args: {
+  storyId: string;
+  alertType: BoardAlertType;
+  headline: string;
+  text: string;
+  surgeScore: number;
+  baselineAvg: number;
+  currentCount: number;
+  windowMinutes: number;
+  metadataJson: Record<string, unknown> | null;
+}) {
+  const db = getDb();
+  const now = new Date();
+  const [existing] = await db
+    .select({ id: boardSurgeAlerts.id })
+    .from(boardSurgeAlerts)
+    .where(
+      and(
+        eq(boardSurgeAlerts.storyId, args.storyId),
+        eq(boardSurgeAlerts.alertType, args.alertType),
+        isNull(boardSurgeAlerts.dismissedAt)
+      )
+    )
+    .orderBy(desc(boardSurgeAlerts.createdAt))
+    .limit(1);
+
+  if (existing) {
+    await db
+      .update(boardSurgeAlerts)
+      .set({
+        headline: args.headline,
+        text: args.text,
+        surgeScore: args.surgeScore,
+        baselineAvg: args.baselineAvg,
+        currentCount: args.currentCount,
+        windowMinutes: args.windowMinutes,
+        metadataJson: args.metadataJson,
+        updatedAt: now,
+      })
+      .where(eq(boardSurgeAlerts.id, existing.id));
+
+    return { created: false, updated: true };
+  }
+
+  await db.insert(boardSurgeAlerts).values({
+    storyId: args.storyId,
+    alertType: args.alertType,
+    headline: args.headline,
+    text: args.text,
+    surgeScore: args.surgeScore,
+    baselineAvg: args.baselineAvg,
+    currentCount: args.currentCount,
+    windowMinutes: args.windowMinutes,
+    metadataJson: args.metadataJson,
+    updatedAt: now,
+  });
+
+  return { created: true, updated: false };
+}
+
+async function clearInactiveBoardAlerts(activeKeys: Set<string>) {
+  const db = getDb();
+  const activeAlerts = await db
+    .select({
+      id: boardSurgeAlerts.id,
+      storyId: boardSurgeAlerts.storyId,
+      alertType: boardSurgeAlerts.alertType,
+      metadataJson: boardSurgeAlerts.metadataJson,
+    })
+    .from(boardSurgeAlerts)
+    .where(isNull(boardSurgeAlerts.dismissedAt));
+
+  let cleared = 0;
+
+  for (const alert of activeAlerts) {
+    const key = buildBoardAlertKey(alert.storyId, alert.alertType);
+    if (activeKeys.has(key)) {
+      continue;
+    }
+
+    const metadataJson = {
+      ...(coerceObject(alert.metadataJson) ?? {}),
+      dismissReason: "condition_cleared",
+      dismissedBy: "system",
+    };
+
+    await db
+      .update(boardSurgeAlerts)
+      .set({
+        dismissedAt: new Date(),
+        metadataJson,
+        updatedAt: new Date(),
+      })
+      .where(eq(boardSurgeAlerts.id, alert.id));
+
+    cleared += 1;
+  }
+
+  return cleared;
+}
+
+export async function detectBoardStoryAlerts() {
+  await ensureBoardSeedData();
+
+  const db = getDb();
+  const now = new Date();
+  const baselineStart = new Date(
+    now.getTime() - BOARD_ALERT_BASELINE_DAYS * 24 * 60 * 60 * 1000
+  );
+  const currentWindowStart = new Date(
+    now.getTime() - BOARD_ALERT_WINDOW_MINUTES * 60 * 1000
+  );
+  const controversyRecentStart = new Date(
+    now.getTime() - BOARD_ALERT_RECENT_CONTROVERSY_HOURS * 60 * 60 * 1000
+  );
+  const baselineBucketCount = Math.max(
+    1,
+    Math.floor((BOARD_ALERT_BASELINE_DAYS * 24 * 60) / BOARD_ALERT_WINDOW_MINUTES)
+  );
+
+  const [stories, rows] = await Promise.all([
+    db
+      .select({
+        id: boardStoryCandidates.id,
+        slug: boardStoryCandidates.slug,
+        canonicalTitle: boardStoryCandidates.canonicalTitle,
+        controversyScore: boardStoryCandidates.controversyScore,
+        surgeScore: boardStoryCandidates.surgeScore,
+        correction: boardStoryCandidates.correction,
+        lastSeenAt: boardStoryCandidates.lastSeenAt,
+      })
+      .from(boardStoryCandidates),
+    db
+      .select({
+        storyId: boardStorySources.storyId,
+        publishedAt: boardFeedItems.publishedAt,
+      })
+      .from(boardStorySources)
+      .innerJoin(boardFeedItems, eq(boardFeedItems.id, boardStorySources.feedItemId))
+      .where(gte(boardFeedItems.publishedAt, baselineStart)),
+  ]);
+
+  const countsByStory = new Map<
+    string,
+    {
+      currentCount: number;
+      baselineCount: number;
+    }
+  >();
+
+  for (const row of rows) {
+    const publishedAt = coerceDate(row.publishedAt);
+    if (!publishedAt) {
+      continue;
+    }
+
+    const counts = countsByStory.get(row.storyId) ?? {
+      currentCount: 0,
+      baselineCount: 0,
+    };
+
+    if (publishedAt >= currentWindowStart) {
+      counts.currentCount += 1;
+    } else {
+      counts.baselineCount += 1;
+    }
+
+    countsByStory.set(row.storyId, counts);
+  }
+
+  const activeKeys = new Set<string>();
+  let createdCount = 0;
+  let updatedCount = 0;
+
+  for (const story of stories) {
+    const lastSeenAt = coerceDate(story.lastSeenAt);
+    const counts = countsByStory.get(story.id) ?? {
+      currentCount: 0,
+      baselineCount: 0,
+    };
+    const baselineAvg = counts.baselineCount / baselineBucketCount;
+    const surgeScore = counts.currentCount / Math.max(0.25, baselineAvg || 0);
+
+    const shouldAlertSurge =
+      counts.currentCount >= 2 &&
+      (surgeScore >= 3 || (counts.currentCount >= 3 && story.surgeScore >= 80));
+
+    if (shouldAlertSurge) {
+      activeKeys.add(buildBoardAlertKey(story.id, "surge"));
+      const result = await upsertBoardAlert({
+        storyId: story.id,
+        alertType: "surge",
+        headline: "Surge Alert",
+        text: buildBoardAlertText({
+          alertType: "surge",
+          title: story.canonicalTitle,
+          currentCount: counts.currentCount,
+          baselineAvg,
+          surgeScore,
+          controversyScore: story.controversyScore,
+        }),
+        surgeScore,
+        baselineAvg,
+        currentCount: counts.currentCount,
+        windowMinutes: BOARD_ALERT_WINDOW_MINUTES,
+        metadataJson: {
+          storySlug: story.slug,
+          controversyScore: story.controversyScore,
+        },
+      });
+      if (result.created) {
+        createdCount += 1;
+      } else if (result.updated) {
+        updatedCount += 1;
+      }
+    }
+
+    const shouldAlertControversy =
+      story.controversyScore >= 85 &&
+      Boolean(lastSeenAt && lastSeenAt >= controversyRecentStart);
+
+    if (shouldAlertControversy) {
+      activeKeys.add(buildBoardAlertKey(story.id, "controversy"));
+      const result = await upsertBoardAlert({
+        storyId: story.id,
+        alertType: "controversy",
+        headline: "Controversy Alert",
+        text: buildBoardAlertText({
+          alertType: "controversy",
+          title: story.canonicalTitle,
+          currentCount: counts.currentCount,
+          baselineAvg,
+          surgeScore,
+          controversyScore: story.controversyScore,
+        }),
+        surgeScore,
+        baselineAvg,
+        currentCount: counts.currentCount,
+        windowMinutes: BOARD_ALERT_WINDOW_MINUTES,
+        metadataJson: {
+          storySlug: story.slug,
+          controversyScore: story.controversyScore,
+        },
+      });
+      if (result.created) {
+        createdCount += 1;
+      } else if (result.updated) {
+        updatedCount += 1;
+      }
+    }
+
+    const shouldAlertCorrection =
+      story.correction && Boolean(lastSeenAt && lastSeenAt >= controversyRecentStart);
+
+    if (shouldAlertCorrection) {
+      activeKeys.add(buildBoardAlertKey(story.id, "correction"));
+      const result = await upsertBoardAlert({
+        storyId: story.id,
+        alertType: "correction",
+        headline: "Correction Watch",
+        text: buildBoardAlertText({
+          alertType: "correction",
+          title: story.canonicalTitle,
+          currentCount: counts.currentCount,
+          baselineAvg,
+          surgeScore,
+          controversyScore: story.controversyScore,
+        }),
+        surgeScore,
+        baselineAvg,
+        currentCount: counts.currentCount,
+        windowMinutes: BOARD_ALERT_WINDOW_MINUTES,
+        metadataJson: {
+          storySlug: story.slug,
+          correction: true,
+        },
+      });
+      if (result.created) {
+        createdCount += 1;
+      } else if (result.updated) {
+        updatedCount += 1;
+      }
+    }
+  }
+
+  const clearedCount = await clearInactiveBoardAlerts(activeKeys);
+
+  return {
+    activeAlerts: activeKeys.size,
+    createdAlerts: createdCount,
+    updatedAlerts: updatedCount,
+    clearedAlerts: clearedCount,
+  };
+}
+
+export async function listBoardAlerts() {
+  await ensureBoardSeedData();
+
+  const db = getDb();
+  const rows = await db
+    .select({
+      alert: boardSurgeAlerts,
+      storySlug: boardStoryCandidates.slug,
+    })
+    .from(boardSurgeAlerts)
+    .innerJoin(boardStoryCandidates, eq(boardStoryCandidates.id, boardSurgeAlerts.storyId))
+    .where(isNull(boardSurgeAlerts.dismissedAt))
+    .orderBy(
+      desc(boardSurgeAlerts.surgeScore),
+      desc(boardSurgeAlerts.createdAt),
+      desc(boardStoryCandidates.controversyScore)
+    );
+
+  return rows.map((row): BoardAlertSummary => ({
+    id: row.alert.id,
+    storyId: row.alert.storyId,
+    storySlug: row.storySlug,
+    alertType: row.alert.alertType,
+    headline: row.alert.headline,
+    text: row.alert.text,
+    surgeScore: row.alert.surgeScore,
+    baselineAvg: row.alert.baselineAvg,
+    currentCount: row.alert.currentCount,
+    windowMinutes: row.alert.windowMinutes,
+    createdAt: toIsoString(row.alert.createdAt) ?? new Date().toISOString(),
+    updatedAt: toIsoString(row.alert.updatedAt) ?? new Date().toISOString(),
+    dismissedAt: toIsoString(row.alert.dismissedAt),
+    metadataJson: coerceObject(row.alert.metadataJson),
+  }));
+}
+
+export async function dismissBoardAlert(alertId: string) {
+  const db = getDb();
+  const [existing] = await db
+    .select({
+      id: boardSurgeAlerts.id,
+      metadataJson: boardSurgeAlerts.metadataJson,
+      dismissedAt: boardSurgeAlerts.dismissedAt,
+    })
+    .from(boardSurgeAlerts)
+    .where(eq(boardSurgeAlerts.id, alertId))
+    .limit(1);
+
+  if (!existing) {
+    return null;
+  }
+
+  if (!existing.dismissedAt) {
+    await db
+      .update(boardSurgeAlerts)
+      .set({
+        dismissedAt: new Date(),
+        metadataJson: {
+          ...(coerceObject(existing.metadataJson) ?? {}),
+          dismissedBy: "user",
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(boardSurgeAlerts.id, alertId));
+  }
+
+  const [updated] = await db
+    .select({
+      alert: boardSurgeAlerts,
+      storySlug: boardStoryCandidates.slug,
+    })
+    .from(boardSurgeAlerts)
+    .innerJoin(boardStoryCandidates, eq(boardStoryCandidates.id, boardSurgeAlerts.storyId))
+    .where(eq(boardSurgeAlerts.id, alertId))
+    .limit(1);
+
+  if (!updated) {
+    return null;
+  }
+
+  return {
+    id: updated.alert.id,
+    storyId: updated.alert.storyId,
+    storySlug: updated.storySlug,
+    alertType: updated.alert.alertType,
+    headline: updated.alert.headline,
+    text: updated.alert.text,
+    surgeScore: updated.alert.surgeScore,
+    baselineAvg: updated.alert.baselineAvg,
+    currentCount: updated.alert.currentCount,
+    windowMinutes: updated.alert.windowMinutes,
+    createdAt: toIsoString(updated.alert.createdAt) ?? new Date().toISOString(),
+    updatedAt: toIsoString(updated.alert.updatedAt) ?? new Date().toISOString(),
+    dismissedAt: toIsoString(updated.alert.dismissedAt),
+    metadataJson: coerceObject(updated.alert.metadataJson),
+  } satisfies BoardAlertSummary;
 }
 
 export async function listBoardTicker() {
@@ -1957,13 +3247,14 @@ export async function listBoardTicker() {
 }
 
 export async function getBoardBootstrapPayload(): Promise<BoardBootstrapPayload> {
-  const [stories, queue, competitors, sources, health, ticker] = await Promise.all([
+  const [stories, queue, competitors, sources, health, ticker, alerts] = await Promise.all([
     listBoardStories(),
     listBoardQueue(),
     listBoardCompetitors(),
     listBoardSources(),
     getBoardHealth(),
     listBoardTicker(),
+    listBoardAlerts(),
   ]);
 
   return {
@@ -1973,24 +3264,39 @@ export async function getBoardBootstrapPayload(): Promise<BoardBootstrapPayload>
     sources,
     health,
     ticker,
+    alerts,
   };
 }
 
 export async function runBoardSourcePollCycle() {
   const rssIngestion = await ingestBoardRssSources();
+  const youtubeIngestion = await ingestBoardYouTubeSources();
   await refreshBoardSourceHeartbeat();
   const metrics = await recomputeBoardStoryMetrics();
+  const alerts = await detectBoardStoryAlerts();
   const health = await getBoardHealth();
 
   return {
-    ...rssIngestion,
+    rssSourcesPolled: rssIngestion.sourcesPolled,
+    youtubeSourcesPolled: youtubeIngestion.sourcesPolled,
+    feedItemsIngested: rssIngestion.feedItemsIngested + youtubeIngestion.feedItemsIngested,
+    relationsCreated: rssIngestion.relationsCreated + youtubeIngestion.relationsCreated,
+    storiesCreated: rssIngestion.storiesCreated + youtubeIngestion.storiesCreated,
+    failedSources: rssIngestion.failedSources + youtubeIngestion.failedSources,
     ...metrics,
+    ...alerts,
     healthySources: health.healthySources,
   };
 }
 
 export async function runBoardClusteringCycle() {
-  return recomputeBoardStoryMetrics();
+  const metrics = await recomputeBoardStoryMetrics();
+  const alerts = await detectBoardStoryAlerts();
+
+  return {
+    ...metrics,
+    ...alerts,
+  };
 }
 
 export async function runBoardTickerRefreshCycle() {
@@ -2007,4 +3313,8 @@ export async function runBoardCompetitorRefreshCycle() {
   const competitors = await listBoardCompetitors();
 
   return competitors.stats;
+}
+
+export async function runBoardAnomalyDetectionCycle() {
+  return detectBoardStoryAlerts();
 }

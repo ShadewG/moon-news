@@ -1,220 +1,148 @@
-# Moon News Studio — Full Platform Plan
+# Moon News Studio — Implementation Plan
 
-## Two Core Tools
+## Phase 1: CIA Terminal UI (Claude — NOW)
+Rebuild the board-client.tsx with the FOIA researcher aesthetic:
+- Ultra-dark (#080808), monospace (11px), data-dense
+- Stats bar with pipes `|` as separators
+- Compact rows instead of cards
+- Tags as small colored pills
+- Running task indicators with elapsed time
+- Filter bar with dropdowns
+- View tabs (board | queue | competitors | sources)
+- Right panel with research results
 
-### 1. Research Board (Story Discovery)
-Decide WHAT to make a video about. Live data, competitor tracking, story scoring.
+## Phase 2: Deep Research Pipeline (Codex — Backend)
+Adapt the FOIA researcher's multi-source parallel search for news stories.
 
-### 2. Clip Library (Footage Research)
-Find the FOOTAGE once you've picked a topic. Transcripts, quotes, Ask AI.
+### Tasks for Codex:
 
-They link together: Board → "Find Footage" → opens topic search in Clip Library.
+**Task 1: Multi-source news search service**
+File: `src/server/services/board/news-search.ts`
+- Create a `searchNewsStory(query, mode)` function
+- Mode: "quick" (2 sources, 8 results) vs "full" (5+ sources, 30 results)
+- Sources to search in parallel:
+  - Serper API (Google search) — add SERPER_API_KEY to env
+  - Perplexity Sonar API — add PERPLEXITY_API_KEY to env
+  - Google News RSS (free, no key)
+  - Hacker News API (free)
+  - Reddit search API (free)
+  - Our existing: YouTube, Twitter/X (xAI Grok), Internet Archive
+- Deduplicate results by URL (canonicalize: strip tracking params, lowercase host)
+- Return: array of { title, url, source, snippet, publishedAt, relevanceScore }
 
----
+**Task 2: Content extraction with fallback chain**
+File: `src/server/services/board/content-extractor.ts`
+- Create `extractArticleContent(url)` with fallback:
+  1. Try Firecrawl (existing)
+  2. Fallback to direct fetch + HTML parsing (regex-based, strip tags, get main content)
+  3. Fallback to Perplexity "summarize this URL"
+- Return: { title, content, author, publishedAt, siteName }
+- Cache extracted content in a new `extracted_content_cache` table (keyed by URL hash)
 
-## TOOL 1: Research Board
+**Task 3: Story synthesis (GPT deep research)**
+File: `src/server/services/board/story-research.ts`
+- Create `deepResearchStory(storyId, mode)` function
+- Steps:
+  1. Get all feed items linked to the story
+  2. Run `searchNewsStory()` with story title/keywords
+  3. Extract content from top 15-30 results (parallel, semaphore 5)
+  4. Synthesize with OpenAI: structured output with
+     - summary (3 paragraphs)
+     - timeline (key events with dates)
+     - key_players (people/orgs involved)
+     - controversy_score (0-100)
+     - format_suggestion (Full Video / Short / Both)
+     - angle_suggestions (3 documentary angles)
+     - title_options (5 clickable titles)
+     - script_opener (first paragraph of script)
+  5. Save result to board_story_ai_outputs
+  6. Update story score based on research findings
+- Emit progress events for live tracking
 
-### What it does
-- Monitors RSS feeds, Twitter/X trends, YouTube competitor uploads, news sources
-- Scores stories by virality, controversy, relevance to your channel
-- Alerts on surges (breaking news, competitor uploads, trending topics)
-- AI tools: Brief Me, Script Starter, Title Generator
-- Production queue: track stories from discovery → research → script → film → edit → publish
+**Task 4: Story scoring algorithm**
+File: `src/server/services/board/story-scorer.ts`
+- Adapt the FOIA case_evaluator.py scoring for news stories:
+  - Source Score (30pts): source_count × 3, capped at 30. Bonus for tier-1 sources (NYT, Reuters, AP)
+  - Controversy Score (25pts): sentiment polarity × engagement metrics
+  - Timeliness Score (20pts): recency bonus (breaking = 20, today = 15, this week = 10, older = 5)
+  - Competitor Overlap (15pts): +15 if competitors are covering it, +10 if adjacent
+  - Visual Evidence Score (10pts): +10 if video exists, +5 if images, +3 if infographics
+- Surge detection: if velocity (items/hour) > 3× 7-day baseline, flag as surge
+- Return: { totalScore, breakdown, tier (S/A/B/C/D), surgeActive }
 
-### Data Sources
-| Source | Method | Frequency | What it provides |
-|--------|--------|-----------|-----------------|
-| RSS feeds (tech, news, finance) | Direct fetch + parse | Every 15 min | Headlines, links, publish dates |
-| YouTube competitor channels | YouTube RSS (no API needed) | Every 15 min | New uploads, titles, view counts |
-| Twitter/X trends | xAI Grok x_search | On demand | Trending topics, viral posts |
-| Google Trends | Apify or SerpAPI | Every 30 min | Search volume, trending queries |
-| Reddit | Reddit RSS | Every 15 min | Hot posts from relevant subreddits |
-| Hacker News | HN API (free) | Every 15 min | Top stories, comments |
+**Task 5: Live progress streaming**
+File: `src/server/services/board/progress.ts`
+- Create a progress event system for long-running research
+- Store progress in a `research_progress` table:
+  - task_id, step (searching | extracting | synthesizing | scoring),
+  - progress (0-100), message, started_at, updated_at
+- API endpoint: `GET /api/board/stories/:id/progress` (poll every 2s)
+- Steps to track:
+  1. searching (0-20%) — querying news sources
+  2. extracting (20-50%) — pulling full content from URLs
+  3. synthesizing (50-80%) — AI generating summary/analysis
+  4. scoring (80-90%) — calculating story score
+  5. complete (100%) — done
 
-### Schema (new tables)
-
-```
-feed_sources
-  id, name, url, type (rss|youtube_channel|subreddit|twitter_list),
-  category, polling_interval_ms, last_polled_at, status, created_at
-
-feed_items
-  id, source_id, external_id, title, url, content_snippet,
-  published_at, author, fetched_at, metadata_json
-
-stories
-  id, title, vertical, status (watching|researching|scripting|filming|editing|published),
-  score, controversy_score, sentiment, surge_active,
-  format_suggestions, ai_brief, ai_script_draft, ai_titles_json,
-  created_at, updated_at
-
-story_feed_items (many-to-many)
-  id, story_id, feed_item_id, relevance_score
-
-story_competitors
-  id, story_id, competitor_channel, video_title, video_url,
-  published_at, overlap_type (same_topic|adjacent|response)
-
-competitor_channels
-  id, name, youtube_channel_id, subscriber_count, tier (1|2|3),
-  last_upload_title, last_upload_date, rss_url, created_at
-
-production_queue
-  id, story_id, position, status, format, target_date,
-  assigned_to, notes, created_at, updated_at
-```
-
-### Pages / Routes
-- `/board` — main story board (story cards, surge banner, filters)
-- `/board/queue` — production pipeline view
-- `/board/competitors` — competitor channel monitoring
-- `/board/sources` — all feed sources with health status
-- `/board/story/:id` — story detail with AI tools
-
-### Background Jobs (Trigger.dev)
-- `poll-rss-feeds` — runs every 15 min, fetches all RSS sources
-- `poll-youtube-channels` — runs every 15 min, checks competitor uploads
-- `score-stories` — runs after new items ingested, clusters items into stories, calculates scores
-- `detect-surges` — compares current velocity to baseline, flags surges
-- `generate-brief` — on-demand AI briefing for a story
-- `generate-script` — on-demand script starter draft
-- `generate-titles` — on-demand title options
-
-### Story Scoring Algorithm
-```
-score = (
-  source_count × 8        # more sources = bigger story
-  + avg_source_authority × 5  # NYT > random blog
-  + controversy × 3       # abs(sentiment) × engagement
-  + recency_bonus          # newer = higher
-  + surge_multiplier       # 2× if velocity > 3× baseline
-  + competitor_overlap × 10  # if competitors are covering it
-  - staleness_penalty      # decays after peak
-)
-```
-
-### Ticker Bar
-Real-time scrolling alerts:
-- BREAKING: new high-score story detected
-- COMPETITOR: [channel] just uploaded about [topic]
-- SURGE: [topic] velocity 3.7× baseline
-- CORRECTION: source updated/retracted
-- NOTE: channel milestone or absence
-
----
-
-## TOOL 2: Clip Library (Already Built)
-
-### What exists now
-- 170 clips in library (YouTube, Twitter, Internet Archive)
-- 71 transcripts cached (all YouTube clips)
-- 225 verbatim quotes with verified timestamps
-- Topic search across all providers
-- Ask AI about any video using its transcript
-- Notes system per clip
-- Library browsable/searchable/filterable at `/library`
-- Clip detail page at `/clips/:id` with player, quotes, transcript, notes, Ask AI
-
-### What needs improvement (from the proposals)
-- UI redesign to match the board's design system (IBM Plex Mono, Fraunces, cyan/amber/red)
-- Better navigation between library and board
-- Keyboard shortcuts (Cmd+K spotlight search)
-- Auto-extract transcripts for new clips on ingest
-- Quote extraction runs automatically, not just on search
-
----
-
-## HOW THEY CONNECT
-
-```
-Research Board                          Clip Library
-┌──────────────┐                       ┌──────────────┐
-│ Story Cards   │──"Find Footage"──→   │ Topic Search  │
-│ with scores   │                      │ across all    │
-│ and sources   │                      │ providers     │
-│               │                      │               │
-│ AI Brief Me   │──uses quotes from──→ │ Quote Library │
-│ Script Starter│                      │ 225 verified  │
-│               │                      │               │
-│ Competitor    │──"What clips exist"→ │ Clip Library  │
-│ Tracking      │                      │ 170 clips     │
-└──────────────┘                       └──────────────┘
-        │                                      │
-        └──────── Shared Navigation ───────────┘
-              /board  ←→  /library
-              /board/queue  /clips/:id
-              /board/competitors  /search/:id
+**Task 6: Extracted content cache table**
+Migration for:
+```sql
+CREATE TABLE extracted_content_cache (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  url_hash text NOT NULL UNIQUE,
+  url text NOT NULL,
+  title text,
+  content text NOT NULL,
+  author text,
+  published_at text,
+  site_name text,
+  word_count integer DEFAULT 0,
+  extracted_at timestamptz DEFAULT now()
+);
+CREATE INDEX idx_ecc_url_hash ON extracted_content_cache(url_hash);
 ```
 
-### Shared Navigation Bar
-Both tools share a top-level nav:
-- **Board** — story discovery (with sub-views: stories, queue, competitors, sources)
-- **Library** — clip library (browse, search, filter)
-- **Search** — topic search (searches everything)
-- **Projects** — script-based research (existing `/reports/:id`)
+**Task 7: Research progress table**
+Migration for:
+```sql
+CREATE TABLE research_progress (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_id uuid REFERENCES board_story_candidates(id) ON DELETE CASCADE,
+  task_type text NOT NULL DEFAULT 'deep_research',
+  step text NOT NULL DEFAULT 'pending',
+  progress integer NOT NULL DEFAULT 0,
+  message text,
+  metadata_json jsonb,
+  started_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+CREATE INDEX idx_rp_story ON research_progress(story_id);
+```
 
----
+### Environment variables to add:
+```
+SERPER_API_KEY=       # serper.dev — Google search API
+PERPLEXITY_API_KEY=   # Perplexity Sonar — AI search
+```
 
-## IMPLEMENTATION ORDER
+## Phase 3: Board UI Features (Claude — After Phase 2)
+- Wire deep research into the board UI
+- Live progress tracker (like FOIA's ResearchLiveTracker)
+- Research results modal with tabs (Summary | Sources | Timeline | Clips)
+- "Find Footage" button → topic search in clip library
+- Notion export integration (if needed)
 
-### Phase 1: Research Board Foundation (1-2 days)
-1. Schema: feed_sources, feed_items, stories, competitor_channels, production_queue
-2. RSS poller: fetch and parse RSS feeds on a schedule
-3. YouTube competitor poller: check channel RSS for new uploads
-4. Story clustering: group related feed items into stories
-5. Basic board UI at `/board` with story cards
+## Phase 4: Recurring Automation (Codex — Backend)
+- Trigger.dev scheduled tasks:
+  - `poll-rss-feeds` — every 15 min
+  - `poll-competitors` — every 15 min
+  - `score-stories` — after each poll cycle
+  - `detect-surges` — compare velocity to baseline
+  - `refresh-ticker` — update ticker alerts
+- Auto-research: when a story hits score > 80, auto-trigger quick research
 
-### Phase 2: Intelligence Layer (1-2 days)
-6. Story scoring algorithm
-7. Surge detection (velocity vs baseline)
-8. Competitor overlap detection
-9. AI Brief Me / Script Starter / Title Generator
-10. Ticker bar with real-time alerts
-
-### Phase 3: Production Pipeline (1 day)
-11. Production queue table + UI
-12. Status workflow (watching → researching → scripting → filming → editing → published)
-13. Assignment and target dates
-
-### Phase 4: Unified Navigation (1 day)
-14. Shared nav bar across board + library
-15. "Find Footage" button on story cards → topic search
-16. Board design system applied to clip library
-17. Keyboard shortcuts (Cmd+K global search)
-
-### Phase 5: Live Feeds (ongoing)
-18. Configure initial RSS sources (tech, news, finance, crypto)
-19. Configure competitor channels
-20. Configure Twitter/X monitoring topics
-21. Tune scoring weights based on usage
-
----
-
-## INITIAL FEED SOURCES (to configure)
-
-### RSS Feeds
-**Tech/AI:** The Verge, TechCrunch, Ars Technica, Wired, MIT Tech Review, Hacker News
-**Business:** Bloomberg, Reuters, WSJ, Financial Times
-**Crypto:** CoinDesk, The Block, Decrypt, CryptoNews
-**Investigative:** ProPublica, The Intercept, Bellingcat
-**Privacy/Rights:** EFF, Proton Blog, ACLU
-**Entertainment:** TMZ, Variety, Deadline Hollywood
-
-### Competitor YouTube Channels (Tier 1)
-Internet Anarchist, Patrick Cc:, Coffeezilla, ColdFusion, SunnyV2, MagnatesMedia, James Jani, Turkey Tom
-
-### Competitor YouTube Channels (Tier 2)
-LegalEagle, penguinz0, LEMMiNO, Thoughty2, SomeOrdinaryGamers
-
-### Subreddits
-r/technology, r/privacy, r/cryptocurrency, r/youtube, r/internetdrama
-
----
-
-## TECH STACK (same as existing)
-- Next.js 16 (App Router)
-- Drizzle ORM + PostgreSQL (Railway)
-- Trigger.dev for background jobs (polling, scoring)
-- OpenAI gpt-4.1-mini for AI tools
-- xAI Grok for Twitter/X search
-- yt-dlp for YouTube transcripts
+## Phase 5: Cross-tool Integration
+- Board → Library: "Find Footage" opens topic search with story keywords
+- Library → Board: clips/quotes can be linked to board stories
+- Shared nav: `/board` ←→ `/library` ←→ `/clips/:id`
+- Global Cmd+K search across stories + clips + quotes

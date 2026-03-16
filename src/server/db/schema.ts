@@ -134,6 +134,12 @@ export const boardCompetitorAlertLevelEnum = pgEnum(
   ["none", "watch", "hot"]
 );
 
+export const boardAlertTypeEnum = pgEnum("board_alert_type", [
+  "surge",
+  "controversy",
+  "correction",
+]);
+
 export const projects = pgTable(
   "projects",
   {
@@ -855,5 +861,85 @@ export const boardTickerEvents = pgTable(
     index("board_ticker_events_priority_index").on(table.priority),
     index("board_ticker_events_starts_at_index").on(table.startsAt),
     index("board_ticker_events_expires_at_index").on(table.expiresAt),
+  ]
+);
+
+export const boardSurgeAlerts = pgTable(
+  "board_surge_alerts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id")
+      .notNull()
+      .references(() => boardStoryCandidates.id, { onDelete: "cascade" }),
+    alertType: boardAlertTypeEnum("alert_type").notNull(),
+    headline: text("headline").notNull(),
+    text: text("text").notNull(),
+    surgeScore: real("surge_score").notNull().default(0),
+    baselineAvg: real("baseline_avg").notNull().default(0),
+    currentCount: integer("current_count").notNull().default(0),
+    windowMinutes: integer("window_minutes").notNull().default(120),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    dismissedAt: timestamp("dismissed_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("board_surge_alerts_story_id_index").on(table.storyId),
+    index("board_surge_alerts_alert_type_index").on(table.alertType),
+    index("board_surge_alerts_created_at_index").on(table.createdAt),
+    index("board_surge_alerts_dismissed_at_index").on(table.dismissedAt),
+  ]
+);
+
+// ─── Extracted Content Cache ───
+
+export const extractedContentCache = pgTable(
+  "extracted_content_cache",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    urlHash: text("url_hash").notNull().unique(),
+    url: text("url").notNull(),
+    title: text("title"),
+    content: text("content").notNull(),
+    author: text("author"),
+    publishedAt: text("published_at"),
+    siteName: text("site_name"),
+    wordCount: integer("word_count").notNull().default(0),
+    extractedAt: timestamp("extracted_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("extracted_content_cache_url_hash_index").on(table.urlHash),
+  ]
+);
+
+// ─── Research Progress Tracking ───
+
+export const researchProgress = pgTable(
+  "research_progress",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id")
+      .notNull()
+      .references(() => boardStoryCandidates.id, { onDelete: "cascade" }),
+    taskType: text("task_type").notNull().default("deep_research"),
+    step: text("step").notNull().default("pending"),
+    progress: integer("progress").notNull().default(0),
+    message: text("message"),
+    metadataJson: jsonb("metadata_json"),
+    startedAt: timestamp("started_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("research_progress_story_id_index").on(table.storyId),
   ]
 );

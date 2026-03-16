@@ -1165,7 +1165,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
         rel="stylesheet"
       />
 
@@ -1225,33 +1225,33 @@ function formatTimeAgo(isoString: string): string {
 /* ------------------------------------------------------------------ */
 
 const boardStyles = `
-/* ── CSS VARIABLES ── */
+/* ── CSS VARIABLES — CIA Terminal Aesthetic ── */
 .board-root {
-  --board-bg:        #080C12;
-  --board-bg1:       #0D1320;
-  --board-bg2:       #111827;
-  --board-bg3:       #1a2234;
-  --board-bg4:       #1f2a3e;
-  --board-border:    #1e2d44;
-  --board-border2:   #253348;
-  --board-cyan:      #00C9E8;
-  --board-cyan-dim:  #004d5a;
-  --board-amber:     #F59E0B;
-  --board-amber-dim: #3d2800;
-  --board-red:       #EF4444;
-  --board-red-dim:   #3b0f0f;
-  --board-green:     #10B981;
-  --board-green-dim: #082b1a;
-  --board-purple:    #A78BFA;
-  --board-purple-dim:#2d1f5e;
-  --board-blue:      #3B82F6;
-  --board-blue-dim:  #1a2d5a;
-  --board-muted:     #4B5C74;
-  --board-muted2:    #8899aa;
-  --board-text:      #CBD5E0;
-  --board-text-bright:#E8F0F8;
-  --board-mono: 'IBM Plex Mono', monospace;
-  --board-serif: 'Fraunces', Georgia, serif;
+  --board-bg:        #080808;
+  --board-bg1:       #0a0a0a;
+  --board-bg2:       #0c0c0c;
+  --board-bg3:       #111111;
+  --board-bg4:       #181818;
+  --board-border:    #181818;
+  --board-border2:   #222222;
+  --board-cyan:      #5b9;
+  --board-cyan-dim:  #1a2a1e;
+  --board-amber:     #c93;
+  --board-amber-dim: #2a1a0a;
+  --board-red:       #a44;
+  --board-red-dim:   #2a0f0f;
+  --board-green:     #4a4;
+  --board-green-dim: #0a1a0a;
+  --board-purple:    #86a;
+  --board-purple-dim:#1a0f2a;
+  --board-blue:      #68a;
+  --board-blue-dim:  #0f1a2a;
+  --board-muted:     #444;
+  --board-muted2:    #666;
+  --board-text:      #999;
+  --board-text-bright:#ccc;
+  --board-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --board-serif: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 .board-root,
@@ -1267,7 +1267,7 @@ const boardStyles = `
   background: var(--board-bg);
   color: var(--board-text);
   font-family: var(--board-mono);
-  font-size: 13px;
+  font-size: 11px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1369,7 +1369,7 @@ const boardStyles = `
   gap: 8px;
 }
 .board-moon-title {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 18px;
   font-weight: 700;
   color: var(--board-text-bright);
@@ -1493,7 +1493,7 @@ const boardStyles = `
   font-weight: 500;
   color: var(--board-muted2);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 2px;
   transition: all 0.15s;
 }
 .board-vtab:hover {
@@ -1546,7 +1546,7 @@ const boardStyles = `
 .board-surge-banner {
   background: linear-gradient(135deg, var(--board-amber-dim), #1a1000);
   border: 1px solid var(--board-amber);
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
@@ -1562,7 +1562,7 @@ const boardStyles = `
 .board-surge-title     { font-size: 12px; font-weight: 600; color: var(--board-amber); }
 .board-surge-sub       { font-size: 11px; color: var(--board-muted2); margin-top: 2px; }
 .board-surge-score-num {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 28px;
   font-weight: 700;
   color: var(--board-amber);
@@ -1578,7 +1578,7 @@ const boardStyles = `
 .board-story-card {
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 13px 15px;
   cursor: pointer;
   transition: all 0.18s;
@@ -1621,7 +1621,7 @@ const boardStyles = `
   margin-bottom: 8px;
 }
 .board-card-score {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 28px;
   font-weight: 700;
   color: var(--board-text-bright);
@@ -1633,7 +1633,7 @@ const boardStyles = `
 .board-score-med  { color: var(--board-amber) !important; }
 .board-card-title-block { flex: 1; }
 .board-card-title {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 16px;
   font-weight: 600;
   color: var(--board-text-bright);
@@ -1890,14 +1890,14 @@ const boardStyles = `
 .board-brief-output {
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
-  border-radius: 5px;
+  border-radius: 2px;
   padding: 14px;
   font-size: 12px;
   line-height: 1.7;
   color: var(--board-text);
 }
 .board-brief-output h4 {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 14px;
   color: var(--board-cyan);
   margin-bottom: 8px;
@@ -1924,12 +1924,12 @@ const boardStyles = `
 .board-script-draft {
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
-  border-radius: 5px;
+  border-radius: 2px;
   padding: 14px;
   font-size: 12px;
   line-height: 1.7;
   color: var(--board-text);
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
 }
 .board-script-draft .label {
   font-family: var(--board-mono);
@@ -1948,9 +1948,9 @@ const boardStyles = `
 .board-title-option {
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 9px 11px;
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 13px;
   color: var(--board-text-bright);
   cursor: pointer;
@@ -1985,7 +1985,7 @@ const boardStyles = `
 .board-queue-success       { padding: 30px 20px; text-align: center; }
 .board-queue-success-icon  { font-size: 32px; color: var(--board-green); margin-bottom: 12px; }
 .board-queue-success-title {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 16px;
   color: var(--board-text-bright);
   margin-bottom: 8px;
@@ -2002,7 +2002,7 @@ const boardStyles = `
 .board-queue-view::-webkit-scrollbar-thumb { background: var(--board-border2); }
 .board-queue-view-inner { padding: 16px; }
 .board-view-header {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 22px;
   color: var(--board-text-bright);
   margin-bottom: 6px;
@@ -2017,7 +2017,7 @@ const boardStyles = `
   gap: 0;
   margin-bottom: 20px;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 3px;
   border: 1px solid var(--board-border);
 }
 .board-stage {
@@ -2040,7 +2040,7 @@ const boardStyles = `
 }
 .board-stage-count {
   font-size: 18px;
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-weight: 700;
 }
 
@@ -2067,17 +2067,17 @@ const boardStyles = `
 .board-queue-pos {
   color: var(--board-muted);
   font-size: 16px;
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
 }
 .board-queue-row-title {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 13px;
   color: var(--board-text-bright);
   margin-bottom: 3px;
 }
 .board-queue-row-meta { font-size: 10px; color: var(--board-muted); }
 .board-score-num {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 18px;
   font-weight: 700;
 }
@@ -2117,7 +2117,7 @@ const boardStyles = `
 .board-comp-card {
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 12px 14px;
   cursor: pointer;
   transition: all 0.15s;
@@ -2133,7 +2133,7 @@ const boardStyles = `
   margin-bottom: 3px;
 }
 .board-comp-name {
-  font-family: var(--board-serif);
+  font-family: var(--board-mono);
   font-size: 14px;
   color: var(--board-text-bright);
 }
@@ -2184,7 +2184,7 @@ const boardStyles = `
 .board-src-cat-card {
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 12px 14px;
 }
 .board-src-cat-title {

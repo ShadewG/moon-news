@@ -27,6 +27,8 @@ const serverEnvSchema = z.object({
   STORYBLOCKS_API_KEY: z.string().min(1).optional(),
   ARTLIST_API_KEY: z.string().min(1).optional(),
   ELEVENLABS_API_KEY: z.string().min(1).optional(),
+  SERPER_API_KEY: z.string().min(1).optional(),
+  PERPLEXITY_API_KEY: z.string().min(1).optional(),
   TRIGGER_SECRET_KEY: z.string().min(1).optional(),
   TRIGGER_PROJECT_REF: z.string().min(1).optional(),
   ENABLE_ARTLIST_FOOTAGE: z

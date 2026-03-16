@@ -26,6 +26,12 @@ const rssParser = new XMLParser({
   textNodeName: "text",
 });
 
+const BOARD_RSS_FETCH_ATTEMPTS = 3;
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function asArray<T>(value: T | T[] | undefined): T[] {
   if (value === undefined) {
     return [];
@@ -241,19 +247,33 @@ export function parseBoardRssXml(xml: string): BoardRssFeedItem[] {
 }
 
 export async function fetchBoardRssItems(feedUrl: string): Promise<BoardRssFeedItem[]> {
-  const response = await fetch(feedUrl, {
-    headers: {
-      Accept: "application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.8",
-      "User-Agent": "moon-news/1.0 (+https://moon-news-web-production.up.railway.app)",
-    },
-    cache: "no-store",
-    signal: AbortSignal.timeout(15000),
-  });
+  let lastError: unknown = null;
 
-  if (!response.ok) {
-    throw new Error(`Feed request failed with ${response.status}`);
+  for (let attempt = 1; attempt <= BOARD_RSS_FETCH_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetch(feedUrl, {
+        headers: {
+          Accept: "application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.8",
+          "User-Agent": "moon-news/1.0 (+https://moon-news-web-production.up.railway.app)",
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Feed request failed with ${response.status}`);
+      }
+
+      const xml = await response.text();
+      return parseBoardRssXml(xml);
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < BOARD_RSS_FETCH_ATTEMPTS) {
+        await delay(attempt * 750);
+      }
+    }
   }
 
-  const xml = await response.text();
-  return parseBoardRssXml(xml);
+  throw lastError instanceof Error ? lastError : new Error("Feed request failed");
 }

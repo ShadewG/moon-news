@@ -105,15 +105,28 @@ export interface BoardSourceConfigSeed {
   kind: BoardSourceKind;
   provider: BoardProvider;
   pollIntervalMinutes?: number;
-  configJson: {
-    mode: "rss_feed";
-    feedUrl: string;
-    siteUrl?: string;
-    sourceType?: "news" | "analysis" | "legal" | "gov";
-    vertical?: string;
-    authorityScore?: number;
-    tags?: string[];
-  };
+  configJson:
+    | {
+        mode: "rss_feed";
+        feedUrl: string;
+        siteUrl?: string;
+        sourceType?: "news" | "analysis" | "legal" | "gov";
+        vertical?: string;
+        authorityScore?: number;
+        tags?: string[];
+      }
+    | {
+        mode: "youtube_channel";
+        channelId: string;
+        uploadsPlaylistId: string;
+        channelHandle?: string;
+        channelUrl?: string;
+        sourceType?: "yt";
+        vertical?: string;
+        authorityScore?: number;
+        tags?: string[];
+        maxResults?: number;
+      };
 }
 
 const BASE_TIME = new Date("2026-03-16T14:00:00.000Z");
@@ -778,6 +791,42 @@ export const boardStorySeeds: BoardStorySeed[] = [
 ];
 
 export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
+  {
+    name: "Coffeezilla",
+    kind: "youtube_channel",
+    provider: "youtube",
+    pollIntervalMinutes: 30,
+    configJson: {
+      mode: "youtube_channel",
+      channelId: "UCFQMnBA3CS502aghlcr0_aw",
+      uploadsPlaylistId: "UUFQMnBA3CS502aghlcr0_aw",
+      channelHandle: "@coffeezilla",
+      channelUrl: "https://www.youtube.com/@coffeezilla",
+      sourceType: "yt",
+      vertical: "Internet / Legal Drama",
+      authorityScore: 88,
+      tags: ["youtube", "investigations", "creator-economy", "crypto"],
+      maxResults: 10,
+    },
+  },
+  {
+    name: "Internet Anarchist",
+    kind: "youtube_channel",
+    provider: "youtube",
+    pollIntervalMinutes: 30,
+    configJson: {
+      mode: "youtube_channel",
+      channelId: "UC_iUeUzozCHEReJ-shKcCYA",
+      uploadsPlaylistId: "UU_iUeUzozCHEReJ-shKcCYA",
+      channelHandle: "@internetanarchist",
+      channelUrl: "https://www.youtube.com/@internetanarchist",
+      sourceType: "yt",
+      vertical: "Internet / Legal Drama",
+      authorityScore: 82,
+      tags: ["youtube", "documentary", "internet-culture", "creator-economy"],
+      maxResults: 8,
+    },
+  },
   {
     name: "Engadget",
     kind: "rss",
