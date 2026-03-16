@@ -1,5 +1,14 @@
 import "server-only";
 
+import { and, eq, sql } from "drizzle-orm";
+
+import { getDb } from "@/server/db/client";
+import {
+  clipLibrary,
+  clipSearches,
+  clipSearchResults,
+  transcriptCache,
+} from "@/server/db/schema";
 import { searchYouTube } from "@/server/providers/youtube";
 import { searchInternetArchive } from "@/server/providers/internet-archive";
 import { searchTwitterVideos } from "@/server/providers/twitter";
@@ -7,6 +16,7 @@ import { scoreResultRelevance, findRelevantQuotes } from "@/server/providers/ope
 import { passesQualityGate } from "./scoring";
 
 export interface TopicResult {
+  clipId: string;
   provider: string;
   mediaType: string;
   title: string;
@@ -32,6 +42,7 @@ export interface TopicQuote {
 }
 
 export interface TopicSearchResult {
+  searchId: string;
   query: string;
   clips: TopicResult[];
   quotes: TopicQuote[];
@@ -39,7 +50,136 @@ export interface TopicSearchResult {
   totalFiltered: number;
 }
 
+interface RawResult {
+  provider: string;
+  mediaType: string;
+  title: string;
+  description: string;
+  sourceUrl: string;
+  previewUrl: string | null;
+  channelOrContributor: string | null;
+  viewCount: number;
+  durationMs: number | null;
+  uploadDate: string | null;
+  externalId: string;
+  metadataJson: Record<string, unknown> | null;
+}
+
+/**
+ * Upsert a clip into the global library. Returns the clip ID.
+ */
+async function upsertClip(r: RawResult): Promise<string> {
+  const db = getDb();
+
+  // Try to find existing
+  const [existing] = await db
+    .select({ id: clipLibrary.id })
+    .from(clipLibrary)
+    .where(
+      and(
+        eq(clipLibrary.provider, r.provider as "youtube"),
+        eq(clipLibrary.externalId, r.externalId)
+      )
+    )
+    .limit(1);
+
+  if (existing) {
+    // Update view count if higher
+    if (r.viewCount > 0) {
+      await db
+        .update(clipLibrary)
+        .set({
+          viewCount: sql`GREATEST(${clipLibrary.viewCount}, ${r.viewCount})`,
+          updatedAt: new Date(),
+        })
+        .where(eq(clipLibrary.id, existing.id));
+    }
+    return existing.id;
+  }
+
+  // Insert new
+  const [clip] = await db
+    .insert(clipLibrary)
+    .values({
+      provider: r.provider as "youtube",
+      externalId: r.externalId,
+      title: r.title,
+      sourceUrl: r.sourceUrl,
+      previewUrl: r.previewUrl,
+      channelOrContributor: r.channelOrContributor,
+      durationMs: r.durationMs,
+      viewCount: r.viewCount || null,
+      uploadDate: r.uploadDate,
+      metadataJson: r.metadataJson,
+    })
+    .returning({ id: clipLibrary.id });
+
+  return clip.id;
+}
+
+/**
+ * Get cached transcript, or extract and cache it.
+ */
+async function getOrExtractTranscript(
+  clipId: string,
+  videoId: string
+): Promise<Array<{ text: string; startMs: number; durationMs: number }> | null> {
+  const db = getDb();
+
+  // Check cache
+  const [cached] = await db
+    .select()
+    .from(transcriptCache)
+    .where(
+      and(
+        eq(transcriptCache.clipId, clipId),
+        eq(transcriptCache.language, "en")
+      )
+    )
+    .limit(1);
+
+  if (cached) {
+    return cached.segmentsJson as Array<{
+      text: string;
+      startMs: number;
+      durationMs: number;
+    }>;
+  }
+
+  // Extract fresh
+  try {
+    const { extractYouTubeTranscript, mergeTranscriptSegments } =
+      await import("@/server/providers/youtube-transcript");
+
+    const segments = await extractYouTubeTranscript(videoId);
+    if (segments.length === 0) return null;
+
+    const merged = mergeTranscriptSegments(segments);
+    const fullText = merged.map((s) => s.text).join(" ");
+
+    // Cache it
+    await db.insert(transcriptCache).values({
+      clipId,
+      language: "en",
+      fullText,
+      segmentsJson: merged,
+      wordCount: fullText.split(/\s+/).length,
+    });
+
+    // Mark clip as having transcript
+    await db
+      .update(clipLibrary)
+      .set({ hasTranscript: true, updatedAt: new Date() })
+      .where(eq(clipLibrary.id, clipId));
+
+    return merged;
+  } catch {
+    return null;
+  }
+}
+
 export async function searchTopic(query: string): Promise<TopicSearchResult> {
+  const db = getDb();
   const keywords = query.split(/\s+/).slice(0, 6);
 
   // Search all providers in parallel
@@ -49,20 +189,8 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
     searchTwitterVideos({ keywords, temporalContext: null, maxResults: 10 }),
   ]);
 
-  // Collect all raw results
-  const rawResults: Array<{
-    provider: string;
-    mediaType: string;
-    title: string;
-    description: string;
-    sourceUrl: string;
-    previewUrl: string | null;
-    channelOrContributor: string | null;
-    viewCount: number;
-    durationMs: number | null;
-    uploadDate: string | null;
-    externalId: string;
-  }> = [];
+  // Collect raw results
+  const rawResults: RawResult[] = [];
 
   if (ytResult.status === "fulfilled") {
     for (const r of ytResult.value.results) {
@@ -78,6 +206,7 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
         durationMs: r.durationMs,
         uploadDate: r.publishedAt,
         externalId: r.videoId,
+        metadataJson: { viewCount: r.viewCount, description: r.description },
       });
     }
   }
@@ -96,6 +225,7 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
         durationMs: r.durationMs,
         uploadDate: r.year,
         externalId: r.identifier,
+        metadataJson: { collection: r.collection },
       });
     }
   }
@@ -114,6 +244,12 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
         durationMs: null,
         uploadDate: r.postedAt,
         externalId: r.postUrl,
+        metadataJson: {
+          displayName: r.displayName,
+          likeCount: r.likeCount,
+          viewCount: r.viewCount,
+          videoDescription: r.videoDescription,
+        },
       });
     }
   }
@@ -149,9 +285,18 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
     );
   }
 
-  // Build scored results
-  const scored: TopicResult[] = passed
-    .map((r, i) => ({
+  // Save all passing clips to library and build scored results
+  const scored: TopicResult[] = [];
+
+  for (let i = 0; i < passed.length; i++) {
+    const r = passed[i];
+    const relevance = relevanceScores[i] ?? 20;
+    if (relevance < 10) continue;
+
+    const clipId = await upsertClip(r);
+
+    scored.push({
+      clipId,
       provider: r.provider,
       mediaType: r.mediaType,
       title: r.title,
@@ -161,13 +306,34 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
       viewCount: r.viewCount,
       durationMs: r.durationMs,
       uploadDate: r.uploadDate,
-      relevanceScore: relevanceScores[i] ?? 20,
+      relevanceScore: relevance,
       externalId: r.externalId,
-    }))
-    .filter((r) => r.relevanceScore >= 10)
-    .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    });
+  }
 
-  // Extract quotes from top 3 YouTube videos
+  scored.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+  // Save search record
+  const [search] = await db
+    .insert(clipSearches)
+    .values({
+      query,
+      resultsCount: scored.length,
+    })
+    .returning({ id: clipSearches.id });
+
+  // Save search→clip links
+  if (scored.length > 0) {
+    await db.insert(clipSearchResults).values(
+      scored.map((s) => ({
+        searchId: search.id,
+        clipId: s.clipId,
+        relevanceScore: s.relevanceScore,
+      }))
+    );
+  }
+
+  // Extract quotes from top 3 YouTube videos (using transcript cache)
   const topYT = scored
     .filter((r) => r.provider === "youtube")
     .slice(0, 3);
@@ -175,17 +341,13 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
   const allQuotes: TopicQuote[] = [];
 
   for (const video of topYT) {
+    const segments = await getOrExtractTranscript(video.clipId, video.externalId);
+    if (!segments) continue;
+
     try {
-      const { extractYouTubeTranscript, mergeTranscriptSegments } =
-        await import("@/server/providers/youtube-transcript");
-
-      const segments = await extractYouTubeTranscript(video.externalId);
-      if (segments.length === 0) continue;
-
-      const merged = mergeTranscriptSegments(segments);
       const quotes = await findRelevantQuotes({
         lineText: query,
-        transcript: merged,
+        transcript: segments,
         videoTitle: video.title,
         maxQuotes: 3,
       });
@@ -204,17 +366,109 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
         });
       }
     } catch {
-      // Transcript extraction is best-effort
+      // Quote extraction best-effort
     }
   }
 
   allQuotes.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
+  // Update search with quote count
+  await db
+    .update(clipSearches)
+    .set({ quotesCount: allQuotes.length })
+    .where(eq(clipSearches.id, search.id));
+
   return {
+    searchId: search.id,
     query,
     clips: scored,
     quotes: allQuotes,
     totalFound: rawResults.length,
     totalFiltered,
   };
+}
+
+/**
+ * Search the local clip library by text — uses cached transcripts.
+ */
+export async function searchLibrary(query: string): Promise<{
+  clips: Array<{
+    id: string;
+    provider: string;
+    externalId: string;
+    title: string;
+    sourceUrl: string;
+    channelOrContributor: string | null;
+    viewCount: number | null;
+    hasTranscript: boolean;
+    transcriptMatch: string | null;
+  }>;
+}> {
+  const db = getDb();
+
+  // Search clip titles
+  const titleMatches = await db
+    .select()
+    .from(clipLibrary)
+    .where(sql`${clipLibrary.title} ILIKE ${"%" + query + "%"}`)
+    .limit(20);
+
+  // Search transcripts
+  const transcriptMatches = await db
+    .select({
+      clip: clipLibrary,
+      matchSnippet: sql<string>`substring(${transcriptCache.fullText} from position(lower(${query}) in lower(${transcriptCache.fullText})) for 200)`,
+    })
+    .from(transcriptCache)
+    .innerJoin(clipLibrary, eq(clipLibrary.id, transcriptCache.clipId))
+    .where(sql`${transcriptCache.fullText} ILIKE ${"%" + query + "%"}`)
+    .limit(20);
+
+  // Merge and dedupe
+  const seen = new Set<string>();
+  const results: Array<{
+    id: string;
+    provider: string;
+    externalId: string;
+    title: string;
+    sourceUrl: string;
+    channelOrContributor: string | null;
+    viewCount: number | null;
+    hasTranscript: boolean;
+    transcriptMatch: string | null;
+  }> = [];
+
+  for (const t of transcriptMatches) {
+    if (seen.has(t.clip.id)) continue;
+    seen.add(t.clip.id);
+    results.push({
+      id: t.clip.id,
+      provider: t.clip.provider,
+      externalId: t.clip.externalId,
+      title: t.clip.title,
+      sourceUrl: t.clip.sourceUrl,
+      channelOrContributor: t.clip.channelOrContributor,
+      viewCount: t.clip.viewCount,
+      hasTranscript: true,
+      transcriptMatch: t.matchSnippet,
+    });
+  }
+
+  for (const c of titleMatches) {
+    if (seen.has(c.id)) continue;
+    seen.add(c.id);
+    results.push({
+      id: c.id,
+      provider: c.provider,
+      externalId: c.externalId,
+      title: c.title,
+      sourceUrl: c.sourceUrl,
+      channelOrContributor: c.channelOrContributor,
+      viewCount: c.viewCount,
+      hasTranscript: c.hasTranscript,
+      transcriptMatch: null,
+    });
+  }
+
+  return { clips: results };
 }

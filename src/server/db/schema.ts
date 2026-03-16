@@ -347,6 +347,92 @@ export const footageQuotes = pgTable(
   ]
 );
 
+// ─── Global Clip Library & Transcript Cache ───
+
+export const clipLibrary = pgTable(
+  "clip_library",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    provider: providerEnum("provider").notNull(),
+    externalId: text("external_id").notNull(),
+    title: text("title").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    previewUrl: text("preview_url"),
+    channelOrContributor: text("channel_or_contributor"),
+    durationMs: integer("duration_ms"),
+    viewCount: integer("view_count"),
+    uploadDate: text("upload_date"),
+    metadataJson: jsonb("metadata_json"),
+    hasTranscript: boolean("has_transcript").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("clip_library_provider_external_id_unique").on(
+      table.provider,
+      table.externalId
+    ),
+    index("clip_library_provider_index").on(table.provider),
+  ]
+);
+
+export const transcriptCache = pgTable(
+  "transcript_cache",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clipId: uuid("clip_id")
+      .notNull()
+      .references(() => clipLibrary.id, { onDelete: "cascade" }),
+    language: text("language").notNull().default("en"),
+    fullText: text("full_text").notNull(),
+    segmentsJson: jsonb("segments_json").notNull(),
+    wordCount: integer("word_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("transcript_cache_clip_language_unique").on(
+      table.clipId,
+      table.language
+    ),
+  ]
+);
+
+export const clipSearches = pgTable(
+  "clip_searches",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    query: text("query").notNull(),
+    resultsCount: integer("results_count").notNull().default(0),
+    quotesCount: integer("quotes_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  }
+);
+
+export const clipSearchResults = pgTable(
+  "clip_search_results",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    searchId: uuid("search_id")
+      .notNull()
+      .references(() => clipSearches.id, { onDelete: "cascade" }),
+    clipId: uuid("clip_id")
+      .notNull()
+      .references(() => clipLibrary.id, { onDelete: "cascade" }),
+    relevanceScore: integer("relevance_score").notNull().default(0),
+  },
+  (table) => [
+    index("clip_search_results_search_id_index").on(table.searchId),
+  ]
+);
+
 export const visualRecommendations = pgTable(
   "visual_recommendations",
   {

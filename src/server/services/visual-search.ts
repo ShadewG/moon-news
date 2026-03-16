@@ -1,13 +1,15 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
+  clipLibrary,
   footageAssets,
   footageQuotes,
   footageSearchRuns,
   scriptLines,
+  transcriptCache,
 } from "@/server/db/schema";
 import type { MediaType } from "@/server/domain/status";
 import { searchYouTube } from "@/server/providers/youtube";
@@ -438,17 +440,68 @@ export async function runVisualSearchTask(input: {
     )
   );
 
-  // Extract transcripts for top 3 visible YouTube videos (parallel, best-effort)
+  // Save all YouTube clips to global library + extract/cache transcripts
   const topYT = youtubeAssets.slice(0, 3);
   await Promise.all(
     topYT.map(async (asset) => {
       try {
-        const { extractYouTubeTranscript, mergeTranscriptSegments } =
-          await import("@/server/providers/youtube-transcript");
-        const segments = await extractYouTubeTranscript(asset.externalAssetId);
-        if (segments.length === 0) return;
+        // Upsert into global clip library
+        const [existingClip] = await db
+          .select({ id: clipLibrary.id })
+          .from(clipLibrary)
+          .where(and(eq(clipLibrary.provider, "youtube"), eq(clipLibrary.externalId, asset.externalAssetId)))
+          .limit(1);
 
-        const merged = mergeTranscriptSegments(segments);
+        let clipId: string;
+        if (existingClip) {
+          clipId = existingClip.id;
+        } else {
+          const views = (asset.metadataJson as Record<string, unknown> | null)?.viewCount;
+          const [newClip] = await db.insert(clipLibrary).values({
+            provider: "youtube",
+            externalId: asset.externalAssetId,
+            title: asset.title,
+            sourceUrl: `https://www.youtube.com/watch?v=${asset.externalAssetId}`,
+            channelOrContributor: null,
+            viewCount: views ? Number(views) : null,
+          }).returning({ id: clipLibrary.id });
+          clipId = newClip.id;
+        }
+
+        // Check transcript cache first
+        const [cached] = await db
+          .select({ segmentsJson: transcriptCache.segmentsJson })
+          .from(transcriptCache)
+          .where(and(eq(transcriptCache.clipId, clipId), eq(transcriptCache.language, "en")))
+          .limit(1);
+
+        let merged: Array<{ text: string; startMs: number; durationMs: number }>;
+
+        if (cached) {
+          merged = cached.segmentsJson as typeof merged;
+        } else {
+          const { extractYouTubeTranscript, mergeTranscriptSegments } =
+            await import("@/server/providers/youtube-transcript");
+          const segments = await extractYouTubeTranscript(asset.externalAssetId);
+          if (segments.length === 0) return;
+
+          merged = mergeTranscriptSegments(segments);
+          const fullText = merged.map((s) => s.text).join(" ");
+
+          // Cache the transcript
+          await db.insert(transcriptCache).values({
+            clipId,
+            language: "en",
+            fullText,
+            segmentsJson: merged,
+            wordCount: fullText.split(/\s+/).length,
+          }).onConflictDoNothing();
+
+          await db.update(clipLibrary)
+            .set({ hasTranscript: true, updatedAt: new Date() })
+            .where(eq(clipLibrary.id, clipId));
+        }
+
         const quotes = await findRelevantQuotes({
           lineText: input.lineText,
           scriptContext: input.scriptContext,
