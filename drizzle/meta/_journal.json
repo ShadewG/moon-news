@@ -29,6 +29,13 @@
       "when": 1773633227480,
       "tag": "0003_amusing_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773638294118,
+      "tag": "0004_organic_vanisher",
+      "breakpoints": true
     }
   ]
 }

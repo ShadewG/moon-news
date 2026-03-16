@@ -29,7 +29,7 @@ export async function searchTwitterVideos(input: {
   const query = input.keywords.join(" ");
 
   const body: Record<string, unknown> = {
-    model: "grok-3-fast",
+    model: "grok-4-fast",
     tools: [
       {
         type: "x_search",
@@ -67,8 +67,20 @@ export async function searchTwitterVideos(input: {
 
   const data = await response.json();
 
-  // Extract the text response — Grok returns the JSON array in output_text
-  const outputText = data.output_text ?? data.choices?.[0]?.message?.content ?? "";
+  // Extract text from the responses API format
+  // The output array contains tool_call items and a final message item
+  let outputText = data.output_text ?? "";
+  if (!outputText) {
+    for (const item of data.output ?? []) {
+      if (item.type === "message" && Array.isArray(item.content)) {
+        for (const c of item.content) {
+          if (c.type === "output_text" && c.text) {
+            outputText = c.text;
+          }
+        }
+      }
+    }
+  }
 
   try {
     // Find JSON array in the response
@@ -79,18 +91,38 @@ export async function searchTwitterVideos(input: {
     if (!Array.isArray(parsed)) return { results: [] };
 
     const results: TwitterVideoResult[] = parsed
-      .filter((item: Record<string, unknown>) => item.postUrl || item.post_url)
-      .map((item: Record<string, unknown>) => ({
-        postUrl: String(item.postUrl ?? item.post_url ?? ""),
-        username: String(item.username ?? ""),
-        displayName: String(item.displayName ?? item.display_name ?? item.username ?? ""),
-        text: String(item.text ?? "").slice(0, 500),
-        videoDescription: String(item.videoDescription ?? item.video_description ?? ""),
-        postedAt: String(item.postedAt ?? item.posted_at ?? "") || null,
-        likeCount: Number(item.likeCount ?? item.like_count ?? 0),
-        retweetCount: Number(item.retweetCount ?? item.retweet_count ?? 0),
-        viewCount: Number(item.viewCount ?? item.view_count ?? 0),
-      }))
+      .filter((item: Record<string, unknown>) =>
+        item.postUrl || item.post_url || item.video_url || item.id
+      )
+      .map((item: Record<string, unknown>) => {
+        // Handle xAI's format: author = "Name - @handle", content, video_url, timestamp
+        let username = String(item.username ?? "");
+        let displayName = String(item.displayName ?? item.display_name ?? "");
+        const author = String(item.author ?? "");
+        if (!username && author) {
+          const handleMatch = author.match(/@(\w+)/);
+          username = handleMatch ? handleMatch[1] : author;
+          displayName = author.replace(/ - @\w+$/, "").trim();
+        }
+
+        const id = String(item.id ?? "");
+        const postUrl = String(
+          item.postUrl ?? item.post_url ??
+          (id ? `https://x.com/${username}/status/${id}` : "")
+        );
+
+        return {
+          postUrl,
+          username,
+          displayName: displayName || username,
+          text: String(item.text ?? item.content ?? "").slice(0, 500),
+          videoDescription: String(item.videoDescription ?? item.video_description ?? item.content ?? "").slice(0, 300),
+          postedAt: String(item.postedAt ?? item.posted_at ?? item.timestamp ?? "") || null,
+          likeCount: Number(item.likeCount ?? item.like_count ?? item.likes ?? 0),
+          retweetCount: Number(item.retweetCount ?? item.retweet_count ?? item.retweets ?? 0),
+          viewCount: Number(item.viewCount ?? item.view_count ?? item.views ?? 0),
+        };
+      })
       .slice(0, input.maxResults ?? 8);
 
     return { results };

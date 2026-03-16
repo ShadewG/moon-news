@@ -321,6 +321,32 @@ export const footageAssets = pgTable(
   ]
 );
 
+export const footageQuotes = pgTable(
+  "footage_quotes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    footageAssetId: uuid("footage_asset_id")
+      .notNull()
+      .references(() => footageAssets.id, { onDelete: "cascade" }),
+    scriptLineId: uuid("script_line_id")
+      .notNull()
+      .references(() => scriptLines.id, { onDelete: "cascade" }),
+    quoteText: text("quote_text").notNull(),
+    speaker: text("speaker"),
+    startMs: integer("start_ms").notNull(),
+    endMs: integer("end_ms").notNull(),
+    relevanceScore: integer("relevance_score").notNull().default(0),
+    context: text("context"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("footage_quotes_asset_id_index").on(table.footageAssetId),
+    index("footage_quotes_line_id_index").on(table.scriptLineId),
+  ]
+);
+
 export const visualRecommendations = pgTable(
   "visual_recommendations",
   {

@@ -7,6 +7,7 @@ import { isTriggerConfigured } from "@/server/config/env";
 import { getDb } from "@/server/db/client";
 import {
   footageAssets,
+  footageQuotes,
   footageSearchRuns,
   projects,
   researchRuns,
@@ -232,6 +233,7 @@ export async function getVisualsForLine(
   lineId: string
 ): Promise<{
   assets: Array<typeof footageAssets.$inferSelect>;
+  quotes: Array<typeof footageQuotes.$inferSelect>;
   recommendations: Array<typeof visualRecommendations.$inferSelect>;
 }> {
   const db = getDb();
@@ -241,6 +243,12 @@ export async function getVisualsForLine(
     .from(footageAssets)
     .where(eq(footageAssets.scriptLineId, lineId))
     .orderBy(desc(footageAssets.matchScore));
+
+  const quotes = await db
+    .select()
+    .from(footageQuotes)
+    .where(eq(footageQuotes.scriptLineId, lineId))
+    .orderBy(desc(footageQuotes.relevanceScore));
 
   const recommendations = await db
     .select()
@@ -254,7 +262,7 @@ export async function getVisualsForLine(
     )
     .orderBy(desc(visualRecommendations.confidence));
 
-  return { assets, recommendations };
+  return { assets, quotes, recommendations };
 }
 
 export async function dismissRecommendation(recommendationId: string) {

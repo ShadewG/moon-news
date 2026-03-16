@@ -172,6 +172,90 @@ Be strict. A result about "CIA and media" is NOT relevant to "Operation Mockingb
   );
 }
 
+// ─── Transcript Quote Extraction ───
+
+export interface ExtractedQuote {
+  quoteText: string;
+  speaker: string | null;
+  startMs: number;
+  endMs: number;
+  relevanceScore: number;
+  context: string;
+}
+
+export async function findRelevantQuotes(input: {
+  lineText: string;
+  transcript: Array<{ text: string; startMs: number; durationMs: number }>;
+  videoTitle: string;
+  maxQuotes?: number;
+}): Promise<ExtractedQuote[]> {
+  if (input.transcript.length === 0) return [];
+
+  // Build condensed transcript with timestamps
+  const transcriptText = input.transcript
+    .map((s) => {
+      const mins = Math.floor(s.startMs / 60000);
+      const secs = Math.floor((s.startMs % 60000) / 1000);
+      return `[${mins}:${String(secs).padStart(2, "0")}] ${s.text}`;
+    })
+    .join("\n")
+    .slice(0, 12000); // Cap at ~12K chars to stay within context
+
+  const maxQuotes = input.maxQuotes ?? 5;
+
+  const response = await getOpenAIClient().responses.create({
+    model: "gpt-4.1-mini",
+    input: [
+      {
+        role: "system",
+        content: `You extract the most relevant quotes from interview/video transcripts for a documentary editor. Given a script line and a timestamped transcript, find quotes that:
+- Directly support, illustrate, or provide evidence for the script line's claim
+- Are spoken clearly and would work as a clip in a documentary
+- Have strong emotional or factual weight
+
+Return ONLY a JSON array of objects with:
+- quoteText: the exact quote (clean up filler words but keep the meaning)
+- speaker: who is speaking (name if identifiable from context, null if unclear)
+- startMs: timestamp in milliseconds where the quote starts
+- endMs: timestamp where it ends (startMs + estimated duration)
+- relevanceScore: 0-100 how relevant to the script line
+- context: one sentence explaining why this quote matters for the documentary
+
+Return at most ${maxQuotes} quotes, sorted by relevance. If nothing relevant, return [].`,
+      },
+      {
+        role: "user",
+        content: `Script line: "${input.lineText}"\n\nVideo: "${input.videoTitle}"\n\nTranscript:\n${transcriptText}`,
+      },
+    ],
+  });
+
+  try {
+    const jsonMatch = response.output_text.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) return [];
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(
+        (q: Record<string, unknown>) =>
+          q.quoteText && typeof q.startMs === "number"
+      )
+      .map((q: Record<string, unknown>) => ({
+        quoteText: String(q.quoteText),
+        speaker: q.speaker ? String(q.speaker) : null,
+        startMs: Number(q.startMs),
+        endMs: Number(q.endMs ?? Number(q.startMs) + 10000),
+        relevanceScore: Math.max(0, Math.min(100, Number(q.relevanceScore ?? 50))),
+        context: String(q.context ?? ""),
+      }))
+      .slice(0, maxQuotes);
+  } catch {
+    return [];
+  }
+}
+
 // ─── Research Summarization ───
 
 export async function summarizeResearch(input: {

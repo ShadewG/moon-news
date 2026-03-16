@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/server/db/client";
 import {
   footageAssets,
+  footageQuotes,
   footageSearchRuns,
   scriptLines,
 } from "@/server/db/schema";
@@ -15,7 +16,8 @@ import { searchGoogleImages } from "@/server/providers/google-images";
 import { searchGetty } from "@/server/providers/getty";
 import { searchStoryblocks } from "@/server/providers/storyblocks";
 import { searchTwitterVideos } from "@/server/providers/twitter";
-import { scoreResultRelevance } from "@/server/providers/openai";
+import { scoreResultRelevance, findRelevantQuotes } from "@/server/providers/openai";
+import { extractYouTubeTranscript, mergeTranscriptSegments } from "@/server/providers/youtube-transcript";
 import { computeMatchScore, passesQualityGate, type ScoreBreakdown } from "./scoring";
 
 interface ProviderResult {
@@ -388,7 +390,7 @@ export async function runVisualSearchTask(input: {
       allResults.map((r) => ({
         footageSearchRunId: r.runId,
         scriptLineId: input.scriptLineId,
-        provider: r.provider as "youtube" | "internet_archive" | "getty" | "google_images" | "storyblocks",
+        provider: r.provider as "youtube" | "internet_archive" | "getty" | "google_images" | "storyblocks" | "twitter",
         mediaType: r.mediaType,
         externalAssetId: r.externalAssetId,
         title: r.title,
@@ -419,6 +421,55 @@ export async function runVisualSearchTask(input: {
       updatedAt: new Date(),
     })
     .where(eq(scriptLines.id, input.scriptLineId));
+
+  // Step: Extract transcripts + find quotes from top YouTube videos
+  // Get the inserted asset IDs for YouTube results
+  const insertedAssets = await db
+    .select({ id: footageAssets.id, externalAssetId: footageAssets.externalAssetId, title: footageAssets.title, provider: footageAssets.provider })
+    .from(footageAssets)
+    .where(eq(footageAssets.scriptLineId, input.scriptLineId));
+
+  const youtubeAssets = insertedAssets.filter(
+    (a) => a.provider === "youtube" && !allResults.find(
+      (r) => r.externalAssetId === a.externalAssetId && r.filtered
+    )
+  );
+
+  // Extract transcripts for top 3 visible YouTube videos (parallel, best-effort)
+  const topYT = youtubeAssets.slice(0, 3);
+  await Promise.all(
+    topYT.map(async (asset) => {
+      try {
+        const segments = await extractYouTubeTranscript(asset.externalAssetId);
+        if (segments.length === 0) return;
+
+        const merged = mergeTranscriptSegments(segments);
+        const quotes = await findRelevantQuotes({
+          lineText: input.lineText,
+          transcript: merged,
+          videoTitle: asset.title,
+          maxQuotes: 5,
+        });
+
+        if (quotes.length > 0) {
+          await db.insert(footageQuotes).values(
+            quotes.map((q) => ({
+              footageAssetId: asset.id,
+              scriptLineId: input.scriptLineId,
+              quoteText: q.quoteText,
+              speaker: q.speaker,
+              startMs: q.startMs,
+              endMs: q.endMs,
+              relevanceScore: q.relevanceScore,
+              context: q.context,
+            }))
+          );
+        }
+      } catch {
+        // Transcript extraction is best-effort — skip videos without captions
+      }
+    })
+  );
 
   return {
     totalAssets: allResults.length,
