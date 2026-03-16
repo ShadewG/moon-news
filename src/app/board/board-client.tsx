@@ -58,7 +58,10 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* -- derived data -- */
-  const stories = data.stories.stories;
+  const stories = data.stories.stories.map((s) => ({
+    ...s,
+    canonicalTitle: decodeHtml(s.canonicalTitle),
+  }));
   const queueItems = data.queue;
   const competitors = data.competitors;
   const sources = data.sources;
@@ -553,7 +556,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
         <span className="board-surge-bolt">{"\u26A1"}</span>
         <div className="board-surge-text">
           <div className="board-surge-title">
-            BREAKING &mdash; {decodeHtml(topSurge.canonicalTitle)}
+            BREAKING &mdash; {topSurge.canonicalTitle}
           </div>
           <div className="board-surge-sub">
             {topSurge.sourcesCount} sources &middot; Controversy Score{" "}
@@ -596,7 +599,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
             {story.score}
           </div>
           <div className="board-card-title-block">
-            <div className="board-card-title">{decodeHtml(story.canonicalTitle)}</div>
+            <div className="board-card-title">{story.canonicalTitle}</div>
             <div className="board-card-meta">
               {story.vertical && (
                 <span>
@@ -768,7 +771,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
           <div className="board-queue-success">
             <div className="board-queue-success-icon">{"\u2713"}</div>
             <div className="board-queue-success-title">
-              {decodeHtml(selectedStory?.canonicalTitle ?? "")}
+              {selectedStory?.canonicalTitle}
             </div>
             <div className="board-queue-success-meta">
               Added to Video Queue
@@ -1726,11 +1729,11 @@ const boardStyles = `
   background: var(--board-bg2);
   border: 1px solid var(--board-border);
   border-radius: 3px;
-  padding: 13px 15px;
+  padding: 10px 14px;
   cursor: pointer;
   transition: all 0.18s;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   animation: board-fadeInUp 0.3s ease both;
 }
 .board-story-card:hover {
@@ -1804,9 +1807,10 @@ const boardStyles = `
 /* Badges */
 .board-card-badges {
   display: flex;
-  gap: 5px;
+  gap: 4px;
   flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  margin-top: 6px;
 }
 .board-badge-pill {
   font-size: 9px;
