@@ -1853,35 +1853,20 @@ async function syncBoardSourceConfigs() {
       )
       .map((source) => {
       const configuredSource = getBoardSourceSeedConfig(source.name, source.kind);
-      const isConfiguredPollable =
-        source.kind !== "rss" &&
-        source.kind !== "youtube_channel" &&
-        source.kind !== "x_account"
-          ? true
-          : Boolean(configuredSource);
+
+      // Only update sources that have a known seed config.
+      // Leave manually-added sources completely alone.
+      if (!configuredSource) {
+        return Promise.resolve();
+      }
 
       return db
         .update(boardSources)
         .set({
-          provider: configuredSource?.provider ?? source.provider,
+          provider: configuredSource.provider ?? source.provider,
           pollIntervalMinutes:
-            configuredSource?.pollIntervalMinutes ?? getPollIntervalMinutes(source.kind),
-          enabled:
-            source.kind === "rss" ||
-            source.kind === "youtube_channel" ||
-            source.kind === "x_account"
-              ? isConfiguredPollable
-              : source.enabled,
-          configJson:
-            configuredSource?.configJson ??
-            ({
-              mode: "seed_reference",
-              discovery: "html-board-spec",
-              pollable:
-                source.kind !== "rss" &&
-                source.kind !== "youtube_channel" &&
-                source.kind !== "x_account",
-            } as Record<string, unknown>),
+            configuredSource.pollIntervalMinutes ?? getPollIntervalMinutes(source.kind),
+          configJson: configuredSource.configJson ?? source.configJson,
           updatedAt: now,
         })
         .where(eq(boardSources.id, source.id));
