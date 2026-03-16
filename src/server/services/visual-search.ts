@@ -14,13 +14,15 @@ import { searchInternetArchive } from "@/server/providers/internet-archive";
 import { searchGoogleImages } from "@/server/providers/google-images";
 import { searchGetty } from "@/server/providers/getty";
 import { searchStoryblocks } from "@/server/providers/storyblocks";
-import { computeMatchScore, type ScoreBreakdown } from "./scoring";
+import { scoreResultRelevance } from "@/server/providers/openai";
+import { computeMatchScore, passesQualityGate, type ScoreBreakdown } from "./scoring";
 
 interface ProviderResult {
   provider: string;
   mediaType: MediaType;
   externalAssetId: string;
   title: string;
+  description: string;
   previewUrl: string | null;
   sourceUrl: string;
   licenseType: string | null;
@@ -30,6 +32,7 @@ interface ProviderResult {
   isPrimarySource: boolean;
   uploadDate: string | null;
   channelOrContributor: string | null;
+  viewCount: number;
   metadataJson: Record<string, unknown> | null;
 }
 
@@ -66,7 +69,7 @@ const CATEGORY_TIERS: Record<string, TierProvider[][]> = {
 };
 
 const MIN_GOOD_RESULTS = 3;
-const MIN_GOOD_SCORE = 60;
+const MIN_GOOD_SCORE = 50;
 
 async function searchProvider(
   provider: TierProvider,
@@ -81,6 +84,7 @@ async function searchProvider(
         mediaType: "video" as MediaType,
         externalAssetId: r.videoId,
         title: r.title,
+        description: r.description,
         previewUrl: r.thumbnailUrl,
         sourceUrl: `https://www.youtube.com/watch?v=${r.videoId}`,
         licenseType: "YouTube Standard",
@@ -90,6 +94,7 @@ async function searchProvider(
         isPrimarySource: false,
         uploadDate: r.publishedAt,
         channelOrContributor: r.channelTitle,
+        viewCount: r.viewCount,
         metadataJson: {
           viewCount: r.viewCount,
           description: r.description,
@@ -104,6 +109,7 @@ async function searchProvider(
         mediaType: (r.mediaType === "movies" ? "video" : "image") as MediaType,
         externalAssetId: r.identifier,
         title: r.title,
+        description: r.description,
         previewUrl: r.thumbnailUrl,
         sourceUrl: r.sourceUrl,
         licenseType: "Public Domain / Open",
@@ -113,6 +119,7 @@ async function searchProvider(
         isPrimarySource: true,
         uploadDate: r.year,
         channelOrContributor: r.creator,
+        viewCount: 0,
         metadataJson: {
           collection: r.collection,
           description: r.description,
@@ -127,6 +134,7 @@ async function searchProvider(
         mediaType: "image" as MediaType,
         externalAssetId: r.link,
         title: r.title,
+        description: r.snippet,
         previewUrl: r.thumbnailUrl,
         sourceUrl: r.link,
         licenseType: null,
@@ -136,6 +144,7 @@ async function searchProvider(
         isPrimarySource: false,
         uploadDate: null,
         channelOrContributor: r.displayLink,
+        viewCount: 0,
         metadataJson: {
           snippet: r.snippet,
           contextLink: r.contextLink,
@@ -150,6 +159,7 @@ async function searchProvider(
         mediaType: "image" as MediaType,
         externalAssetId: r.assetId,
         title: r.title,
+        description: r.caption,
         previewUrl: r.previewUrl,
         sourceUrl: r.sourceUrl,
         licenseType: "Getty Editorial",
@@ -159,6 +169,7 @@ async function searchProvider(
         isPrimarySource: false,
         uploadDate: r.dateCreated,
         channelOrContributor: r.artist,
+        viewCount: 0,
         metadataJson: {
           collection: r.collection,
           caption: r.caption,
@@ -173,6 +184,7 @@ async function searchProvider(
         mediaType: "stock_video" as MediaType,
         externalAssetId: r.assetId,
         title: r.title,
+        description: r.keywords.join(", "),
         previewUrl: r.thumbnailUrl,
         sourceUrl: r.sourceUrl,
         licenseType: "Storyblocks License",
@@ -182,6 +194,7 @@ async function searchProvider(
         isPrimarySource: false,
         uploadDate: null,
         channelOrContributor: null,
+        viewCount: 0,
         metadataJson: { keywords: r.keywords },
       }));
     }
@@ -191,6 +204,7 @@ async function searchProvider(
 export async function runVisualSearchTask(input: {
   projectId: string;
   scriptLineId: string;
+  lineText: string;
   category: string;
   searchKeywords: string[];
   temporalContext: string | null;
@@ -223,35 +237,92 @@ export async function runVisualSearchTask(input: {
           .returning();
 
         try {
-          const results = await searchProvider(
+          const rawResults = await searchProvider(
             provider,
             input.searchKeywords,
             input.temporalContext
           );
 
+          // Step 1: Quality gate — filter out shorts, AI-generated, bot channels
+          const filtered = rawResults.filter((r) =>
+            passesQualityGate({
+              provider: r.provider,
+              title: r.title,
+              durationMs: r.durationMs,
+              channelOrContributor: r.channelOrContributor,
+              viewCount: r.viewCount,
+            })
+          );
+
+          // Step 2: AI relevance scoring
+          let relevanceScores: number[];
+          try {
+            relevanceScores = await scoreResultRelevance({
+              lineText: input.lineText,
+              results: filtered.map((r) => ({
+                title: r.title,
+                description: r.description,
+                provider: r.provider,
+              })),
+            });
+          } catch {
+            // Fallback to position-based
+            relevanceScores = filtered.map((_, i) =>
+              Math.max(20, 40 - Math.floor((i / filtered.length) * 20))
+            );
+          }
+
+          // Step 3: Filter out irrelevant results (AI scored < 10)
+          const relevant = filtered.filter((_, i) => relevanceScores[i] >= 10);
+          const relevantScores = relevanceScores.filter((s) => s >= 10);
+
           await db
             .update(footageSearchRuns)
             .set({
               status: "complete",
-              resultsCount: results.length,
+              resultsCount: relevant.length,
               completedAt: new Date(),
               updatedAt: new Date(),
             })
             .where(eq(footageSearchRuns.id, run.id));
 
-          return results.map((r, i): ProviderResult & { score: ScoreBreakdown; runId: string } => ({
-            ...r,
-            runId: run.id,
-            score: computeMatchScore({
+          return relevant.map((r, i): ProviderResult & { score: ScoreBreakdown; runId: string } => {
+            const baseScore = computeMatchScore({
               relevanceRank: i,
-              totalResults: results.length,
+              totalResults: relevant.length,
               mediaType: r.mediaType,
               provider: r.provider,
               title: r.title,
               channelOrContributor: r.channelOrContributor,
               uploadDate: r.uploadDate,
-            }),
-          }));
+              viewCount: r.viewCount,
+              durationMs: r.durationMs,
+            });
+
+            // Override relevanceScore with AI-scored relevance
+            const aiRelevance = relevantScores[i] ?? baseScore.relevanceScore;
+            const totalScore = Math.max(
+              0,
+              Math.min(
+                100,
+                aiRelevance +
+                  baseScore.mediaTypeBonus +
+                  baseScore.provenanceBonus +
+                  baseScore.qualitySignal +
+                  baseScore.repostPenalty
+              )
+            );
+
+            return {
+              ...r,
+              runId: run.id,
+              score: {
+                ...baseScore,
+                relevanceScore: aiRelevance,
+                totalScore,
+              },
+            };
+          });
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "Unknown error";

@@ -6,26 +6,26 @@ export interface ScoreBreakdown {
   relevanceScore: number;
   mediaTypeBonus: number;
   provenanceBonus: number;
-  dateBonus: number;
+  qualitySignal: number;
   repostPenalty: number;
   totalScore: number;
 }
 
 const MEDIA_TYPE_BONUSES: Record<MediaType, number> = {
-  video: 30,
-  image: 20,
-  stock_video: 10,
-  stock_image: 10,
+  video: 20,
+  image: 12,
+  stock_video: 6,
+  stock_image: 6,
   article: 0,
 };
 
 const PROVIDER_PROVENANCE: Record<string, number> = {
-  internet_archive: 20,
-  getty: 15,
-  youtube: 10,
-  google_images: 8,
-  storyblocks: 5,
-  artlist: 5,
+  internet_archive: 10,
+  getty: 10,
+  youtube: 5,
+  google_images: 3,
+  storyblocks: 2,
+  artlist: 2,
   parallel: 0,
   firecrawl: 0,
   openai: 0,
@@ -34,22 +34,72 @@ const PROVIDER_PROVENANCE: Record<string, number> = {
   internal: 0,
 };
 
+// Channels known to produce high-quality documentary/news content
+const QUALITY_CHANNELS = [
+  "c-span", "cspan", "al jazeera", "bbc", "pbs", "frontline",
+  "nyt", "new york times", "washington post", "the guardian",
+  "60 minutes", "vice news", "reuters", "associated press", "ap archive",
+  "abc news", "cbs news", "nbc news", "cnn", "msnbc",
+  "democracy now", "the intercept", "propublica",
+  "national geographic", "history channel", "smithsonian",
+  "jre clips", "powerfuljre", "lex fridman",
+];
+
+const JUNK_CHANNEL_INDICATORS = [
+  "ai story", "ai narrat", "ai generat", "wikitubia",
+  "#shorts", "story telling", "golden history", "minor profundity",
+  "covert tales", "alterno archivo", "prompt voyager",
+];
+
 const REPOST_INDICATORS = [
-  "reupload",
-  "re-upload",
-  "compilation",
-  "best of",
-  "top 10",
-  "montage",
+  "reupload", "re-upload", "compilation", "best of", "top 10",
+  "montage", "#shorts",
 ];
 
 const AGGREGATOR_CHANNELS = [
-  "viral",
-  "trending",
-  "daily dose",
-  "best clips",
-  "top moments",
+  "viral", "trending", "daily dose", "best clips", "top moments",
 ];
+
+const MIN_VIDEO_DURATION_MS = 60_000; // Skip shorts under 60s
+
+function computeQualitySignal(input: {
+  channelOrContributor: string | null;
+  viewCount: number;
+  durationMs: number | null;
+}): number {
+  let signal = 0;
+  const lowerChannel = (input.channelOrContributor ?? "").toLowerCase();
+
+  // Quality channel boost
+  for (const qc of QUALITY_CHANNELS) {
+    if (lowerChannel.includes(qc)) {
+      signal += 15;
+      break;
+    }
+  }
+
+  // Junk channel penalty
+  for (const jc of JUNK_CHANNEL_INDICATORS) {
+    if (lowerChannel.includes(jc)) {
+      signal -= 20;
+      break;
+    }
+  }
+
+  // View count signal (log scale — 1K=+2, 10K=+5, 100K=+8, 1M=+10)
+  if (input.viewCount > 0) {
+    signal += Math.min(10, Math.floor(Math.log10(input.viewCount)));
+  }
+
+  // Duration signal — longer substantive content is better
+  if (input.durationMs) {
+    if (input.durationMs >= 600_000) signal += 5;       // 10+ min
+    else if (input.durationMs >= 180_000) signal += 3;  // 3+ min
+    else if (input.durationMs >= 60_000) signal += 1;   // 1+ min
+  }
+
+  return Math.max(-20, Math.min(20, signal));
+}
 
 function computeRepostPenalty(
   title: string,
@@ -67,6 +117,13 @@ function computeRepostPenalty(
     }
   }
 
+  // Junk title indicators
+  if (lowerTitle.includes("#shorts")) penalty -= 10;
+  if (lowerTitle.includes("#facts")) penalty -= 5;
+  if (lowerTitle.includes("&quot;")) {
+    // Lots of HTML entities = often auto-generated
+  }
+
   for (const aggregator of AGGREGATOR_CHANNELS) {
     if (lowerChannel.includes(aggregator)) {
       penalty -= 15;
@@ -77,26 +134,6 @@ function computeRepostPenalty(
   return Math.max(-30, penalty);
 }
 
-function computeDateBonus(uploadDate: string | null): number {
-  if (!uploadDate) return 0;
-
-  try {
-    const date = new Date(uploadDate);
-    const now = new Date();
-    const yearsDiff =
-      (now.getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-
-    // Older uploads get higher bonus (primary sources tend to be uploaded earlier)
-    if (yearsDiff > 10) return 10;
-    if (yearsDiff > 5) return 7;
-    if (yearsDiff > 2) return 4;
-    if (yearsDiff > 1) return 2;
-    return 0;
-  } catch {
-    return 0;
-  }
-}
-
 export function computeMatchScore(input: {
   relevanceRank: number;
   totalResults: number;
@@ -105,16 +142,23 @@ export function computeMatchScore(input: {
   title: string;
   channelOrContributor: string | null;
   uploadDate: string | null;
+  viewCount?: number;
+  durationMs?: number | null;
 }): ScoreBreakdown {
-  // Relevance from provider ranking: 50 down to ~25 based on position
+  // Relevance from provider ranking: 40 down to ~20 based on position
+  // (reduced weight — AI relevance scoring will take over the real relevance)
   const relevanceScore = Math.max(
-    25,
-    50 - Math.floor((input.relevanceRank / Math.max(input.totalResults, 1)) * 25)
+    20,
+    40 - Math.floor((input.relevanceRank / Math.max(input.totalResults, 1)) * 20)
   );
 
   const mediaTypeBonus = MEDIA_TYPE_BONUSES[input.mediaType] ?? 0;
   const provenanceBonus = PROVIDER_PROVENANCE[input.provider] ?? 0;
-  const dateBonus = computeDateBonus(input.uploadDate);
+  const qualitySignal = computeQualitySignal({
+    channelOrContributor: input.channelOrContributor,
+    viewCount: input.viewCount ?? 0,
+    durationMs: input.durationMs ?? null,
+  });
   const repostPenalty = computeRepostPenalty(
     input.title,
     input.channelOrContributor
@@ -124,7 +168,7 @@ export function computeMatchScore(input: {
     0,
     Math.min(
       100,
-      relevanceScore + mediaTypeBonus + provenanceBonus + dateBonus + repostPenalty
+      relevanceScore + mediaTypeBonus + provenanceBonus + qualitySignal + repostPenalty
     )
   );
 
@@ -132,8 +176,37 @@ export function computeMatchScore(input: {
     relevanceScore,
     mediaTypeBonus,
     provenanceBonus,
-    dateBonus,
+    qualitySignal,
     repostPenalty,
     totalScore,
   };
+}
+
+/**
+ * Filter out low-quality results before scoring.
+ * Returns true if the result should be KEPT.
+ */
+export function passesQualityGate(input: {
+  provider: string;
+  title: string;
+  durationMs: number | null;
+  channelOrContributor: string | null;
+  viewCount: number;
+}): boolean {
+  const lowerTitle = input.title.toLowerCase();
+  const lowerChannel = (input.channelOrContributor ?? "").toLowerCase();
+
+  // Filter YouTube Shorts (< 60s)
+  if (input.provider === "youtube" && input.durationMs && input.durationMs < MIN_VIDEO_DURATION_MS) {
+    return false;
+  }
+
+  // Filter obviously AI-generated/bot content
+  for (const jc of JUNK_CHANNEL_INDICATORS) {
+    if (lowerChannel.includes(jc) || lowerTitle.includes(jc)) {
+      return false;
+    }
+  }
+
+  return true;
 }

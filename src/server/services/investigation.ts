@@ -14,7 +14,6 @@ import {
 } from "@/server/db/schema";
 import { classifyLine, type LineClassification } from "@/server/providers/openai";
 import { runVisualSearchTask } from "./visual-search";
-import { createResearchRun, enqueueResearchRun } from "./research";
 
 export const INVESTIGATE_LINE_TASK_ID = "investigate-line";
 
@@ -104,27 +103,14 @@ export async function runInvestigateLineTask(input: {
     return;
   }
 
-  // Step 3: Conditional text research (for quote_claim, or low-confidence categories)
-  const needsTextResearch =
-    classification.category === "quote_claim" ||
-    (classification.category === "concrete_event" &&
-      classification.search_keywords.length < 2);
+  // Get the line text for AI relevance scoring
+  const [line] = await db
+    .select({ text: scriptLines.text })
+    .from(scriptLines)
+    .where(eq(scriptLines.id, input.scriptLineId))
+    .limit(1);
 
-  if (needsTextResearch) {
-    try {
-      const run = await createResearchRun({
-        projectId: input.projectId,
-        scriptLineId: input.scriptLineId,
-      });
-      // Run inline since we're already in a task
-      const { runResearchLineTask } = await import("./research");
-      await runResearchLineTask({ researchRunId: run.id });
-    } catch {
-      // Text research failure shouldn't block visual search
-    }
-  }
-
-  // Step 4: Visual search with tiered fallback
+  // Step 3: Visual search with tiered fallback + AI relevance scoring
   await db
     .update(scriptLines)
     .set({
@@ -136,6 +122,7 @@ export async function runInvestigateLineTask(input: {
   const visualResult = await runVisualSearchTask({
     projectId: input.projectId,
     scriptLineId: input.scriptLineId,
+    lineText: line?.text ?? "",
     category: classification.category,
     searchKeywords: classification.search_keywords,
     temporalContext: classification.temporal_context,

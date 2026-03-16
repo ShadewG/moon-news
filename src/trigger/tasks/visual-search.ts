@@ -7,6 +7,7 @@ export const visualSearchTask = task({
   run: async (payload: {
     projectId: string;
     scriptLineId: string;
+    lineText: string;
     category: string;
     searchKeywords: string[];
     temporalContext: string | null;

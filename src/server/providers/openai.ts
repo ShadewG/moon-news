@@ -121,6 +121,57 @@ Rules:
   return parsed;
 }
 
+// ─── AI Relevance Scoring ───
+
+export async function scoreResultRelevance(input: {
+  lineText: string;
+  results: Array<{
+    title: string;
+    description: string;
+    provider: string;
+  }>;
+}): Promise<number[]> {
+  if (input.results.length === 0) return [];
+
+  const resultsText = input.results
+    .map((r, i) => `${i + 1}. [${r.provider}] "${r.title}" — ${r.description.slice(0, 150)}`)
+    .join("\n");
+
+  const response = await getOpenAIClient().responses.create({
+    model: "gpt-4.1-mini",
+    input: [
+      {
+        role: "system",
+        content: `You score search results for relevance to a documentary script line. For each result, return a relevance score 0-50 where:
+- 40-50: Directly about the specific topic, event, or person mentioned
+- 25-39: Related to the topic but not specifically about it
+- 10-24: Tangentially related, could work as B-roll
+- 0-9: Irrelevant, wrong topic, spam, or AI-generated filler
+
+Be strict. A result about "CIA and media" is NOT relevant to "Operation Mockingbird" unless it specifically discusses Mockingbird. A random conspiracy video is NOT relevant just because it mentions the CIA.`,
+      },
+      {
+        role: "user",
+        content: `Script line: "${input.lineText}"\n\nResults:\n${resultsText}\n\nReturn ONLY a JSON array of integers, one score per result. Example: [45, 30, 5, 40, 12]`,
+      },
+    ],
+  });
+
+  try {
+    const scores = JSON.parse(response.output_text.trim());
+    if (Array.isArray(scores) && scores.length === input.results.length) {
+      return scores.map((s: unknown) => Math.max(0, Math.min(50, Number(s) || 0)));
+    }
+  } catch {
+    // Fall through to default
+  }
+
+  // Default: position-based fallback
+  return input.results.map((_, i) =>
+    Math.max(20, 40 - Math.floor((i / input.results.length) * 20))
+  );
+}
+
 // ─── Research Summarization ───
 
 export async function summarizeResearch(input: {
