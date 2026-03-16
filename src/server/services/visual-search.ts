@@ -17,7 +17,6 @@ import { searchGetty } from "@/server/providers/getty";
 import { searchStoryblocks } from "@/server/providers/storyblocks";
 import { searchTwitterVideos } from "@/server/providers/twitter";
 import { scoreResultRelevance, findRelevantQuotes } from "@/server/providers/openai";
-import { extractYouTubeTranscript, mergeTranscriptSegments } from "@/server/providers/youtube-transcript";
 import { computeMatchScore, passesQualityGate, type ScoreBreakdown } from "./scoring";
 
 interface ProviderResult {
@@ -423,6 +422,7 @@ export async function runVisualSearchTask(input: {
     .where(eq(scriptLines.id, input.scriptLineId));
 
   // Step: Extract transcripts + find quotes from top YouTube videos
+  // Dynamic import to avoid CJS/ESM issues in Trigger.dev build
   // Get the inserted asset IDs for YouTube results
   const insertedAssets = await db
     .select({ id: footageAssets.id, externalAssetId: footageAssets.externalAssetId, title: footageAssets.title, provider: footageAssets.provider })
@@ -440,6 +440,8 @@ export async function runVisualSearchTask(input: {
   await Promise.all(
     topYT.map(async (asset) => {
       try {
+        const { extractYouTubeTranscript, mergeTranscriptSegments } =
+          await import("@/server/providers/youtube-transcript");
         const segments = await extractYouTubeTranscript(asset.externalAssetId);
         if (segments.length === 0) return;
 
