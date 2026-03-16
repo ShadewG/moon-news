@@ -29,12 +29,8 @@ export async function searchInternetArchive(input: {
     sort: "downloads desc",
   });
 
-  if (input.temporalContext) {
-    const yearMatch = input.temporalContext.match(/\b(19|20)\d{2}\b/);
-    if (yearMatch) {
-      params.set("q", `${query} AND mediatype:(movies OR image) AND year:${yearMatch[0]}`);
-    }
-  }
+  // Note: don't filter by year — archival content about the 1950s may have been
+  // uploaded decades later. The temporal context is used in the query keywords instead.
 
   const response = await fetch(
     `https://archive.org/advancedsearch.php?${params}`
