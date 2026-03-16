@@ -395,6 +395,80 @@ function formatAgeLabel(date: Date | null): string {
   return `${diffDays}d`;
 }
 
+function formatCompactCount(value: number | null, suffix = "views") {
+  if (value === null || Number.isNaN(value)) {
+    return null;
+  }
+
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M ${suffix}`;
+  }
+
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(value >= 100_000 ? 0 : 1)}K ${suffix}`;
+  }
+
+  return `${Math.max(0, Math.round(value))} ${suffix}`;
+}
+
+function computeBoardCompetitorTopicMatchScore(
+  title: string,
+  stories: Array<{
+    canonicalTitle: string;
+    controversyScore: number;
+    surgeScore: number;
+    storyType: BoardStoryType;
+  }>
+) {
+  const competitorTokens = tokenizeBoardTitle(title);
+  let bestScore = 0;
+
+  for (const story of stories) {
+    const overlap = computeTokenOverlap(
+      competitorTokens,
+      tokenizeBoardTitle(story.canonicalTitle)
+    );
+
+    if (overlap <= 0) {
+      continue;
+    }
+
+    let score = overlap * 100;
+    score += Math.min(12, story.controversyScore * 0.1);
+    score += Math.min(10, story.surgeScore * 0.08);
+    if (story.storyType === "controversy" || story.storyType === "correction") {
+      score += 8;
+    }
+
+    bestScore = Math.max(bestScore, clampBoardScore(score));
+  }
+
+  return bestScore;
+}
+
+function computeBoardCompetitorAlertLevel(args: {
+  topicMatchScore: number;
+  publishedAt: Date | null;
+}) {
+  const publishedAt = args.publishedAt;
+  const ageHours = publishedAt
+    ? (Date.now() - publishedAt.getTime()) / (1000 * 60 * 60)
+    : Number.POSITIVE_INFINITY;
+
+  if (args.topicMatchScore >= 80 && ageHours <= 168) {
+    return "hot" as const;
+  }
+
+  if (
+    args.topicMatchScore >= 60 ||
+    (args.topicMatchScore >= 40 && ageHours <= 72)
+  ) {
+    return "watch" as const;
+  }
+
+  return "none" as const;
+}
+
 function buildBoardStoryOperationError(status: number, message: string) {
   const error = new Error(message) as Error & { status?: number };
   error.status = status;
@@ -627,6 +701,44 @@ function parseBoardSourceConfig(
   }
 
   return null;
+}
+
+function getBoardCompetitorYouTubeConfig(
+  channel: Pick<
+    typeof boardCompetitorChannels.$inferSelect,
+    "name" | "handle" | "channelUrl" | "metadataJson"
+  >
+) {
+  const metadata = coerceObject(channel.metadataJson);
+  const metadataConfig = parseBoardYouTubeSourceConfig({
+    mode: "youtube_channel",
+    channelId: metadata?.channelId,
+    uploadsPlaylistId: metadata?.uploadsPlaylistId,
+    channelHandle: metadata?.channelHandle ?? channel.handle,
+    channelUrl: metadata?.channelUrl ?? channel.channelUrl,
+    sourceType: "yt",
+    tags: Array.isArray(metadata?.tags) ? metadata.tags : ["competitor"],
+    maxResults: typeof metadata?.maxResults === "number" ? metadata.maxResults : 6,
+  });
+
+  if (metadataConfig) {
+    return metadataConfig;
+  }
+
+  const configuredSource = boardSourceConfigSeeds.find(
+    (config) =>
+      config.kind === "youtube_channel" &&
+      (config.name === channel.name ||
+        (channel.handle &&
+          config.configJson.mode === "youtube_channel" &&
+          config.configJson.channelHandle === channel.handle))
+  );
+
+  if (!configuredSource || configuredSource.configJson.mode !== "youtube_channel") {
+    return null;
+  }
+
+  return parseBoardYouTubeSourceConfig(configuredSource.configJson);
 }
 
 function isBoardSourcePollable(source: typeof boardSources.$inferSelect): boolean {
@@ -1816,6 +1928,109 @@ async function ingestBoardItemsForSource(args: {
   };
 }
 
+async function pollBoardConfiguredSource(args: {
+  source: typeof boardSources.$inferSelect;
+  storyMatches: BoardStoryMatchRecord[];
+}) {
+  const db = getDb();
+  const config = parseBoardSourceConfig(args.source);
+
+  if (!config || !isBoardSourcePollable(args.source)) {
+    throw buildBoardStoryOperationError(400, "Source is not pollable");
+  }
+
+  try {
+    let items: BoardSourceFeedItem[] = [];
+
+    if (config.mode === "rss_feed") {
+      items = (await fetchBoardRssItems(config.feedUrl))
+        .filter((item) => {
+          if (!item.publishedAt) {
+            return true;
+          }
+
+          return (
+            Date.now() - item.publishedAt.getTime() <=
+            BOARD_RSS_ITEM_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
+          );
+        })
+        .sort((left, right) => {
+          const leftTime = left.publishedAt?.getTime() ?? 0;
+          const rightTime = right.publishedAt?.getTime() ?? 0;
+          return rightTime - leftTime;
+        })
+        .slice(0, 20)
+        .map((item) => mapRssItemToBoardFeedItem(item));
+    } else if (config.mode === "youtube_channel") {
+      const { channel, items: uploads } = await fetchYouTubeChannelUploads({
+        channelId: config.channelId,
+        uploadsPlaylistId: config.uploadsPlaylistId,
+        maxResults: config.maxResults ?? 8,
+      });
+
+      items = uploads
+        .map((item) => mapYouTubeItemToBoardFeedItem(item, config, channel))
+        .filter((item) => {
+          if (!item.publishedAt) {
+            return true;
+          }
+
+          return (
+            Date.now() - item.publishedAt.getTime() <=
+            BOARD_YOUTUBE_ITEM_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
+          );
+        });
+    }
+
+    const ingestion = await ingestBoardItemsForSource({
+      source: args.source,
+      config,
+      items,
+      storyMatches: args.storyMatches,
+    });
+
+    await db
+      .update(boardSources)
+      .set({
+        lastPolledAt: new Date(),
+        lastSuccessAt: new Date(),
+        lastError: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(boardSources.id, args.source.id));
+
+    return {
+      sourceId: args.source.id,
+      sourceName: args.source.name,
+      sourceKind: args.source.kind,
+      failed: false,
+      ...ingestion,
+    };
+  } catch (error) {
+    await db
+      .update(boardSources)
+      .set({
+        lastPolledAt: new Date(),
+        lastError: error instanceof Error ? error.message.slice(0, 500) : "Unknown poll error",
+        updatedAt: new Date(),
+      })
+      .where(eq(boardSources.id, args.source.id));
+
+    return {
+      sourceId: args.source.id,
+      sourceName: args.source.name,
+      sourceKind: args.source.kind,
+      failed: true,
+      error: error instanceof Error ? error.message : "Unknown poll error",
+      feedItemsIngested: 0,
+      relationsCreated: 0,
+      storiesCreated: 0,
+      versionCaptures: 0,
+      correctionEvents: 0,
+    };
+  }
+}
+
 async function getBoardStoryMatches() {
   const db = getDb();
   const storyRows = await db
@@ -1858,64 +2073,19 @@ async function ingestBoardRssSources() {
   let failedSources = 0;
 
   for (const source of sources) {
-    const config = parseBoardRssSourceConfig(source.configJson);
-    if (source.kind !== "rss" || !config) {
+    if (source.kind !== "rss") {
       continue;
     }
 
     sourcesPolled += 1;
-
-    try {
-      const items = (await fetchBoardRssItems(config.feedUrl))
-        .filter((item) => {
-          if (!item.publishedAt) {
-            return true;
-          }
-
-          return (
-            Date.now() - item.publishedAt.getTime() <=
-            BOARD_RSS_ITEM_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
-          );
-        })
-        .sort((left, right) => {
-          const leftTime = left.publishedAt?.getTime() ?? 0;
-          const rightTime = right.publishedAt?.getTime() ?? 0;
-          return rightTime - leftTime;
-        })
-        .slice(0, 20)
-        .map((item) => mapRssItemToBoardFeedItem(item));
-
-      const ingestion = await ingestBoardItemsForSource({
-        source,
-        config,
-        items,
-        storyMatches,
-      });
-      feedItemsIngested += ingestion.feedItemsIngested;
-      relationsCreated += ingestion.relationsCreated;
-      storiesCreated += ingestion.storiesCreated;
-      versionCaptures += ingestion.versionCaptures;
-      correctionEvents += ingestion.correctionEvents;
-
-      await db
-        .update(boardSources)
-        .set({
-          lastPolledAt: new Date(),
-          lastSuccessAt: new Date(),
-          lastError: null,
-          updatedAt: new Date(),
-        })
-        .where(eq(boardSources.id, source.id));
-    } catch (error) {
+    const result = await pollBoardConfiguredSource({ source, storyMatches });
+    feedItemsIngested += result.feedItemsIngested;
+    relationsCreated += result.relationsCreated;
+    storiesCreated += result.storiesCreated;
+    versionCaptures += result.versionCaptures;
+    correctionEvents += result.correctionEvents;
+    if (result.failed) {
       failedSources += 1;
-      await db
-        .update(boardSources)
-        .set({
-          lastPolledAt: new Date(),
-          lastError: error instanceof Error ? error.message.slice(0, 500) : "Unknown feed error",
-          updatedAt: new Date(),
-        })
-        .where(eq(boardSources.id, source.id));
     }
   }
 
@@ -1949,65 +2119,19 @@ async function ingestBoardYouTubeSources() {
   let failedSources = 0;
 
   for (const source of sources) {
-    const config = parseBoardYouTubeSourceConfig(source.configJson);
-    if (source.kind !== "youtube_channel" || !config) {
+    if (source.kind !== "youtube_channel") {
       continue;
     }
 
     sourcesPolled += 1;
-
-    try {
-      const { channel, items: uploads } = await fetchYouTubeChannelUploads({
-        channelId: config.channelId,
-        uploadsPlaylistId: config.uploadsPlaylistId,
-        maxResults: config.maxResults ?? 8,
-      });
-
-      const items = uploads
-        .map((item) => mapYouTubeItemToBoardFeedItem(item, config, channel))
-        .filter((item) => {
-          if (!item.publishedAt) {
-            return true;
-          }
-
-          return (
-            Date.now() - item.publishedAt.getTime() <=
-            BOARD_YOUTUBE_ITEM_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
-          );
-        });
-
-      const ingestion = await ingestBoardItemsForSource({
-        source,
-        config,
-        items,
-        storyMatches,
-      });
-      feedItemsIngested += ingestion.feedItemsIngested;
-      relationsCreated += ingestion.relationsCreated;
-      storiesCreated += ingestion.storiesCreated;
-      versionCaptures += ingestion.versionCaptures;
-      correctionEvents += ingestion.correctionEvents;
-
-      await db
-        .update(boardSources)
-        .set({
-          lastPolledAt: new Date(),
-          lastSuccessAt: new Date(),
-          lastError: null,
-          updatedAt: new Date(),
-        })
-        .where(eq(boardSources.id, source.id));
-    } catch (error) {
+    const result = await pollBoardConfiguredSource({ source, storyMatches });
+    feedItemsIngested += result.feedItemsIngested;
+    relationsCreated += result.relationsCreated;
+    storiesCreated += result.storiesCreated;
+    versionCaptures += result.versionCaptures;
+    correctionEvents += result.correctionEvents;
+    if (result.failed) {
       failedSources += 1;
-      await db
-        .update(boardSources)
-        .set({
-          lastPolledAt: new Date(),
-          lastError:
-            error instanceof Error ? error.message.slice(0, 500) : "Unknown YouTube error",
-          updatedAt: new Date(),
-        })
-        .where(eq(boardSources.id, source.id));
     }
   }
 
@@ -3060,6 +3184,182 @@ export async function listBoardQueue() {
   }));
 }
 
+async function refreshBoardCompetitorChannel(
+  channel: typeof boardCompetitorChannels.$inferSelect,
+  stories: Array<{
+    canonicalTitle: string;
+    controversyScore: number;
+    surgeScore: number;
+    storyType: BoardStoryType;
+  }>
+) {
+  const config = getBoardCompetitorYouTubeConfig(channel);
+  if (!config) {
+    return {
+      channelId: channel.id,
+      channelName: channel.name,
+      refreshed: false,
+      skipped: true,
+      reason: "missing_youtube_config",
+    };
+  }
+
+  const db = getDb();
+
+  try {
+    const { channel: youtubeChannel, items } = await fetchYouTubeChannelUploads({
+      channelId: config.channelId,
+      uploadsPlaylistId: config.uploadsPlaylistId,
+      maxResults: config.maxResults ?? 4,
+    });
+    const latestItem = items[0];
+
+    if (!latestItem) {
+      return {
+        channelId: channel.id,
+        channelName: channel.name,
+        refreshed: false,
+        skipped: true,
+        reason: "no_uploads",
+      };
+    }
+
+    const publishedAt = coerceDate(latestItem.publishedAt);
+    const topicMatchScore = computeBoardCompetitorTopicMatchScore(
+      latestItem.title,
+      stories
+    );
+    const alertLevel = computeBoardCompetitorAlertLevel({
+      topicMatchScore,
+      publishedAt,
+    });
+    const viewsLabel = formatCompactCount(latestItem.viewCount);
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(boardCompetitorChannels)
+        .set({
+          handle: config.channelHandle ?? channel.handle,
+          channelUrl:
+            config.channelUrl ??
+            youtubeChannel?.customUrl ??
+            youtubeChannel?.channelUrl ??
+            channel.channelUrl,
+          subscribersLabel:
+            formatCompactCount(youtubeChannel?.subscriberCount ?? null, "subs") ??
+            channel.subscribersLabel,
+          metadataJson: {
+            ...(coerceObject(channel.metadataJson) ?? {}),
+            channelId: config.channelId,
+            uploadsPlaylistId: config.uploadsPlaylistId,
+            channelHandle: config.channelHandle ?? channel.handle,
+            channelUrl:
+              config.channelUrl ??
+              youtubeChannel?.customUrl ??
+              youtubeChannel?.channelUrl ??
+              channel.channelUrl,
+            latestTimeLabel: publishedAt ? formatAgeLabel(publishedAt) : "n/a",
+            latestVideoId: latestItem.videoId,
+            latestThumbnailUrl: latestItem.thumbnailUrl,
+          },
+          updatedAt: new Date(),
+        })
+        .where(eq(boardCompetitorChannels.id, channel.id));
+
+      await tx
+        .delete(boardCompetitorPosts)
+        .where(eq(boardCompetitorPosts.channelId, channel.id));
+
+      await tx.insert(boardCompetitorPosts).values({
+        channelId: channel.id,
+        externalId: latestItem.videoId,
+        title: latestItem.title,
+        url: latestItem.url,
+        publishedAt,
+        viewsLabel,
+        engagementJson: {
+          viewCount: latestItem.viewCount,
+          durationMs: latestItem.durationMs,
+          thumbnailUrl: latestItem.thumbnailUrl,
+          subscriberCount: youtubeChannel?.subscriberCount ?? null,
+        },
+        topicMatchScore,
+        alertLevel,
+        metadataJson: {
+          latestTimeLabel: publishedAt ? formatAgeLabel(publishedAt) : "n/a",
+          latestVideoId: latestItem.videoId,
+          latestThumbnailUrl: latestItem.thumbnailUrl,
+        },
+        updatedAt: new Date(),
+      });
+    });
+
+    return {
+      channelId: channel.id,
+      channelName: channel.name,
+      refreshed: true,
+      skipped: false,
+      topicMatchScore,
+      alertLevel,
+      latestVideoId: latestItem.videoId,
+    };
+  } catch (error) {
+    return {
+      channelId: channel.id,
+      channelName: channel.name,
+      refreshed: false,
+      skipped: false,
+      reason: error instanceof Error ? error.message : "unknown_competitor_refresh_error",
+    };
+  }
+}
+
+export async function refreshBoardCompetitors() {
+  await ensureBoardSeedData();
+
+  const db = getDb();
+  const [channels, stories] = await Promise.all([
+    db
+      .select()
+      .from(boardCompetitorChannels)
+      .where(eq(boardCompetitorChannels.enabled, true))
+      .orderBy(asc(boardCompetitorChannels.tier), asc(boardCompetitorChannels.name)),
+    db
+      .select({
+        canonicalTitle: boardStoryCandidates.canonicalTitle,
+        controversyScore: boardStoryCandidates.controversyScore,
+        surgeScore: boardStoryCandidates.surgeScore,
+        storyType: boardStoryCandidates.storyType,
+      })
+      .from(boardStoryCandidates)
+      .where(
+        gte(
+          boardStoryCandidates.updatedAt,
+          new Date(Date.now() - 21 * 24 * 60 * 60 * 1000)
+        )
+      ),
+  ]);
+
+  const results = [];
+  for (const channel of channels) {
+    results.push(await refreshBoardCompetitorChannel(channel, stories));
+  }
+
+  const summary = {
+    totalChannels: channels.length,
+    refreshedChannels: results.filter((result) => result.refreshed).length,
+    skippedChannels: results.filter((result) => result.skipped).length,
+    failedChannels: results.filter(
+      (result) => !result.refreshed && !result.skipped
+    ).length,
+  };
+
+  return {
+    summary,
+    results,
+  };
+}
+
 export async function listBoardCompetitors() {
   await ensureBoardSeedData();
 
@@ -3163,6 +3463,51 @@ export async function listBoardSources() {
       storyCount: storyCountBySource.get(source.id) ?? 0,
     })),
     categories: boardSourceCategorySeeds,
+  };
+}
+
+export async function pollBoardSource(sourceIdOrName: string) {
+  await ensureBoardSeedData();
+
+  const db = getDb();
+  const source = looksLikeUuid(sourceIdOrName)
+    ? (
+        await db
+          .select()
+          .from(boardSources)
+          .where(eq(boardSources.id, sourceIdOrName))
+          .limit(1)
+      )[0]
+    : (
+        await db
+          .select()
+          .from(boardSources)
+          .where(eq(boardSources.name, sourceIdOrName))
+          .limit(1)
+      )[0];
+
+  if (!source) {
+    throw buildBoardStoryOperationError(404, "Source not found");
+  }
+
+  if (!isBoardSourcePollable(source)) {
+    throw buildBoardStoryOperationError(400, "Source is not pollable");
+  }
+
+  const storyMatches = await getBoardStoryMatches();
+  const result = await pollBoardConfiguredSource({ source, storyMatches });
+  const metrics = await recomputeBoardStoryMetrics();
+  const alerts = await detectBoardStoryAlerts();
+  const [health, sources] = await Promise.all([getBoardHealth(), listBoardSources()]);
+  const updatedSource =
+    sources.sources.find((entry) => entry.id === source.id) ?? null;
+
+  return {
+    source: updatedSource,
+    result,
+    metrics,
+    alerts,
+    health,
   };
 }
 
@@ -3735,10 +4080,13 @@ export async function runBoardTickerRefreshCycle() {
 }
 
 export async function runBoardCompetitorRefreshCycle() {
-  await ensureBoardSeedData();
+  const refresh = await refreshBoardCompetitors();
   const competitors = await listBoardCompetitors();
 
-  return competitors.stats;
+  return {
+    ...competitors.stats,
+    ...refresh.summary,
+  };
 }
 
 export async function runBoardAnomalyDetectionCycle() {

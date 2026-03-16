@@ -66,7 +66,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
   const ticker = data.ticker;
 
   const surgeStories = stories.filter(
-    (s) => s.surgeScore >= 80 || s.storyType === "trending",
+    (s) => (s.surgeScore >= 88 && s.sourcesCount >= 2) || (s.storyType === "trending" && s.surgeScore >= 85),
   );
   const topSurge =
     surgeStories.length > 0
@@ -553,7 +553,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
         <span className="board-surge-bolt">{"\u26A1"}</span>
         <div className="board-surge-text">
           <div className="board-surge-title">
-            BREAKING &mdash; {topSurge.canonicalTitle}
+            BREAKING &mdash; {decodeHtml(topSurge.canonicalTitle)}
           </div>
           <div className="board-surge-sub">
             {topSurge.sourcesCount} sources &middot; Controversy Score{" "}
@@ -596,7 +596,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
             {story.score}
           </div>
           <div className="board-card-title-block">
-            <div className="board-card-title">{story.canonicalTitle}</div>
+            <div className="board-card-title">{decodeHtml(story.canonicalTitle)}</div>
             <div className="board-card-meta">
               {story.vertical && (
                 <span>
@@ -618,7 +618,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
           <span className={`board-badge-pill ${statusClass(story.status)}`}>
             {story.status}
           </span>
-          {story.surgeScore >= 75 && (
+          {story.surgeScore >= 88 && story.sourcesCount >= 2 && (
             <span className="board-badge-pill board-badge-surge">
               {"\u26A1"} SURGE {story.sourcesCount} sources
             </span>
@@ -768,7 +768,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
           <div className="board-queue-success">
             <div className="board-queue-success-icon">{"\u2713"}</div>
             <div className="board-queue-success-title">
-              {selectedStory?.canonicalTitle}
+              {decodeHtml(selectedStory?.canonicalTitle ?? "")}
             </div>
             <div className="board-queue-success-meta">
               Added to Video Queue
@@ -1288,6 +1288,21 @@ function AiContentRenderer({ html }: { html: string }) {
 /*  Utility                                                            */
 /* ------------------------------------------------------------------ */
 
+function decodeHtml(text: string): string {
+  return text
+    .replace(/&#8217;/g, "\u2019")
+    .replace(/&#8216;/g, "\u2018")
+    .replace(/&#8220;/g, "\u201C")
+    .replace(/&#8221;/g, "\u201D")
+    .replace(/&#8211;/g, "\u2013")
+    .replace(/&#8212;/g, "\u2014")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 function formatTimeAgo(isoString: string): string {
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return "n/a";
@@ -1726,6 +1741,7 @@ const boardStyles = `
 .board-story-card.active {
   border-color: var(--board-cyan);
   background: var(--board-bg3);
+  box-shadow: inset 0 0 0 1px var(--board-cyan), 0 0 12px rgba(91,187,153,0.08);
 }
 .board-story-card::before {
   content: '';
@@ -1754,11 +1770,11 @@ const boardStyles = `
 }
 .board-card-score {
   font-family: var(--board-mono);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--board-text-bright);
   line-height: 1;
-  min-width: 36px;
+  min-width: 32px;
   text-align: center;
 }
 .board-score-high { color: var(--board-cyan) !important; }
@@ -1766,10 +1782,10 @@ const boardStyles = `
 .board-card-title-block { flex: 1; }
 .board-card-title {
   font-family: var(--board-mono);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--board-text-bright);
-  line-height: 1.3;
+  line-height: 1.4;
   margin-bottom: 4px;
 }
 .board-card-meta {
