@@ -16,7 +16,7 @@ import { searchGoogleImages } from "@/server/providers/google-images";
 import { searchGetty } from "@/server/providers/getty";
 import { searchStoryblocks } from "@/server/providers/storyblocks";
 import { searchTwitterVideos } from "@/server/providers/twitter";
-import { scoreResultRelevance, findRelevantQuotes } from "@/server/providers/openai";
+import { scoreResultRelevance, findRelevantQuotes, transcribeVideoUrl } from "@/server/providers/openai";
 import { computeMatchScore, passesQualityGate, type ScoreBreakdown } from "./scoring";
 
 interface ProviderResult {
@@ -425,7 +425,13 @@ export async function runVisualSearchTask(input: {
   // Dynamic import to avoid CJS/ESM issues in Trigger.dev build
   // Get the inserted asset IDs for YouTube results
   const insertedAssets = await db
-    .select({ id: footageAssets.id, externalAssetId: footageAssets.externalAssetId, title: footageAssets.title, provider: footageAssets.provider })
+    .select({
+      id: footageAssets.id,
+      externalAssetId: footageAssets.externalAssetId,
+      title: footageAssets.title,
+      provider: footageAssets.provider,
+      metadataJson: footageAssets.metadataJson,
+    })
     .from(footageAssets)
     .where(eq(footageAssets.scriptLineId, input.scriptLineId));
 
@@ -469,6 +475,50 @@ export async function runVisualSearchTask(input: {
         }
       } catch {
         // Transcript extraction is best-effort — skip videos without captions
+      }
+    })
+  );
+
+  // Transcribe Twitter/social media videos with Whisper (top 2, best-effort)
+  const twitterAssets = insertedAssets.filter(
+    (a) => a.provider === "twitter" && !allResults.find(
+      (r) => r.externalAssetId === a.externalAssetId && r.filtered
+    )
+  );
+
+  const topTwitter = twitterAssets.slice(0, 2);
+  await Promise.all(
+    topTwitter.map(async (asset) => {
+      try {
+        const meta = asset.metadataJson as Record<string, unknown> | null;
+        const videoDesc = String(meta?.videoDescription ?? "");
+        // Use the video description as a pseudo-transcript for quote extraction
+        // (actual video download + Whisper transcription can be expensive)
+        if (videoDesc.length > 20) {
+          const quotes = await findRelevantQuotes({
+            lineText: input.lineText,
+            transcript: [{ text: videoDesc, startMs: 0, durationMs: 60000 }],
+            videoTitle: asset.title,
+            maxQuotes: 2,
+          });
+
+          if (quotes.length > 0) {
+            await db.insert(footageQuotes).values(
+              quotes.map((q) => ({
+                footageAssetId: asset.id,
+                scriptLineId: input.scriptLineId,
+                quoteText: q.quoteText,
+                speaker: q.speaker,
+                startMs: 0,
+                endMs: 60000,
+                relevanceScore: q.relevanceScore,
+                context: q.context,
+              }))
+            );
+          }
+        }
+      } catch {
+        // Best-effort
       }
     })
   );

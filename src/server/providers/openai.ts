@@ -256,6 +256,49 @@ Return at most ${maxQuotes} quotes, sorted by relevance. If nothing relevant, re
   }
 }
 
+// ─── Video Transcription (Whisper) ───
+
+export interface WhisperSegment {
+  text: string;
+  startMs: number;
+  durationMs: number;
+}
+
+/**
+ * Transcribes a video/audio file URL using OpenAI Whisper.
+ * Downloads the media, sends to Whisper API, returns timestamped segments.
+ */
+export async function transcribeVideoUrl(
+  videoUrl: string
+): Promise<WhisperSegment[]> {
+  // Download the video/audio
+  const mediaResponse = await fetch(videoUrl);
+  if (!mediaResponse.ok) {
+    throw new Error(`Failed to download media: ${mediaResponse.status}`);
+  }
+
+  const buffer = Buffer.from(await mediaResponse.arrayBuffer());
+  const blob = new Blob([buffer]);
+  const file = new File([blob], "video.mp4", { type: "video/mp4" });
+
+  const response = await getOpenAIClient().audio.transcriptions.create({
+    model: "whisper-1",
+    file,
+    response_format: "verbose_json",
+    timestamp_granularities: ["segment"],
+  });
+
+  const segments = (response as unknown as {
+    segments?: Array<{ text: string; start: number; end: number }>;
+  }).segments ?? [];
+
+  return segments.map((s) => ({
+    text: s.text.trim(),
+    startMs: Math.round(s.start * 1000),
+    durationMs: Math.round((s.end - s.start) * 1000),
+  }));
+}
+
 // ─── Research Summarization ───
 
 export async function summarizeResearch(input: {
