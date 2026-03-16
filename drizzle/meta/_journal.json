@@ -43,6 +43,13 @@
       "when": 1773675175338,
       "tag": "0005_common_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773676367056,
+      "tag": "0006_famous_lord_tyger",
+      "breakpoints": true
     }
   ]
 }

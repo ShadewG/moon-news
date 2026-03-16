@@ -433,6 +433,31 @@ export const clipSearchResults = pgTable(
   ]
 );
 
+export const clipSearchQuotes = pgTable(
+  "clip_search_quotes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    searchId: uuid("search_id")
+      .notNull()
+      .references(() => clipSearches.id, { onDelete: "cascade" }),
+    clipId: uuid("clip_id")
+      .notNull()
+      .references(() => clipLibrary.id, { onDelete: "cascade" }),
+    quoteText: text("quote_text").notNull(),
+    speaker: text("speaker"),
+    startMs: integer("start_ms").notNull().default(0),
+    endMs: integer("end_ms").notNull().default(0),
+    relevanceScore: integer("relevance_score").notNull().default(0),
+    context: text("context"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("clip_search_quotes_search_id_index").on(table.searchId),
+  ]
+);
+
 export const visualRecommendations = pgTable(
   "visual_recommendations",
   {

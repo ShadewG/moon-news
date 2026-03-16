@@ -6,6 +6,7 @@ import { getDb } from "@/server/db/client";
 import {
   clipLibrary,
   clipSearches,
+  clipSearchQuotes,
   clipSearchResults,
   transcriptCache,
 } from "@/server/db/schema";
@@ -371,6 +372,26 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
   }
 
   allQuotes.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+  // Save quotes to DB
+  if (allQuotes.length > 0) {
+    await db.insert(clipSearchQuotes).values(
+      allQuotes.map((q) => {
+        // Find the clipId for this quote's video
+        const clip = scored.find((s) => s.externalId === q.videoId);
+        return {
+          searchId: search.id,
+          clipId: clip?.clipId ?? scored[0]?.clipId ?? "",
+          quoteText: q.quoteText,
+          speaker: q.speaker,
+          startMs: q.startMs,
+          endMs: q.startMs + 10000,
+          relevanceScore: q.relevanceScore,
+          context: q.context,
+        };
+      }).filter((q) => q.clipId)
+    );
+  }
 
   // Update search with quote count
   await db
