@@ -73,14 +73,37 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
       ? surgeStories.reduce((a, b) => (a.score > b.score ? a : b))
       : null;
 
-  /* -- filtering -- */
-  const filteredStories = stories.filter((s) => {
-    if (currentFilter === "all") return true;
-    if (currentFilter === "trending")
-      return s.storyType === "trending" || s.surgeScore >= 75;
-    if (currentFilter === "correction") return s.correction;
-    return true;
-  });
+  /* -- filtering + sorting -- */
+  const filteredStories = stories
+    .filter((s) => {
+      // Type filter
+      if (currentFilter === "trending") return s.storyType === "trending" || s.surgeScore >= 75;
+      if (currentFilter === "controversy") return s.storyType === "controversy" || s.controversyScore >= 70;
+      if (currentFilter === "competitor") return s.storyType === "competitor";
+      if (currentFilter === "correction") return s.correction;
+
+      // Status filter
+      if (statusFilter !== "all" && s.status !== statusFilter) return false;
+
+      // Search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return (
+          s.canonicalTitle.toLowerCase().includes(q) ||
+          (s.vertical ?? "").toLowerCase().includes(q) ||
+          s.sourcePreviews.some((sp) => sp.name.toLowerCase().includes(q) || sp.title.toLowerCase().includes(q))
+        );
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "score") return b.score - a.score;
+      if (sortBy === "controversy") return b.controversyScore - a.controversyScore;
+      if (sortBy === "sources") return b.sourcesCount - a.sourcesCount;
+      if (sortBy === "recent") return (b.lastSeenAt ?? "").localeCompare(a.lastSeenAt ?? "");
+      return 0;
+    });
 
   /* -- clock -- */
   useEffect(() => {
@@ -136,10 +159,11 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
   const handleAiTool = useCallback(
     async (storyId: string, kind: AiToolKind) => {
       if (kind === "footage") {
-        window.open(
-          `/library?q=${encodeURIComponent(selectedStory?.canonicalTitle ?? "")}`,
-          "_blank",
-        );
+        window.open(`/library?q=${encodeURIComponent(selectedStory?.canonicalTitle ?? "")}`, "_blank");
+        return;
+      }
+      if (kind === "research") {
+        if (selectedStory) handleTriggerResearch(selectedStory.slug);
         return;
       }
 
@@ -431,45 +455,89 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
   /*  TOPBAR                                                           */
   /* ---------------------------------------------------------------- */
 
+  const handleTriggerResearch = useCallback(async (storySlug: string) => {
+    setResearchLoading(storySlug);
+    try {
+      await fetch(`/api/board/stories/${storySlug}/research`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "quick" }) });
+    } catch { /* best effort */ }
+    setResearchLoading(null);
+  }, []);
+
   const renderTopbar = () => {
-    const filters: { id: BoardFilter; label: string }[] = [
-      { id: "all", label: "All Stories" },
-      { id: "trending", label: "Trending" },
-      { id: "correction", label: "Corrections \u26A0" },
+    const typeFilters: { id: BoardFilter; label: string }[] = [
+      { id: "all", label: "all" },
+      { id: "trending", label: "trending" },
+      { id: "controversy", label: "controversy" },
+      { id: "competitor", label: "competitor" },
+      { id: "correction", label: "corrections" },
     ];
 
+    const selectCls = "board-filter-select";
+
     return (
-      <div className="board-topbar">
-        <div className="board-view-tabs">
-          {filters.map((f) => (
-            <div
-              key={f.id}
-              className={`board-vtab${currentFilter === f.id ? " active" : ""}`}
-              onClick={() => handleSwitchFilter(f.id)}
-            >
-              {f.label}
-            </div>
-          ))}
+      <>
+        {/* Stats bar — FOIA style with pipes */}
+        <div className="board-stats-bar">
+          <span>{filteredStories.length} shown</span>
+          <span className="board-pipe">|</span>
+          <span>{stories.length} total</span>
+          <span className="board-pipe">|</span>
+          <span style={{ color: "var(--board-amber)" }}>{surgeStories.length} surge</span>
+          <span className="board-pipe">|</span>
+          <span>{health.correctionCount} corrections</span>
+          <span className="board-pipe">|</span>
+          <span>{health.healthySources}/{sources.sources.length} sources</span>
+          <span className="board-pipe">|</span>
+          <span>{health.competitorAlerts} alerts</span>
+          <span className="board-pipe">|</span>
+          <span className="board-topbar-clock">{clock}</span>
         </div>
-        <div className="board-topbar-spacer" />
-        <div className="board-topbar-stat">
-          Stories{" "}
-          <span className="board-topbar-val">{filteredStories.length}</span>
+
+        {/* View tabs */}
+        <div className="board-topbar">
+          <div className="board-view-tabs">
+            {typeFilters.map((f) => (
+              <div
+                key={f.id}
+                className={`board-vtab${currentFilter === f.id ? " active" : ""}`}
+                onClick={() => handleSwitchFilter(f.id)}
+              >
+                {f.label}
+              </div>
+            ))}
+          </div>
+          <span className="board-pipe">|</span>
+
+          {/* Status filter */}
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StoryStatus)} className={selectCls}>
+            <option value="all">status: all</option>
+            <option value="developing">developing</option>
+            <option value="watching">watching</option>
+            <option value="peaked">peaked</option>
+            <option value="queued">queued</option>
+            <option value="archived">archived</option>
+          </select>
+
+          {/* Sort */}
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortBy)} className={selectCls}>
+            <option value="score">sort: score</option>
+            <option value="recent">sort: recent</option>
+            <option value="controversy">sort: controversy</option>
+            <option value="sources">sort: sources</option>
+          </select>
+
+          <div className="board-topbar-spacer" />
+
+          {/* Search */}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="search stories..."
+            className="board-search-input"
+          />
         </div>
-        <div className="board-topbar-stat">
-          Surge{" "}
-          <span className="board-topbar-val board-text-amber">
-            {surgeStories.length} active
-          </span>
-        </div>
-        <div className="board-topbar-stat">
-          Corrections{" "}
-          <span className="board-topbar-val board-text-green">
-            {health.correctionCount}
-          </span>
-        </div>
-        <div className="board-topbar-clock">{clock}</div>
-      </div>
+      </>
     );
   };
 
@@ -880,6 +948,14 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
               onClick={() => handleAiTool(s.id, "footage")}
             >
               {"\uD83C\uDFA5"} Find Footage
+            </button>
+            <button
+              className="board-btn board-btn-wide"
+              style={{ background: "var(--board-blue-dim)", color: "var(--board-blue)" }}
+              onClick={() => handleAiTool(s.id, "research")}
+              disabled={researchLoading === s.slug}
+            >
+              {researchLoading === s.slug ? "researching..." : "\uD83D\uDD0D Deep Research"}
             </button>
           </div>
         </div>
@@ -1478,15 +1554,65 @@ const boardStyles = `
 }
 
 /* ── TOPBAR ── */
+/* Stats bar — FOIA style */
+.board-stats-bar {
+  height: 24px;
+  background: var(--board-bg2);
+  border-bottom: 1px solid var(--board-border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 0;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--board-muted);
+}
+.board-pipe {
+  color: var(--board-border2);
+  padding: 0 8px;
+}
+
+/* Filter bar */
 .board-topbar {
-  height: 44px;
+  height: 28px;
   background: var(--board-bg1);
   border-bottom: 1px solid var(--board-border);
   display: flex;
   align-items: center;
-  padding: 0 18px;
-  gap: 14px;
+  padding: 0 12px;
+  gap: 6px;
   flex-shrink: 0;
+}
+.board-filter-select {
+  background: var(--board-bg);
+  border: 1px solid var(--board-border);
+  color: var(--board-muted2);
+  font-family: var(--board-mono);
+  font-size: 10px;
+  padding: 1px 4px;
+  height: 20px;
+  outline: none;
+  cursor: pointer;
+}
+.board-filter-select:focus {
+  border-color: var(--board-border2);
+}
+.board-search-input {
+  background: var(--board-bg);
+  border: 1px solid var(--board-border);
+  color: var(--board-text);
+  font-family: var(--board-mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  height: 20px;
+  width: 180px;
+  outline: none;
+}
+.board-search-input:focus {
+  border-color: var(--board-border2);
+}
+.board-search-input::placeholder {
+  color: var(--board-muted);
 }
 .board-view-tabs {
   display: flex;
