@@ -22,6 +22,7 @@ import {
   boardCompetitorChannels,
   boardCompetitorPosts,
   boardFeedItems,
+  boardFeedItemVersions,
   boardQueueItems,
   boardSources,
   boardStoryAiOutputs,
@@ -87,11 +88,17 @@ export interface BoardStorySourcePreview {
   sourceWeight: number;
   isPrimary: boolean;
   sourceType: string | null;
+  versionCount: number;
+  latestVersionNumber: number;
+  latestDiffSummary: string | null;
+  latestCapturedAt: string | null;
+  hasCorrection: boolean;
 }
 
 export interface BoardStoryDetail {
   story: BoardStorySummary;
   sources: BoardStorySourcePreview[];
+  versionHistory: BoardStoryVersionEntry[];
   aiOutputs: Record<
     BoardAiOutputKind,
     {
@@ -115,6 +122,17 @@ export interface BoardStoryDetail {
         linkedProjectId: string | null;
       }
     | null;
+}
+
+export interface BoardStoryVersionEntry {
+  id: string;
+  feedItemId: string;
+  sourceName: string;
+  title: string;
+  diffSummary: string | null;
+  isCorrection: boolean;
+  versionNumber: number;
+  capturedAt: string;
 }
 
 export interface ListBoardStoriesInput {
@@ -420,6 +438,79 @@ function chooseMergedQueueStatus(values: Array<string | null | undefined>) {
 
     return best;
   }, null);
+}
+
+function buildBoardFeedItemContent(item: {
+  title: string;
+  summary: string | null;
+  url: string;
+}) {
+  return [item.title.trim(), item.summary?.trim() ?? "", item.url.trim()]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function normalizeBoardTextForComparison(value: string | null | undefined) {
+  return value?.trim().replace(/\s+/g, " ") ?? "";
+}
+
+function inferBoardCorrectionSignal(args: {
+  title: string;
+  summary: string | null;
+  diffSummary: string | null;
+}) {
+  const combined = [args.title, args.summary ?? "", args.diffSummary ?? ""].join(" ");
+  return /\b(correction|clarif(?:y|ies|ied)|update[d]?|walks back|retraction)\b/i.test(
+    combined
+  );
+}
+
+function buildBoardFeedItemDiffSummary(args: {
+  previous: {
+    title: string;
+    summary: string | null;
+    url: string;
+    contentHash: string | null;
+  };
+  next: {
+    title: string;
+    summary: string | null;
+    url: string;
+    contentHash: string | null;
+  };
+}) {
+  const changes: string[] = [];
+
+  if (
+    normalizeBoardTextForComparison(args.previous.title) !==
+    normalizeBoardTextForComparison(args.next.title)
+  ) {
+    changes.push("headline updated");
+  }
+
+  if (
+    normalizeBoardTextForComparison(args.previous.summary) !==
+    normalizeBoardTextForComparison(args.next.summary)
+  ) {
+    changes.push("summary changed");
+  }
+
+  if (
+    normalizeBoardTextForComparison(args.previous.url) !==
+    normalizeBoardTextForComparison(args.next.url)
+  ) {
+    changes.push("canonical URL changed");
+  }
+
+  if ((args.previous.contentHash ?? "") !== (args.next.contentHash ?? "")) {
+    changes.push("content hash changed");
+  }
+
+  if (changes.length === 0) {
+    return null;
+  }
+
+  return changes.join(", ");
 }
 
 function formatBoardBaselineValue(value: number): string {
@@ -794,6 +885,134 @@ async function resolveStoryRecord(storyIdOrSlug: string) {
   return story ?? null;
 }
 
+async function ensureBoardFeedItemVersionsBackfill() {
+  const db = getDb();
+  const feedItems = await db.select().from(boardFeedItems);
+
+  if (feedItems.length === 0) {
+    return { inserted: 0 };
+  }
+
+  const versionRows = await db
+    .select({
+      feedItemId: boardFeedItemVersions.feedItemId,
+    })
+    .from(boardFeedItemVersions);
+  const feedItemIdsWithVersions = new Set(versionRows.map((row) => row.feedItemId));
+
+  const missingFeedItems = feedItems.filter((item) => !feedItemIdsWithVersions.has(item.id));
+  if (missingFeedItems.length === 0) {
+    return { inserted: 0 };
+  }
+
+  await db.insert(boardFeedItemVersions).values(
+    missingFeedItems.map((item) => ({
+      feedItemId: item.id,
+      contentHash: item.contentHash,
+      title: item.title,
+      content: buildBoardFeedItemContent({
+        title: item.title,
+        summary: item.summary,
+        url: item.url,
+      }),
+      diffSummary: "initial capture",
+      isCorrection: inferBoardCorrectionSignal({
+        title: item.title,
+        summary: item.summary,
+        diffSummary: null,
+      }),
+      versionNumber: 1,
+      capturedAt: item.ingestedAt,
+    }))
+  );
+
+  return { inserted: missingFeedItems.length };
+}
+
+async function syncBoardStoryCorrectionFlags(storyIds?: string[]) {
+  const db = getDb();
+  const storyWhere = storyIds?.length
+    ? inArray(boardStoryCandidates.id, Array.from(new Set(storyIds)))
+    : sql`true`;
+
+  const storyRows = await db
+    .select({
+      id: boardStoryCandidates.id,
+      storyType: boardStoryCandidates.storyType,
+      metadataJson: boardStoryCandidates.metadataJson,
+    })
+    .from(boardStoryCandidates)
+    .where(storyWhere);
+
+  if (storyRows.length === 0) {
+    return { updated: 0 };
+  }
+
+  const correctionRows = await db
+    .select({
+      storyId: boardStorySources.storyId,
+      capturedAt: boardFeedItemVersions.capturedAt,
+      isCorrection: boardFeedItemVersions.isCorrection,
+    })
+    .from(boardStorySources)
+    .innerJoin(
+      boardFeedItemVersions,
+      eq(boardFeedItemVersions.feedItemId, boardStorySources.feedItemId)
+    )
+    .where(
+      and(
+        storyIds?.length ? inArray(boardStorySources.storyId, storyIds) : sql`true`,
+        eq(boardFeedItemVersions.isCorrection, true)
+      )
+    )
+    .orderBy(desc(boardFeedItemVersions.capturedAt));
+
+  const correctionStateByStory = new Map<
+    string,
+    { correctionCount: number; latestCorrectionAt: Date | null }
+  >();
+
+  for (const row of correctionRows) {
+    const existing = correctionStateByStory.get(row.storyId) ?? {
+      correctionCount: 0,
+      latestCorrectionAt: null,
+    };
+    existing.correctionCount += 1;
+    const capturedAt = coerceDate(row.capturedAt);
+    if (
+      capturedAt &&
+      (!existing.latestCorrectionAt || capturedAt > existing.latestCorrectionAt)
+    ) {
+      existing.latestCorrectionAt = capturedAt;
+    }
+    correctionStateByStory.set(row.storyId, existing);
+  }
+
+  await Promise.all(
+    storyRows.map((story) => {
+      const correctionState = correctionStateByStory.get(story.id);
+      const metadataJson = {
+        ...(coerceObject(story.metadataJson) ?? {}),
+        correctionCount: correctionState?.correctionCount ?? 0,
+        latestCorrectionAt: toIsoString(correctionState?.latestCorrectionAt ?? null),
+      };
+
+      return db
+        .update(boardStoryCandidates)
+        .set({
+          correction:
+            Boolean(correctionState && correctionState.correctionCount > 0) ||
+            story.storyType === "correction",
+          metadataJson,
+          updatedAt: new Date(),
+        })
+        .where(eq(boardStoryCandidates.id, story.id));
+    })
+  );
+
+  return { updated: storyRows.length };
+}
+
 async function getSourcePreviewsForStories(storyIds: string[]) {
   if (storyIds.length === 0) {
     return new Map<string, BoardStorySourcePreview[]>();
@@ -825,9 +1044,57 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
       asc(boardSources.name)
     );
 
+  const feedItemIds = Array.from(new Set(rows.map((row) => row.feedItemId)));
+  const versionRows =
+    feedItemIds.length > 0
+      ? await db
+          .select({
+            feedItemId: boardFeedItemVersions.feedItemId,
+            versionNumber: boardFeedItemVersions.versionNumber,
+            diffSummary: boardFeedItemVersions.diffSummary,
+            capturedAt: boardFeedItemVersions.capturedAt,
+            isCorrection: boardFeedItemVersions.isCorrection,
+          })
+          .from(boardFeedItemVersions)
+          .where(inArray(boardFeedItemVersions.feedItemId, feedItemIds))
+          .orderBy(
+            desc(boardFeedItemVersions.versionNumber),
+            desc(boardFeedItemVersions.capturedAt)
+          )
+      : [];
+
+  const versionSummaryByFeedItemId = new Map<
+    string,
+    {
+      versionCount: number;
+      latestVersionNumber: number;
+      latestDiffSummary: string | null;
+      latestCapturedAt: string | null;
+      hasCorrection: boolean;
+    }
+  >();
+
+  for (const row of versionRows) {
+    const existing = versionSummaryByFeedItemId.get(row.feedItemId);
+    if (!existing) {
+      versionSummaryByFeedItemId.set(row.feedItemId, {
+        versionCount: 1,
+        latestVersionNumber: row.versionNumber,
+        latestDiffSummary: row.diffSummary,
+        latestCapturedAt: toIsoString(row.capturedAt),
+        hasCorrection: row.isCorrection,
+      });
+      continue;
+    }
+
+    existing.versionCount += 1;
+    existing.hasCorrection = existing.hasCorrection || row.isCorrection;
+  }
+
   const previews = new Map<string, BoardStorySourcePreview[]>();
 
   for (const row of rows) {
+    const versionSummary = versionSummaryByFeedItemId.get(row.feedItemId);
     const preview: BoardStorySourcePreview = {
       id: row.sourceId,
       feedItemId: row.feedItemId,
@@ -844,6 +1111,11 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
         typeof coerceObject(row.evidenceJson)?.sourceType === "string"
           ? (coerceObject(row.evidenceJson)?.sourceType as string)
           : null,
+      versionCount: versionSummary?.versionCount ?? 0,
+      latestVersionNumber: versionSummary?.latestVersionNumber ?? 0,
+      latestDiffSummary: versionSummary?.latestDiffSummary ?? null,
+      latestCapturedAt: versionSummary?.latestCapturedAt ?? null,
+      hasCorrection: versionSummary?.hasCorrection ?? false,
     };
 
     const existing = previews.get(row.storyId) ?? [];
@@ -1350,53 +1622,149 @@ async function ingestBoardItemsForSource(args: {
   let feedItemsIngested = 0;
   let relationsCreated = 0;
   let storiesCreated = 0;
+  let versionCaptures = 0;
+  let correctionEvents = 0;
   const sourceType = getBoardSourceType(args.config, args.source);
+  const affectedStoryIds = new Set<string>();
 
   for (const item of args.items) {
-    const [insertedFeedItem] = await db
-      .insert(boardFeedItems)
-      .values({
-        sourceId: args.source.id,
-        externalId: item.externalId,
-        title: item.title,
-        url: item.url,
-        author: item.author,
-        publishedAt: item.publishedAt,
-        summary: item.summary,
-        contentHash: item.contentHash,
-        metadataJson: {
-          ...(coerceObject(item.metadataJson) ?? {}),
-          ingestKind: args.config.mode,
-          sourceType,
-        },
-        ingestedAt: new Date(),
-      })
-      .onConflictDoNothing()
-      .returning({
-        id: boardFeedItems.id,
-      });
+    const nextMetadataJson = {
+      ...(coerceObject(item.metadataJson) ?? {}),
+      ingestKind: args.config.mode,
+      sourceType,
+    };
+    const nextContent = buildBoardFeedItemContent({
+      title: item.title,
+      summary: item.summary,
+      url: item.url,
+    });
+    const [existingFeedItem] = await db
+      .select()
+      .from(boardFeedItems)
+      .where(
+        and(
+          eq(boardFeedItems.sourceId, args.source.id),
+          eq(boardFeedItems.externalId, item.externalId)
+        )
+      )
+      .limit(1);
 
-    const feedItem =
-      insertedFeedItem ??
-      (
-        await db
-          .select({ id: boardFeedItems.id })
-          .from(boardFeedItems)
-          .where(
-            and(
-              eq(boardFeedItems.sourceId, args.source.id),
-              eq(boardFeedItems.externalId, item.externalId)
-            )
-          )
-          .limit(1)
-      )[0];
+    let feedItem =
+      existingFeedItem &&
+      ({
+        id: existingFeedItem.id,
+      } as {
+        id: string;
+      } | null);
+
+    if (!existingFeedItem) {
+      const [insertedFeedItem] = await db
+        .insert(boardFeedItems)
+        .values({
+          sourceId: args.source.id,
+          externalId: item.externalId,
+          title: item.title,
+          url: item.url,
+          author: item.author,
+          publishedAt: item.publishedAt,
+          summary: item.summary,
+          contentHash: item.contentHash,
+          metadataJson: nextMetadataJson,
+          ingestedAt: new Date(),
+        })
+        .returning({
+          id: boardFeedItems.id,
+        });
+
+      if (insertedFeedItem) {
+        feedItemsIngested += 1;
+        feedItem = insertedFeedItem;
+        const isCorrection = inferBoardCorrectionSignal({
+          title: item.title,
+          summary: item.summary,
+          diffSummary: null,
+        });
+
+        await db.insert(boardFeedItemVersions).values({
+          feedItemId: insertedFeedItem.id,
+          contentHash: item.contentHash,
+          title: item.title,
+          content: nextContent,
+          diffSummary: "initial capture",
+          isCorrection,
+          versionNumber: 1,
+          capturedAt: item.publishedAt ?? new Date(),
+        });
+        versionCaptures += 1;
+        if (isCorrection) {
+          correctionEvents += 1;
+        }
+      }
+    } else {
+      const diffSummary = buildBoardFeedItemDiffSummary({
+        previous: {
+          title: existingFeedItem.title,
+          summary: existingFeedItem.summary,
+          url: existingFeedItem.url,
+          contentHash: existingFeedItem.contentHash,
+        },
+        next: {
+          title: item.title,
+          summary: item.summary,
+          url: item.url,
+          contentHash: item.contentHash,
+        },
+      });
+      const shouldCaptureVersion = Boolean(diffSummary);
+
+      await db
+        .update(boardFeedItems)
+        .set({
+          title: item.title,
+          url: item.url,
+          author: item.author,
+          publishedAt: item.publishedAt,
+          summary: item.summary,
+          contentHash: item.contentHash,
+          metadataJson: nextMetadataJson,
+          ingestedAt: new Date(),
+        })
+        .where(eq(boardFeedItems.id, existingFeedItem.id));
+
+      if (shouldCaptureVersion) {
+        const [latestVersionRow] = await db
+          .select({
+            versionNumber: boardFeedItemVersions.versionNumber,
+          })
+          .from(boardFeedItemVersions)
+          .where(eq(boardFeedItemVersions.feedItemId, existingFeedItem.id))
+          .orderBy(desc(boardFeedItemVersions.versionNumber))
+          .limit(1);
+        const isCorrection = inferBoardCorrectionSignal({
+          title: item.title,
+          summary: item.summary,
+          diffSummary,
+        });
+
+        await db.insert(boardFeedItemVersions).values({
+          feedItemId: existingFeedItem.id,
+          contentHash: item.contentHash,
+          title: item.title,
+          content: nextContent,
+          diffSummary,
+          isCorrection,
+          versionNumber: (latestVersionRow?.versionNumber ?? 0) + 1,
+          capturedAt: new Date(),
+        });
+        versionCaptures += 1;
+        if (isCorrection) {
+          correctionEvents += 1;
+        }
+      }
+    }
 
     if (!feedItem) {
       continue;
-    }
-
-    if (insertedFeedItem) {
-      feedItemsIngested += 1;
     }
 
     let matchedStory = findMatchingBoardStory(args.storyMatches, item, args.config);
@@ -1431,12 +1799,20 @@ async function ingestBoardItemsForSource(args: {
     if (relation) {
       relationsCreated += 1;
     }
+
+    affectedStoryIds.add(matchedStory.id);
+  }
+
+  if (affectedStoryIds.size > 0) {
+    await syncBoardStoryCorrectionFlags(Array.from(affectedStoryIds));
   }
 
   return {
     feedItemsIngested,
     relationsCreated,
     storiesCreated,
+    versionCaptures,
+    correctionEvents,
   };
 }
 
@@ -1477,6 +1853,8 @@ async function ingestBoardRssSources() {
   let feedItemsIngested = 0;
   let relationsCreated = 0;
   let storiesCreated = 0;
+  let versionCaptures = 0;
+  let correctionEvents = 0;
   let failedSources = 0;
 
   for (const source of sources) {
@@ -1516,6 +1894,8 @@ async function ingestBoardRssSources() {
       feedItemsIngested += ingestion.feedItemsIngested;
       relationsCreated += ingestion.relationsCreated;
       storiesCreated += ingestion.storiesCreated;
+      versionCaptures += ingestion.versionCaptures;
+      correctionEvents += ingestion.correctionEvents;
 
       await db
         .update(boardSources)
@@ -1544,6 +1924,8 @@ async function ingestBoardRssSources() {
     feedItemsIngested,
     relationsCreated,
     storiesCreated,
+    versionCaptures,
+    correctionEvents,
     failedSources,
   };
 }
@@ -1562,6 +1944,8 @@ async function ingestBoardYouTubeSources() {
   let feedItemsIngested = 0;
   let relationsCreated = 0;
   let storiesCreated = 0;
+  let versionCaptures = 0;
+  let correctionEvents = 0;
   let failedSources = 0;
 
   for (const source of sources) {
@@ -1601,6 +1985,8 @@ async function ingestBoardYouTubeSources() {
       feedItemsIngested += ingestion.feedItemsIngested;
       relationsCreated += ingestion.relationsCreated;
       storiesCreated += ingestion.storiesCreated;
+      versionCaptures += ingestion.versionCaptures;
+      correctionEvents += ingestion.correctionEvents;
 
       await db
         .update(boardSources)
@@ -1630,6 +2016,8 @@ async function ingestBoardYouTubeSources() {
     feedItemsIngested,
     relationsCreated,
     storiesCreated,
+    versionCaptures,
+    correctionEvents,
     failedSources,
   };
 }
@@ -1655,6 +2043,9 @@ export async function ensureBoardSeedData() {
   if (!existingChannels) {
     await insertBoardSeedData();
   }
+
+  await ensureBoardFeedItemVersionsBackfill();
+  await syncBoardStoryCorrectionFlags();
 }
 
 export async function recomputeBoardStoryMetrics() {
@@ -1887,9 +2278,32 @@ export async function getBoardStoryDetail(storyIdOrSlug: string): Promise<BoardS
   ]);
 
   const sources = previewsByStory.get(story.id) ?? [];
+  const feedItemIds = Array.from(new Set(sources.map((source) => source.feedItemId)));
   const aiOutputs = Object.fromEntries(
     BOARD_AI_KINDS.map((kind) => [kind, null])
   ) as BoardStoryDetail["aiOutputs"];
+  const versionHistoryRows =
+    feedItemIds.length > 0
+      ? await db
+          .select({
+            id: boardFeedItemVersions.id,
+            feedItemId: boardFeedItemVersions.feedItemId,
+            sourceName: boardSources.name,
+            title: boardFeedItemVersions.title,
+            diffSummary: boardFeedItemVersions.diffSummary,
+            isCorrection: boardFeedItemVersions.isCorrection,
+            versionNumber: boardFeedItemVersions.versionNumber,
+            capturedAt: boardFeedItemVersions.capturedAt,
+          })
+          .from(boardFeedItemVersions)
+          .innerJoin(boardFeedItems, eq(boardFeedItems.id, boardFeedItemVersions.feedItemId))
+          .innerJoin(boardSources, eq(boardSources.id, boardFeedItems.sourceId))
+          .where(inArray(boardFeedItemVersions.feedItemId, feedItemIds))
+          .orderBy(
+            desc(boardFeedItemVersions.capturedAt),
+            desc(boardFeedItemVersions.versionNumber)
+          )
+      : [];
 
   for (const row of aiOutputRows) {
     if (aiOutputs[row.kind]) {
@@ -1931,6 +2345,16 @@ export async function getBoardStoryDetail(storyIdOrSlug: string): Promise<BoardS
   return {
     story: mapStorySummary(story, sources),
     sources,
+    versionHistory: versionHistoryRows.map((row) => ({
+      id: row.id,
+      feedItemId: row.feedItemId,
+      sourceName: row.sourceName,
+      title: row.title,
+      diffSummary: row.diffSummary,
+      isCorrection: row.isCorrection,
+      versionNumber: row.versionNumber,
+      capturedAt: toIsoString(row.capturedAt) ?? new Date().toISOString(),
+    })),
     aiOutputs,
     queueItem,
   };
@@ -3282,6 +3706,8 @@ export async function runBoardSourcePollCycle() {
     feedItemsIngested: rssIngestion.feedItemsIngested + youtubeIngestion.feedItemsIngested,
     relationsCreated: rssIngestion.relationsCreated + youtubeIngestion.relationsCreated,
     storiesCreated: rssIngestion.storiesCreated + youtubeIngestion.storiesCreated,
+    versionCaptures: rssIngestion.versionCaptures + youtubeIngestion.versionCaptures,
+    correctionEvents: rssIngestion.correctionEvents + youtubeIngestion.correctionEvents,
     failedSources: rssIngestion.failedSources + youtubeIngestion.failedSources,
     ...metrics,
     ...alerts,

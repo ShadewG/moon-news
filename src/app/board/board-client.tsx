@@ -19,8 +19,10 @@ import type {
 /* ------------------------------------------------------------------ */
 
 type SidebarView = "board" | "queue" | "competitor" | "sources";
-type BoardFilter = "all" | "trending" | "correction";
-type AiToolKind = "brief" | "script_starter" | "titles" | "queue" | "footage";
+type BoardFilter = "all" | "trending" | "controversy" | "competitor" | "correction";
+type StoryStatus = "all" | "developing" | "watching" | "peaked" | "queued" | "archived";
+type SortBy = "score" | "recent" | "controversy" | "sources";
+type AiToolKind = "brief" | "script_starter" | "titles" | "queue" | "footage" | "research";
 
 interface AiToolState {
   kind: AiToolKind | null;
@@ -37,10 +39,14 @@ interface AiToolState {
 export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
   const [currentView, setCurrentView] = useState<SidebarView>("board");
   const [currentFilter, setCurrentFilter] = useState<BoardFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StoryStatus>("all");
+  const [sortBy, setSortBy] = useState<SortBy>("score");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedStory, setSelectedStory] = useState<BoardStorySummary | null>(
     null,
   );
   const [clock, setClock] = useState("");
+  const [researchLoading, setResearchLoading] = useState<string | null>(null);
   const [aiTool, setAiTool] = useState<AiToolState>({
     kind: null,
     loading: false,

@@ -238,12 +238,13 @@ Be factual, cite specifics from the sources, and suggest angles that would perfo
 
 export async function deepResearchStory(
   storyId: string,
-  mode: ResearchMode
+  mode: ResearchMode,
+  existingProgressId?: string
 ): Promise<{ progressId: string; result: ResearchResult }> {
   const db = getDb();
 
-  // Create progress tracker
-  const progressId = await createProgress(storyId);
+  // Use existing progress record or create a new one
+  const progressId = existingProgressId ?? (await createProgress(storyId));
 
   try {
     // Step 1: Get story from DB with linked feed items

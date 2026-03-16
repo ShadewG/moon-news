@@ -25,10 +25,9 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
-    // Start research in background — return the progress ID immediately
     const db = getDb();
 
-    // Create a progress record first so we can return its ID
+    // Create a progress record first so we can return its ID immediately
     const rows = await db
       .insert(researchProgress)
       .values({
@@ -42,10 +41,9 @@ export async function POST(request: Request, context: RouteContext) {
 
     const progressId = rows[0].id;
 
-    // Fire and forget — run research in the background
-    deepResearchStory(storyId, mode).catch((err) => {
+    // Fire and forget — pass the existing progress ID to avoid duplication
+    deepResearchStory(storyId, mode, progressId).catch((err) => {
       console.error(`[research-api] Research failed for ${storyId}:`, err);
-      // The deepResearchStory function handles its own progress updates on failure
     });
 
     return NextResponse.json({ progressId, storyId, mode });

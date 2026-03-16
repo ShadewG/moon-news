@@ -647,6 +647,37 @@ export const boardFeedItems = pgTable(
   ]
 );
 
+export const boardFeedItemVersions = pgTable(
+  "board_feed_item_versions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    feedItemId: uuid("feed_item_id")
+      .notNull()
+      .references(() => boardFeedItems.id, { onDelete: "cascade" }),
+    contentHash: text("content_hash"),
+    title: text("title").notNull(),
+    content: text("content"),
+    diffSummary: text("diff_summary"),
+    isCorrection: boolean("is_correction").notNull().default(false),
+    versionNumber: integer("version_number").notNull().default(1),
+    capturedAt: timestamp("captured_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_feed_item_versions_feed_version_unique").on(
+      table.feedItemId,
+      table.versionNumber
+    ),
+    index("board_feed_item_versions_feed_item_id_index").on(table.feedItemId),
+    index("board_feed_item_versions_captured_at_index").on(table.capturedAt),
+    index("board_feed_item_versions_is_correction_index").on(table.isCorrection),
+  ]
+);
+
 export const boardStoryCandidates = pgTable(
   "board_story_candidates",
   {
