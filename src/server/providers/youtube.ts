@@ -134,7 +134,7 @@ export async function searchYouTube(input: {
     `https://www.googleapis.com/youtube/v3/videos?${detailParams}`
   );
 
-  let detailMap: Record<string, { durationMs: number; viewCount: number }> = {};
+  const detailMap: Record<string, { durationMs: number; viewCount: number }> = {};
 
   if (detailResponse.ok) {
     const detailData = await detailResponse.json() as {

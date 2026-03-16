@@ -2,6 +2,7 @@ import { eq, desc } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
+  clipAiQueries,
   clipLibrary,
   clipNotes,
   clipSearchQuotes,
@@ -27,10 +28,11 @@ export default async function ClipDetailPage({ params }: Props) {
     return <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-[#52525b]">Clip not found</div>;
   }
 
-  const [transcript, quotes, notes] = await Promise.all([
+  const [transcript, quotes, notes, aiQueries] = await Promise.all([
     db.select().from(transcriptCache).where(eq(transcriptCache.clipId, clipId)).limit(1),
     db.select().from(clipSearchQuotes).where(eq(clipSearchQuotes.clipId, clipId)).orderBy(desc(clipSearchQuotes.relevanceScore)),
     db.select().from(clipNotes).where(eq(clipNotes.clipId, clipId)).orderBy(desc(clipNotes.createdAt)),
+    db.select().from(clipAiQueries).where(eq(clipAiQueries.clipId, clipId)).orderBy(desc(clipAiQueries.createdAt)).limit(12),
   ]);
 
   const data = {
@@ -62,6 +64,19 @@ export default async function ClipDetailPage({ params }: Props) {
       timestampMs: n.timestampMs,
       color: n.color,
       createdAt: n.createdAt.toISOString(),
+    })),
+    aiHistory: aiQueries.map((entry) => ({
+      id: entry.id,
+      question: entry.question,
+      response: {
+        answer: entry.answer,
+        moments: entry.momentsJson as Array<{
+          text: string;
+          startMs: number;
+          timestamp: string;
+        }>,
+      },
+      createdAt: entry.createdAt.toISOString(),
     })),
   };
 

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb } from "@/server/db/client";
-import { clipLibrary, transcriptCache } from "@/server/db/schema";
+import { clipAiQueries, clipLibrary, transcriptCache } from "@/server/db/schema";
 import { askAboutTranscript } from "@/server/providers/openai";
 
 type Ctx = { params: Promise<{ clipId: string }> };
@@ -35,6 +35,29 @@ export async function POST(request: Request, ctx: Ctx) {
     });
   }
 
+  const [cached] = await db
+    .select({
+      answer: clipAiQueries.answer,
+      moments: clipAiQueries.momentsJson,
+    })
+    .from(clipAiQueries)
+    .where(
+      and(eq(clipAiQueries.clipId, clipId), eq(clipAiQueries.question, question))
+    )
+    .orderBy(desc(clipAiQueries.createdAt))
+    .limit(1);
+
+  if (cached) {
+    return NextResponse.json({
+      answer: cached.answer,
+      moments: cached.moments as Array<{
+        text: string;
+        startMs: number;
+        timestamp: string;
+      }>,
+    });
+  }
+
   const segments = transcript.segmentsJson as Array<{
     text: string;
     startMs: number;
@@ -45,6 +68,14 @@ export async function POST(request: Request, ctx: Ctx) {
     question,
     transcript: segments,
     videoTitle: clip.title,
+  });
+
+  await db.insert(clipAiQueries).values({
+    clipId,
+    question,
+    answer: result.answer,
+    momentsJson: result.moments,
+    model: "gpt-4.1-mini",
   });
 
   return NextResponse.json(result);

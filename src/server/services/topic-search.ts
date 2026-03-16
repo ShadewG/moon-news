@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
@@ -14,6 +14,11 @@ import { searchYouTube } from "@/server/providers/youtube";
 import { searchInternetArchive } from "@/server/providers/internet-archive";
 import { searchTwitterVideos } from "@/server/providers/twitter";
 import { scoreResultRelevance, findRelevantQuotes } from "@/server/providers/openai";
+import {
+  type ClipProvider,
+  ensureYouTubeTranscript,
+  upsertClipInLibrary,
+} from "./clip-library";
 import { passesQualityGate } from "./scoring";
 
 export interface TopicResult {
@@ -64,118 +69,6 @@ interface RawResult {
   uploadDate: string | null;
   externalId: string;
   metadataJson: Record<string, unknown> | null;
-}
-
-/**
- * Upsert a clip into the global library. Returns the clip ID.
- */
-async function upsertClip(r: RawResult): Promise<string> {
-  const db = getDb();
-
-  // Try to find existing
-  const [existing] = await db
-    .select({ id: clipLibrary.id })
-    .from(clipLibrary)
-    .where(
-      and(
-        eq(clipLibrary.provider, r.provider as "youtube"),
-        eq(clipLibrary.externalId, r.externalId)
-      )
-    )
-    .limit(1);
-
-  if (existing) {
-    // Update view count if higher
-    if (r.viewCount > 0) {
-      await db
-        .update(clipLibrary)
-        .set({
-          viewCount: sql`GREATEST(${clipLibrary.viewCount}, ${r.viewCount})`,
-          updatedAt: new Date(),
-        })
-        .where(eq(clipLibrary.id, existing.id));
-    }
-    return existing.id;
-  }
-
-  // Insert new
-  const [clip] = await db
-    .insert(clipLibrary)
-    .values({
-      provider: r.provider as "youtube",
-      externalId: r.externalId,
-      title: r.title,
-      sourceUrl: r.sourceUrl,
-      previewUrl: r.previewUrl,
-      channelOrContributor: r.channelOrContributor,
-      durationMs: r.durationMs,
-      viewCount: r.viewCount || null,
-      uploadDate: r.uploadDate,
-      metadataJson: r.metadataJson,
-    })
-    .returning({ id: clipLibrary.id });
-
-  return clip.id;
-}
-
-/**
- * Get cached transcript, or extract and cache it.
- */
-async function getOrExtractTranscript(
-  clipId: string,
-  videoId: string
-): Promise<Array<{ text: string; startMs: number; durationMs: number }> | null> {
-  const db = getDb();
-
-  // Check cache
-  const [cached] = await db
-    .select()
-    .from(transcriptCache)
-    .where(
-      and(
-        eq(transcriptCache.clipId, clipId),
-        eq(transcriptCache.language, "en")
-      )
-    )
-    .limit(1);
-
-  if (cached) {
-    return cached.segmentsJson as Array<{
-      text: string;
-      startMs: number;
-      durationMs: number;
-    }>;
-  }
-
-  // Extract fresh
-  try {
-    const { extractYouTubeTranscript } =
-      await import("@/server/providers/youtube-transcript");
-
-    const segments = await extractYouTubeTranscript(videoId);
-    if (segments.length === 0) return null;
-
-    const fullText = segments.map((s) => s.text).join(" ");
-
-    // Cache RAW segments for accurate timestamps
-    await db.insert(transcriptCache).values({
-      clipId,
-      language: "en",
-      fullText,
-      segmentsJson: segments,
-      wordCount: fullText.split(/\s+/).length,
-    });
-
-    // Mark clip as having transcript
-    await db
-      .update(clipLibrary)
-      .set({ hasTranscript: true, updatedAt: new Date() })
-      .where(eq(clipLibrary.id, clipId));
-
-    return segments;
-  } catch {
-    return null;
-  }
 }
 
 export async function searchTopic(query: string): Promise<TopicSearchResult> {
@@ -293,7 +186,18 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
     const relevance = relevanceScores[i] ?? 20;
     if (relevance < 10) continue;
 
-    const clipId = await upsertClip(r);
+    const clipId = await upsertClipInLibrary({
+      provider: r.provider as ClipProvider,
+      externalId: r.externalId,
+      title: r.title,
+      sourceUrl: r.sourceUrl,
+      previewUrl: r.previewUrl,
+      channelOrContributor: r.channelOrContributor,
+      durationMs: r.durationMs,
+      viewCount: r.viewCount,
+      uploadDate: r.uploadDate,
+      metadataJson: r.metadataJson,
+    });
 
     scored.push({
       clipId,
@@ -341,7 +245,7 @@ export async function searchTopic(query: string): Promise<TopicSearchResult> {
   const allQuotes: TopicQuote[] = [];
 
   for (const video of topYT) {
-    const segments = await getOrExtractTranscript(video.clipId, video.externalId);
+    const segments = await ensureYouTubeTranscript(video.clipId, video.externalId);
     if (!segments) continue;
 
     try {

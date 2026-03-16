@@ -377,6 +377,9 @@ export const clipLibrary = pgTable(
       table.externalId
     ),
     index("clip_library_provider_index").on(table.provider),
+    index("clip_library_created_at_index").on(table.createdAt),
+    index("clip_library_has_transcript_index").on(table.hasTranscript),
+    index("clip_library_view_count_index").on(table.viewCount),
   ]
 );
 
@@ -452,6 +455,30 @@ export const clipNotes = pgTable(
   },
   (table) => [
     index("clip_notes_clip_id_index").on(table.clipId),
+  ]
+);
+
+export const clipAiQueries = pgTable(
+  "clip_ai_queries",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clipId: uuid("clip_id")
+      .notNull()
+      .references(() => clipLibrary.id, { onDelete: "cascade" }),
+    question: text("question").notNull(),
+    answer: text("answer").notNull(),
+    momentsJson: jsonb("moments_json").notNull(),
+    model: text("model").notNull().default("gpt-4.1-mini"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("clip_ai_queries_clip_id_index").on(table.clipId),
+    index("clip_ai_queries_created_at_index").on(table.createdAt),
   ]
 );
 

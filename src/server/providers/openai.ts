@@ -321,10 +321,35 @@ Return at most ${maxQuotes} quotes, sorted by relevance. If nothing relevant, re
       }
 
       for (const searchStr of searchTerms) {
-        const matchWindow = windows.find((w) => w.text.includes(searchStr));
-        if (matchWindow) {
+        const matchIdx = windows.findIndex((w) => w.text.includes(searchStr));
+        if (matchIdx >= 0) {
+          const matchWindow = windows[matchIdx];
           quote.startMs = matchWindow.startMs;
-          quote.endMs = matchWindow.startMs + 15000;
+
+          // Replace quote text with EXACT transcript text from this window
+          // Grab segments from the match point, ~15 seconds of speech
+          const startSegIdx = matchIdx;
+          const endSegIdx = Math.min(startSegIdx + windowSize, input.transcript.length);
+          const exactText = input.transcript
+            .slice(startSegIdx, endSegIdx)
+            .map((s) => s.text)
+            .join(" ")
+            .trim();
+
+          // Use the exact transcript text, trimmed to a reasonable quote length
+          // Find a natural sentence boundary within ~200 chars
+          let trimmed = exactText;
+          if (trimmed.length > 200) {
+            const cutoff = trimmed.lastIndexOf(".", 200);
+            if (cutoff > 80) trimmed = trimmed.slice(0, cutoff + 1);
+            else trimmed = trimmed.slice(0, 200) + "...";
+          }
+          quote.quoteText = trimmed;
+
+          const lastSeg = input.transcript[endSegIdx - 1];
+          quote.endMs = lastSeg
+            ? lastSeg.startMs + (lastSeg.durationMs || 5000)
+            : matchWindow.startMs + 15000;
           found = true;
           break;
         }

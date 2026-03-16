@@ -1,15 +1,13 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
-  clipLibrary,
   footageAssets,
   footageQuotes,
   footageSearchRuns,
   scriptLines,
-  transcriptCache,
 } from "@/server/db/schema";
 import type { MediaType } from "@/server/domain/status";
 import { searchYouTube } from "@/server/providers/youtube";
@@ -18,7 +16,8 @@ import { searchGoogleImages } from "@/server/providers/google-images";
 import { searchGetty } from "@/server/providers/getty";
 import { searchStoryblocks } from "@/server/providers/storyblocks";
 import { searchTwitterVideos } from "@/server/providers/twitter";
-import { scoreResultRelevance, findRelevantQuotes, transcribeVideoUrl } from "@/server/providers/openai";
+import { scoreResultRelevance, findRelevantQuotes } from "@/server/providers/openai";
+import { ensureYouTubeTranscript, upsertClipInLibrary } from "./clip-library";
 import { computeMatchScore, passesQualityGate, type ScoreBreakdown } from "./scoring";
 
 interface ProviderResult {
@@ -428,6 +427,11 @@ export async function runVisualSearchTask(input: {
       id: footageAssets.id,
       externalAssetId: footageAssets.externalAssetId,
       title: footageAssets.title,
+      sourceUrl: footageAssets.sourceUrl,
+      previewUrl: footageAssets.previewUrl,
+      channelOrContributor: footageAssets.channelOrContributor,
+      durationMs: footageAssets.durationMs,
+      uploadDate: footageAssets.uploadDate,
       provider: footageAssets.provider,
       metadataJson: footageAssets.metadataJson,
     })
@@ -445,62 +449,25 @@ export async function runVisualSearchTask(input: {
   await Promise.all(
     topYT.map(async (asset) => {
       try {
-        // Upsert into global clip library
-        const [existingClip] = await db
-          .select({ id: clipLibrary.id })
-          .from(clipLibrary)
-          .where(and(eq(clipLibrary.provider, "youtube"), eq(clipLibrary.externalId, asset.externalAssetId)))
-          .limit(1);
+        const views = (asset.metadataJson as Record<string, unknown> | null)?.viewCount;
+        const clipId = await upsertClipInLibrary({
+          provider: "youtube",
+          externalId: asset.externalAssetId,
+          title: asset.title,
+          sourceUrl: asset.sourceUrl,
+          previewUrl: asset.previewUrl,
+          channelOrContributor: asset.channelOrContributor,
+          durationMs: asset.durationMs,
+          viewCount: typeof views === "number" ? views : Number(views ?? 0) || null,
+          uploadDate: asset.uploadDate,
+          metadataJson: asset.metadataJson as Record<string, unknown> | null,
+        });
 
-        let clipId: string;
-        if (existingClip) {
-          clipId = existingClip.id;
-        } else {
-          const views = (asset.metadataJson as Record<string, unknown> | null)?.viewCount;
-          const [newClip] = await db.insert(clipLibrary).values({
-            provider: "youtube",
-            externalId: asset.externalAssetId,
-            title: asset.title,
-            sourceUrl: `https://www.youtube.com/watch?v=${asset.externalAssetId}`,
-            channelOrContributor: null,
-            viewCount: views ? Number(views) : null,
-          }).returning({ id: clipLibrary.id });
-          clipId = newClip.id;
-        }
-
-        // Check transcript cache first
-        const [cached] = await db
-          .select({ segmentsJson: transcriptCache.segmentsJson })
-          .from(transcriptCache)
-          .where(and(eq(transcriptCache.clipId, clipId), eq(transcriptCache.language, "en")))
-          .limit(1);
-
-        let rawSegments: Array<{ text: string; startMs: number; durationMs: number }>;
-
-        if (cached) {
-          rawSegments = cached.segmentsJson as typeof rawSegments;
-        } else {
-          const { extractYouTubeTranscript } =
-            await import("@/server/providers/youtube-transcript");
-          const segments = await extractYouTubeTranscript(asset.externalAssetId);
-          if (segments.length === 0) return;
-
-          rawSegments = segments;
-          const fullText = segments.map((s) => s.text).join(" ");
-
-          // Cache RAW segments (not merged) for accurate timestamps
-          await db.insert(transcriptCache).values({
-            clipId,
-            language: "en",
-            fullText,
-            segmentsJson: segments,
-            wordCount: fullText.split(/\s+/).length,
-          }).onConflictDoNothing();
-
-          await db.update(clipLibrary)
-            .set({ hasTranscript: true, updatedAt: new Date() })
-            .where(eq(clipLibrary.id, clipId));
-        }
+        const rawSegments = await ensureYouTubeTranscript(
+          clipId,
+          asset.externalAssetId
+        );
+        if (!rawSegments) return;
 
         // Send raw segments to quote finder — AI gets exact timestamps
         const quotes = await findRelevantQuotes({

@@ -9,10 +9,17 @@ type Note = { id: string; text: string; timestampMs: number | null; color: strin
 
 type AiMoment = { text: string; startMs: number; timestamp: string };
 type AiResponse = { answer: string; moments: AiMoment[] };
+type AiHistoryEntry = { id: string; question: string; response: AiResponse; createdAt: string };
 type Tab = "quotes" | "transcript" | "notes" | "ask";
 
 export default function ClipDetailClient({ data }: {
-  data: { clip: Clip; transcript: Segment[] | null; quotes: Quote[]; notes: Note[] };
+  data: {
+    clip: Clip;
+    transcript: Segment[] | null;
+    quotes: Quote[];
+    notes: Note[];
+    aiHistory: AiHistoryEntry[];
+  };
 }) {
   const { clip, transcript, quotes } = data;
   const [tab, setTab] = useState<Tab>(quotes.length > 0 ? "quotes" : transcript ? "transcript" : "notes");
@@ -22,7 +29,12 @@ export default function ClipDetailClient({ data }: {
   const [playerTime, setPlayerTime] = useState(0);
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiHistory, setAiHistory] = useState<Array<{ question: string; response: AiResponse }>>([]);
+  const [aiHistory, setAiHistory] = useState<Array<{ question: string; response: AiResponse }>>(
+    data.aiHistory.map((entry) => ({
+      question: entry.question,
+      response: entry.response,
+    }))
+  );
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const isYT = clip.provider === "youtube";
@@ -51,7 +63,7 @@ export default function ClipDetailClient({ data }: {
     });
     if (res.ok) {
       const { note } = await res.json();
-      setNotes([note, ...notes]);
+      setNotes((current) => [note, ...current]);
       setNoteText("");
       setNoteTs("");
     }
@@ -68,7 +80,7 @@ export default function ClipDetailClient({ data }: {
       });
       if (res.ok) {
         const response: AiResponse = await res.json();
-        setAiHistory([{ question: aiQuestion, response }, ...aiHistory]);
+        setAiHistory((current) => [{ question: aiQuestion, response }, ...current]);
         setAiQuestion("");
       }
     } finally {
@@ -78,7 +90,7 @@ export default function ClipDetailClient({ data }: {
 
   const deleteNote = async (noteId: string) => {
     await fetch(`/api/clips/${clip.id}/notes?noteId=${noteId}`, { method: "DELETE" });
-    setNotes(notes.filter((n) => n.id !== noteId));
+    setNotes((current) => current.filter((note) => note.id !== noteId));
   };
 
   return (

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
-import { clipLibrary, clipSearches, clipSearchResults, transcriptCache } from "@/server/db/schema";
+import { clipLibrary, clipSearches, clipSearchResults } from "@/server/db/schema";
 
 type RouteContext = { params: Promise<{ searchId: string }> };
 
