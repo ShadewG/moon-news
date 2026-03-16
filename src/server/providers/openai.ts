@@ -199,15 +199,31 @@ export async function findRelevantQuotes(input: {
 }): Promise<ExtractedQuote[]> {
   if (input.transcript.length === 0) return [];
 
-  // Build condensed transcript with timestamps
-  const transcriptText = input.transcript
-    .map((s) => {
-      const mins = Math.floor(s.startMs / 60000);
-      const secs = Math.floor((s.startMs % 60000) / 1000);
-      return `[${mins}:${String(secs).padStart(2, "0")}] ${s.text}`;
+  // Build transcript — combine short segments into ~30sec blocks for context
+  // but preserve the exact timestamp of each block's start
+  const blocks: Array<{ text: string; startMs: number }> = [];
+  let currentBlock = { text: "", startMs: 0 };
+
+  for (const seg of input.transcript) {
+    if (!currentBlock.text) {
+      currentBlock = { text: seg.text, startMs: seg.startMs };
+    } else if (seg.startMs - currentBlock.startMs < 30000) {
+      currentBlock.text += " " + seg.text;
+    } else {
+      blocks.push(currentBlock);
+      currentBlock = { text: seg.text, startMs: seg.startMs };
+    }
+  }
+  if (currentBlock.text) blocks.push(currentBlock);
+
+  const transcriptText = blocks
+    .map((b) => {
+      const mins = Math.floor(b.startMs / 60000);
+      const secs = Math.floor((b.startMs % 60000) / 1000);
+      return `[${mins}:${String(secs).padStart(2, "0")}] ${b.text}`;
     })
     .join("\n")
-    .slice(0, 12000); // Cap at ~12K chars to stay within context
+    .slice(0, 50000); // 50K chars — covers ~30min of video
 
   const maxQuotes = input.maxQuotes ?? 5;
 
@@ -222,10 +238,16 @@ export async function findRelevantQuotes(input: {
 - Have strong emotional or factual weight
 - Connect to the broader documentary thesis shown in the script context
 
+CRITICAL RULES:
+1. quoteText MUST be copied VERBATIM from the transcript — do not paraphrase, summarize, or reword
+2. startMs MUST match the [M:SS] timestamp of the transcript block containing the quote
+3. If you cannot find a relevant verbatim quote in the transcript, return an empty array
+4. Only return quotes that actually appear in the provided transcript text
+
 Return ONLY a JSON array of objects with:
-- quoteText: the exact quote (clean up filler words but keep the meaning)
+- quoteText: VERBATIM text copied directly from the transcript
 - speaker: who is speaking (name if identifiable from context, null if unclear)
-- startMs: timestamp in milliseconds where the quote starts
+- startMs: timestamp in milliseconds — MUST match a timestamp from the transcript
 - endMs: timestamp where it ends (startMs + estimated duration)
 - relevanceScore: 0-100 how relevant to the script line
 - context: one sentence explaining why this quote matters for the documentary
@@ -246,7 +268,7 @@ Return at most ${maxQuotes} quotes, sorted by relevance. If nothing relevant, re
     const parsed = JSON.parse(jsonMatch[0]);
     if (!Array.isArray(parsed)) return [];
 
-    return parsed
+    const rawQuotes = parsed
       .filter(
         (q: Record<string, unknown>) =>
           q.quoteText && typeof q.startMs === "number"
@@ -260,6 +282,60 @@ Return at most ${maxQuotes} quotes, sorted by relevance. If nothing relevant, re
         context: String(q.context ?? ""),
       }))
       .slice(0, maxQuotes);
+
+    // Post-process: verify each quote exists in the transcript
+    // and correct its timestamp by searching across consecutive segments
+    const verified: typeof rawQuotes = [];
+
+    // Build a sliding window of concatenated segments for searching
+    // Each window covers ~30 seconds of speech
+    const windowSize = 15; // segments per window
+    const windows: Array<{ text: string; startMs: number }> = [];
+    for (let i = 0; i < input.transcript.length; i++) {
+      const slice = input.transcript.slice(i, i + windowSize);
+      windows.push({
+        text: slice.map((s) => s.text).join(" ").toLowerCase(),
+        startMs: input.transcript[i].startMs,
+      });
+    }
+
+    for (const quote of rawQuotes) {
+      const lowerQuote = quote.quoteText.toLowerCase();
+      let found = false;
+
+      // Extract distinct phrases from the quote to search for
+      // Try: full prefix, middle chunk, key phrases
+      const searchTerms: string[] = [];
+
+      // Prefix attempts
+      for (const len of [40, 25, 15]) {
+        const s = lowerQuote.slice(0, len);
+        if (s.length >= 10) searchTerms.push(s);
+      }
+
+      // Also try extracting 3-5 word phrases from throughout the quote
+      const words = lowerQuote.split(/\s+/);
+      for (let wi = 0; wi < words.length - 3; wi += 3) {
+        const phrase = words.slice(wi, wi + 4).join(" ");
+        if (phrase.length >= 10) searchTerms.push(phrase);
+      }
+
+      for (const searchStr of searchTerms) {
+        const matchWindow = windows.find((w) => w.text.includes(searchStr));
+        if (matchWindow) {
+          quote.startMs = matchWindow.startMs;
+          quote.endMs = matchWindow.startMs + 15000;
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        verified.push(quote);
+      }
+    }
+
+    return verified;
   } catch {
     return [];
   }
@@ -318,14 +394,24 @@ export async function askAboutTranscript(input: {
   answer: string;
   moments: Array<{ text: string; startMs: number; timestamp: string }>;
 }> {
-  const transcriptText = input.transcript
-    .map((s) => {
-      const mins = Math.floor(s.startMs / 60000);
-      const secs = Math.floor((s.startMs % 60000) / 1000);
-      return `[${mins}:${String(secs).padStart(2, "0")}] ${s.text}`;
+  // Combine into ~30sec blocks for manageable context
+  const blocks: Array<{ text: string; startMs: number }> = [];
+  let cur = { text: "", startMs: 0 };
+  for (const seg of input.transcript) {
+    if (!cur.text) { cur = { text: seg.text, startMs: seg.startMs }; }
+    else if (seg.startMs - cur.startMs < 30000) { cur.text += " " + seg.text; }
+    else { blocks.push(cur); cur = { text: seg.text, startMs: seg.startMs }; }
+  }
+  if (cur.text) blocks.push(cur);
+
+  const transcriptText = blocks
+    .map((b) => {
+      const mins = Math.floor(b.startMs / 60000);
+      const secs = Math.floor((b.startMs % 60000) / 1000);
+      return `[${mins}:${String(secs).padStart(2, "0")}] ${b.text}`;
     })
     .join("\n")
-    .slice(0, 15000);
+    .slice(0, 50000);
 
   const response = await getOpenAIClient().responses.create({
     model: "gpt-4.1-mini",

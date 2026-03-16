@@ -149,21 +149,20 @@ async function getOrExtractTranscript(
 
   // Extract fresh
   try {
-    const { extractYouTubeTranscript, mergeTranscriptSegments } =
+    const { extractYouTubeTranscript } =
       await import("@/server/providers/youtube-transcript");
 
     const segments = await extractYouTubeTranscript(videoId);
     if (segments.length === 0) return null;
 
-    const merged = mergeTranscriptSegments(segments);
-    const fullText = merged.map((s) => s.text).join(" ");
+    const fullText = segments.map((s) => s.text).join(" ");
 
-    // Cache it
+    // Cache RAW segments for accurate timestamps
     await db.insert(transcriptCache).values({
       clipId,
       language: "en",
       fullText,
-      segmentsJson: merged,
+      segmentsJson: segments,
       wordCount: fullText.split(/\s+/).length,
     });
 
@@ -173,7 +172,7 @@ async function getOrExtractTranscript(
       .set({ hasTranscript: true, updatedAt: new Date() })
       .where(eq(clipLibrary.id, clipId));
 
-    return merged;
+    return segments;
   } catch {
     return null;
   }

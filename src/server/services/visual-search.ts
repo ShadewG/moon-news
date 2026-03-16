@@ -475,25 +475,25 @@ export async function runVisualSearchTask(input: {
           .where(and(eq(transcriptCache.clipId, clipId), eq(transcriptCache.language, "en")))
           .limit(1);
 
-        let merged: Array<{ text: string; startMs: number; durationMs: number }>;
+        let rawSegments: Array<{ text: string; startMs: number; durationMs: number }>;
 
         if (cached) {
-          merged = cached.segmentsJson as typeof merged;
+          rawSegments = cached.segmentsJson as typeof rawSegments;
         } else {
-          const { extractYouTubeTranscript, mergeTranscriptSegments } =
+          const { extractYouTubeTranscript } =
             await import("@/server/providers/youtube-transcript");
           const segments = await extractYouTubeTranscript(asset.externalAssetId);
           if (segments.length === 0) return;
 
-          merged = mergeTranscriptSegments(segments);
-          const fullText = merged.map((s) => s.text).join(" ");
+          rawSegments = segments;
+          const fullText = segments.map((s) => s.text).join(" ");
 
-          // Cache the transcript
+          // Cache RAW segments (not merged) for accurate timestamps
           await db.insert(transcriptCache).values({
             clipId,
             language: "en",
             fullText,
-            segmentsJson: merged,
+            segmentsJson: segments,
             wordCount: fullText.split(/\s+/).length,
           }).onConflictDoNothing();
 
@@ -502,10 +502,11 @@ export async function runVisualSearchTask(input: {
             .where(eq(clipLibrary.id, clipId));
         }
 
+        // Send raw segments to quote finder — AI gets exact timestamps
         const quotes = await findRelevantQuotes({
           lineText: input.lineText,
           scriptContext: input.scriptContext,
-          transcript: merged,
+          transcript: rawSegments,
           videoTitle: asset.title,
           maxQuotes: 5,
         });
