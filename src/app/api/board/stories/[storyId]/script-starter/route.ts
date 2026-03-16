@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getBoardStoryAiOutput } from "@/server/services/board";
+import { ensureBoardStoryAiOutput } from "@/server/services/board";
 
 type RouteContext = {
   params: Promise<{
@@ -10,7 +10,7 @@ type RouteContext = {
 
 export async function POST(_: Request, context: RouteContext) {
   const { storyId } = await context.params;
-  const output = await getBoardStoryAiOutput(storyId, "script_starter");
+  const output = await ensureBoardStoryAiOutput(storyId, "script_starter");
 
   if (!output) {
     return NextResponse.json({ error: "Script starter not found" }, { status: 404 });

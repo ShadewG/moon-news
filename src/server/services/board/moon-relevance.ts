@@ -132,23 +132,37 @@ const IRRELEVANT_SIGNALS = [
   "press release",
 ];
 
+export interface PlatformSignals {
+  sourceCount: number;
+  controversyScore: number;
+  sentimentMagnitude: number; // abs(sentiment) — stronger = more engagement
+  hasTwitterDiscourse: boolean;
+  hasYouTubeContent: boolean;
+  hasMultipleSources: boolean;
+}
+
 export interface MoonRelevanceResult {
   vertical: MoonVertical | null;
   relevanceScore: number; // 0-100, how well this fits Moon's channel
+  trendScore: number; // 0-100, how much this is trending/engaging
+  combinedScore: number; // weighted blend of relevance + trend
   matchedKeywords: string[];
   irrelevantPenalty: number;
 }
 
 /**
- * Score how relevant a story is to Moon's content.
- * Returns the best-matching vertical and a relevance score.
+ * Score how relevant a story is to Moon's content AND how much it's trending.
+ * Both matter: a perfectly relevant but dead topic scores lower than
+ * a relevant topic that's blowing up across platforms.
  */
 export function scoreMoonRelevance(
   title: string,
-  summary?: string | null
+  summary?: string | null,
+  platforms?: PlatformSignals | null
 ): MoonRelevanceResult {
   const text = `${title} ${summary ?? ""}`.toLowerCase();
 
+  // ─── Content Match Score ───
   let bestVertical: MoonVertical | null = null;
   let bestScore = 0;
   let bestKeywords: string[] = [];
@@ -173,12 +187,55 @@ export function scoreMoonRelevance(
     }
   }
 
-  // Cap relevance score at 100
   const relevanceScore = Math.max(0, Math.min(100, bestScore - irrelevantPenalty));
+
+  // ─── Trend / Platform Engagement Score ───
+  let trendScore = 0;
+  if (platforms) {
+    // Multiple sources = story has legs (max 25pts)
+    trendScore += Math.min(platforms.sourceCount * 8, 25);
+
+    // Controversy drives engagement (max 25pts)
+    trendScore += Math.min(Math.round(platforms.controversyScore * 0.25), 25);
+
+    // Strong sentiment (positive or negative) = emotional topic (max 15pts)
+    trendScore += Math.min(Math.round(platforms.sentimentMagnitude * 15), 15);
+
+    // Twitter discourse = people are talking about it (15pts)
+    if (platforms.hasTwitterDiscourse) trendScore += 15;
+
+    // YouTube content exists = visual angles available (10pts)
+    if (platforms.hasYouTubeContent) trendScore += 10;
+
+    // Multiple sources covering = mainstream attention (10pts)
+    if (platforms.hasMultipleSources) trendScore += 10;
+  } else {
+    // No platform data — estimate from title signals
+    // High-emotion words boost trend score
+    const emotionWords = ["exposed", "destroyed", "shocking", "breaking", "scandal", "disaster", "catastroph", "millions", "billion", "killed", "arrested", "sued", "banned", "leaked", "secret", "warning"];
+    const emotionMatches = emotionWords.filter((w) => text.includes(w));
+    trendScore += emotionMatches.length * 10;
+
+    // Named people boost trend (people search for names)
+    const namePatterns = ["elon", "zuckerberg", "altman", "gates", "bezos", "trump", "rogan", "musk"];
+    const nameMatches = namePatterns.filter((n) => text.includes(n));
+    trendScore += nameMatches.length * 12;
+  }
+
+  trendScore = Math.min(100, trendScore);
+
+  // ─── Combined Score ───
+  // 60% content relevance + 40% trending
+  // But a totally irrelevant topic still gets capped even if trending
+  const combinedScore = relevanceScore > 0
+    ? Math.round(relevanceScore * 0.6 + trendScore * 0.4)
+    : Math.round(trendScore * 0.2); // Irrelevant topics get max 20 from trend alone
 
   return {
     vertical: bestVertical,
     relevanceScore,
+    trendScore,
+    combinedScore,
     matchedKeywords: bestKeywords,
     irrelevantPenalty,
   };
@@ -189,6 +246,6 @@ export function scoreMoonRelevance(
  * Quick filter for the board — stories below threshold get deprioritized.
  */
 export function isMoonRelevant(title: string, summary?: string | null): boolean {
-  const result = scoreMoonRelevance(title, summary);
-  return result.relevanceScore >= 15;
+  const result = scoreMoonRelevance(title, summary, null);
+  return result.combinedScore >= 15;
 }

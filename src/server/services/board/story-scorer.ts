@@ -175,9 +175,16 @@ export async function scoreStory(
     // Visual check is best-effort
   }
 
-  // 6. Moon Relevance (crucial — penalizes off-topic stories)
-  const moonResult = scoreMoonRelevance(story.canonicalTitle);
-  const moonRelevance = moonResult.relevanceScore;
+  // 6. Moon Relevance with platform engagement signals
+  const moonResult = scoreMoonRelevance(story.canonicalTitle, null, {
+    sourceCount: sourceCount,
+    controversyScore: story.controversyScore,
+    sentimentMagnitude: Math.abs(story.sentimentScore),
+    hasTwitterDiscourse: story.sourcesCount > 0, // TODO: check actual Twitter sources
+    hasYouTubeContent: visualEvidence > 0,
+    hasMultipleSources: sourceCount >= 3,
+  });
+  const moonRelevance = moonResult.combinedScore;
 
   // Update vertical to Moon's categories if we found a match
   if (moonResult.vertical) {
