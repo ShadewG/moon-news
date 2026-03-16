@@ -50,6 +50,10 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Main app uses fixed layout with internal scroll containers */
+body:has(.app-shell) {
   overflow: hidden;
 }
 

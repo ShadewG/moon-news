@@ -125,7 +125,7 @@ function AppShell() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col app-shell">
       <Topbar
         onExportClick={() => setExportOpen(true)}
         onResearchAllClick={handleResearchAllClick}

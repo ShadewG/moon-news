@@ -44,7 +44,7 @@ export default async function ReportPage({ params }: Props) {
   const totalFiltered = allAssets.length - totalVisible;
 
   return (
-    <div className="bg-[#09090b] text-[#d4d4d8]" style={{ minHeight: "100dvh", overflow: "auto" }}>
+    <div className="min-h-screen bg-[#09090b] text-[#d4d4d8]">
       {/* Header — NOT sticky to avoid scroll issues */}
       <header className="border-b border-[#18181b] bg-[#0c0c0e]">
         <div className="max-w-4xl mx-auto px-5 py-6 flex items-center justify-between">
@@ -119,27 +119,44 @@ export default async function ReportPage({ params }: Props) {
                 {/* Quotes — with clickable timestamps */}
                 {lq.length > 0 && (
                   <div>
-                    <p className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-2">Quotes</p>
+                    <p className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-2">Key Quotes</p>
                     <div className="space-y-2">
                       {lq.map((q) => {
                         const secs = Math.floor(q.startMs / 1000);
-                        const ts = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
-                        // Find the asset this quote belongs to for the clickable link
+                        const hasRealTimestamp = q.startMs > 0;
+                        const ts = hasRealTimestamp
+                          ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`
+                          : null;
                         const asset = la.find((a) => a.id === q.footageAssetId);
-                        const tsUrl = asset?.provider === "youtube"
+                        const sourceUrl = asset?.provider === "youtube" && hasRealTimestamp
                           ? `https://www.youtube.com/watch?v=${asset.externalAssetId}&t=${secs}`
                           : asset?.sourceUrl ?? "#";
+                        const sourceLabel = asset
+                          ? asset.provider === "twitter"
+                            ? `${asset.channelOrContributor} on X`
+                            : decode(asset.title).slice(0, 50)
+                          : "Unknown source";
+
                         return (
                           <div key={q.id} className="p-4 rounded-lg bg-[#111114] border-l-2 border-amber-500/40">
                             <p className="text-[15px] text-[#e4e4e7] italic leading-relaxed">&ldquo;{q.quoteText}&rdquo;</p>
-                            <div className="flex items-center gap-3 mt-2 text-xs text-[#52525b]">
-                              <a href={tsUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-amber-400 hover:text-amber-300 underline underline-offset-2">
-                                [{ts}]
-                              </a>
-                              {q.speaker && <span className="text-[#a1a1aa]">— {q.speaker}</span>}
-                              <span className="ml-auto">{q.relevanceScore}/100</span>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-[#52525b] flex-wrap">
+                              {q.speaker && <span className="text-[#a1a1aa] font-medium">— {q.speaker}</span>}
+                              {ts && (
+                                <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-amber-400 hover:text-amber-300 underline underline-offset-2">
+                                  [{ts}]
+                                </a>
+                              )}
+                              <span className="ml-auto text-[#52525b]">{q.relevanceScore}/100</span>
                             </div>
-                            {q.context && <p className="text-[11px] text-[#3f3f46] mt-1.5">{q.context}</p>}
+                            <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 mt-2 text-[11px] text-[#3f3f46] hover:text-[#52525b]">
+                              <span className={asset?.provider === "twitter" ? "text-sky-400/60" : "text-red-400/60"}>
+                                {asset?.provider === "twitter" ? "X" : "YT"}
+                              </span>
+                              <span className="underline underline-offset-2">{sourceLabel}</span>
+                              {ts && <span className="text-amber-400/50">at {ts}</span>}
+                            </a>
+                            {q.context && <p className="text-[11px] text-[#3f3f46] mt-1">{q.context}</p>}
                           </div>
                         );
                       })}
