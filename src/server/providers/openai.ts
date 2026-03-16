@@ -308,6 +308,80 @@ export async function transcribeVideoUrl(
   }));
 }
 
+// ─── Ask AI about a video transcript ───
+
+export async function askAboutTranscript(input: {
+  question: string;
+  transcript: Array<{ text: string; startMs: number; durationMs: number }>;
+  videoTitle: string;
+}): Promise<{
+  answer: string;
+  moments: Array<{ text: string; startMs: number; timestamp: string }>;
+}> {
+  const transcriptText = input.transcript
+    .map((s) => {
+      const mins = Math.floor(s.startMs / 60000);
+      const secs = Math.floor((s.startMs % 60000) / 1000);
+      return `[${mins}:${String(secs).padStart(2, "0")}] ${s.text}`;
+    })
+    .join("\n")
+    .slice(0, 15000);
+
+  const response = await getOpenAIClient().responses.create({
+    model: "gpt-4.1-mini",
+    input: [
+      {
+        role: "system",
+        content: `You answer questions about a video based on its transcript. Be specific and cite exact timestamps.
+
+Return JSON with:
+- answer: A clear, concise answer to the question
+- moments: Array of relevant moments, each with:
+  - text: The exact quote or what's said (cleaned up but faithful)
+  - startMs: Timestamp in milliseconds
+  - timestamp: Human readable like "3:42"
+
+If the answer is "no" or the topic isn't discussed, say so clearly and return empty moments.
+Always ground your answer in what's actually in the transcript.`,
+      },
+      {
+        role: "user",
+        content: `Video: "${input.videoTitle}"\n\nQuestion: ${input.question}\n\nTranscript:\n${transcriptText}`,
+      },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "transcript_answer",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            answer: { type: "string" },
+            moments: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  text: { type: "string" },
+                  startMs: { type: "number" },
+                  timestamp: { type: "string" },
+                },
+                required: ["text", "startMs", "timestamp"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["answer", "moments"],
+          additionalProperties: false,
+        },
+      },
+    },
+  });
+
+  return JSON.parse(response.output_text);
+}
+
 // ─── Research Summarization ───
 
 export async function summarizeResearch(input: {

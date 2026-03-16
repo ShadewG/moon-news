@@ -7,7 +7,9 @@ type Segment = { text: string; startMs: number; durationMs: number };
 type Quote = { id: string; quoteText: string; speaker: string | null; startMs: number; relevanceScore: number; context: string | null };
 type Note = { id: string; text: string; timestampMs: number | null; color: string | null; createdAt: string };
 
-type Tab = "quotes" | "transcript" | "notes";
+type AiMoment = { text: string; startMs: number; timestamp: string };
+type AiResponse = { answer: string; moments: AiMoment[] };
+type Tab = "quotes" | "transcript" | "notes" | "ask";
 
 export default function ClipDetailClient({ data }: {
   data: { clip: Clip; transcript: Segment[] | null; quotes: Quote[]; notes: Note[] };
@@ -18,6 +20,9 @@ export default function ClipDetailClient({ data }: {
   const [noteText, setNoteText] = useState("");
   const [noteTs, setNoteTs] = useState("");
   const [playerTime, setPlayerTime] = useState(0);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiHistory, setAiHistory] = useState<Array<{ question: string; response: AiResponse }>>([]);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const isYT = clip.provider === "youtube";
@@ -49,6 +54,25 @@ export default function ClipDetailClient({ data }: {
       setNotes([note, ...notes]);
       setNoteText("");
       setNoteTs("");
+    }
+  };
+
+  const askAi = async () => {
+    if (!aiQuestion.trim() || aiLoading) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch(`/api/clips/${clip.id}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: aiQuestion }),
+      });
+      if (res.ok) {
+        const response: AiResponse = await res.json();
+        setAiHistory([{ question: aiQuestion, response }, ...aiHistory]);
+        setAiQuestion("");
+      }
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -102,6 +126,7 @@ export default function ClipDetailClient({ data }: {
               ["quotes", `Quotes (${quotes.length})`] as const,
               ["transcript", `Transcript${transcript ? ` (${transcript.length})` : ""}`] as const,
               ["notes", `Notes (${notes.length})`] as const,
+              ["ask", "Ask AI"] as const,
             ]).map(([t, label]) => (
               <button
                 key={t}
@@ -231,6 +256,94 @@ export default function ClipDetailClient({ data }: {
                 {notes.length === 0 && (
                   <p className="text-xs text-[#3f3f46] text-center py-4">No notes yet</p>
                 )}
+              </div>
+            )}
+
+            {tab === "ask" && (
+              <div className="max-w-4xl mx-auto px-5 py-5 space-y-4">
+                {/* Question input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={aiQuestion}
+                    onChange={(e) => setAiQuestion(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") askAi(); }}
+                    placeholder="Ask about this video... e.g. 'Does he mention waterboarding?' or 'What does he say about prison?'"
+                    className="flex-1 px-3 py-2.5 rounded-lg border border-[#18181b] bg-[#111114] text-sm text-[#e4e4e7] placeholder-[#3f3f46] outline-none focus:border-[#27272a]"
+                    disabled={aiLoading}
+                  />
+                  <button
+                    onClick={askAi}
+                    disabled={!aiQuestion.trim() || aiLoading}
+                    className="px-4 py-2.5 rounded-lg bg-white text-black text-xs font-medium disabled:opacity-30 hover:opacity-90 transition-opacity flex-shrink-0"
+                  >
+                    {aiLoading ? "Thinking..." : "Ask"}
+                  </button>
+                </div>
+
+                {!transcript && (
+                  <p className="text-xs text-[#52525b] bg-[#111114] p-3 rounded-lg">No transcript available — AI needs a transcript to answer questions about this video.</p>
+                )}
+
+                {/* Suggested questions */}
+                {aiHistory.length === 0 && transcript && (
+                  <div>
+                    <p className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-2">Try asking</p>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "What are the key claims made in this video?",
+                        "Does he mention any specific dates or events?",
+                        "What's the most quotable moment?",
+                        "Does he talk about going to prison?",
+                        "Summarize the main argument in 3 sentences",
+                      ].map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => { setAiQuestion(q); }}
+                          className="px-3 py-1.5 rounded-lg bg-[#111114] border border-[#18181b] text-xs text-[#71717a] hover:text-[#a1a1aa] hover:border-[#27272a] transition-colors"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* AI conversation history */}
+                {aiHistory.map((entry, i) => (
+                  <div key={i} className="space-y-3">
+                    {/* Question */}
+                    <div className="flex gap-2">
+                      <span className="text-[10px] text-[#52525b] bg-[#18181b] rounded px-1.5 py-0.5 flex-shrink-0">You</span>
+                      <p className="text-sm text-[#a1a1aa]">{entry.question}</p>
+                    </div>
+
+                    {/* Answer */}
+                    <div className="p-4 rounded-xl bg-[#0f0f12] border border-[#18181b]">
+                      <p className="text-sm text-[#e4e4e7] leading-relaxed">{entry.response.answer}</p>
+
+                      {entry.response.moments.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <p className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold">Relevant moments</p>
+                          {entry.response.moments.map((m, j) => (
+                            <div
+                              key={j}
+                              className="flex gap-3 p-3 rounded-lg bg-[#111114] cursor-pointer hover:bg-[#18181b] transition-colors"
+                              onClick={() => seekTo(m.startMs)}
+                            >
+                              <span className="font-mono text-amber-400 text-xs flex-shrink-0 mt-0.5">
+                                [{m.timestamp}]
+                              </span>
+                              <p className="text-xs text-[#d4d4d8] italic leading-relaxed">
+                                &ldquo;{m.text}&rdquo;
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
