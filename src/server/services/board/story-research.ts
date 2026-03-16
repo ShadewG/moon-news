@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import OpenAI from "openai";
 
 import { getDb } from "@/server/db/client";

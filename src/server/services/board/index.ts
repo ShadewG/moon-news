@@ -972,6 +972,178 @@ function computeBoardControversyScore(title: string, summary: string | null): nu
   return clampBoardScore(score);
 }
 
+const BOARD_FEED_SIGNAL_VERSION = 1;
+
+const BOARD_POSITIVE_SENTIMENT_TERMS = [
+  "wins",
+  "win",
+  "boost",
+  "growth",
+  "approved",
+  "approval",
+  "breakthrough",
+  "launch",
+  "launches",
+  "restored",
+  "protects",
+  "protect",
+  "safer",
+  "improves",
+  "improvement",
+  "success",
+  "successful",
+];
+
+const BOARD_NEGATIVE_SENTIMENT_TERMS = [
+  "lawsuit",
+  "sues",
+  "scam",
+  "fraud",
+  "backlash",
+  "rollback",
+  "surveillance",
+  "leak",
+  "probe",
+  "accused",
+  "accuses",
+  "ban",
+  "banned",
+  "death",
+  "dead",
+  "crash",
+  "collapse",
+  "outrage",
+  "exposed",
+  "firestorm",
+  "privacy",
+  "killed",
+  "kills",
+];
+
+const BOARD_ENTITY_STOPWORDS = new Set([
+  "about",
+  "after",
+  "again",
+  "also",
+  "because",
+  "being",
+  "between",
+  "could",
+  "every",
+  "first",
+  "from",
+  "have",
+  "into",
+  "latest",
+  "maybe",
+  "news",
+  "over",
+  "their",
+  "there",
+  "these",
+  "they",
+  "this",
+  "those",
+  "what",
+  "when",
+  "where",
+  "will",
+  "with",
+  "would",
+  "your",
+]);
+
+function tokenizeBoardScoringText(value: string) {
+  return value.toLowerCase().match(/[a-z0-9][a-z0-9'-]{2,}/g) ?? [];
+}
+
+function coerceBoardMetricCount(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = Number(value.replace(/[,_]/g, ""));
+    return Number.isFinite(normalized) ? normalized : 0;
+  }
+
+  return 0;
+}
+
+function extractBoardEntityKeys(title: string, summary: string | null) {
+  const counts = new Map<string, number>();
+  const tokens = tokenizeBoardScoringText(`${title} ${summary ?? ""}`);
+
+  for (const token of tokens) {
+    if (token.length < 4 || BOARD_ENTITY_STOPWORDS.has(token)) {
+      continue;
+    }
+
+    counts.set(token, (counts.get(token) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .sort((left, right) => {
+      if (right[1] !== left[1]) {
+        return right[1] - left[1];
+      }
+
+      if (right[0].length !== left[0].length) {
+        return right[0].length - left[0].length;
+      }
+
+      return left[0].localeCompare(right[0]);
+    })
+    .slice(0, 8)
+    .map(([token]) => token);
+}
+
+function computeBoardFeedItemSignals(args: {
+  title: string;
+  summary: string | null;
+  metadataJson: Record<string, unknown> | null;
+}) {
+  const text = `${args.title} ${args.summary ?? ""}`.trim();
+  const normalized = text.toLowerCase();
+  const positiveHits = BOARD_POSITIVE_SENTIMENT_TERMS.reduce(
+    (count, term) => count + (normalized.includes(term) ? 1 : 0),
+    0
+  );
+  const negativeHits = BOARD_NEGATIVE_SENTIMENT_TERMS.reduce(
+    (count, term) => count + (normalized.includes(term) ? 1 : 0),
+    0
+  );
+  const baseControversy = computeBoardControversyScore(args.title, args.summary);
+  const viewCount = coerceBoardMetricCount(args.metadataJson?.viewCount);
+  const likeCount = coerceBoardMetricCount(args.metadataJson?.likeCount);
+  const retweetCount = coerceBoardMetricCount(args.metadataJson?.retweetCount);
+
+  const engagementBonus =
+    (viewCount >= 1_000_000 ? 8 : viewCount >= 250_000 ? 5 : viewCount >= 50_000 ? 2 : 0) +
+    (likeCount >= 20_000 ? 4 : likeCount >= 5_000 ? 2 : 0) +
+    (retweetCount >= 2_500 ? 4 : retweetCount >= 500 ? 2 : 0);
+
+  const controversyScore = clampBoardScore(baseControversy + engagementBonus);
+  const sentimentMagnitude = positiveHits + negativeHits;
+  const sentimentScore =
+    sentimentMagnitude > 0
+      ? Math.max(
+          -1,
+          Math.min(1, (positiveHits - negativeHits) / (sentimentMagnitude + 1))
+        )
+      : controversyScore >= 75
+        ? -0.28
+        : controversyScore >= 55
+          ? -0.14
+          : 0;
+
+  return {
+    sentimentScore: Number(sentimentScore.toFixed(2)),
+    controversyScore,
+    entityKeys: extractBoardEntityKeys(args.title, args.summary),
+  };
+}
+
 function computeBoardSentimentScore(storyType: BoardStoryType, controversyScore: number): number {
   if (storyType === "correction") {
     return -0.35;
@@ -1727,7 +1899,12 @@ async function createBoardStoryFromFeedItem(
   const storyType = inferBoardStoryType(item.title);
   const recencyScore = computeBoardRecencyScore(publishedAt);
   const authorityScore = config.authorityScore ?? 70;
-  const controversyScore = computeBoardControversyScore(item.title, item.summary);
+  const itemSignals = computeBoardFeedItemSignals({
+    title: item.title,
+    summary: item.summary,
+    metadataJson: coerceObject(item.metadataJson) ?? null,
+  });
+  const controversyScore = itemSignals.controversyScore;
   const surgeScore = clampBoardScore(recencyScore * 0.6 + authorityScore * 0.4);
   const slug = buildBoardStorySlug(item.title, `${source.id}:${item.externalId}`);
   const formats = buildBoardStoryFormats(surgeScore, controversyScore);
@@ -1742,7 +1919,10 @@ async function createBoardStoryFromFeedItem(
       storyType,
       surgeScore,
       controversyScore,
-      sentimentScore: computeBoardSentimentScore(storyType, controversyScore),
+      sentimentScore:
+        itemSignals.sentimentScore !== 0
+          ? itemSignals.sentimentScore
+          : computeBoardSentimentScore(storyType, controversyScore),
       itemsCount: 1,
       sourcesCount: 1,
       correction: storyType === "correction",
@@ -1761,6 +1941,7 @@ async function createBoardStoryFromFeedItem(
         discoveredFrom: source.name,
         ingestKind: config.mode,
         sourceTags: config.tags,
+        entityKeys: itemSignals.entityKeys,
       },
       updatedAt: new Date(),
     })
@@ -1895,10 +2076,16 @@ async function ingestBoardItemsForSource(args: {
   const affectedStoryIds = new Set<string>();
 
   for (const item of args.items) {
+    const itemSignals = computeBoardFeedItemSignals({
+      title: item.title,
+      summary: item.summary,
+      metadataJson: coerceObject(item.metadataJson) ?? null,
+    });
     const nextMetadataJson = {
       ...(coerceObject(item.metadataJson) ?? {}),
       ingestKind: args.config.mode,
       sourceType,
+      signalVersion: BOARD_FEED_SIGNAL_VERSION,
     };
     const nextContent = buildBoardFeedItemContent({
       title: item.title,
@@ -1936,6 +2123,9 @@ async function ingestBoardItemsForSource(args: {
           publishedAt: item.publishedAt,
           summary: item.summary,
           contentHash: item.contentHash,
+          sentimentScore: itemSignals.sentimentScore,
+          controversyScore: itemSignals.controversyScore,
+          entityKeysJson: itemSignals.entityKeys,
           metadataJson: nextMetadataJson,
           ingestedAt: new Date(),
         })
@@ -1993,6 +2183,9 @@ async function ingestBoardItemsForSource(args: {
           publishedAt: item.publishedAt,
           summary: item.summary,
           contentHash: item.contentHash,
+          sentimentScore: itemSignals.sentimentScore,
+          controversyScore: itemSignals.controversyScore,
+          entityKeysJson: itemSignals.entityKeys,
           metadataJson: nextMetadataJson,
           ingestedAt: new Date(),
         })
@@ -2398,8 +2591,56 @@ export async function ensureBoardSeedData() {
   await syncBoardStoryCorrectionFlags();
 }
 
+async function backfillBoardFeedItemSignals() {
+  const db = getDb();
+  const feedItems = await db
+    .select({
+      id: boardFeedItems.id,
+      title: boardFeedItems.title,
+      summary: boardFeedItems.summary,
+      sentimentScore: boardFeedItems.sentimentScore,
+      controversyScore: boardFeedItems.controversyScore,
+      entityKeysJson: boardFeedItems.entityKeysJson,
+      metadataJson: boardFeedItems.metadataJson,
+    })
+    .from(boardFeedItems);
+
+  for (const feedItem of feedItems) {
+    const metadataJson = coerceObject(feedItem.metadataJson);
+    const entityKeys = coerceStringArray(feedItem.entityKeysJson);
+    if (
+      metadataJson?.signalVersion === BOARD_FEED_SIGNAL_VERSION &&
+      entityKeys.length > 0
+    ) {
+      continue;
+    }
+
+    const signals = computeBoardFeedItemSignals({
+      title: feedItem.title,
+      summary: feedItem.summary,
+      metadataJson,
+    });
+
+    await db
+      .update(boardFeedItems)
+      .set({
+        sentimentScore: signals.sentimentScore,
+        controversyScore: signals.controversyScore,
+        entityKeysJson: signals.entityKeys,
+        metadataJson: {
+          ...(metadataJson ?? {}),
+          signalVersion: BOARD_FEED_SIGNAL_VERSION,
+        },
+      })
+      .where(eq(boardFeedItems.id, feedItem.id));
+  }
+
+  return { updatedFeedItems: feedItems.length };
+}
+
 export async function recomputeBoardStoryMetrics() {
   await ensureBoardSeedData();
+  await backfillBoardFeedItemSignals();
 
   const db = getDb();
   const [stories, relationships] = await Promise.all([
@@ -2416,6 +2657,9 @@ export async function recomputeBoardStoryMetrics() {
         storyId: boardStorySources.storyId,
         sourceId: boardFeedItems.sourceId,
         publishedAt: boardFeedItems.publishedAt,
+        sentimentScore: boardFeedItems.sentimentScore,
+        controversyScore: boardFeedItems.controversyScore,
+        entityKeysJson: boardFeedItems.entityKeysJson,
       })
       .from(boardStorySources)
       .innerJoin(boardFeedItems, eq(boardFeedItems.id, boardStorySources.feedItemId)),
@@ -2428,6 +2672,10 @@ export async function recomputeBoardStoryMetrics() {
       sourceIds: Set<string>;
       earliestPublishedAt: Date | null;
       latestPublishedAt: Date | null;
+      sentimentTotal: number;
+      controversyTotal: number;
+      maxControversy: number;
+      entityCounts: Map<string, number>;
     }
   >();
 
@@ -2439,10 +2687,27 @@ export async function recomputeBoardStoryMetrics() {
         sourceIds: new Set<string>(),
         earliestPublishedAt: null,
         latestPublishedAt: null,
+        sentimentTotal: 0,
+        controversyTotal: 0,
+        maxControversy: 0,
+        entityCounts: new Map<string, number>(),
       };
 
     aggregate.itemCount += 1;
     aggregate.sourceIds.add(relation.sourceId);
+    aggregate.sentimentTotal += relation.sentimentScore ?? 0;
+    aggregate.controversyTotal += relation.controversyScore ?? 0;
+    aggregate.maxControversy = Math.max(
+      aggregate.maxControversy,
+      relation.controversyScore ?? 0
+    );
+
+    for (const entityKey of coerceStringArray(relation.entityKeysJson)) {
+      aggregate.entityCounts.set(
+        entityKey,
+        (aggregate.entityCounts.get(entityKey) ?? 0) + 1
+      );
+    }
 
     if (
       publishedAt &&
@@ -2464,16 +2729,45 @@ export async function recomputeBoardStoryMetrics() {
   await Promise.all(
     stories.map((story) => {
       const aggregate = aggregates.get(story.id);
+      const itemCount = aggregate?.itemCount ?? 0;
+      const avgSentiment =
+        itemCount > 0
+          ? Number(
+              Math.max(
+                -1,
+                Math.min(1, (aggregate?.sentimentTotal ?? 0) / itemCount)
+              ).toFixed(2)
+            )
+          : 0;
+      const avgControversy =
+        itemCount > 0
+          ? clampBoardScore(
+              Math.round(
+                ((aggregate?.controversyTotal ?? 0) / itemCount) * 0.7 +
+                  (aggregate?.maxControversy ?? 0) * 0.3 +
+                  Math.min((aggregate?.sourceIds.size ?? 0) * 2, 8)
+              )
+            )
+          : 0;
+      const entityKeys = aggregate
+        ? Array.from(aggregate.entityCounts.entries())
+            .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+            .slice(0, 8)
+            .map(([entityKey]) => entityKey)
+        : [];
       const updatedScoreJson = {
         ...(coerceObject(story.scoreJson) ?? {}),
         lastComputedAt: new Date().toISOString(),
+        entityKeys,
       };
 
       return db
         .update(boardStoryCandidates)
         .set({
-          itemsCount: aggregate?.itemCount ?? 0,
+          itemsCount: itemCount,
           sourcesCount: aggregate?.sourceIds.size ?? 0,
+          sentimentScore: avgSentiment,
+          controversyScore: avgControversy,
           firstSeenAt: aggregate?.earliestPublishedAt ?? story.firstSeenAt,
           lastSeenAt: aggregate?.latestPublishedAt ?? story.lastSeenAt,
           scoreJson: updatedScoreJson,
@@ -4516,6 +4810,7 @@ export async function runBoardAnomalyDetectionCycle() {
 }
 
 export async function runBoardScoringCycle() {
+  await recomputeBoardStoryMetrics();
   const scoring = await rescoreBoardStories();
   const health = await getBoardHealth();
 

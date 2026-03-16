@@ -9,7 +9,6 @@ import {
   boardStoryCandidates,
   boardStorySources,
   clipLibrary,
-  clipSearchResults,
 } from "@/server/db/schema";
 import { scoreMoonRelevance } from "./moon-relevance";
 
@@ -65,6 +64,14 @@ function getTier(score: number): StoryTier {
   if (score >= 70) return "B";
   if (score >= 60) return "C";
   return "D";
+}
+
+function coerceScoreJson(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as Record<string, unknown>;
 }
 
 // ─── Score computation ───
@@ -274,7 +281,14 @@ export async function scoreStory(
     .update(boardStoryCandidates)
     .set({
       surgeScore: finalScore,
-      scoreJson: breakdown as unknown as Record<string, unknown>,
+      scoreJson: {
+        ...coerceScoreJson(story.scoreJson),
+        ...breakdown,
+        overall: finalScore,
+        tier: getTier(finalScore),
+        surgeActive,
+        lastScoredAt: new Date().toISOString(),
+      },
       updatedAt: new Date(),
     })
     .where(eq(boardStoryCandidates.id, storyId));

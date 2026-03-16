@@ -92,6 +92,13 @@
       "when": 1773692542779,
       "tag": "0012_equal_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1773695973275,
+      "tag": "0013_wild_nitro",
+      "breakpoints": true
     }
   ]
 }

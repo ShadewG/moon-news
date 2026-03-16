@@ -631,6 +631,9 @@ export const boardFeedItems = pgTable(
     publishedAt: timestamp("published_at", { withTimezone: true }),
     summary: text("summary"),
     contentHash: text("content_hash"),
+    sentimentScore: real("sentiment_score").notNull().default(0),
+    controversyScore: integer("controversy_score").notNull().default(0),
+    entityKeysJson: jsonb("entity_keys_json"),
     metadataJson: jsonb("metadata_json"),
     ingestedAt: timestamp("ingested_at", { withTimezone: true })
       .defaultNow()
