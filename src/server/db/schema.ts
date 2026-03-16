@@ -433,6 +433,28 @@ export const clipSearchResults = pgTable(
   ]
 );
 
+export const clipNotes = pgTable(
+  "clip_notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clipId: uuid("clip_id")
+      .notNull()
+      .references(() => clipLibrary.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    timestampMs: integer("timestamp_ms"),
+    color: text("color").default("yellow"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("clip_notes_clip_id_index").on(table.clipId),
+  ]
+);
+
 export const clipSearchQuotes = pgTable(
   "clip_search_quotes",
   {

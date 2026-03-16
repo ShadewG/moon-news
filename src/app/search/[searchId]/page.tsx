@@ -90,7 +90,7 @@ export default async function SearchResultPage({ params }: Props) {
                       )}
                       <span className="px-2 py-0.5 rounded bg-[#18181b] text-[10px]">{q.quote.relevanceScore}/100</span>
                     </div>
-                    <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 mt-3 text-[11px] text-[#3f3f46] hover:text-[#52525b]">
+                    <a href={`/clips/${q.clip.id}`} className="flex items-center gap-1.5 mt-3 text-[11px] text-[#3f3f46] hover:text-[#52525b]">
                       <span className={q.clip.provider === "youtube" ? "text-red-400/60" : "text-sky-400/60"}>
                         {q.clip.provider === "youtube" ? "▶" : "𝕏"}
                       </span>
@@ -111,7 +111,7 @@ export default async function SearchResultPage({ params }: Props) {
             <h2 className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-4">YouTube ({yt.length})</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {yt.map((r) => (
-                <a key={r.clip.id} href={r.clip.sourceUrl} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-[#18181b] bg-[#0f0f12] overflow-hidden hover:border-[#27272a] transition-colors">
+                <a key={r.clip.id} href={`/clips/${r.clip.id}`} className="rounded-lg border border-[#18181b] bg-[#0f0f12] overflow-hidden hover:border-[#27272a] transition-colors">
                   <div className="relative aspect-video">
                     <img src={`https://i.ytimg.com/vi/${r.clip.externalId}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center">
