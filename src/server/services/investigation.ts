@@ -198,6 +198,35 @@ export async function enqueueInvestigation(input: {
 
 // ─── Query Helpers ───
 
+export async function getProjectFootage(projectId: string): Promise<{
+  assets: Array<typeof footageAssets.$inferSelect & { lineKey: string; lineText: string }>;
+}> {
+  const db = getDb();
+
+  const results = await db
+    .select({
+      asset: footageAssets,
+      lineKey: scriptLines.lineKey,
+      lineText: scriptLines.text,
+    })
+    .from(footageAssets)
+    .innerJoin(
+      footageSearchRuns,
+      eq(footageSearchRuns.id, footageAssets.footageSearchRunId)
+    )
+    .innerJoin(scriptLines, eq(scriptLines.id, footageAssets.scriptLineId))
+    .where(eq(footageSearchRuns.projectId, projectId))
+    .orderBy(desc(footageAssets.matchScore));
+
+  return {
+    assets: results.map((r) => ({
+      ...r.asset,
+      lineKey: r.lineKey,
+      lineText: r.lineText,
+    })),
+  };
+}
+
 export async function getVisualsForLine(
   projectId: string,
   lineId: string

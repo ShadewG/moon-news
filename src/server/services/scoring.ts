@@ -23,6 +23,7 @@ const PROVIDER_PROVENANCE: Record<string, number> = {
   internet_archive: 10,
   getty: 10,
   youtube: 5,
+  twitter: 5,
   google_images: 3,
   storyblocks: 2,
   artlist: 2,

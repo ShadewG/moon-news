@@ -135,7 +135,7 @@ export interface FootageSearchRun {
 }
 
 export type MediaType = "video" | "image" | "stock_video" | "stock_image" | "article";
-export type VisualProvider = "youtube" | "internet_archive" | "getty" | "google_images" | "storyblocks" | "artlist";
+export type VisualProvider = "youtube" | "internet_archive" | "getty" | "google_images" | "storyblocks" | "artlist" | "twitter";
 
 export interface FootageAsset {
   id: string;

@@ -22,6 +22,7 @@ const serverEnvSchema = z.object({
   YOUTUBE_API_KEY: z.string().min(1).optional(),
   GOOGLE_CSE_API_KEY: z.string().min(1).optional(),
   GOOGLE_CSE_CX: z.string().min(1).optional(),
+  XAI_API_KEY: z.string().min(1).optional(),
   GETTY_API_KEY: z.string().min(1).optional(),
   STORYBLOCKS_API_KEY: z.string().min(1).optional(),
   ARTLIST_API_KEY: z.string().min(1).optional(),

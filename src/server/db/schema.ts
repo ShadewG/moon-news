@@ -47,6 +47,7 @@ export const providerEnum = pgEnum("provider", [
   "internet_archive",
   "getty",
   "google_images",
+  "twitter",
 ]);
 
 export const researchSourceTypeEnum = pgEnum("research_source_type", [

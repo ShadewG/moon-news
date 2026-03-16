@@ -8,6 +8,7 @@ const triggerEnvKeys = [
   "PARALLEL_API_KEY",
   "FIRECRAWL_API_KEY",
   "YOUTUBE_API_KEY",
+  "XAI_API_KEY",
   "GOOGLE_CSE_API_KEY",
   "GOOGLE_CSE_CX",
   "GETTY_API_KEY",

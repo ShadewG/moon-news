@@ -30,6 +30,7 @@ const providerColors: Record<string, { bg: string; text: string; label: string; 
   internet_archive: { bg: "bg-amber-500/10", text: "text-amber-500", label: "Internet Archive", icon: "IA" },
   getty: { bg: "bg-emerald-500/10", text: "text-emerald-500", label: "Getty", icon: "G" },
   google_images: { bg: "bg-blue-500/10", text: "text-blue-500", label: "Google Images", icon: "GI" },
+  twitter: { bg: "bg-sky-500/10", text: "text-sky-500", label: "X/Twitter", icon: "X" },
   storyblocks: { bg: "bg-[var(--accent-blue)]/10", text: "text-[var(--accent-blue)]", label: "Storyblocks", icon: "SB" },
   artlist: { bg: "bg-[var(--accent-purple)]/10", text: "text-[var(--accent-purple)]", label: "Artlist", icon: "AL" },
 };

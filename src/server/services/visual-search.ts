@@ -14,6 +14,7 @@ import { searchInternetArchive } from "@/server/providers/internet-archive";
 import { searchGoogleImages } from "@/server/providers/google-images";
 import { searchGetty } from "@/server/providers/getty";
 import { searchStoryblocks } from "@/server/providers/storyblocks";
+import { searchTwitterVideos } from "@/server/providers/twitter";
 import { scoreResultRelevance } from "@/server/providers/openai";
 import { computeMatchScore, passesQualityGate, type ScoreBreakdown } from "./scoring";
 
@@ -36,28 +37,29 @@ interface ProviderResult {
   metadataJson: Record<string, unknown> | null;
 }
 
-type TierProvider = "youtube" | "internet_archive" | "google_images" | "getty" | "storyblocks";
+type TierProvider = "youtube" | "internet_archive" | "google_images" | "getty" | "storyblocks" | "twitter";
 
 // Every category searches ALL its tiers — no early stopping.
 // Tiers are searched in parallel within each tier group for speed.
+// Stock footage is ALWAYS included as the last tier for B-roll options.
 const CATEGORY_TIERS: Record<string, TierProvider[][]> = {
   concrete_event: [
-    ["youtube", "internet_archive"],
+    ["youtube", "internet_archive", "twitter"],
     ["google_images", "getty"],
     ["storyblocks"],
   ],
   named_person: [
-    ["youtube"],
+    ["youtube", "twitter"],
     ["google_images", "getty"],
     ["storyblocks"],
   ],
   abstract_concept: [
-    ["youtube"],
+    ["youtube", "twitter"],
     ["google_images"],
     ["storyblocks"],
   ],
   quote_claim: [
-    ["youtube"],
+    ["youtube", "twitter"],
     ["google_images"],
     ["storyblocks"],
   ],
@@ -186,6 +188,34 @@ async function searchProvider(
         channelOrContributor: null,
         viewCount: 0,
         metadataJson: { keywords: r.keywords },
+      }));
+    }
+
+    case "twitter": {
+      const { results } = await searchTwitterVideos({ keywords, temporalContext });
+      return results.map((r) => ({
+        provider: "twitter",
+        mediaType: "video" as MediaType,
+        externalAssetId: r.postUrl,
+        title: r.text.slice(0, 120) || `@${r.username} post`,
+        description: r.videoDescription || r.text,
+        previewUrl: null,
+        sourceUrl: r.postUrl,
+        licenseType: "X/Twitter",
+        durationMs: null,
+        width: null,
+        height: null,
+        isPrimarySource: false,
+        uploadDate: r.postedAt ? String(r.postedAt) : null,
+        channelOrContributor: `@${r.username}`,
+        viewCount: r.viewCount,
+        metadataJson: {
+          displayName: r.displayName,
+          likeCount: r.likeCount,
+          retweetCount: r.retweetCount,
+          viewCount: r.viewCount,
+          videoDescription: r.videoDescription,
+        },
       }));
     }
   }
