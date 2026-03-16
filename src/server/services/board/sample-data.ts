@@ -126,6 +126,16 @@ export interface BoardSourceConfigSeed {
         authorityScore?: number;
         tags?: string[];
         maxResults?: number;
+      }
+    | {
+        mode: "x_account";
+        handle: string;
+        queryTerms?: string[];
+        sourceType?: "x";
+        vertical?: string;
+        authorityScore?: number;
+        tags?: string[];
+        maxResults?: number;
       };
 }
 

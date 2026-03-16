@@ -11,6 +11,7 @@ import {
   clipLibrary,
   clipSearchResults,
 } from "@/server/db/schema";
+import { scoreMoonRelevance } from "./moon-relevance";
 
 // ─── Types ───
 
@@ -20,6 +21,7 @@ export interface ScoreBreakdown {
   timelinessScore: number;
   competitorOverlap: number;
   visualEvidence: number;
+  moonRelevance: number;
 }
 
 export type StoryTier = "S" | "A" | "B" | "C" | "D";
@@ -89,6 +91,7 @@ export async function scoreStory(
         timelinessScore: 0,
         competitorOverlap: 0,
         visualEvidence: 0,
+        moonRelevance: 0,
       },
       tier: "D",
       surgeActive: false,
@@ -172,13 +175,34 @@ export async function scoreStory(
     // Visual check is best-effort
   }
 
-  // Total
-  const totalScore =
+  // 6. Moon Relevance (crucial — penalizes off-topic stories)
+  const moonResult = scoreMoonRelevance(story.canonicalTitle);
+  const moonRelevance = moonResult.relevanceScore;
+
+  // Update vertical to Moon's categories if we found a match
+  if (moonResult.vertical) {
+    await db
+      .update(boardStoryCandidates)
+      .set({ vertical: moonResult.vertical, updatedAt: new Date() })
+      .where(eq(boardStoryCandidates.id, storyId));
+  }
+
+  // Total — Moon relevance acts as a multiplier
+  // Irrelevant stories (moonRelevance < 15) get max score of 40
+  // Highly relevant (moonRelevance > 60) get full score
+  const relevanceMultiplier = moonRelevance >= 60 ? 1.0
+    : moonRelevance >= 30 ? 0.7
+    : moonRelevance >= 15 ? 0.5
+    : 0.3;
+
+  const rawTotal =
     sourceScore +
     controversyScore +
     timelinessScore +
     competitorOverlap +
     visualEvidence;
+
+  const totalScore = Math.round(rawTotal * relevanceMultiplier);
 
   // Surge detection: items_count increased by 3+ in last hour
   let surgeActive = false;
@@ -207,6 +231,7 @@ export async function scoreStory(
     timelinessScore,
     competitorOverlap,
     visualEvidence,
+    moonRelevance,
   };
 
   // Persist score to story

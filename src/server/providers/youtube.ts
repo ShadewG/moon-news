@@ -116,6 +116,139 @@ async function fetchYouTubeJson<T>(
   return (await response.json()) as T;
 }
 
+async function fetchYouTubeChannelByHandle(handle: string) {
+  const normalizedHandle = handle.replace(/^@+/, "").trim();
+  if (!normalizedHandle) {
+    return null;
+  }
+
+  const response = await fetchYouTubeJson<{
+    items?: Array<{
+      id: string;
+      snippet?: {
+        title?: string;
+        customUrl?: string;
+      };
+      statistics?: {
+        subscriberCount?: string;
+      };
+      contentDetails?: {
+        relatedPlaylists?: {
+          uploads?: string;
+        };
+      };
+    }>;
+  }>("channels", {
+    part: "snippet,statistics,contentDetails",
+    forHandle: normalizedHandle,
+  });
+
+  return response.items?.[0] ?? null;
+}
+
+async function searchYouTubeChannelByName(channelName: string) {
+  const response = await fetchYouTubeJson<{
+    items?: Array<{
+      id?: {
+        channelId?: string;
+      };
+    }>;
+  }>("search", {
+    part: "snippet",
+    q: channelName,
+    type: "channel",
+    maxResults: "1",
+  });
+
+  const channelId = response.items?.[0]?.id?.channelId;
+  if (!channelId) {
+    return null;
+  }
+
+  const detailResponse = await fetchYouTubeJson<{
+    items?: Array<{
+      id: string;
+      snippet?: {
+        title?: string;
+        customUrl?: string;
+      };
+      statistics?: {
+        subscriberCount?: string;
+      };
+      contentDetails?: {
+        relatedPlaylists?: {
+          uploads?: string;
+        };
+      };
+    }>;
+  }>("channels", {
+    part: "snippet,statistics,contentDetails",
+    id: channelId,
+  });
+
+  return detailResponse.items?.[0] ?? null;
+}
+
+async function resolveYouTubeChannel(input: {
+  channelId?: string;
+  uploadsPlaylistId?: string;
+  channelHandle?: string;
+  channelUrl?: string;
+  channelName?: string;
+}) {
+  const handleFromUrl =
+    input.channelUrl?.match(/youtube\.com\/@([^/?]+)/i)?.[1] ?? undefined;
+  const channelRecord =
+    (input.channelId
+      ? (
+          await fetchYouTubeJson<{
+            items?: Array<{
+              id: string;
+              snippet?: {
+                title?: string;
+                customUrl?: string;
+              };
+              statistics?: {
+                subscriberCount?: string;
+              };
+              contentDetails?: {
+                relatedPlaylists?: {
+                  uploads?: string;
+                };
+              };
+            }>;
+          }>("channels", {
+            part: "snippet,statistics,contentDetails",
+            id: input.channelId,
+          })
+        ).items?.[0]
+      : null) ??
+    (input.channelHandle ? await fetchYouTubeChannelByHandle(input.channelHandle) : null) ??
+    (handleFromUrl ? await fetchYouTubeChannelByHandle(handleFromUrl) : null) ??
+    (input.channelName ? await searchYouTubeChannelByName(input.channelName) : null);
+
+  if (!channelRecord) {
+    return null;
+  }
+
+  return {
+    channelId: channelRecord.id,
+    title: channelRecord.snippet?.title ?? "",
+    channelUrl:
+      channelRecord.snippet?.customUrl
+        ? `https://www.youtube.com/${channelRecord.snippet.customUrl}`
+        : `https://www.youtube.com/channel/${channelRecord.id}`,
+    customUrl: channelRecord.snippet?.customUrl ?? null,
+    uploadsPlaylistId:
+      channelRecord.contentDetails?.relatedPlaylists?.uploads ??
+      input.uploadsPlaylistId ??
+      null,
+    subscriberCount: channelRecord.statistics?.subscriberCount
+      ? parseInt(channelRecord.statistics.subscriberCount, 10)
+      : null,
+  };
+}
+
 export async function searchYouTube(input: {
   keywords: string[];
   temporalContext: string | null;
@@ -244,74 +377,45 @@ export async function searchYouTube(input: {
 }
 
 export async function fetchYouTubeChannelUploads(input: {
-  channelId: string;
-  uploadsPlaylistId: string;
+  channelId?: string;
+  uploadsPlaylistId?: string;
+  channelHandle?: string;
+  channelUrl?: string;
+  channelName?: string;
   maxResults?: number;
 }): Promise<{
   channel: YouTubeChannelSummary | null;
   items: YouTubeChannelUpload[];
 }> {
   const maxResults = Math.max(1, Math.min(input.maxResults ?? 8, 20));
+  const channel = await resolveYouTubeChannel(input);
 
-  const [channelResponse, playlistResponse] = await Promise.all([
-    fetchYouTubeJson<{
-      items?: Array<{
-        id: string;
-        snippet?: {
-          title?: string;
-          customUrl?: string;
-        };
-        statistics?: {
-          subscriberCount?: string;
-        };
-        contentDetails?: {
-          relatedPlaylists?: {
-            uploads?: string;
-          };
-        };
-      }>;
-    }>("channels", {
-      part: "snippet,statistics,contentDetails",
-      id: input.channelId,
-    }),
-    fetchYouTubeJson<{
-      items?: Array<{
-        snippet?: {
-          title?: string;
-          publishedAt?: string;
-          channelTitle?: string;
-          description?: string;
-          thumbnails?: YouTubeThumbnailSet;
-          resourceId?: {
-            videoId?: string;
-          };
-        };
-        contentDetails?: {
+  if (!channel?.uploadsPlaylistId) {
+    return { channel, items: [] };
+  }
+
+  const playlistResponse = await fetchYouTubeJson<{
+    items?: Array<{
+      snippet?: {
+        title?: string;
+        publishedAt?: string;
+        channelTitle?: string;
+        description?: string;
+        thumbnails?: YouTubeThumbnailSet;
+        resourceId?: {
           videoId?: string;
-          videoPublishedAt?: string;
         };
-      }>;
-    }>("playlistItems", {
-      part: "snippet,contentDetails",
-      playlistId: input.uploadsPlaylistId,
-      maxResults: String(maxResults),
-    }),
-  ]);
-
-  const channelRecord = channelResponse.items?.[0];
-  const channel: YouTubeChannelSummary | null = channelRecord
-    ? {
-        channelId: channelRecord.id,
-        title: channelRecord.snippet?.title ?? "",
-        channelUrl: `https://www.youtube.com/channel/${channelRecord.id}`,
-        customUrl: channelRecord.snippet?.customUrl ?? null,
-        uploadsPlaylistId:
-          channelRecord.contentDetails?.relatedPlaylists?.uploads ?? input.uploadsPlaylistId,
-        subscriberCount: channelRecord.statistics?.subscriberCount
-          ? parseInt(channelRecord.statistics.subscriberCount, 10)
-          : null,
-      }
-    : null;
+      };
+      contentDetails?: {
+        videoId?: string;
+        videoPublishedAt?: string;
+      };
+    }>;
+  }>("playlistItems", {
+    part: "snippet,contentDetails",
+    playlistId: channel.uploadsPlaylistId,
+    maxResults: String(maxResults),
+  });
 
   const playlistItems = (playlistResponse.items ?? []).filter((item) => {
     const videoId = item.contentDetails?.videoId ?? item.snippet?.resourceId?.videoId;
@@ -356,7 +460,7 @@ export async function fetchYouTubeChannelUploads(input: {
       {
         title: item.snippet?.title ?? "",
         description: item.snippet?.description ?? "",
-        channelId: item.snippet?.channelId ?? input.channelId,
+        channelId: item.snippet?.channelId ?? channel.channelId,
         channelTitle: item.snippet?.channelTitle ?? channel?.title ?? "",
         publishedAt: item.snippet?.publishedAt ?? "",
         thumbnailUrl: pickThumbnailUrl(item.snippet?.thumbnails),

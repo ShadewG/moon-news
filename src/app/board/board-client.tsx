@@ -41,6 +41,7 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
   const [currentFilter, setCurrentFilter] = useState<BoardFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StoryStatus>("all");
   const [sortBy, setSortBy] = useState<SortBy>("score");
+  const [verticalFilter, setVerticalFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStory, setSelectedStory] = useState<BoardStorySummary | null>(
     null,
@@ -87,6 +88,9 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
 
       // Status filter
       if (statusFilter !== "all" && s.status !== statusFilter) return false;
+
+      // Vertical filter
+      if (verticalFilter !== "all" && (s.vertical ?? "") !== verticalFilter) return false;
 
       // Search
       if (searchQuery) {
@@ -519,6 +523,22 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
             <option value="peaked">peaked</option>
             <option value="queued">queued</option>
             <option value="archived">archived</option>
+          </select>
+
+          {/* Vertical filter */}
+          <select value={verticalFilter} onChange={(e) => setVerticalFilter(e.target.value)} className={selectCls}>
+            <option value="all">vertical: all</option>
+            <option value="Celebrity / Hollywood">celebrity</option>
+            <option value="Podcast Reactions">podcasts</option>
+            <option value="Tech Failures">tech failures</option>
+            <option value="AI & Automation">AI</option>
+            <option value="Big Tech / Billionaires">billionaires</option>
+            <option value="Digital Rights / Piracy">digital rights</option>
+            <option value="Scams & Fraud">scams</option>
+            <option value="Social Issues / Culture">social issues</option>
+            <option value="Internet Drama">internet drama</option>
+            <option value="Government / Corruption">government</option>
+            <option value="Uncategorized">uncategorized</option>
           </select>
 
           {/* Sort */}
