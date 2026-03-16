@@ -235,7 +235,7 @@ export interface SplitBoardStoryResult {
   movedFeedItemCount: number;
 }
 
-const DEFAULT_LIMIT = 24;
+const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 60;
 const BOARD_AI_KINDS: BoardAiOutputKind[] = ["brief", "script_starter", "titles"];
 const BOARD_STORY_MATCH_LOOKBACK_DAYS = 45;

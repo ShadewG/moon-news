@@ -658,13 +658,22 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
           ))}
         </div>
 
-        {/* Source chips */}
+        {/* Source chips — clickable to open source */}
         <div className="board-card-sources">
           {story.sourcePreviews.slice(0, 4).map((src) => (
-            <span key={src.id} className={sourceChipClass(src.kind)}>
+            <a
+              key={src.id}
+              href={src.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={sourceChipClass(src.kind)}
+              onClick={(e) => e.stopPropagation()}
+              title={decodeHtml(src.title)}
+              style={{ textDecoration: "none", cursor: "pointer" }}
+            >
               {sourceIcon(src.kind)}
-              {src.name}
-            </span>
+              {src.name} ↗
+            </a>
           ))}
           {story.sourcesCount > 4 && (
             <span className="board-source-chip">
@@ -923,18 +932,26 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
             Sources ({s.sourcePreviews.length})
           </div>
           {s.sourcePreviews.map((src) => (
-            <div key={src.id} className="board-source-list-item">
+            <a
+              key={src.id}
+              href={src.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="board-source-list-item"
+              style={{ display: "block", textDecoration: "none", color: "inherit" }}
+            >
               <div className="board-src-name">
                 {sourceIcon(src.kind)}
                 {src.name}
+                <span style={{ marginLeft: "auto", color: "var(--board-muted)", fontSize: "9px" }}>↗</span>
               </div>
               <div className="board-src-meta">
-                {src.title}
+                {decodeHtml(src.title)}
                 {src.publishedAt
                   ? ` \u00B7 ${formatTimeAgo(src.publishedAt)}`
                   : ""}
               </div>
-            </div>
+            </a>
           ))}
         </div>
 
