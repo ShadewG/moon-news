@@ -367,6 +367,17 @@ function isBoardSourcePollable(source: typeof boardSources.$inferSelect): boolea
   return Boolean(parseBoardRssSourceConfig(source.configJson));
 }
 
+function needsBoardSourceConfigSync(source: typeof boardSources.$inferSelect): boolean {
+  const configuredSource = getBoardSourceSeedConfig(source.name, source.kind);
+
+  if (configuredSource) {
+    const config = parseBoardRssSourceConfig(source.configJson);
+    return source.kind === "rss" && (!config || config.feedUrl !== configuredSource.configJson.feedUrl);
+  }
+
+  return source.kind === "rss" && source.enabled;
+}
+
 function tokenizeBoardTitle(title: string): string[] {
   const uniqueTokens = new Set(
     title
@@ -954,12 +965,301 @@ async function insertBoardSeedData() {
   });
 }
 
+async function syncBoardSourceConfigs() {
+  const db = getDb();
+  const now = new Date();
+  const sources = await db.select().from(boardSources);
+
+  await Promise.all(
+    sources.map((source) => {
+      const configuredSource = getBoardSourceSeedConfig(source.name, source.kind);
+      const isPollableRss = source.kind !== "rss" || Boolean(configuredSource);
+
+      return db
+        .update(boardSources)
+        .set({
+          provider: configuredSource?.provider ?? source.provider,
+          pollIntervalMinutes:
+            configuredSource?.pollIntervalMinutes ?? getPollIntervalMinutes(source.kind),
+          enabled: source.kind === "rss" ? isPollableRss : source.enabled,
+          configJson:
+            configuredSource?.configJson ??
+            ({
+              mode: "seed_reference",
+              discovery: "html-board-spec",
+              pollable: source.kind !== "rss",
+            } as Record<string, unknown>),
+          updatedAt: now,
+        })
+        .where(eq(boardSources.id, source.id));
+    })
+  );
+}
+
+async function createBoardStoryFromFeedItem(
+  item: BoardRssFeedItem,
+  source: typeof boardSources.$inferSelect,
+  config: BoardRssSourceConfig
+) {
+  const db = getDb();
+  const publishedAt = item.publishedAt ?? new Date();
+  const storyType = inferBoardStoryType(item.title);
+  const recencyScore = computeBoardRecencyScore(publishedAt);
+  const authorityScore = config.authorityScore ?? 70;
+  const controversyScore = computeBoardControversyScore(item.title, item.summary);
+  const surgeScore = clampBoardScore(recencyScore * 0.6 + authorityScore * 0.4);
+  const slug = buildBoardStorySlug(item.title, `${source.id}:${item.externalId}`);
+  const formats = buildBoardStoryFormats(surgeScore, controversyScore);
+
+  const [created] = await db
+    .insert(boardStoryCandidates)
+    .values({
+      slug,
+      canonicalTitle: item.title,
+      vertical: config.vertical ?? null,
+      status: "developing",
+      storyType,
+      surgeScore,
+      controversyScore,
+      sentimentScore: computeBoardSentimentScore(storyType, controversyScore),
+      itemsCount: 1,
+      sourcesCount: 1,
+      correction: storyType === "correction",
+      formatsJson: formats,
+      firstSeenAt: publishedAt,
+      lastSeenAt: publishedAt,
+      scoreJson: {
+        overall: surgeScore,
+        recency: recencyScore,
+        controversy: controversyScore,
+        sourceAuthority: authorityScore,
+        crossSourceAgreement: 0,
+      },
+      metadataJson: {
+        ageLabel: formatAgeLabel(publishedAt),
+        discoveredFrom: source.name,
+        ingestKind: "rss",
+        sourceTags: config.tags,
+      },
+      updatedAt: new Date(),
+    })
+    .onConflictDoNothing()
+    .returning({
+      id: boardStoryCandidates.id,
+      slug: boardStoryCandidates.slug,
+      canonicalTitle: boardStoryCandidates.canonicalTitle,
+      vertical: boardStoryCandidates.vertical,
+      storyType: boardStoryCandidates.storyType,
+      firstSeenAt: boardStoryCandidates.firstSeenAt,
+      lastSeenAt: boardStoryCandidates.lastSeenAt,
+    });
+
+  if (created) {
+    return buildBoardStoryMatchRecord(created);
+  }
+
+  const [existing] = await db
+    .select({
+      id: boardStoryCandidates.id,
+      slug: boardStoryCandidates.slug,
+      canonicalTitle: boardStoryCandidates.canonicalTitle,
+      vertical: boardStoryCandidates.vertical,
+      storyType: boardStoryCandidates.storyType,
+      firstSeenAt: boardStoryCandidates.firstSeenAt,
+      lastSeenAt: boardStoryCandidates.lastSeenAt,
+    })
+    .from(boardStoryCandidates)
+    .where(eq(boardStoryCandidates.slug, slug))
+    .limit(1);
+
+  return existing ? buildBoardStoryMatchRecord(existing) : null;
+}
+
+async function ingestBoardRssSources() {
+  await syncBoardSourceConfigs();
+
+  const db = getDb();
+  const sources = await db
+    .select()
+    .from(boardSources)
+    .where(eq(boardSources.enabled, true))
+    .orderBy(asc(boardSources.name));
+
+  const storyRows = await db
+    .select({
+      id: boardStoryCandidates.id,
+      slug: boardStoryCandidates.slug,
+      canonicalTitle: boardStoryCandidates.canonicalTitle,
+      vertical: boardStoryCandidates.vertical,
+      storyType: boardStoryCandidates.storyType,
+      firstSeenAt: boardStoryCandidates.firstSeenAt,
+      lastSeenAt: boardStoryCandidates.lastSeenAt,
+    })
+    .from(boardStoryCandidates)
+    .where(
+      gte(
+        boardStoryCandidates.updatedAt,
+        new Date(Date.now() - BOARD_STORY_MATCH_LOOKBACK_DAYS * 24 * 60 * 60 * 1000)
+      )
+    );
+
+  const storyMatches = storyRows.map((row) => buildBoardStoryMatchRecord(row));
+  let sourcesPolled = 0;
+  let feedItemsIngested = 0;
+  let relationsCreated = 0;
+  let storiesCreated = 0;
+  let failedSources = 0;
+
+  for (const source of sources) {
+    const config = parseBoardRssSourceConfig(source.configJson);
+    if (source.kind !== "rss" || !config) {
+      continue;
+    }
+
+    sourcesPolled += 1;
+
+    try {
+      const items = (await fetchBoardRssItems(config.feedUrl))
+        .filter((item) => {
+          if (!item.publishedAt) {
+            return true;
+          }
+
+          return (
+            Date.now() - item.publishedAt.getTime() <=
+            BOARD_RSS_ITEM_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
+          );
+        })
+        .sort((left, right) => {
+          const leftTime = left.publishedAt?.getTime() ?? 0;
+          const rightTime = right.publishedAt?.getTime() ?? 0;
+          return rightTime - leftTime;
+        })
+        .slice(0, 20);
+
+      for (const item of items) {
+        const [insertedFeedItem] = await db
+          .insert(boardFeedItems)
+          .values({
+            sourceId: source.id,
+            externalId: item.externalId,
+            title: item.title,
+            url: item.url,
+            author: item.author,
+            publishedAt: item.publishedAt,
+            summary: item.summary,
+            contentHash: item.contentHash,
+            metadataJson: {
+              ...(coerceObject(item.metadataJson) ?? {}),
+              ingestKind: "rss",
+              sourceType: config.sourceType ?? "news",
+            },
+            ingestedAt: new Date(),
+          })
+          .onConflictDoNothing()
+          .returning({
+            id: boardFeedItems.id,
+          });
+
+        const feedItem =
+          insertedFeedItem ??
+          (
+            await db
+              .select({ id: boardFeedItems.id })
+              .from(boardFeedItems)
+              .where(
+                and(
+                  eq(boardFeedItems.sourceId, source.id),
+                  eq(boardFeedItems.externalId, item.externalId)
+                )
+              )
+              .limit(1)
+          )[0];
+
+        if (!feedItem) {
+          continue;
+        }
+
+        if (insertedFeedItem) {
+          feedItemsIngested += 1;
+        }
+
+        let matchedStory = findMatchingBoardStory(storyMatches, item, config);
+        if (!matchedStory) {
+          matchedStory = await createBoardStoryFromFeedItem(item, source, config);
+          if (matchedStory) {
+            storyMatches.push(matchedStory);
+            storiesCreated += 1;
+          }
+        }
+
+        if (!matchedStory) {
+          continue;
+        }
+
+        const [relation] = await db
+          .insert(boardStorySources)
+          .values({
+            storyId: matchedStory.id,
+            feedItemId: feedItem.id,
+            sourceWeight: config.authorityScore ?? 70,
+            isPrimary: false,
+            evidenceJson: {
+              sourceType: config.sourceType ?? "news",
+              summary: item.summary,
+              tags: config.tags,
+            },
+          })
+          .onConflictDoNothing()
+          .returning({ id: boardStorySources.id });
+
+        if (relation) {
+          relationsCreated += 1;
+        }
+      }
+
+      await db
+        .update(boardSources)
+        .set({
+          lastPolledAt: new Date(),
+          lastSuccessAt: new Date(),
+          lastError: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(boardSources.id, source.id));
+    } catch (error) {
+      failedSources += 1;
+      await db
+        .update(boardSources)
+        .set({
+          lastPolledAt: new Date(),
+          lastError: error instanceof Error ? error.message.slice(0, 500) : "Unknown feed error",
+          updatedAt: new Date(),
+        })
+        .where(eq(boardSources.id, source.id));
+    }
+  }
+
+  return {
+    sourcesPolled,
+    feedItemsIngested,
+    relationsCreated,
+    storiesCreated,
+    failedSources,
+  };
+}
+
 export async function ensureBoardSeedData() {
   const db = getDb();
   const [existing] = await db.select({ id: boardStoryCandidates.id }).from(boardStoryCandidates).limit(1);
 
   if (!existing) {
     await insertBoardSeedData();
+  }
+
+  const sourceRows = await db.select().from(boardSources);
+  if (sourceRows.some((source) => needsBoardSourceConfigSync(source))) {
+    await syncBoardSourceConfigs();
   }
 
   const [existingChannels] = await db
@@ -981,6 +1281,7 @@ export async function recomputeBoardStoryMetrics() {
       .select({
         id: boardStoryCandidates.id,
         scoreJson: boardStoryCandidates.scoreJson,
+        firstSeenAt: boardStoryCandidates.firstSeenAt,
         lastSeenAt: boardStoryCandidates.lastSeenAt,
       })
       .from(boardStoryCandidates),
@@ -996,7 +1297,12 @@ export async function recomputeBoardStoryMetrics() {
 
   const aggregates = new Map<
     string,
-    { itemCount: number; sourceIds: Set<string>; latestPublishedAt: Date | null }
+    {
+      itemCount: number;
+      sourceIds: Set<string>;
+      earliestPublishedAt: Date | null;
+      latestPublishedAt: Date | null;
+    }
   >();
 
   for (const relation of relationships) {
@@ -1005,11 +1311,19 @@ export async function recomputeBoardStoryMetrics() {
       aggregates.get(relation.storyId) ?? {
         itemCount: 0,
         sourceIds: new Set<string>(),
+        earliestPublishedAt: null,
         latestPublishedAt: null,
       };
 
     aggregate.itemCount += 1;
     aggregate.sourceIds.add(relation.sourceId);
+
+    if (
+      publishedAt &&
+      (!aggregate.earliestPublishedAt || publishedAt < aggregate.earliestPublishedAt)
+    ) {
+      aggregate.earliestPublishedAt = publishedAt;
+    }
 
     if (
       publishedAt &&
@@ -1034,6 +1348,7 @@ export async function recomputeBoardStoryMetrics() {
         .set({
           itemsCount: aggregate?.itemCount ?? 0,
           sourcesCount: aggregate?.sourceIds.size ?? 0,
+          firstSeenAt: aggregate?.earliestPublishedAt ?? story.firstSeenAt,
           lastSeenAt: aggregate?.latestPublishedAt ?? story.lastSeenAt,
           scoreJson: updatedScoreJson,
           updatedAt: new Date(),
@@ -1053,16 +1368,26 @@ export async function refreshBoardSourceHeartbeat() {
 
   const db = getDb();
   const now = new Date();
-
-  await db
-    .update(boardSources)
-    .set({
-      lastPolledAt: now,
-      lastSuccessAt: now,
-      lastError: null,
-      updatedAt: now,
-    })
+  const sources = await db
+    .select({ id: boardSources.id, kind: boardSources.kind, enabled: boardSources.enabled })
+    .from(boardSources)
     .where(eq(boardSources.enabled, true));
+
+  await Promise.all(
+    sources
+      .filter((source) => source.kind !== "rss")
+      .map((source) =>
+        db
+          .update(boardSources)
+          .set({
+            lastPolledAt: now,
+            lastSuccessAt: now,
+            lastError: null,
+            updatedAt: now,
+          })
+          .where(eq(boardSources.id, source.id))
+      )
+  );
 }
 
 export async function listBoardStories(
@@ -1519,6 +1844,7 @@ export async function listBoardSources() {
       provider: source.provider,
       pollIntervalMinutes: source.pollIntervalMinutes,
       enabled: source.enabled,
+      pollable: isBoardSourcePollable(source),
       lastPolledAt: toIsoString(source.lastPolledAt),
       lastSuccessAt: toIsoString(source.lastSuccessAt),
       lastError: source.lastError,
@@ -1549,11 +1875,14 @@ export async function getBoardHealth() {
   const now = Date.now();
   let healthySources = 0;
   let staleSources = 0;
+  let pollableSources = 0;
 
   for (const source of sources) {
-    if (!source.enabled) {
+    if (!isBoardSourcePollable(source)) {
       continue;
     }
+
+    pollableSources += 1;
 
     const lastSuccessAt = coerceDate(source.lastSuccessAt);
 
@@ -1574,6 +1903,7 @@ export async function getBoardHealth() {
     generatedAt: new Date().toISOString(),
     sourceCount: sources.length,
     enabledSources: sources.filter((source) => source.enabled).length,
+    pollableSources,
     healthySources,
     staleSources,
     storyCount: stories.length,
@@ -1647,11 +1977,13 @@ export async function getBoardBootstrapPayload(): Promise<BoardBootstrapPayload>
 }
 
 export async function runBoardSourcePollCycle() {
+  const rssIngestion = await ingestBoardRssSources();
   await refreshBoardSourceHeartbeat();
   const metrics = await recomputeBoardStoryMetrics();
   const health = await getBoardHealth();
 
   return {
+    ...rssIngestion,
     ...metrics,
     healthySources: health.healthySources,
   };

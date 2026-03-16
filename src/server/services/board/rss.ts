@@ -21,6 +21,7 @@ const rssParser = new XMLParser({
   removeNSPrefix: true,
   trimValues: true,
   parseTagValue: false,
+  processEntities: false,
   cdataPropName: "cdata",
   textNodeName: "text",
 });
@@ -94,6 +95,8 @@ function readLink(entry: Record<string, unknown>): string | null {
     if (typeof href === "string") {
       return href;
     }
+
+    return readText(linkValue);
   }
 
   return null;
