@@ -83,6 +83,57 @@ export const recommendationTypeEnum = pgEnum("recommendation_type", [
   "stock_fallback",
 ]);
 
+export const boardSourceKindEnum = pgEnum("board_source_kind", [
+  "rss",
+  "youtube_channel",
+  "x_account",
+  "document_watch",
+  "government_feed",
+  "legal_watch",
+  "archive_collection",
+]);
+
+export const boardStoryStatusEnum = pgEnum("board_story_status", [
+  "developing",
+  "watching",
+  "peaked",
+  "queued",
+  "archived",
+]);
+
+export const boardStoryTypeEnum = pgEnum("board_story_type", [
+  "normal",
+  "trending",
+  "controversy",
+  "competitor",
+  "correction",
+]);
+
+export const boardAiOutputKindEnum = pgEnum("board_ai_output_kind", [
+  "brief",
+  "script_starter",
+  "titles",
+]);
+
+export const boardQueueStatusEnum = pgEnum("board_queue_status", [
+  "watching",
+  "researching",
+  "scripting",
+  "filming",
+  "editing",
+  "published",
+]);
+
+export const boardCompetitorTierEnum = pgEnum("board_competitor_tier", [
+  "tier1",
+  "tier2",
+]);
+
+export const boardCompetitorAlertLevelEnum = pgEnum(
+  "board_competitor_alert_level",
+  ["none", "watch", "hot"]
+);
+
 export const projects = pgTable(
   "projects",
   {
@@ -530,5 +581,279 @@ export const visualRecommendations = pgTable(
   (table) => [
     index("visual_recommendations_line_id_index").on(table.scriptLineId),
     index("visual_recommendations_project_id_index").on(table.projectId),
+  ]
+);
+
+export const boardSources = pgTable(
+  "board_sources",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    kind: boardSourceKindEnum("kind").notNull(),
+    provider: providerEnum("provider").notNull().default("internal"),
+    pollIntervalMinutes: integer("poll_interval_minutes").notNull().default(15),
+    enabled: boolean("enabled").notNull().default(true),
+    configJson: jsonb("config_json"),
+    lastPolledAt: timestamp("last_polled_at", { withTimezone: true }),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_sources_name_kind_unique").on(table.name, table.kind),
+    index("board_sources_provider_index").on(table.provider),
+    index("board_sources_enabled_index").on(table.enabled),
+  ]
+);
+
+export const boardFeedItems = pgTable(
+  "board_feed_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sourceId: uuid("source_id")
+      .notNull()
+      .references(() => boardSources.id, { onDelete: "cascade" }),
+    externalId: text("external_id").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    author: text("author"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    summary: text("summary"),
+    contentHash: text("content_hash"),
+    metadataJson: jsonb("metadata_json"),
+    ingestedAt: timestamp("ingested_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_feed_items_source_external_unique").on(
+      table.sourceId,
+      table.externalId
+    ),
+    index("board_feed_items_source_id_index").on(table.sourceId),
+    index("board_feed_items_published_at_index").on(table.publishedAt),
+    index("board_feed_items_ingested_at_index").on(table.ingestedAt),
+  ]
+);
+
+export const boardStoryCandidates = pgTable(
+  "board_story_candidates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").notNull(),
+    canonicalTitle: text("canonical_title").notNull(),
+    vertical: text("vertical"),
+    status: boardStoryStatusEnum("status").notNull().default("developing"),
+    storyType: boardStoryTypeEnum("story_type").notNull().default("normal"),
+    surgeScore: integer("surge_score").notNull().default(0),
+    controversyScore: integer("controversy_score").notNull().default(0),
+    sentimentScore: real("sentiment_score").notNull().default(0),
+    itemsCount: integer("items_count").notNull().default(0),
+    sourcesCount: integer("sources_count").notNull().default(0),
+    correction: boolean("correction").notNull().default(false),
+    formatsJson: jsonb("formats_json"),
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true }),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+    scoreJson: jsonb("score_json"),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_story_candidates_slug_unique").on(table.slug),
+    index("board_story_candidates_status_index").on(table.status),
+    index("board_story_candidates_type_index").on(table.storyType),
+    index("board_story_candidates_surge_score_index").on(table.surgeScore),
+    index("board_story_candidates_controversy_score_index").on(
+      table.controversyScore
+    ),
+    index("board_story_candidates_last_seen_at_index").on(table.lastSeenAt),
+  ]
+);
+
+export const boardStorySources = pgTable(
+  "board_story_sources",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id")
+      .notNull()
+      .references(() => boardStoryCandidates.id, { onDelete: "cascade" }),
+    feedItemId: uuid("feed_item_id")
+      .notNull()
+      .references(() => boardFeedItems.id, { onDelete: "cascade" }),
+    sourceWeight: integer("source_weight").notNull().default(0),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    evidenceJson: jsonb("evidence_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_story_sources_story_feed_unique").on(
+      table.storyId,
+      table.feedItemId
+    ),
+    index("board_story_sources_story_id_index").on(table.storyId),
+    index("board_story_sources_feed_item_id_index").on(table.feedItemId),
+  ]
+);
+
+export const boardStoryAiOutputs = pgTable(
+  "board_story_ai_outputs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id")
+      .notNull()
+      .references(() => boardStoryCandidates.id, { onDelete: "cascade" }),
+    kind: boardAiOutputKindEnum("kind").notNull(),
+    promptVersion: text("prompt_version").notNull().default("v1"),
+    model: text("model").notNull().default("gpt-4.1-mini"),
+    content: text("content").notNull(),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_story_ai_outputs_story_kind_prompt_unique").on(
+      table.storyId,
+      table.kind,
+      table.promptVersion
+    ),
+    index("board_story_ai_outputs_story_id_index").on(table.storyId),
+  ]
+);
+
+export const boardCompetitorChannels = pgTable(
+  "board_competitor_channels",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    platform: text("platform").notNull().default("youtube"),
+    tier: boardCompetitorTierEnum("tier").notNull().default("tier2"),
+    handle: text("handle"),
+    channelUrl: text("channel_url"),
+    subscribersLabel: text("subscribers_label"),
+    pollIntervalMinutes: integer("poll_interval_minutes").notNull().default(15),
+    enabled: boolean("enabled").notNull().default(true),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_competitor_channels_name_platform_unique").on(
+      table.name,
+      table.platform
+    ),
+    index("board_competitor_channels_tier_index").on(table.tier),
+    index("board_competitor_channels_enabled_index").on(table.enabled),
+  ]
+);
+
+export const boardCompetitorPosts = pgTable(
+  "board_competitor_posts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    channelId: uuid("channel_id")
+      .notNull()
+      .references(() => boardCompetitorChannels.id, { onDelete: "cascade" }),
+    externalId: text("external_id").notNull(),
+    title: text("title").notNull(),
+    url: text("url"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    viewsLabel: text("views_label"),
+    engagementJson: jsonb("engagement_json"),
+    topicMatchScore: integer("topic_match_score").notNull().default(0),
+    alertLevel: boardCompetitorAlertLevelEnum("alert_level")
+      .notNull()
+      .default("none"),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_competitor_posts_channel_external_unique").on(
+      table.channelId,
+      table.externalId
+    ),
+    index("board_competitor_posts_channel_id_index").on(table.channelId),
+    index("board_competitor_posts_alert_level_index").on(table.alertLevel),
+    index("board_competitor_posts_published_at_index").on(table.publishedAt),
+  ]
+);
+
+export const boardQueueItems = pgTable(
+  "board_queue_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id")
+      .notNull()
+      .references(() => boardStoryCandidates.id, { onDelete: "cascade" }),
+    position: integer("position").notNull().default(1),
+    status: boardQueueStatusEnum("status").notNull().default("watching"),
+    format: text("format"),
+    targetPublishAt: timestamp("target_publish_at", { withTimezone: true }),
+    assignedTo: text("assigned_to"),
+    notes: text("notes"),
+    linkedProjectId: uuid("linked_project_id").references(() => projects.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("board_queue_items_story_id_unique").on(table.storyId),
+    index("board_queue_items_position_index").on(table.position),
+    index("board_queue_items_status_index").on(table.status),
+  ]
+);
+
+export const boardTickerEvents = pgTable(
+  "board_ticker_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id").references(() => boardStoryCandidates.id, {
+      onDelete: "set null",
+    }),
+    label: text("label").notNull(),
+    text: text("text").notNull(),
+    priority: integer("priority").notNull().default(0),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("board_ticker_events_priority_index").on(table.priority),
+    index("board_ticker_events_starts_at_index").on(table.startsAt),
+    index("board_ticker_events_expires_at_index").on(table.expiresAt),
   ]
 );

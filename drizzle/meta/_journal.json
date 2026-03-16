@@ -64,6 +64,20 @@
       "when": 1773680828993,
       "tag": "0008_funny_network",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773685292704,
+      "tag": "0009_charming_toad_men",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1773685773862,
+      "tag": "0010_silly_mauler",
+      "breakpoints": true
     }
   ]
 }

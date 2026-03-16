@@ -18,6 +18,7 @@
     "@trigger.dev/sdk": "^4.4.3",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
+    "fast-xml-parser": "^5.5.6",
     "firecrawl": "^4.16.0",
     "framer-motion": "^12.36.0",
     "lucide-react": "^0.577.0",
