@@ -3600,6 +3600,9 @@ async function refreshBoardCompetitorChannel(
     const { channel: youtubeChannel, items } = await fetchYouTubeChannelUploads({
       channelId: config.channelId,
       uploadsPlaylistId: config.uploadsPlaylistId,
+      channelHandle: config.channelHandle,
+      channelUrl: config.channelUrl,
+      channelName: channel.name,
       maxResults: config.maxResults ?? 4,
     });
     const latestItem = items[0];
@@ -4435,20 +4438,42 @@ export async function getBoardBootstrapPayload(): Promise<BoardBootstrapPayload>
 export async function runBoardSourcePollCycle() {
   const rssIngestion = await ingestBoardRssSources();
   const youtubeIngestion = await ingestBoardYouTubeSources();
+  const xIngestion = await ingestBoardXSources();
   await refreshBoardSourceHeartbeat();
   const metrics = await recomputeBoardStoryMetrics();
+  const scoring = await rescoreBoardStories();
   const alerts = await detectBoardStoryAlerts();
   const health = await getBoardHealth();
 
   return {
     rssSourcesPolled: rssIngestion.sourcesPolled,
     youtubeSourcesPolled: youtubeIngestion.sourcesPolled,
-    feedItemsIngested: rssIngestion.feedItemsIngested + youtubeIngestion.feedItemsIngested,
-    relationsCreated: rssIngestion.relationsCreated + youtubeIngestion.relationsCreated,
-    storiesCreated: rssIngestion.storiesCreated + youtubeIngestion.storiesCreated,
-    versionCaptures: rssIngestion.versionCaptures + youtubeIngestion.versionCaptures,
-    correctionEvents: rssIngestion.correctionEvents + youtubeIngestion.correctionEvents,
-    failedSources: rssIngestion.failedSources + youtubeIngestion.failedSources,
+    xSourcesPolled: xIngestion.sourcesPolled,
+    feedItemsIngested:
+      rssIngestion.feedItemsIngested +
+      youtubeIngestion.feedItemsIngested +
+      xIngestion.feedItemsIngested,
+    relationsCreated:
+      rssIngestion.relationsCreated +
+      youtubeIngestion.relationsCreated +
+      xIngestion.relationsCreated,
+    storiesCreated:
+      rssIngestion.storiesCreated +
+      youtubeIngestion.storiesCreated +
+      xIngestion.storiesCreated,
+    versionCaptures:
+      rssIngestion.versionCaptures +
+      youtubeIngestion.versionCaptures +
+      xIngestion.versionCaptures,
+    correctionEvents:
+      rssIngestion.correctionEvents +
+      youtubeIngestion.correctionEvents +
+      xIngestion.correctionEvents,
+    failedSources:
+      rssIngestion.failedSources +
+      youtubeIngestion.failedSources +
+      xIngestion.failedSources,
+    ...scoring,
     ...metrics,
     ...alerts,
     healthySources: health.healthySources,
@@ -4457,9 +4482,11 @@ export async function runBoardSourcePollCycle() {
 
 export async function runBoardClusteringCycle() {
   const metrics = await recomputeBoardStoryMetrics();
+  const scoring = await rescoreBoardStories();
   const alerts = await detectBoardStoryAlerts();
 
   return {
+    ...scoring,
     ...metrics,
     ...alerts,
   };
@@ -4486,4 +4513,14 @@ export async function runBoardCompetitorRefreshCycle() {
 
 export async function runBoardAnomalyDetectionCycle() {
   return detectBoardStoryAlerts();
+}
+
+export async function runBoardScoringCycle() {
+  const scoring = await rescoreBoardStories();
+  const health = await getBoardHealth();
+
+  return {
+    ...scoring,
+    storyCount: health.storyCount,
+  };
 }

@@ -4,3 +4,4 @@ export * from "./tasks/board/cluster-stories";
 export * from "./tasks/board/detect-anomalies";
 export * from "./tasks/board/refresh-ticker";
 export * from "./tasks/board/refresh-competitors";
+export * from "./tasks/board/score-stories";
