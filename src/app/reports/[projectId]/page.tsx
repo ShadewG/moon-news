@@ -124,14 +124,14 @@ export default async function ReportPage({ params }: Props) {
                   </div>
                 )}
 
-                {/* YouTube videos */}
+                {/* YouTube videos — show first 6, collapse rest */}
                 {ytVisible.length > 0 && (
                   <div>
                     <p className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-3">
                       YouTube <span className="text-[#27272a]">({ytVisible.length})</span>
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {ytVisible.map((a) => {
+                    <div className={`grid gap-3 ${ytVisible.length === 1 ? "grid-cols-1 max-w-lg" : "grid-cols-1 md:grid-cols-2"}`}>
+                      {ytVisible.slice(0, 6).map((a) => {
                         const views = (a.metadataJson as Record<string, unknown> | null)?.viewCount;
                         const dur = a.durationMs ? `${Math.floor(a.durationMs / 60000)}:${String(Math.floor((a.durationMs % 60000) / 1000)).padStart(2, "0")}` : "";
                         return (
@@ -152,23 +152,49 @@ export default async function ReportPage({ params }: Props) {
                         );
                       })}
                     </div>
+                    {ytVisible.length > 6 && (
+                      <details className="mt-2">
+                        <summary className="text-[10px] text-[#3f3f46] cursor-pointer hover:text-[#52525b] py-1">
+                          +{ytVisible.length - 6} more YouTube results
+                        </summary>
+                        <div className={`grid gap-3 mt-2 ${ytVisible.length - 6 === 1 ? "grid-cols-1 max-w-lg" : "grid-cols-1 md:grid-cols-2"}`}>
+                          {ytVisible.slice(6).map((a) => {
+                            const views = (a.metadataJson as Record<string, unknown> | null)?.viewCount;
+                            const dur = a.durationMs ? `${Math.floor(a.durationMs / 60000)}:${String(Math.floor((a.durationMs % 60000) / 1000)).padStart(2, "0")}` : "";
+                            return (
+                              <div key={a.id} className="rounded-lg border border-[#18181b] bg-[#111114] overflow-hidden">
+                                <YouTubeEmbed videoId={a.externalAssetId} title={a.title} />
+                                <div className="px-3 py-2.5">
+                                  <a href={a.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[#d4d4d8] hover:text-white leading-snug line-clamp-2 block">{decode(a.title)}</a>
+                                  <div className="flex items-center gap-2 mt-1 text-[10px] text-[#3f3f46]">
+                                    <span className="text-[#52525b]">{a.channelOrContributor}</span>
+                                    {dur && <span>{dur}</span>}
+                                    {views != null && <span>{Number(views as number).toLocaleString()} views</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </details>
+                    )}
                   </div>
                 )}
 
-                {/* Twitter/X posts */}
+                {/* Twitter/X posts — show first 5, collapse rest */}
                 {xVisible.length > 0 && (
                   <div>
                     <p className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-3">
                       X / Twitter <span className="text-[#27272a]">({xVisible.length})</span>
                     </p>
                     <div className="space-y-2">
-                      {xVisible.map((a) => {
+                      {xVisible.slice(0, 5).map((a) => {
                         const meta = a.metadataJson as Record<string, unknown> | null;
                         const views = meta?.viewCount;
                         const likes = meta?.likeCount;
                         return (
                           <a key={a.id} href={a.sourceUrl} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg bg-[#111114] border border-[#18181b] hover:border-[#27272a] transition-colors">
-                            <p className="text-xs text-[#d4d4d8] leading-relaxed line-clamp-3">{a.title}</p>
+                            <p className="text-xs text-[#d4d4d8] leading-relaxed">{a.title}</p>
                             <div className="flex items-center gap-3 mt-2 text-[10px] text-[#3f3f46]">
                               <span className="text-sky-400">{a.channelOrContributor}</span>
                               {views != null && <span>{Number(views as number).toLocaleString()} views</span>}
@@ -180,6 +206,28 @@ export default async function ReportPage({ params }: Props) {
                         );
                       })}
                     </div>
+                    {xVisible.length > 5 && (
+                      <details className="mt-2">
+                        <summary className="text-[10px] text-[#3f3f46] cursor-pointer hover:text-[#52525b] py-1">
+                          +{xVisible.length - 5} more tweets
+                        </summary>
+                        <div className="space-y-2 mt-2">
+                          {xVisible.slice(5).map((a) => {
+                            const meta = a.metadataJson as Record<string, unknown> | null;
+                            const views = meta?.viewCount;
+                            return (
+                              <a key={a.id} href={a.sourceUrl} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg bg-[#111114] border border-[#18181b] hover:border-[#27272a] transition-colors">
+                                <p className="text-xs text-[#d4d4d8] leading-relaxed">{a.title}</p>
+                                <div className="flex items-center gap-3 mt-2 text-[10px] text-[#3f3f46]">
+                                  <span className="text-sky-400">{a.channelOrContributor}</span>
+                                  {views != null && <span>{Number(views as number).toLocaleString()} views</span>}
+                                </div>
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </details>
+                    )}
                   </div>
                 )}
 

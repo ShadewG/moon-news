@@ -54,7 +54,8 @@ const JUNK_CHANNEL_INDICATORS = [
   "proven conspiracies", "stateless standard",
 ];
 
-const MIN_VIEW_COUNT = 5000; // Minimum views for YouTube/Twitter
+const MIN_YT_VIEW_COUNT = 5000;
+const MIN_TWITTER_VIEW_COUNT = 3000;
 
 const REPOST_INDICATORS = [
   "reupload", "re-upload", "compilation", "best of", "top 10",
@@ -206,13 +207,12 @@ export function passesQualityGate(input: {
     return { passes: false, reason: "Too short (<60s)" };
   }
 
-  // Minimum view count for YouTube and Twitter
-  if (
-    (input.provider === "youtube" || input.provider === "twitter") &&
-    input.viewCount > 0 &&
-    input.viewCount < MIN_VIEW_COUNT
-  ) {
-    return { passes: false, reason: `Low views (<${MIN_VIEW_COUNT.toLocaleString()})` };
+  // Minimum view count — different thresholds per platform
+  if (input.provider === "youtube" && input.viewCount > 0 && input.viewCount < MIN_YT_VIEW_COUNT) {
+    return { passes: false, reason: `Low views (<${MIN_YT_VIEW_COUNT.toLocaleString()})` };
+  }
+  if (input.provider === "twitter" && input.viewCount > 0 && input.viewCount < MIN_TWITTER_VIEW_COUNT) {
+    return { passes: false, reason: `Low views (<${MIN_TWITTER_VIEW_COUNT.toLocaleString()})` };
   }
 
   // Filter obviously AI-generated/bot content
