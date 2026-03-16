@@ -9,10 +9,13 @@ import {
   footageAssets,
   footageSearchRuns,
   projects,
+  researchRuns,
+  researchSources,
   scriptLines,
   visualRecommendations,
 } from "@/server/db/schema";
 import { classifyLine, type LineClassification } from "@/server/providers/openai";
+import { searchLineResearch } from "@/server/providers/parallel";
 import { runVisualSearchTask } from "./visual-search";
 
 export const INVESTIGATE_LINE_TASK_ID = "investigate-line";
@@ -103,14 +106,18 @@ export async function runInvestigateLineTask(input: {
     return;
   }
 
-  // Get the line text for AI relevance scoring
-  const [line] = await db
-    .select({ text: scriptLines.text })
+  // Get the line text and project title for searches
+  const [lineRecord] = await db
+    .select({ text: scriptLines.text, project: projects })
     .from(scriptLines)
+    .innerJoin(projects, eq(projects.id, scriptLines.projectId))
     .where(eq(scriptLines.id, input.scriptLineId))
     .limit(1);
 
-  // Step 3: Visual search with tiered fallback + AI relevance scoring
+  const lineText = lineRecord?.text ?? "";
+  const projectTitle = lineRecord?.project.title ?? "";
+
+  // Step 3: Visual search + text research in parallel
   await db
     .update(scriptLines)
     .set({
@@ -119,14 +126,26 @@ export async function runInvestigateLineTask(input: {
     })
     .where(eq(scriptLines.id, input.scriptLineId));
 
-  const visualResult = await runVisualSearchTask({
-    projectId: input.projectId,
-    scriptLineId: input.scriptLineId,
-    lineText: line?.text ?? "",
-    category: classification.category,
-    searchKeywords: classification.search_keywords,
-    temporalContext: classification.temporal_context,
-  });
+  // Run visual search and text source gathering in parallel
+  const [visualResult] = await Promise.all([
+    runVisualSearchTask({
+      projectId: input.projectId,
+      scriptLineId: input.scriptLineId,
+      lineText,
+      category: classification.category,
+      searchKeywords: classification.search_keywords,
+      temporalContext: classification.temporal_context,
+    }),
+    // Text research: find article sources (no summary) — useful as reference
+    gatherTextSources({
+      projectId: input.projectId,
+      scriptLineId: input.scriptLineId,
+      projectTitle,
+      lineText,
+    }).catch(() => {
+      // Text research failure shouldn't block anything
+    }),
+  ]);
 
   // Step 5: If no good visuals found and not already recommended, suggest AI generation
   if (
@@ -219,4 +238,88 @@ export async function dismissRecommendation(recommendationId: string) {
     .returning();
 
   return updated ?? null;
+}
+
+// ─── Text Source Gathering (no summary) ───
+
+async function gatherTextSources(input: {
+  projectId: string;
+  scriptLineId: string;
+  projectTitle: string;
+  lineText: string;
+}): Promise<void> {
+  const db = getDb();
+
+  const [run] = await db
+    .insert(researchRuns)
+    .values({
+      projectId: input.projectId,
+      scriptLineId: input.scriptLineId,
+      provider: "parallel",
+      status: "running",
+      startedAt: new Date(),
+    })
+    .returning();
+
+  try {
+    const searchResult = await searchLineResearch({
+      projectTitle: input.projectTitle,
+      lineText: input.lineText,
+    });
+
+    await db
+      .update(researchRuns)
+      .set({
+        query: searchResult.query,
+        parallelSearchId: searchResult.searchId,
+        updatedAt: new Date(),
+      })
+      .where(eq(researchRuns.id, run.id));
+
+    if (searchResult.results.length > 0) {
+      await db.insert(researchSources).values(
+        searchResult.results.map((source) => ({
+          researchRunId: run.id,
+          scriptLineId: input.scriptLineId,
+          title: source.title,
+          sourceName: new URL(source.url).hostname,
+          sourceUrl: source.url,
+          publishedAt: source.publishedAt,
+          snippet: source.snippet,
+          relevanceScore: source.relevanceScore,
+          sourceType: "article" as const,
+          citationJson: {
+            url: source.url,
+            title: source.title,
+            publishedAt: source.publishedAt,
+          },
+        }))
+      );
+    }
+
+    await db
+      .update(researchRuns)
+      .set({
+        status: "complete",
+        completedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(researchRuns.id, run.id));
+
+    await db
+      .update(scriptLines)
+      .set({ researchStatus: "complete", updatedAt: new Date() })
+      .where(eq(scriptLines.id, input.scriptLineId));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    await db
+      .update(researchRuns)
+      .set({
+        status: "failed",
+        errorMessage: message,
+        completedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(researchRuns.id, run.id));
+  }
 }

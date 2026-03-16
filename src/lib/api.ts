@@ -120,6 +120,8 @@ function normalizeFootageAsset(raw: any): FootageAsset {
     channel_or_contributor: raw.channelOrContributor ?? raw.channel_or_contributor ?? null,
     score_breakdown_json: raw.scoreBreakdownJson ?? raw.score_breakdown_json ?? null,
     metadata_json: raw.metadataJson ?? raw.metadata_json ?? null,
+    filtered: raw.filtered ?? raw.filtered ?? false,
+    filter_reason: raw.filterReason ?? raw.filter_reason ?? null,
   };
 }
 

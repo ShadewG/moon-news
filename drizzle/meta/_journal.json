@@ -15,6 +15,13 @@
       "when": 1773606025060,
       "tag": "0001_happy_swordsman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773632539908,
+      "tag": "0002_burly_the_captain",
+      "breakpoints": true
     }
   ]
 }

@@ -308,6 +308,8 @@ export const footageAssets = pgTable(
     channelOrContributor: text("channel_or_contributor"),
     scoreBreakdownJson: jsonb("score_breakdown_json"),
     metadataJson: jsonb("metadata_json"),
+    filtered: boolean("filtered").notNull().default(false),
+    filterReason: text("filter_reason"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

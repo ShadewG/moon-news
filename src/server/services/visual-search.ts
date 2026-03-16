@@ -38,10 +38,12 @@ interface ProviderResult {
 
 type TierProvider = "youtube" | "internet_archive" | "google_images" | "getty" | "storyblocks";
 
+// Every category searches ALL its tiers — no early stopping.
+// Tiers are searched in parallel within each tier group for speed.
 const CATEGORY_TIERS: Record<string, TierProvider[][]> = {
   concrete_event: [
     ["youtube", "internet_archive"],
-    ["getty", "google_images"],
+    ["google_images", "getty"],
     ["storyblocks"],
   ],
   named_person: [
@@ -50,26 +52,26 @@ const CATEGORY_TIERS: Record<string, TierProvider[][]> = {
     ["storyblocks"],
   ],
   abstract_concept: [
-    ["storyblocks"],
+    ["youtube"],
     ["google_images"],
+    ["storyblocks"],
   ],
   quote_claim: [
     ["youtube"],
     ["google_images"],
+    ["storyblocks"],
   ],
   historical_period: [
-    ["internet_archive"],
-    ["youtube"],
-    ["getty"],
+    ["internet_archive", "youtube"],
+    ["google_images", "getty"],
+    ["storyblocks"],
   ],
   transition: [],
   sample_story: [
     ["storyblocks"],
+    ["google_images"],
   ],
 };
-
-const MIN_GOOD_RESULTS = 3;
-const MIN_GOOD_SCORE = 50;
 
 async function searchProvider(
   provider: TierProvider,
@@ -95,10 +97,7 @@ async function searchProvider(
         uploadDate: r.publishedAt,
         channelOrContributor: r.channelTitle,
         viewCount: r.viewCount,
-        metadataJson: {
-          viewCount: r.viewCount,
-          description: r.description,
-        },
+        metadataJson: { viewCount: r.viewCount, description: r.description },
       }));
     }
 
@@ -120,10 +119,7 @@ async function searchProvider(
         uploadDate: r.year,
         channelOrContributor: r.creator,
         viewCount: 0,
-        metadataJson: {
-          collection: r.collection,
-          description: r.description,
-        },
+        metadataJson: { collection: r.collection, description: r.description },
       }));
     }
 
@@ -145,10 +141,7 @@ async function searchProvider(
         uploadDate: null,
         channelOrContributor: r.displayLink,
         viewCount: 0,
-        metadataJson: {
-          snippet: r.snippet,
-          contextLink: r.contextLink,
-        },
+        metadataJson: { snippet: r.snippet, contextLink: r.contextLink },
       }));
     }
 
@@ -170,10 +163,7 @@ async function searchProvider(
         uploadDate: r.dateCreated,
         channelOrContributor: r.artist,
         viewCount: 0,
-        metadataJson: {
-          collection: r.collection,
-          caption: r.caption,
-        },
+        metadataJson: { collection: r.collection, caption: r.caption },
       }));
     }
 
@@ -201,6 +191,13 @@ async function searchProvider(
   }
 }
 
+interface ScoredResult extends ProviderResult {
+  score: ScoreBreakdown;
+  runId: string;
+  filtered: boolean;
+  filterReason: string | null;
+}
+
 export async function runVisualSearchTask(input: {
   projectId: string;
   scriptLineId: string;
@@ -216,12 +213,10 @@ export async function runVisualSearchTask(input: {
     return { totalAssets: 0, tiersSearched: 0 };
   }
 
-  let allResults: Array<ProviderResult & { score: ScoreBreakdown; runId: string }> = [];
-  let tiersSearched = 0;
+  const allResults: ScoredResult[] = [];
 
+  // Search ALL tiers — no early stopping. Doc editors need variety.
   for (const tierProviders of tiers) {
-    tiersSearched++;
-
     const tierResults = await Promise.all(
       tierProviders.map(async (provider) => {
         const [run] = await db
@@ -243,53 +238,59 @@ export async function runVisualSearchTask(input: {
             input.temporalContext
           );
 
-          // Step 1: Quality gate — filter out shorts, AI-generated, bot channels
-          const filtered = rawResults.filter((r) =>
-            passesQualityGate({
+          // Quality gate — mark failures but still store them
+          const withQuality = rawResults.map((r) => {
+            const passes = passesQualityGate({
               provider: r.provider,
               title: r.title,
               durationMs: r.durationMs,
               channelOrContributor: r.channelOrContributor,
               viewCount: r.viewCount,
-            })
-          );
+            });
+            let filterReason: string | null = null;
+            if (!passes) {
+              if (r.durationMs && r.durationMs < 60_000) filterReason = "Too short (<60s)";
+              else filterReason = "Low quality channel";
+            }
+            return { ...r, qualityPasses: passes, filterReason };
+          });
 
-          // Step 2: AI relevance scoring
+          // AI relevance scoring on all results (even filtered ones get scored)
           let relevanceScores: number[];
           try {
             relevanceScores = await scoreResultRelevance({
               lineText: input.lineText,
-              results: filtered.map((r) => ({
+              results: withQuality.map((r) => ({
                 title: r.title,
                 description: r.description,
                 provider: r.provider,
               })),
             });
           } catch {
-            // Fallback to position-based
-            relevanceScores = filtered.map((_, i) =>
-              Math.max(20, 40 - Math.floor((i / filtered.length) * 20))
+            relevanceScores = withQuality.map((_, i) =>
+              Math.max(20, 40 - Math.floor((i / withQuality.length) * 20))
             );
           }
-
-          // Step 3: Filter out irrelevant results (AI scored < 10)
-          const relevant = filtered.filter((_, i) => relevanceScores[i] >= 10);
-          const relevantScores = relevanceScores.filter((s) => s >= 10);
 
           await db
             .update(footageSearchRuns)
             .set({
               status: "complete",
-              resultsCount: relevant.length,
+              resultsCount: rawResults.length,
               completedAt: new Date(),
               updatedAt: new Date(),
             })
             .where(eq(footageSearchRuns.id, run.id));
 
-          return relevant.map((r, i): ProviderResult & { score: ScoreBreakdown; runId: string } => {
+          return withQuality.map((r, i): ScoredResult => {
+            const aiRelevance = relevanceScores[i] ?? 20;
+            const isFiltered = !r.qualityPasses || aiRelevance < 5;
+            const filterReason = r.filterReason
+              ?? (aiRelevance < 5 ? "Irrelevant to script line" : null);
+
             const baseScore = computeMatchScore({
               relevanceRank: i,
-              totalResults: relevant.length,
+              totalResults: withQuality.length,
               mediaType: r.mediaType,
               provider: r.provider,
               title: r.title,
@@ -299,8 +300,6 @@ export async function runVisualSearchTask(input: {
               durationMs: r.durationMs,
             });
 
-            // Override relevanceScore with AI-scored relevance
-            const aiRelevance = relevantScores[i] ?? baseScore.relevanceScore;
             const totalScore = Math.max(
               0,
               Math.min(
@@ -316,6 +315,8 @@ export async function runVisualSearchTask(input: {
             return {
               ...r,
               runId: run.id,
+              filtered: isFiltered,
+              filterReason: isFiltered ? filterReason : null,
               score: {
                 ...baseScore,
                 relevanceScore: aiRelevance,
@@ -342,22 +343,16 @@ export async function runVisualSearchTask(input: {
       })
     );
 
-    const flatResults = tierResults.flat();
-    allResults = allResults.concat(flatResults);
-
-    // Check if we have enough good results to stop
-    const goodResults = allResults.filter(
-      (r) => r.score.totalScore >= MIN_GOOD_SCORE
-    );
-    if (goodResults.length >= MIN_GOOD_RESULTS) {
-      break;
-    }
+    allResults.push(...tierResults.flat());
   }
 
-  // Sort by score descending
-  allResults.sort((a, b) => b.score.totalScore - a.score.totalScore);
+  // Sort: non-filtered first by score, then filtered by score
+  allResults.sort((a, b) => {
+    if (a.filtered !== b.filtered) return a.filtered ? 1 : -1;
+    return b.score.totalScore - a.score.totalScore;
+  });
 
-  // Insert assets into DB
+  // Insert ALL results into DB (including filtered ones)
   if (allResults.length > 0) {
     await db.insert(footageAssets).values(
       allResults.map((r) => ({
@@ -379,21 +374,24 @@ export async function runVisualSearchTask(input: {
         channelOrContributor: r.channelOrContributor,
         scoreBreakdownJson: r.score,
         metadataJson: r.metadataJson,
+        filtered: r.filtered,
+        filterReason: r.filterReason,
       }))
     );
   }
 
-  // Update script line footage status
+  const visibleCount = allResults.filter((r) => !r.filtered).length;
+
   await db
     .update(scriptLines)
     .set({
-      footageStatus: allResults.length > 0 ? "complete" : "needs_review",
+      footageStatus: visibleCount > 0 ? "complete" : "needs_review",
       updatedAt: new Date(),
     })
     .where(eq(scriptLines.id, input.scriptLineId));
 
   return {
     totalAssets: allResults.length,
-    tiersSearched,
+    tiersSearched: tiers.length,
   };
 }

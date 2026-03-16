@@ -157,6 +157,8 @@ export interface FootageAsset {
   channel_or_contributor: string | null;
   score_breakdown_json: Record<string, unknown> | null;
   metadata_json: Record<string, unknown> | null;
+  filtered: boolean;
+  filter_reason: string | null;
 }
 
 export interface VisualRecommendation {
@@ -858,6 +860,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "CBS News",
       score_breakdown_json: { relevanceScore: 48, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 2, repostPenalty: 0 },
       metadata_json: { viewCount: 125000 },
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_02",
@@ -879,6 +883,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: null,
       score_breakdown_json: { relevanceScore: 45, mediaTypeBonus: 10, provenanceBonus: 5, dateBonus: 0, repostPenalty: 0 },
       metadata_json: null,
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_03",
@@ -900,6 +906,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "Reuters",
       score_breakdown_json: { relevanceScore: 42, mediaTypeBonus: 20, provenanceBonus: 8, dateBonus: 0, repostPenalty: 0 },
       metadata_json: null,
+      filtered: false,
+      filter_reason: null,
     },
   ],
   "line-2": [
@@ -923,6 +931,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "US Senate",
       score_breakdown_json: { relevanceScore: 50, mediaTypeBonus: 30, provenanceBonus: 20, dateBonus: 10, repostPenalty: 0 },
       metadata_json: { collection: "prelinger", description: "Senate Church Committee hearings on CIA domestic activities" },
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_05",
@@ -944,6 +954,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "The Documentary Network",
       score_breakdown_json: { relevanceScore: 47, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 4, repostPenalty: 0 },
       metadata_json: { viewCount: 890000 },
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_06",
@@ -965,6 +977,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: null,
       score_breakdown_json: { relevanceScore: 40, mediaTypeBonus: 10, provenanceBonus: 5, dateBonus: 0, repostPenalty: 0 },
       metadata_json: null,
+      filtered: false,
+      filter_reason: null,
     },
   ],
   "line-3": [
@@ -988,6 +1002,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "NYT Video",
       score_breakdown_json: { relevanceScore: 48, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 10, repostPenalty: 0 },
       metadata_json: { viewCount: 250000 },
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_08",
@@ -1009,6 +1025,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "TV Archive",
       score_breakdown_json: { relevanceScore: 45, mediaTypeBonus: 30, provenanceBonus: 20, dateBonus: 10, repostPenalty: 0 },
       metadata_json: null,
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_09",
@@ -1030,6 +1048,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "AP Images",
       score_breakdown_json: { relevanceScore: 44, mediaTypeBonus: 20, provenanceBonus: 8, dateBonus: 0, repostPenalty: 0 },
       metadata_json: null,
+      filtered: false,
+      filter_reason: null,
     },
   ],
   "line-6": [
@@ -1053,6 +1073,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "C-SPAN",
       score_breakdown_json: { relevanceScore: 50, mediaTypeBonus: 30, provenanceBonus: 10, dateBonus: 7, repostPenalty: 0 },
       metadata_json: { viewCount: 450000 },
+      filtered: false,
+      filter_reason: null,
     },
     {
       id: "fa_11",
@@ -1074,6 +1096,8 @@ export const sampleFootage: Record<string, FootageAsset[]> = {
       channel_or_contributor: "James Spione",
       score_breakdown_json: { relevanceScore: 47, mediaTypeBonus: 30, provenanceBonus: 20, dateBonus: 7, repostPenalty: 0 },
       metadata_json: null,
+      filtered: false,
+      filter_reason: null,
     },
   ],
 };

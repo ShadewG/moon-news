@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Film,
   ExternalLink,
@@ -65,6 +65,7 @@ export default function FootagePanel() {
   const { data: visuals, refetch } = useVisuals(projectId, selectedLineId);
   const { trigger, triggering } = useTriggerInvestigation(projectId);
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
+  const [showFiltered, setShowFiltered] = useState(false);
   const line = selectedLine;
 
   const { assets, recommendations } = visuals;
@@ -76,13 +77,22 @@ export default function FootagePanel() {
     return () => clearInterval(interval);
   }, [line?.footage_status, refetch]);
 
-  const filteredAssets = mediaFilter === "all"
-    ? assets
-    : assets.filter((a) => a.media_type === mediaFilter);
+  // Split assets into visible and filtered
+  const { visibleAssets, filteredAssets, filteredCount } = useMemo(() => {
+    const visible = assets.filter((a) => !a.filtered);
+    const filtered = assets.filter((a) => a.filtered);
+    return { visibleAssets: visible, filteredAssets: filtered, filteredCount: filtered.length };
+  }, [assets]);
 
-  // Count by provider
+  const displayAssets = showFiltered ? assets : visibleAssets;
+
+  const mediaFilteredAssets = mediaFilter === "all"
+    ? displayAssets
+    : displayAssets.filter((a) => a.media_type === mediaFilter);
+
+  // Count by provider (visible only)
   const providerCounts: Record<string, number> = {};
-  for (const asset of assets) {
+  for (const asset of visibleAssets) {
     providerCounts[asset.provider] = (providerCounts[asset.provider] ?? 0) + 1;
   }
 
@@ -97,9 +107,6 @@ export default function FootagePanel() {
     await api.dismissRecommendation(projectId, selectedLineId, recId);
     refetch();
   }, [projectId, selectedLineId, refetch]);
-
-  // Detect available media types for filter
-  const availableMediaTypes = new Set(assets.map((a) => a.media_type));
 
   return (
     <div className="flex-1 flex flex-col min-w-0">
@@ -136,9 +143,9 @@ export default function FootagePanel() {
         <div className="flex items-center gap-2">
           <Film size={16} className="text-[var(--accent-purple)]" />
           <h3 className="text-sm font-semibold">Visual Research</h3>
-          {assets.length > 0 && (
+          {visibleAssets.length > 0 && (
             <span className="text-xs text-[var(--text-muted)]">
-              {filteredAssets.length} results
+              {visibleAssets.length} results{filteredCount > 0 ? ` (+${filteredCount} filtered)` : ""}
             </span>
           )}
         </div>
@@ -158,7 +165,7 @@ export default function FootagePanel() {
       </div>
 
       {/* Media type filters */}
-      {availableMediaTypes.size > 1 && (
+      {(new Set(displayAssets.map((a) => a.media_type))).size > 1 && (
         <div className="px-4 py-2 border-b border-[var(--border)] flex items-center gap-1.5">
           <Filter size={12} className="text-[var(--text-muted)]" />
           <button
@@ -172,7 +179,7 @@ export default function FootagePanel() {
             All
           </button>
           {(["video", "image", "stock_video", "stock_image"] as MediaType[]).map((mt) =>
-            availableMediaTypes.has(mt) ? (
+            displayAssets.some((a) => a.media_type === mt) ? (
               <button
                 key={mt}
                 onClick={() => setMediaFilter(mt)}
@@ -216,11 +223,27 @@ export default function FootagePanel() {
               Classifying line, searching YouTube, Internet Archive, and more.
             </p>
           </div>
-        ) : filteredAssets.length > 0 ? (
+        ) : mediaFilteredAssets.length > 0 ? (
           <div className="grid grid-cols-1 gap-3">
-            {filteredAssets.map((clip) => (
+            {mediaFilteredAssets.map((clip) => (
               <FootageCard key={clip.id} clip={clip} />
             ))}
+            {!showFiltered && filteredCount > 0 && (
+              <button
+                onClick={() => setShowFiltered(true)}
+                className="py-3 rounded-lg border border-dashed border-[var(--border)] text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--border-light)] transition-colors"
+              >
+                View {filteredCount} more (lower relevance)
+              </button>
+            )}
+            {showFiltered && filteredCount > 0 && (
+              <button
+                onClick={() => setShowFiltered(false)}
+                className="py-2 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+              >
+                Hide filtered results
+              </button>
+            )}
           </div>
         ) : (
           <EmptyFootageState onInvestigate={handleInvestigate} triggering={triggering} />
@@ -281,7 +304,15 @@ function FootageCard({ clip }: { clip: FootageAsset }) {
   const hasPreview = clip.preview_url;
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-light)] transition-colors group overflow-hidden">
+    <div className={`rounded-xl border bg-[var(--bg-secondary)] hover:border-[var(--border-light)] transition-colors group overflow-hidden ${
+      clip.filtered ? "border-[var(--border)] opacity-60" : "border-[var(--border)]"
+    }`}>
+      {/* Filter reason badge */}
+      {clip.filtered && clip.filter_reason && (
+        <div className="px-3 py-1.5 bg-[var(--bg-hover)] border-b border-[var(--border)]">
+          <span className="text-[10px] text-[var(--text-muted)]">Filtered: {clip.filter_reason}</span>
+        </div>
+      )}
       {/* Thumbnail */}
       <div className="relative h-40 bg-[var(--bg-tertiary)] overflow-hidden">
         {hasPreview ? (
