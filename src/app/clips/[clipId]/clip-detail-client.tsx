@@ -94,7 +94,7 @@ export default function ClipDetailClient({ data }: {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#09090b] text-[#d4d4d8]">
+    <div className="flex flex-col bg-[#09090b] text-[#d4d4d8]" style={{ height: "calc(100vh - 32px)" }}>
       {/* Top bar */}
       <div className="px-5 py-3 border-b border-[#18181b] bg-[#0c0c0e] flex items-center gap-4 flex-shrink-0">
         <a href="javascript:history.back()" className="text-xs text-[#3f3f46] hover:text-[#71717a]">&larr; Back</a>

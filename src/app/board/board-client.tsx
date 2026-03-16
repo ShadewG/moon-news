@@ -1382,7 +1382,7 @@ const boardStyles = `
 }
 
 .board-root {
-  height: 100vh;
+  height: calc(100vh - 32px);
   width: 100vw;
   background: var(--board-bg);
   color: var(--board-text);
@@ -1391,9 +1391,6 @@ const boardStyles = `
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: 0;
-  left: 0;
   z-index: 50;
 }
 

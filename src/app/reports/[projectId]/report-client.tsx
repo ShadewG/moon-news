@@ -43,7 +43,7 @@ export default function ReportClient({ data }: {
   const otherVisible = visible.filter((a) => a.provider !== "youtube" && a.provider !== "twitter");
 
   return (
-    <div className="h-screen flex bg-[#09090b] text-[#d4d4d8]">
+    <div className="flex bg-[#09090b] text-[#d4d4d8]" style={{ height: "calc(100vh - 32px)" }}>
       {/* Sidebar — script lines */}
       <div className="w-80 flex-shrink-0 border-r border-[#18181b] flex flex-col">
         <div className="px-4 py-4 border-b border-[#18181b]">
