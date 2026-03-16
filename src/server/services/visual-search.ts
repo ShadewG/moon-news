@@ -233,6 +233,7 @@ export async function runVisualSearchTask(input: {
   projectId: string;
   scriptLineId: string;
   lineText: string;
+  scriptContext?: string;
   category: string;
   searchKeywords: string[];
   temporalContext: string | null;
@@ -291,6 +292,7 @@ export async function runVisualSearchTask(input: {
           try {
             relevanceScores = await scoreResultRelevance({
               lineText: input.lineText,
+              scriptContext: input.scriptContext,
               results: withQuality.map((r) => ({
                 title: r.title,
                 description: r.description,
@@ -454,6 +456,7 @@ export async function runVisualSearchTask(input: {
         const merged = mergeTranscriptSegments(segments);
         const quotes = await findRelevantQuotes({
           lineText: input.lineText,
+          scriptContext: input.scriptContext,
           transcript: merged,
           videoTitle: asset.title,
           maxQuotes: 5,
@@ -497,6 +500,7 @@ export async function runVisualSearchTask(input: {
         if (videoDesc.length > 20) {
           const quotes = await findRelevantQuotes({
             lineText: input.lineText,
+            scriptContext: input.scriptContext,
             transcript: [{ text: videoDesc, startMs: 0, durationMs: 60000 }],
             videoTitle: asset.title,
             maxQuotes: 2,

@@ -42,13 +42,18 @@ export async function classifyLine(input: {
   lineText: string;
   lineType: string;
   projectTitle: string;
+  scriptContext?: string;
 }): Promise<LineClassification> {
+  const contextBlock = input.scriptContext
+    ? `\n\nFull script context (the line marked >>> is the one to classify):\n${input.scriptContext}`
+    : "";
+
   const response = await getOpenAIClient().responses.create({
     model: "gpt-4.1-mini",
     input: [
       {
         role: "system",
-        content: `You classify documentary script lines for visual research. Given a script line, determine its category and generate video-optimized search keywords.
+        content: `You classify documentary script lines for visual research. You will be given a single line to classify, along with surrounding script context so you understand what this section of the documentary is about.
 
 Categories:
 - concrete_event: A specific, dateable event (vote, attack, meeting, announcement)
@@ -61,13 +66,14 @@ Categories:
 
 Rules:
 - search_keywords should be optimized for YouTube/video search (2-5 keywords)
+- Include specific names, events, dates from the line AND surrounding context
 - temporal_context should be a date range or era if detectable, null otherwise
 - ai_generation_recommended should be true for: sample_story (always), abstract_concept (usually), transition (never needs visuals)
 - ai_generation_reason explains WHY ai generation is recommended (null if not recommended)`,
       },
       {
         role: "user",
-        content: `Project: "${input.projectTitle}"\nLine type: ${input.lineType}\nLine: "${input.lineText}"`,
+        content: `Project: "${input.projectTitle}"\nLine type: ${input.lineType}\nLine: "${input.lineText}"${contextBlock}`,
       },
     ],
     text: {
@@ -125,6 +131,7 @@ Rules:
 
 export async function scoreResultRelevance(input: {
   lineText: string;
+  scriptContext?: string;
   results: Array<{
     title: string;
     description: string;
@@ -152,7 +159,7 @@ Be strict. A result about "CIA and media" is NOT relevant to "Operation Mockingb
       },
       {
         role: "user",
-        content: `Script line: "${input.lineText}"\n\nResults:\n${resultsText}\n\nReturn ONLY a JSON array of integers, one score per result. Example: [45, 30, 5, 40, 12]`,
+        content: `Script line: "${input.lineText}"${input.scriptContext ? `\n\nScript context:\n${input.scriptContext}` : ""}\n\nResults:\n${resultsText}\n\nReturn ONLY a JSON array of integers, one score per result. Example: [45, 30, 5, 40, 12]`,
       },
     ],
   });
@@ -188,6 +195,7 @@ export async function findRelevantQuotes(input: {
   transcript: Array<{ text: string; startMs: number; durationMs: number }>;
   videoTitle: string;
   maxQuotes?: number;
+  scriptContext?: string;
 }): Promise<ExtractedQuote[]> {
   if (input.transcript.length === 0) return [];
 
@@ -208,10 +216,11 @@ export async function findRelevantQuotes(input: {
     input: [
       {
         role: "system",
-        content: `You extract the most relevant quotes from interview/video transcripts for a documentary editor. Given a script line and a timestamped transcript, find quotes that:
+        content: `You extract the most relevant quotes from interview/video transcripts for a documentary editor. You'll be given a specific script line, surrounding script context, and a timestamped transcript. Find quotes that:
 - Directly support, illustrate, or provide evidence for the script line's claim
 - Are spoken clearly and would work as a clip in a documentary
 - Have strong emotional or factual weight
+- Connect to the broader documentary thesis shown in the script context
 
 Return ONLY a JSON array of objects with:
 - quoteText: the exact quote (clean up filler words but keep the meaning)
@@ -225,7 +234,7 @@ Return at most ${maxQuotes} quotes, sorted by relevance. If nothing relevant, re
       },
       {
         role: "user",
-        content: `Script line: "${input.lineText}"\n\nVideo: "${input.videoTitle}"\n\nTranscript:\n${transcriptText}`,
+        content: `Script line: "${input.lineText}"${input.scriptContext ? `\n\nScript context:\n${input.scriptContext}` : ""}\n\nVideo: "${input.videoTitle}"\n\nTranscript:\n${transcriptText}`,
       },
     ],
   });

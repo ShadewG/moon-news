@@ -8,6 +8,7 @@ export const visualSearchTask = task({
     projectId: string;
     scriptLineId: string;
     lineText: string;
+    scriptContext?: string;
     category: string;
     searchKeywords: string[];
     temporalContext: string | null;

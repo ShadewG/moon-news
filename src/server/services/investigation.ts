@@ -23,6 +23,43 @@ export const INVESTIGATE_LINE_TASK_ID = "investigate-line";
 
 // ─── Classification ───
 
+/**
+ * Builds surrounding script context for a line (2 lines before + 2 after).
+ * Marks the target line with >>> so the model knows which one to focus on.
+ */
+async function buildScriptContext(
+  projectId: string,
+  targetLineId: string
+): Promise<string> {
+  const db = getDb();
+
+  const allLines = await db
+    .select({
+      id: scriptLines.id,
+      lineIndex: scriptLines.lineIndex,
+      text: scriptLines.text,
+      lineType: scriptLines.lineType,
+    })
+    .from(scriptLines)
+    .where(eq(scriptLines.projectId, projectId))
+    .orderBy(scriptLines.lineIndex);
+
+  const targetIdx = allLines.findIndex((l) => l.id === targetLineId);
+  if (targetIdx === -1) return "";
+
+  // Get surrounding 3 lines in each direction for context
+  const start = Math.max(0, targetIdx - 3);
+  const end = Math.min(allLines.length, targetIdx + 4);
+  const window = allLines.slice(start, end);
+
+  return window
+    .map((l) => {
+      const prefix = l.id === targetLineId ? ">>> " : "    ";
+      return `${prefix}[${l.lineType}] ${l.text}`;
+    })
+    .join("\n");
+}
+
 export async function runClassifyLineTask(input: {
   scriptLineId: string;
   projectId: string;
@@ -45,10 +82,16 @@ export async function runClassifyLineTask(input: {
     throw new Error(`Script line not found: ${input.scriptLineId}`);
   }
 
+  const scriptContext = await buildScriptContext(
+    input.projectId,
+    input.scriptLineId
+  );
+
   const classification = await classifyLine({
     lineText: record.line.text,
     lineType: record.line.lineType,
     projectTitle: record.project.title,
+    scriptContext,
   });
 
   await db
@@ -107,7 +150,7 @@ export async function runInvestigateLineTask(input: {
     return;
   }
 
-  // Get the line text and project title for searches
+  // Get the line text, project title, and surrounding script context
   const [lineRecord] = await db
     .select({ text: scriptLines.text, project: projects })
     .from(scriptLines)
@@ -117,6 +160,11 @@ export async function runInvestigateLineTask(input: {
 
   const lineText = lineRecord?.text ?? "";
   const projectTitle = lineRecord?.project.title ?? "";
+
+  const scriptContext = await buildScriptContext(
+    input.projectId,
+    input.scriptLineId
+  );
 
   // Step 3: Visual search + text research in parallel
   await db
@@ -133,6 +181,7 @@ export async function runInvestigateLineTask(input: {
       projectId: input.projectId,
       scriptLineId: input.scriptLineId,
       lineText,
+      scriptContext,
       category: classification.category,
       searchKeywords: classification.search_keywords,
       temporalContext: classification.temporal_context,
