@@ -5,7 +5,7 @@ import CopyLinksButton from "./copy-links";
 import { YouTubeEmbed } from "./video-embed";
 
 type Line = { id: string; lineKey: string; lineIndex: number; text: string; lineType: string; category: string | null };
-type Asset = { id: string; scriptLineId: string; lineKey: string; provider: string; externalAssetId: string; title: string; previewUrl: string | null; sourceUrl: string; channelOrContributor: string | null; matchScore: number; durationMs: number | null; uploadDate: string | null; licenseType: string | null; isPrimarySource: boolean; filtered: boolean; filterReason: string | null; metadataJson: Record<string, unknown> | null };
+type Asset = { id: string; scriptLineId: string; lineKey: string; provider: string; externalAssetId: string; title: string; previewUrl: string | null; sourceUrl: string; channelOrContributor: string | null; matchScore: number; durationMs: number | null; uploadDate: string | null; licenseType: string | null; isPrimarySource: boolean; filtered: boolean; filterReason: string | null; metadataJson: Record<string, unknown> | null; clipLibraryId: string | null };
 type Quote = { id: string; scriptLineId: string; footageAssetId: string; lineKey: string; quoteText: string; speaker: string | null; startMs: number; endMs: number; relevanceScore: number; context: string | null };
 type Source = { id: string; scriptLineId: string; lineKey: string; title: string; sourceName: string; sourceUrl: string; snippet: string | null; relevanceScore: number };
 type Rec = { id: string; scriptLineId: string; recommendationType: string; reason: string; dismissed: boolean };
@@ -260,11 +260,12 @@ function YTCard({ asset }: { asset: Asset }) {
   const dur = asset.durationMs
     ? `${Math.floor(asset.durationMs / 60000)}:${String(Math.floor((asset.durationMs % 60000) / 1000)).padStart(2, "0")}`
     : "";
+  const clipLink = asset.clipLibraryId ? `/clips/${asset.clipLibraryId}` : asset.sourceUrl;
   return (
     <div className="rounded-lg border border-[#18181b] bg-[#111114] overflow-hidden">
-      <YouTubeEmbed videoId={asset.externalAssetId} title={asset.title} />
+      <a href={clipLink}><YouTubeEmbed videoId={asset.externalAssetId} title={asset.title} /></a>
       <div className="px-3 py-2.5">
-        <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[#d4d4d8] hover:text-white leading-snug line-clamp-2 block">
+        <a href={clipLink} className="text-xs text-[#d4d4d8] hover:text-white leading-snug line-clamp-2 block">
           {decode(asset.title)}
         </a>
         <div className="flex items-center gap-2 mt-1 text-[10px] text-[#3f3f46]">
@@ -283,8 +284,10 @@ function XCard({ asset }: { asset: Asset }) {
   const likes = meta?.likeCount;
   const videoDesc = meta?.videoDescription as string | undefined;
 
+  const clipLink = asset.clipLibraryId ? `/clips/${asset.clipLibraryId}` : asset.sourceUrl;
+
   return (
-    <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg bg-[#111114] border border-[#18181b] hover:border-[#27272a] transition-colors group">
+    <a href={clipLink} className="block p-3 rounded-lg bg-[#111114] border border-[#18181b] hover:border-[#27272a] transition-colors group">
       <p className="text-[12px] text-[#d4d4d8] leading-relaxed group-hover:text-white">{asset.title}</p>
       {videoDesc && videoDesc !== asset.title && (
         <p className="text-[11px] text-[#3f3f46] mt-1 line-clamp-2">{videoDesc}</p>

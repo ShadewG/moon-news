@@ -1,7 +1,8 @@
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import {
+  clipLibrary,
   footageAssets,
   footageQuotes,
   projects,
@@ -32,7 +33,12 @@ export default async function ReportPage({ params }: Props) {
   const lines = await db.select().from(scriptLines).where(eq(scriptLines.projectId, projectId)).orderBy(scriptLines.lineIndex);
 
   const [allAssets, allQuotes, allSources, allRecs] = await Promise.all([
-    db.select().from(footageAssets).innerJoin(scriptLines, eq(scriptLines.id, footageAssets.scriptLineId)).where(eq(scriptLines.projectId, projectId)).orderBy(desc(footageAssets.matchScore)),
+    db.select({ footage_assets: footageAssets, script_lines: scriptLines, clipLibraryId: clipLibrary.id })
+      .from(footageAssets)
+      .innerJoin(scriptLines, eq(scriptLines.id, footageAssets.scriptLineId))
+      .leftJoin(clipLibrary, and(eq(clipLibrary.provider, footageAssets.provider), eq(clipLibrary.externalId, footageAssets.externalAssetId)))
+      .where(eq(scriptLines.projectId, projectId))
+      .orderBy(desc(footageAssets.matchScore)),
     db.select().from(footageQuotes).innerJoin(scriptLines, eq(scriptLines.id, footageQuotes.scriptLineId)).where(eq(scriptLines.projectId, projectId)).orderBy(desc(footageQuotes.relevanceScore)),
     db.select().from(researchSources).innerJoin(scriptLines, eq(scriptLines.id, researchSources.scriptLineId)).where(eq(scriptLines.projectId, projectId)),
     db.select().from(visualRecommendations).where(eq(visualRecommendations.projectId, projectId)),
@@ -52,6 +58,7 @@ export default async function ReportPage({ params }: Props) {
     assets: allAssets.map((a) => ({
       ...a.footage_assets,
       lineKey: a.script_lines.lineKey,
+      clipLibraryId: a.clipLibraryId,
     })),
     quotes: allQuotes.map((q) => ({
       ...q.footage_quotes,

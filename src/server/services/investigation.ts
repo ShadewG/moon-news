@@ -6,6 +6,7 @@ import { tasks } from "@trigger.dev/sdk/v3";
 import { isTriggerConfigured } from "@/server/config/env";
 import { getDb } from "@/server/db/client";
 import {
+  clipLibrary,
   footageAssets,
   footageQuotes,
   footageSearchRuns,
@@ -281,17 +282,32 @@ export async function getVisualsForLine(
   projectId: string,
   lineId: string
 ): Promise<{
-  assets: Array<typeof footageAssets.$inferSelect>;
+  assets: Array<typeof footageAssets.$inferSelect & { clipLibraryId: string | null }>;
   quotes: Array<typeof footageQuotes.$inferSelect>;
   recommendations: Array<typeof visualRecommendations.$inferSelect>;
 }> {
   const db = getDb();
 
-  const assets = await db
-    .select()
+  const rawAssets = await db
+    .select({
+      asset: footageAssets,
+      clipLibraryId: clipLibrary.id,
+    })
     .from(footageAssets)
+    .leftJoin(
+      clipLibrary,
+      and(
+        eq(clipLibrary.provider, footageAssets.provider),
+        eq(clipLibrary.externalId, footageAssets.externalAssetId)
+      )
+    )
     .where(eq(footageAssets.scriptLineId, lineId))
     .orderBy(desc(footageAssets.matchScore));
+
+  const assets = rawAssets.map((r) => ({
+    ...r.asset,
+    clipLibraryId: r.clipLibraryId,
+  }));
 
   const quotes = await db
     .select()
