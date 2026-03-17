@@ -658,6 +658,14 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
           ))}
         </div>
 
+        {/* Summary snippet from primary source */}
+        {story.sourcePreviews[0]?.summary && (
+          <div className="board-card-summary">
+            {decodeHtml(story.sourcePreviews[0].summary.slice(0, 150))}
+            {story.sourcePreviews[0].summary.length > 150 ? "..." : ""}
+          </div>
+        )}
+
         {/* Source chips — clickable to open source */}
         <div className="board-card-sources">
           {story.sourcePreviews.slice(0, 4).map((src) => (
@@ -951,6 +959,12 @@ export default function BoardClient({ data }: { data: BoardBootstrapPayload }) {
                   ? ` \u00B7 ${formatTimeAgo(src.publishedAt)}`
                   : ""}
               </div>
+              {src.summary && (
+                <div className="board-src-summary">
+                  {decodeHtml(src.summary.slice(0, 200))}
+                  {src.summary.length > 200 ? "..." : ""}
+                </div>
+              )}
             </a>
           ))}
         </div>
@@ -1837,6 +1851,13 @@ const boardStyles = `
   align-items: center;
   gap: 3px;
 }
+.board-card-summary {
+  font-size: 11px;
+  color: var(--board-text);
+  line-height: 1.4;
+  margin: 4px 0 2px;
+  opacity: 0.75;
+}
 
 /* Badges */
 .board-card-badges {
@@ -2064,6 +2085,7 @@ const boardStyles = `
 }
 .board-src-name { color: var(--board-text-bright); margin-bottom: 2px; }
 .board-src-meta { color: var(--board-muted); font-size: 10px; }
+.board-src-summary { color: var(--board-text); font-size: 10px; opacity: 0.7; margin-top: 3px; line-height: 1.3; }
 
 /* Panel AI tools */
 .board-panel-tools {

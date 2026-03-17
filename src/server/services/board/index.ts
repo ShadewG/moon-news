@@ -101,6 +101,7 @@ export interface BoardStorySourcePreview {
   latestDiffSummary: string | null;
   latestCapturedAt: string | null;
   hasCorrection: boolean;
+  summary: string | null;
 }
 
 export interface BoardStoryDetail {
@@ -1402,6 +1403,7 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
       sourceProvider: boardSources.provider,
       title: boardFeedItems.title,
       url: boardFeedItems.url,
+      summary: boardFeedItems.summary,
       publishedAt: boardFeedItems.publishedAt,
       sourceWeight: boardStorySources.sourceWeight,
       isPrimary: boardStorySources.isPrimary,
@@ -1489,6 +1491,7 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
       latestDiffSummary: versionSummary?.latestDiffSummary ?? null,
       latestCapturedAt: versionSummary?.latestCapturedAt ?? null,
       hasCorrection: versionSummary?.hasCorrection ?? false,
+      summary: row.summary ?? null,
     };
 
     const existing = previews.get(row.storyId) ?? [];
