@@ -3,6 +3,11 @@ import "server-only";
 /**
  * Moon's content verticals — derived from analyzing 63 videos over 3 months.
  * Used to classify stories and filter the board to show only Moon-relevant content.
+ *
+ * KEY PRINCIPLE: Moon is a social commentary channel, NOT a tech/gadget channel.
+ * Tech only matters when it affects PEOPLE — privacy violations, job losses,
+ * corporate scandals, societal effects. Product launches, app updates, gadget
+ * reviews, and routine business news are NOT Moon content.
  */
 export const MOON_VERTICALS = [
   "Celebrity / Hollywood",
@@ -21,141 +26,221 @@ export type MoonVertical = (typeof MOON_VERTICALS)[number];
 
 /**
  * Keywords that signal a story fits Moon's content pillars.
- * Higher weight = stronger signal.
+ * IMPORTANT: Keywords should be specific enough that matching them
+ * strongly suggests "Moon could make a 10-20 minute video about this."
+ * Generic company names (apple, google, meta) are NOT enough —
+ * they need to be paired with controversy/scandal/impact signals.
  */
 const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: number }> = {
   "Celebrity / Hollywood": {
     keywords: [
-      "hollywood", "celebrity", "actor", "actress", "movie", "film", "oscars",
-      "netflix", "disney", "entertainment", "conan", "talk show", "red carpet",
+      // Scandal / drama (Moon's angle on celebrities)
       "scandal", "exposed", "predator", "harvey", "diddy", "epstein",
-      "influencer", "onlyfans", "kardashian", "bieber", "kanye",
-      "grooming", "abuse allegation", "metoo",
-      "drake", "kendrick", "travis scott", "taylor swift", "beyonce",
-      "doja cat", "ice spice", "cardi b", "nicki minaj", "bad bunny",
-      "zendaya", "timothée", "sydney sweeney", "jenna ortega",
+      "grooming", "abuse", "allegation", "metoo", "arrested", "assault",
+      "feud", "beef", "diss track", "controversy", "sued",
+      // Specific people Moon covers
+      "kardashian", "kanye", "drake", "kendrick", "taylor swift",
+      "beyonce", "ice spice", "cardi b", "nicki minaj",
+      "zendaya", "sydney sweeney", "jenna ortega",
+      "mrbeast", "mr beast", "logan paul",
+      // Entertainment industry drama (not reviews)
+      "oscar controversy", "award snub", "box office bomb", "flop",
+      "cancelled show", "streaming war", "hollywood strike",
       "tmz", "paparazzi", "shade room", "pop crave",
-      "grammy", "emmy", "golden globe", "box office",
-      "feud", "beef", "diss track", "breakup", "dating",
-      "mcdonald's", "super bowl", "halftime", "brand deal",
+      "influencer", "onlyfans",
+      // Real people in the news (not product news)
+      "celebrity", "actor", "actress",
     ],
     weight: 1.0,
   },
   "Podcast Reactions": {
     keywords: [
-      "joe rogan", "jre", "theo von", "lex fridman", "podcast", "interview",
+      "joe rogan", "jre", "theo von", "lex fridman", "podcast",
       "andrew huberman", "tucker carlson", "steven bartlett", "diary of a ceo",
       "logan paul", "impaulsive", "flagrant", "shawn ryan",
     ],
     weight: 0.9,
   },
   "Tech Failures": {
+    // NOTE: This is about tech GOING WRONG, not tech existing.
+    // "Apple released a new phone" = irrelevant. "Apple's update bricked millions of phones" = relevant.
     keywords: [
-      "windows", "microsoft", "apple", "google", "spotify", "linkedin",
-      "bug", "disaster", "failure", "broken", "worst update",
-      "downfall", "decline", "failing", "dead product",
+      "tech disaster", "massive bug", "catastrophic failure", "bricked",
+      "worst update", "data loss", "outage millions",
+      "downfall of", "decline of", "the fall of", "how.*killed",
+      "dead product", "failed startup", "shutdown", "bankrupt",
+      "class action", "antitrust lawsuit", "ftc sued",
     ],
     weight: 0.85,
   },
   "AI & Automation": {
+    // AI as a SOCIETAL issue, not AI product announcements
     keywords: [
-      "ai replacing", "artificial intelligence", "automation", "chatgpt", "openai",
-      "deepfake", "ai generated", "robot", "job loss", "ai danger",
-      "sam altman", "ai ethics", "ai regulation", "grok", "claude",
-      "ai scam", "ai fraud",
+      "ai replacing", "ai took", "ai stealing", "ai job loss",
+      "deepfake", "ai generated", "ai fraud", "ai scam",
+      "ai danger", "ai existential", "ai alignment", "ai regulation",
+      "ai ethics", "ai bias", "ai discrimination",
+      "sam altman", "openai", "sued", "suing", "lawsuit",
+      "ai art theft", "ai copyright", "ai plagiarism", "memorizing",
+      "robot replacing", "automation job",
+      "grok", "chatgpt", "claude",
+      "sexualized", "csam", "ai image", "ai photo",
+      "duped by ai", "fooled by ai",
     ],
     weight: 0.9,
   },
   "Big Tech / Billionaires": {
+    // Billionaire BEHAVIOR and corporate ABUSE, not business news
     keywords: [
-      "elon musk", "mark zuckerberg", "jeff bezos", "bill gates", "tim cook",
-      "meta", "tesla", "spacex", "amazon", "google", "apple",
-      "billionaire", "richest", "net worth", "monopoly", "antitrust",
-      "dubai", "saudi", "wealth inequality",
+      "elon musk", "zuckerberg", "jeff bezos", "bill gates",
+      "billionaire", "richest", "wealth inequality", "tax evasion",
+      "monopoly", "antitrust", "anti-competitive",
+      "worker abuse", "union busting", "sweatshop",
+      "ceo scandal", "golden parachute", "layoffs thousands",
+      "corporate greed", "price gouging",
+      "spacex explosion", "tesla recall", "tesla autopilot death",
+      "deepfake", "manipulat", "accused",
+      "trump", "kickback", "treasury",
     ],
     weight: 0.85,
   },
   "Digital Rights / Piracy": {
     keywords: [
-      "piracy", "copyright", "dmca", "drm", "ownership", "buying isn't owning",
-      "privacy", "surveillance", "encryption", "e2ee", "data breach",
-      "right to repair", "subscription", "enshittification",
-      "terms of service", "user data",
+      "piracy", "copyright strike", "dmca abuse", "drm",
+      "buying isn't owning", "ownership",
+      "privacy violation", "privacy", "surveillance", "spying on users",
+      "encryption", "e2ee", "data breach", "data leak",
+      "right to repair", "enshittification",
+      "terms of service", "user data sold", "tracking",
+      "censorship", "content moderation", "deplatformed",
+      "kills encryption", "no longer private",
     ],
     weight: 0.9,
   },
   "Scams & Fraud": {
     keywords: [
-      "scam", "fraud", "ponzi", "crypto scam", "rug pull", "nft",
-      "coffeezilla", "exposed", "investigation", "money stolen",
+      "scam", "fraud", "ponzi", "pyramid scheme",
+      "crypto scam", "rug pull", "nft scam",
+      "coffeezilla", "exposed", "investigation",
+      "money stolen", "lost millions", "victims",
       "fake", "con artist", "grifter",
+      "mlm", "multi-level marketing",
     ],
     weight: 0.95,
   },
   "Social Issues / Culture": {
     keywords: [
-      "gen z", "millennial", "incel", "dating", "loneliness", "mental health",
-      "social media effect", "addiction", "culture war", "woke",
-      "education", "student debt", "housing crisis", "job market",
-      "simulation", "conspiracy",
-      "tiktok", "tiktok trend", "tiktok ban", "tiktok viral",
-      "viral video", "went viral", "goes viral", "trending",
-      "gen alpha", "brain rot", "skibidi", "rizz", "sigma",
-      "delulu", "slay", "ate", "no cap",
-      "social media", "instagram reels", "youtube shorts",
-      "body positivity", "beauty standard", "ozempic", "weight loss",
-      "cost of living", "rent crisis", "side hustle", "quiet quitting",
-      "deinfluencing", "girl dinner", "roman empire", "demure",
-      "brat summer", "mob wife", "clean girl", "that girl",
-      "fast fashion", "shein", "temu",
-      "protest", "boycott", "cancel culture",
+      // Gen Z / culture (Moon's core)
+      "gen z", "millennial", "gen alpha",
+      "incel", "dating crisis", "loneliness epidemic", "mental health crisis",
+      "social media effect", "social media addiction", "brain rot",
+      "culture war", "woke", "cancel culture",
+      "student debt", "housing crisis", "cost of living crisis", "rent crisis",
+      // Viral cultural MOMENTS (not just any trending thing)
+      "tiktok ban", "tiktok controversy", "tiktok",
+      "boycott", "protest", "backlash",
+      "fast fashion", "shein controversy", "temu",
+      "ozempic", "beauty standard",
+      "quiet quitting",
+      // Reality TV / cultural moments
+      "reality tv", "reality show", "mormon wives",
+      "domestic assault", "domestic violence",
+      "arrested", "charged with",
     ],
     weight: 0.8,
   },
   "Internet Drama": {
     keywords: [
-      "youtuber", "streamer", "twitch", "drama", "beef", "cancelled",
-      "doxed", "exposed", "callout", "response video",
-      "mrbeast", "pewdiepie", "dream", "sssniperwolf",
-      "internet culture", "viral", "tiktok drama",
-      "tiktoker", "content creator", "influencer drama",
-      "h3h3", "ethan klein", "keemstar", "dramaalert", "def noodles",
-      "pokimane", "kai cenat", "ishowspeed", "adin ross",
-      "deplatformed", "ratio", "main character", "chronically online",
-      "parasocial", "stan", "fandom", "twitter beef",
-      "apology video", "comeback", "face reveal",
-      "mukbang", "asmr drama", "collab drama",
-      "philip defranco", "penguinz0", "critikal",
+      // Creator DRAMA, not just any creator content
+      "youtuber", "streamer", "cancelled", "exposed",
+      "doxed", "callout", "response video", "apology video",
+      "drama", "beef", "controversy", "scandal",
+      "mrbeast", "mr beast",
+      "pewdiepie", "dream", "sssniperwolf",
+      "influencer", "creator",
+      "h3h3", "ethan klein", "keemstar",
+      "kai cenat", "ishowspeed", "adin ross",
+      "deplatformed", "ratio",
+      "parasocial", "stan",
+      "penguinz0", "critikal",
+      "twitch", "banned",
+      "toxic workplace", "speak out",
     ],
     weight: 0.85,
   },
   "Government / Corruption": {
     keywords: [
-      "government", "corruption", "politician", "congress", "senate",
-      "cia", "fbi", "nsa", "whistleblower", "classified",
-      "cover up", "conspiracy", "propaganda", "censorship",
-      "war", "military industrial",
+      "corruption", "bribery", "cover up",
+      "cia", "fbi", "nsa", "whistleblower", "classified", "leaked documents",
+      "war crime", "propaganda", "censorship",
+      "politician scandal", "congress", "senate",
+      "military industrial",
+      "epstein", "trafficking",
+      "trump", "kickback", "billion dollar",
+      "government", "white house",
     ],
     weight: 0.8,
   },
 };
 
 /**
- * Topics Moon does NOT cover — stories matching these get penalized.
+ * Topics Moon does NOT cover — stories matching these get HEAVILY penalized.
+ * These are the "WhatsApp on Garmin" type stories that should never score high.
  */
 const IRRELEVANT_SIGNALS = [
+  // Product/gadget news (Moon doesn't do product reviews)
+  "now available", "ships today", "pre-order", "hands on",
+  "product launch", "officially available", "rolling out to",
+  "new feature", "new update", "app update", "gets new",
+  "unboxing", "review:", "first look:", "first impressions",
+  "smartwatch", "wearable", "garmin", "fitbit",
+  "phone case", "accessory", "charger",
+  "spec", "benchmark", "geekbench",
+  "megapixel", "refresh rate", "mah battery", "display size",
+
+  // Routine business news
   "stock price", "earnings report", "quarterly results", "ipo filing",
   "venture capital", "series a", "series b", "seed round", "fundraise",
+  "partnership announced", "teams up with", "joins forces",
+  "appoints new", "hires", "promoted to", "steps down as",
+  "expands to", "opens new office", "new headquarters",
+
+  // Developer/enterprise tech (nobody watches Moon for this)
   "sdk", "api update", "developer tools", "framework",
-  "firmware update", "patch notes", "changelog",
-  "recipe", "cooking", "restaurant review",
-  "sports score", "game result", "playoff",
-  "weather", "forecast",
-  "product launch", "now available", "ships today", "pre-order",
+  "open source", "github", "pull request", "repository",
+  "firmware update", "patch notes", "changelog", "bug fix",
+  "cloud service", "azure", "aws", "gcp",
+  "enterprise", "b2b", "saas",
+  "kubernetes", "docker", "devops",
+
+  // Consumer deals / shopping
   "deal alert", "percent off", "sale price", "best buy",
-  "how to", "tutorial", "guide", "tips and tricks",
-  "unboxing", "review:", "hands on",
-  "press release",
+  "amazon prime day", "black friday deal", "coupon",
+  "cheapest", "budget pick", "best value",
+
+  // How-to / tutorial content
+  "how to", "tutorial", "step by step", "guide",
+  "tips and tricks", "beginner's guide",
+
+  // Generic non-commentary content
+  "press release", "press conference",
+  "recipe", "cooking", "restaurant review",
+  "weather", "forecast",
+
+  // Sports (unless it's cultural — use specific names for those)
+  "sports score", "game result", "playoff", "standings",
+  "touchdown", "home run", "goal scored",
+  "transfer window", "free agent",
+
+  // Routine tech coverage
+  "carrier", "5g rollout", "network coverage",
+  "browser update", "chrome update", "firefox update",
+  "windows update", "macos update", "ios update",
+  "pixel", "galaxy", "iphone",
+  "laptop review", "tablet review",
+  "printer", "router", "modem",
+  "app store", "play store",
+  "patent filed", "patent granted",
 ];
 
 export interface PlatformSignals {
@@ -178,8 +263,10 @@ export interface MoonRelevanceResult {
 
 /**
  * Score how relevant a story is to Moon's content AND how much it's trending.
- * Both matter: a perfectly relevant but dead topic scores lower than
- * a relevant topic that's blowing up across platforms.
+ *
+ * The key test: "Could Moon make a 10-20 minute video about this?"
+ * If the answer is no, the score should be low regardless of how
+ * many keywords match.
  */
 export function scoreMoonRelevance(
   title: string,
@@ -187,6 +274,14 @@ export function scoreMoonRelevance(
   platforms?: PlatformSignals | null
 ): MoonRelevanceResult {
   const text = `${title} ${summary ?? ""}`.toLowerCase();
+
+  // ─── Irrelevant Content Check (run FIRST, penalize hard) ───
+  let irrelevantPenalty = 0;
+  for (const signal of IRRELEVANT_SIGNALS) {
+    if (text.includes(signal)) {
+      irrelevantPenalty += 20; // Heavier penalty per match
+    }
+  }
 
   // ─── Content Match Score ───
   let bestVertical: MoonVertical | null = null;
@@ -205,12 +300,10 @@ export function scoreMoonRelevance(
     }
   }
 
-  // Check for irrelevant content
-  let irrelevantPenalty = 0;
-  for (const signal of IRRELEVANT_SIGNALS) {
-    if (text.includes(signal)) {
-      irrelevantPenalty += 15;
-    }
+  // If only 1 keyword matched, reduce score slightly
+  // (two+ keyword matches = much stronger signal)
+  if (bestKeywords.length === 1) {
+    bestScore = Math.round(bestScore * 0.7);
   }
 
   const relevanceScore = Math.max(0, Math.min(100, bestScore - irrelevantPenalty));
@@ -218,32 +311,22 @@ export function scoreMoonRelevance(
   // ─── Trend / Platform Engagement Score ───
   let trendScore = 0;
   if (platforms) {
-    // Multiple sources = story has legs (max 25pts)
     trendScore += Math.min(platforms.sourceCount * 8, 25);
-
-    // Controversy drives engagement (max 25pts)
     trendScore += Math.min(Math.round(platforms.controversyScore * 0.25), 25);
-
-    // Strong sentiment (positive or negative) = emotional topic (max 15pts)
     trendScore += Math.min(Math.round(platforms.sentimentMagnitude * 15), 15);
-
-    // Twitter discourse = people are talking about it (15pts)
     if (platforms.hasTwitterDiscourse) trendScore += 15;
-
-    // YouTube content exists = visual angles available (10pts)
     if (platforms.hasYouTubeContent) trendScore += 10;
-
-    // Multiple sources covering = mainstream attention (10pts)
     if (platforms.hasMultipleSources) trendScore += 10;
   } else {
-    // No platform data — estimate from title signals
-    // High-emotion words boost trend score
-    const emotionWords = ["exposed", "destroyed", "shocking", "breaking", "scandal", "disaster", "catastroph", "millions", "billion", "killed", "arrested", "sued", "banned", "leaked", "secret", "warning"];
+    // No platform data — only boost for STRONG signals
+    const emotionWords = ["exposed", "destroyed", "shocking", "breaking", "scandal",
+      "disaster", "catastroph", "millions", "arrested", "sued", "banned",
+      "leaked", "secret", "warning", "emergency", "crisis"];
     const emotionMatches = emotionWords.filter((w) => text.includes(w));
     trendScore += emotionMatches.length * 10;
 
-    // Named people boost trend (people search for names)
-    const namePatterns = ["elon", "zuckerberg", "altman", "gates", "bezos", "trump", "rogan", "musk"];
+    const namePatterns = ["elon", "zuckerberg", "altman", "gates", "bezos",
+      "trump", "rogan", "musk", "diddy", "drake", "kanye", "kardashian"];
     const nameMatches = namePatterns.filter((n) => text.includes(n));
     trendScore += nameMatches.length * 12;
   }
@@ -251,11 +334,11 @@ export function scoreMoonRelevance(
   trendScore = Math.min(100, trendScore);
 
   // ─── Combined Score ───
-  // 60% content relevance + 40% trending
-  // But a totally irrelevant topic still gets capped even if trending
+  // 70% content relevance + 30% trending (was 60/40 — relevance matters more)
+  // Totally irrelevant topics get capped hard
   const combinedScore = relevanceScore > 0
-    ? Math.round(relevanceScore * 0.6 + trendScore * 0.4)
-    : Math.round(trendScore * 0.2); // Irrelevant topics get max 20 from trend alone
+    ? Math.round(relevanceScore * 0.7 + trendScore * 0.3)
+    : Math.round(trendScore * 0.1); // Irrelevant topics get max 10 from trend alone (was 20)
 
   return {
     vertical: bestVertical,
