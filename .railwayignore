@@ -1,5 +1,3 @@
 .playwright-mcp/
 demos/
-tasks/
-*.png
-*.html
+.playwright-mcp/*.png
