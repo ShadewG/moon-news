@@ -1753,6 +1753,52 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     { name: "Scrubby", handle: "@Scrubby", vertical: "Internet Drama", authority: 64, tags: ["commentary", "internet-culture", "cringe"], poll: 60 },
     { name: "tuv", handle: "@tuv", vertical: "Internet Drama", authority: 64, tags: ["commentary", "internet-culture", "react"], poll: 60 },
   ]),
+
+  /* ──────────────────────────────────────────────────
+     REACT / CURRENT EVENTS COMMENTARY
+     (penguinz0 / Asmongold style — react to whatever is trending)
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    // Big react commentators
+    { name: "Aba & Preach", handle: "@AbaandPreach", vertical: "Social Issues / Culture", authority: 82, tags: ["react", "social-commentary", "culture", "trending"], poll: 30 },
+    { name: "Destiny", handle: "@destiny", vertical: "Social Issues / Culture", authority: 78, tags: ["react", "debates", "politics", "culture-war"], poll: 30 },
+    { name: "Oompaville", handle: "@oompaville", vertical: "Internet Drama", authority: 76, tags: ["react", "tiktok", "trending", "commentary"], poll: 30 },
+    { name: "JiDion", handle: "@JiDion", vertical: "Internet Drama", authority: 78, tags: ["react", "pranks", "viral", "gen-z"], poll: 30 },
+    { name: "TheQuartering", handle: "@TheQuartering", vertical: "Social Issues / Culture", authority: 72, tags: ["react", "gaming-news", "pop-culture", "commentary"], poll: 30 },
+    { name: "The Act Man", handle: "@TheActMan_", vertical: "Internet Drama", authority: 78, tags: ["react", "gaming-industry", "commentary", "drama"], poll: 45 },
+    { name: "Wendigoon", handle: "@Wendigoon", vertical: "Internet Drama", authority: 80, tags: ["deep-dives", "conspiracy", "internet-culture", "essays"], poll: 45 },
+    { name: "Hbomberguy", handle: "@hbomberguy", vertical: "Internet Drama", authority: 84, tags: ["video-essays", "debunking", "media-commentary"], poll: 60 },
+    { name: "Patrick Cc:", handle: "@PatrickCc", vertical: "Celebrity / Hollywood", authority: 80, tags: ["commentary", "celebrities", "youtubers", "pop-culture"], poll: 45 },
+    { name: "DramaAlert", handle: "@DramaAlert", vertical: "Internet Drama", authority: 78, tags: ["drama", "news", "youtube", "trending"], poll: 15 },
+    { name: "Whang!", handle: "@Whang", vertical: "Internet Drama", authority: 76, tags: ["internet-history", "lost-media", "internet-culture"], poll: 60 },
+    { name: "FlightReacts", handle: "@FlightReacts", vertical: "Internet Drama", authority: 74, tags: ["react", "sports", "viral", "trending"], poll: 30 },
+    { name: "SNEAKO", handle: "@SNEAKO", vertical: "Social Issues / Culture", authority: 70, tags: ["react", "debates", "culture-war", "trending"], poll: 30 },
+
+    // UK commentary scene
+    { name: "Memeulous", handle: "@Memeulous", vertical: "Internet Drama", authority: 76, tags: ["react", "memes", "internet-culture", "uk"], poll: 45 },
+    { name: "WillNE", handle: "@WillNE", vertical: "Internet Drama", authority: 74, tags: ["react", "internet-culture", "uk", "commentary"], poll: 45 },
+    { name: "James Marriott", handle: "@JamesMarriott", vertical: "Internet Drama", authority: 72, tags: ["react", "pop-culture", "uk", "commentary"], poll: 45 },
+
+    // Mid-size react/drama
+    { name: "Diesel Patches", handle: "@dieselpatches", vertical: "Internet Drama", authority: 70, tags: ["react", "drama", "commentary", "trending"], poll: 30 },
+    { name: "Sensitive Soci3ty", handle: "@SensitiveSoci3ty", vertical: "Internet Drama", authority: 66, tags: ["react", "drama", "youtube", "commentary"], poll: 30 },
+    { name: "Nicholas DeOrio", handle: "@NicholasDeOrio", vertical: "Internet Drama", authority: 68, tags: ["react", "drama", "controversies", "commentary"], poll: 30 },
+    { name: "Pegasus", handle: "@Pegasus", vertical: "Internet Drama", authority: 70, tags: ["react", "drama", "trending", "internet-culture"], poll: 30 },
+    { name: "Ready To Glare", handle: "@ReadyToGlare", vertical: "Social Issues / Culture", authority: 72, tags: ["react", "true-crime", "internet-culture", "commentary"], poll: 45 },
+    { name: "Kwite", handle: "@Kwite", vertical: "Internet Drama", authority: 72, tags: ["react", "commentary", "internet-culture", "drama"], poll: 45 },
+    { name: "Papa Gut", handle: "@PapaGut", vertical: "Social Issues / Culture", authority: 66, tags: ["react", "tiktok", "social-commentary", "trending"], poll: 30 },
+    { name: "AugieRFC", handle: "@AugieRFC", vertical: "Internet Drama", authority: 66, tags: ["react", "drama", "commentary", "debates"], poll: 45 },
+    { name: "Internet Ajay", handle: "@InternetAjay", vertical: "Internet Drama", authority: 68, tags: ["rise-fall", "youtubers", "celebrities", "commentary"], poll: 60 },
+    { name: "SWOOP", handle: "@SWOOP", vertical: "Internet Drama", authority: 74, tags: ["documentary", "scandals", "comedy", "deep-dives"], poll: 60 },
+
+    // Culture/media analysis
+    { name: "F.D Signifier", handle: "@FDSignifier", vertical: "Social Issues / Culture", authority: 76, tags: ["essays", "black-media", "culture", "analysis"], poll: 60 },
+    { name: "Khadija Mbowe", handle: "@KhadijaMbowe", vertical: "Social Issues / Culture", authority: 72, tags: ["essays", "culture", "pop-culture", "analysis"], poll: 60 },
+    { name: "Saberspark", handle: "@Saberspark", vertical: "Celebrity / Hollywood", authority: 74, tags: ["animation", "media-commentary", "pop-culture"], poll: 60 },
+    { name: "Hero Hei", handle: "@HeroHei", vertical: "Internet Drama", authority: 68, tags: ["anime", "manga", "pop-culture", "commentary"], poll: 30 },
+    { name: "MauLer", handle: "@MauLer", vertical: "Celebrity / Hollywood", authority: 70, tags: ["film-critique", "essays", "commentary"], poll: 60 },
+    { name: "SmokeyGlow", handle: "@SmokeyGlow", vertical: "Social Issues / Culture", authority: 68, tags: ["beauty", "pop-culture", "commentary", "react"], poll: 45 },
+  ]),
 ];
 
 export const boardQueueSeeds: BoardQueueSeed[] = [
