@@ -117,8 +117,8 @@ export interface BoardSourceConfigSeed {
       }
     | {
         mode: "youtube_channel";
-        channelId: string;
-        uploadsPlaylistId: string;
+        channelId?: string;
+        uploadsPlaylistId?: string;
         channelHandle?: string;
         channelUrl?: string;
         sourceType?: "yt";
@@ -137,6 +137,35 @@ export interface BoardSourceConfigSeed {
         tags?: string[];
         maxResults?: number;
       };
+}
+
+/** Shorthand to generate YouTube channel source seeds from compact objects */
+function buildYtSeeds(
+  channels: Array<{
+    name: string;
+    handle: string;
+    vertical: string;
+    authority: number;
+    tags: string[];
+    poll?: number;
+  }>
+): BoardSourceConfigSeed[] {
+  return channels.map((ch) => ({
+    name: ch.name,
+    kind: "youtube_channel" as const,
+    provider: "youtube" as const,
+    pollIntervalMinutes: ch.poll ?? 45,
+    configJson: {
+      mode: "youtube_channel" as const,
+      channelHandle: ch.handle,
+      channelUrl: `https://www.youtube.com/${ch.handle}`,
+      sourceType: "yt" as const,
+      vertical: ch.vertical,
+      authorityScore: ch.authority,
+      tags: ["youtube", ...ch.tags],
+      maxResults: 6,
+    },
+  }));
 }
 
 const BASE_TIME = new Date("2026-03-16T14:00:00.000Z");
@@ -1584,7 +1613,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
       mode: "youtube_channel",
       channelId: "UCtoaZpBnrd0lhycxYJ0QBXA",
       uploadsPlaylistId: "UUtoaZpBnrd0lhycxYJ0QBXA",
-      channelHandle: "@hasaborhood",
+      channelHandle: "@hasanabi",
       channelUrl: "https://www.youtube.com/@hasanabi",
       sourceType: "yt",
       vertical: "Social Issues / Culture",
@@ -1593,6 +1622,137 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
       maxResults: 6,
     },
   },
+
+  /* ──────────────────────────────────────────────────
+     INVESTIGATION / DOCUMENTARY CHANNELS
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "Upper Echelon", handle: "@UpperEchelonGamers", vertical: "Internet Drama", authority: 78, tags: ["investigations", "internet-culture", "gaming"], poll: 60 },
+    { name: "Slidebean", handle: "@slidebean", vertical: "Scams & Fraud", authority: 76, tags: ["business", "startups", "scams"], poll: 60 },
+    { name: "Company Man", handle: "@CompanyMan", vertical: "Big Tech / Billionaires", authority: 74, tags: ["business", "documentary", "rise-fall"], poll: 60 },
+    { name: "Barely Sociable", handle: "@BarelySociable", vertical: "Internet Drama", authority: 80, tags: ["investigations", "mystery", "internet-culture"], poll: 60 },
+    { name: "Nexpo", handle: "@Nexpo", vertical: "Internet Drama", authority: 78, tags: ["mystery", "internet-culture", "creepy"], poll: 60 },
+    { name: "j aubrey", handle: "@jaubrey", vertical: "Internet Drama", authority: 72, tags: ["commentary", "internet-culture", "drama"], poll: 60 },
+    { name: "Ordinary Things", handle: "@OrdinaryThings", vertical: "Social Issues / Culture", authority: 76, tags: ["documentary", "society", "business"], poll: 60 },
+    { name: "Münecat", handle: "@munecat", vertical: "Internet Drama", authority: 74, tags: ["commentary", "internet-culture", "feminism"], poll: 60 },
+    { name: "EmpLemon", handle: "@EmperorLemon", vertical: "Internet Drama", authority: 80, tags: ["documentary", "internet-culture", "essays"], poll: 60 },
+    { name: "Internet Historian", handle: "@InternetHistorian", vertical: "Internet Drama", authority: 90, tags: ["documentary", "internet-culture", "viral"], poll: 60 },
+    { name: "Wavywebsurf", handle: "@wavywebsurf", vertical: "Internet Drama", authority: 74, tags: ["internet-culture", "viral", "where-are-they-now"], poll: 60 },
+    { name: "JCS - Criminal Psychology", handle: "@JCSCriminalPsychology", vertical: "Government / Corruption", authority: 88, tags: ["true-crime", "psychology", "documentary"], poll: 60 },
+    { name: "Johnny Harris", handle: "@johnnyharris", vertical: "Government / Corruption", authority: 82, tags: ["documentary", "geopolitics", "investigative"], poll: 45 },
+    { name: "Wendover Productions", handle: "@Wendoverproductions", vertical: "Social Issues / Culture", authority: 80, tags: ["documentary", "logistics", "business"], poll: 60 },
+    { name: "VICE", handle: "@VICE", vertical: "Social Issues / Culture", authority: 85, tags: ["documentary", "investigative", "culture"], poll: 30 },
+    { name: "Vox", handle: "@Vox", vertical: "Social Issues / Culture", authority: 84, tags: ["explainer", "culture", "politics"], poll: 30 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     DRAMA / TEA / COMMENTARY CHANNELS
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "penguinz0", handle: "@penguinz0", vertical: "Internet Drama", authority: 86, tags: ["commentary", "react", "drama", "internet-culture"], poll: 30 },
+    { name: "Turkey Tom", handle: "@TurkeyTom", vertical: "Internet Drama", authority: 76, tags: ["commentary", "drama", "internet-culture"], poll: 45 },
+    { name: "SunnyV2", handle: "@SunnyV2", vertical: "Internet Drama", authority: 82, tags: ["documentary", "rise-fall", "internet-culture"], poll: 60 },
+    { name: "James Jani", handle: "@JamesJani", vertical: "Scams & Fraud", authority: 82, tags: ["documentary", "scams", "cults"], poll: 60 },
+    { name: "iNabber", handle: "@iNabber", vertical: "Internet Drama", authority: 72, tags: ["commentary", "drama", "youtube"], poll: 45 },
+    { name: "Tea Spill", handle: "@TeaSpill", vertical: "Internet Drama", authority: 70, tags: ["drama", "beauty", "youtube"], poll: 45 },
+    { name: "Spill Sesh", handle: "@SpillSesh", vertical: "Internet Drama", authority: 68, tags: ["drama", "pop-culture", "youtube"], poll: 45 },
+    { name: "Bowblax", handle: "@Bowblax", vertical: "Internet Drama", authority: 66, tags: ["drama", "commentary", "internet-culture"], poll: 60 },
+    { name: "Tipster", handle: "@Tipster", vertical: "Internet Drama", authority: 68, tags: ["drama", "youtube", "commentary"], poll: 60 },
+    { name: "Optimus", handle: "@Optimus", vertical: "Internet Drama", authority: 72, tags: ["commentary", "internet-culture", "drama"], poll: 45 },
+    { name: "Leon Lush", handle: "@LeonLush", vertical: "Internet Drama", authority: 70, tags: ["commentary", "cringe", "internet-culture"], poll: 60 },
+    { name: "Pyrocynical", handle: "@Pyrocynical", vertical: "Internet Drama", authority: 78, tags: ["commentary", "gaming", "internet-culture"], poll: 60 },
+    { name: "The Right Opinion", handle: "@TheRightOpinion", vertical: "Internet Drama", authority: 78, tags: ["essays", "internet-culture", "commentary"], poll: 60 },
+    { name: "someblackguy", handle: "@someblackguy", vertical: "Internet Drama", authority: 66, tags: ["commentary", "culture-war", "drama"], poll: 60 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     REACT / PODCAST / CULTURE COMMENTARY
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "Ludwig", handle: "@ludwig", vertical: "Internet Drama", authority: 84, tags: ["streaming", "commentary", "internet-culture"], poll: 30 },
+    { name: "Asmongold TV", handle: "@AsmongoldTV", vertical: "Internet Drama", authority: 82, tags: ["react", "gaming", "internet-culture"], poll: 30 },
+    { name: "xQc", handle: "@xQc", vertical: "Internet Drama", authority: 80, tags: ["react", "streaming", "internet-culture"], poll: 30 },
+    { name: "Kai Cenat", handle: "@KaiCenat", vertical: "Internet Drama", authority: 85, tags: ["streaming", "viral", "gen-z", "pop-culture"], poll: 30 },
+    { name: "IShowSpeed", handle: "@IShowSpeed", vertical: "Internet Drama", authority: 82, tags: ["streaming", "viral", "gen-z"], poll: 30 },
+    { name: "MrBeast", handle: "@MrBeast", vertical: "Internet Drama", authority: 92, tags: ["viral", "philanthropy", "youtube"], poll: 30 },
+    { name: "Logan Paul", handle: "@loganpaul", vertical: "Internet Drama", authority: 78, tags: ["podcast", "boxing", "creator-economy"], poll: 30 },
+    { name: "KSI", handle: "@kaborhood", vertical: "Internet Drama", authority: 80, tags: ["boxing", "creator-economy", "music"], poll: 30 },
+    { name: "Flagrant", handle: "@FlagrantPodcast", vertical: "Podcast Reactions", authority: 78, tags: ["podcast", "comedy", "commentary"], poll: 30 },
+    { name: "Theo Von", handle: "@TheoVon", vertical: "Podcast Reactions", authority: 80, tags: ["podcast", "comedy", "culture"], poll: 30 },
+    { name: "Joe Rogan Clips", handle: "@joeroganclips", vertical: "Podcast Reactions", authority: 88, tags: ["podcast", "interviews", "culture"], poll: 30 },
+    { name: "Lex Fridman", handle: "@lexfridman", vertical: "Podcast Reactions", authority: 86, tags: ["podcast", "tech", "interviews", "ai"], poll: 30 },
+    { name: "Diary of a CEO", handle: "@TheDiaryOfACEO", vertical: "Podcast Reactions", authority: 82, tags: ["podcast", "business", "interviews"], poll: 30 },
+    { name: "Fresh & Fit", handle: "@FreshandFit", vertical: "Social Issues / Culture", authority: 68, tags: ["podcast", "dating", "culture-war"], poll: 60 },
+    { name: "Whatever", handle: "@whatever", vertical: "Social Issues / Culture", authority: 66, tags: ["podcast", "dating", "culture-war"], poll: 60 },
+    { name: "Shawn Ryan Show", handle: "@ShawnRyanShow", vertical: "Government / Corruption", authority: 80, tags: ["podcast", "military", "interviews"], poll: 30 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     TECH COMMENTARY (Moon's angle, not product reviews)
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "MKBHD", handle: "@mkbhd", vertical: "Tech Failures", authority: 90, tags: ["tech", "consumer-tech", "reviews"], poll: 30 },
+    { name: "Linus Tech Tips", handle: "@LinusTechTips", vertical: "Tech Failures", authority: 88, tags: ["tech", "hardware", "consumer-tech"], poll: 30 },
+    { name: "TechLinked", handle: "@TechLinked", vertical: "Tech Failures", authority: 76, tags: ["tech", "news", "commentary"], poll: 30 },
+    { name: "SomeOrdinaryGamers", handle: "@SomeOrdinaryGamers", vertical: "Internet Drama", authority: 80, tags: ["tech", "internet-culture", "investigations"], poll: 30 },
+    { name: "Louis Rossmann", handle: "@rossmanngroup", vertical: "Digital Rights / Piracy", authority: 82, tags: ["right-to-repair", "tech", "consumer-rights"], poll: 30 },
+    { name: "ThioJoe", handle: "@ThioJoe", vertical: "Tech Failures", authority: 72, tags: ["tech", "ai", "consumer-tech"], poll: 60 },
+    { name: "ColdFusion", handle: "@ColdFusion", vertical: "AI & Automation", authority: 82, tags: ["tech", "ai", "documentary", "business"], poll: 45 },
+    { name: "Two Minute Papers", handle: "@TwoMinutePapers", vertical: "AI & Automation", authority: 78, tags: ["ai", "research", "tech"], poll: 60 },
+    { name: "Fireship", handle: "@Fireship", vertical: "Tech Failures", authority: 82, tags: ["coding", "tech", "humor", "ai"], poll: 30 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     POP CULTURE / ENTERTAINMENT COMMENTARY
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "Elvis The Alien", handle: "@ElvisTheAlien", vertical: "Internet Drama", authority: 72, tags: ["commentary", "cringe", "internet-culture"], poll: 60 },
+    { name: "Cody Ko", handle: "@codyko", vertical: "Internet Drama", authority: 80, tags: ["commentary", "comedy", "internet-culture", "gen-z"], poll: 45 },
+    { name: "Noel Miller", handle: "@NoelMiller", vertical: "Internet Drama", authority: 76, tags: ["commentary", "comedy", "internet-culture"], poll: 60 },
+    { name: "tiffanyferg", handle: "@tiffanyferg", vertical: "Social Issues / Culture", authority: 72, tags: ["internet-culture", "essays", "gen-z", "feminism"], poll: 60 },
+    { name: "Jarvis Johnson", handle: "@JarvisJohnson", vertical: "Internet Drama", authority: 74, tags: ["commentary", "internet-culture", "tech"], poll: 60 },
+    { name: "eddy burback", handle: "@eddyburback", vertical: "Internet Drama", authority: 74, tags: ["commentary", "comedy", "internet-culture"], poll: 60 },
+    { name: "Nick DiRamio", handle: "@NickDiRamio", vertical: "Celebrity / Hollywood", authority: 68, tags: ["film", "commentary", "pop-culture"], poll: 60 },
+    { name: "Alex Meyers", handle: "@AlexMeyers", vertical: "Celebrity / Hollywood", authority: 72, tags: ["tv", "film", "commentary", "gen-z"], poll: 60 },
+    { name: "Moist Esports", handle: "@MoistEsports", vertical: "Internet Drama", authority: 70, tags: ["esports", "gaming", "internet-culture"], poll: 60 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     FINANCE / SCAM / CRYPTO COMMENTARY
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "Graham Stephan", handle: "@GrahamStephan", vertical: "Big Tech / Billionaires", authority: 78, tags: ["finance", "real-estate", "money"], poll: 60 },
+    { name: "Andrei Jikh", handle: "@AndreiJikh", vertical: "Big Tech / Billionaires", authority: 74, tags: ["finance", "crypto", "investing"], poll: 60 },
+    { name: "Patrick Boyle", handle: "@PBoyle", vertical: "Big Tech / Billionaires", authority: 80, tags: ["finance", "hedge-funds", "commentary"], poll: 60 },
+    { name: "The Plain Bagel", handle: "@ThePlainBagel", vertical: "Big Tech / Billionaires", authority: 74, tags: ["finance", "investing", "scams"], poll: 60 },
+    { name: "How Money Works", handle: "@HowMoneyWorks", vertical: "Big Tech / Billionaires", authority: 76, tags: ["finance", "economics", "business"], poll: 60 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     NEWS / POLITICS COMMENTARY
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "Breaking Points", handle: "@BreakingPoints", vertical: "Government / Corruption", authority: 80, tags: ["politics", "news", "commentary"], poll: 30 },
+    { name: "The Young Turks", handle: "@TheYoungTurks", vertical: "Government / Corruption", authority: 76, tags: ["politics", "news", "progressive"], poll: 30 },
+    { name: "Second Thought", handle: "@SecondThought", vertical: "Social Issues / Culture", authority: 76, tags: ["politics", "economics", "essays"], poll: 60 },
+    { name: "LegalEagle", handle: "@LegalEagle", vertical: "Internet Drama", authority: 84, tags: ["law", "commentary", "internet-culture", "politics"], poll: 30 },
+    { name: "Some More News", handle: "@SomeMoreNews", vertical: "Government / Corruption", authority: 74, tags: ["politics", "comedy", "news"], poll: 45 },
+    { name: "Knowing Better", handle: "@KnowingBetter", vertical: "Social Issues / Culture", authority: 76, tags: ["history", "society", "essays"], poll: 60 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     SMALLER / NICHE COMMENTARY (emerging voices)
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "mamamax", handle: "@maborhood", vertical: "Internet Drama", authority: 76, tags: ["investigations", "predators", "activism"], poll: 60 },
+    { name: "Cr1TiKaL Clips", handle: "@cr1tikalclips", vertical: "Internet Drama", authority: 72, tags: ["clips", "commentary", "react"], poll: 30 },
+    { name: "The Create Unknown", handle: "@TheCreateUnknown", vertical: "Internet Drama", authority: 68, tags: ["podcast", "youtube", "creator-economy"], poll: 60 },
+    { name: "Coffeezilla Clips", handle: "@CoffeezillaClips", vertical: "Scams & Fraud", authority: 72, tags: ["clips", "scams", "investigations"], poll: 45 },
+    { name: "Atozy", handle: "@Atozy", vertical: "Internet Drama", authority: 66, tags: ["commentary", "internet-culture", "drama"], poll: 60 },
+    { name: "MoistCr1TiKaL Clips", handle: "@MoistCr1TiKaLClips", vertical: "Internet Drama", authority: 68, tags: ["clips", "react", "commentary"], poll: 60 },
+    { name: "Scrubby", handle: "@Scrubby", vertical: "Internet Drama", authority: 64, tags: ["commentary", "internet-culture", "cringe"], poll: 60 },
+    { name: "tuv", handle: "@tuv", vertical: "Internet Drama", authority: 64, tags: ["commentary", "internet-culture", "react"], poll: 60 },
+  ]),
 ];
 
 export const boardQueueSeeds: BoardQueueSeed[] = [
