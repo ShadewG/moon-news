@@ -220,10 +220,13 @@ export async function scoreStory(
   }
 
   // Total — apply both Moon relevance AND age penalty
-  const relevanceMultiplier = moonRelevance >= 60 ? 1.0
+  // STRICT: if it's not Moon content, it should not score high regardless
+  // of how many sources or how recent it is.
+  // "Could Moon make a 10-20 min video about this?" — if no, crush the score.
+  const relevanceMultiplier = moonRelevance >= 50 ? 1.0
     : moonRelevance >= 30 ? 0.7
-    : moonRelevance >= 15 ? 0.5
-    : 0.3;
+    : moonRelevance >= 15 ? 0.4
+    : 0.05; // Irrelevant content gets 5% — effectively killed
 
   const rawTotal =
     sourceScore +

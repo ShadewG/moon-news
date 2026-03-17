@@ -43,6 +43,8 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "beyonce", "ice spice", "cardi b", "nicki minaj",
       "zendaya", "sydney sweeney", "jenna ortega",
       "mrbeast", "mr beast", "logan paul",
+      "nikocado", "the rock", "dwayne johnson",
+      "bieber", "justin bieber",
       // Entertainment industry drama (not reviews)
       "oscar controversy", "award snub", "box office bomb", "flop",
       "cancelled show", "streaming war", "hollywood strike",
@@ -50,6 +52,9 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "influencer", "onlyfans",
       // Real people in the news (not product news)
       "celebrity", "actor", "actress",
+      // Moon's angle: dark side of fame
+      "dark side", "secret life", "paid the price",
+      "fooled everyone", "truth about",
     ],
     weight: 1.0,
   },
@@ -80,12 +85,15 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "deepfake", "ai generated", "ai fraud", "ai scam",
       "ai danger", "ai existential", "ai alignment", "ai regulation",
       "ai ethics", "ai bias", "ai discrimination",
-      "sam altman", "openai", "sued", "suing", "lawsuit",
+      "sam altman", "sued", "suing", "lawsuit",
+      "openai scandal", "openai lawsuit", "openai fired", "openai sued",
       "ai art theft", "ai copyright", "ai plagiarism", "memorizing",
       "robot replacing", "automation job",
-      "grok", "chatgpt", "claude",
+      "grok", "chatgpt",
       "sexualized", "csam", "ai image", "ai photo",
       "duped by ai", "fooled by ai",
+      "backfiring", "catastroph",
+      "ai is worse", "ai is destroying",
     ],
     weight: 0.9,
   },
@@ -136,6 +144,7 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "social media effect", "social media addiction", "brain rot",
       "culture war", "woke", "cancel culture",
       "student debt", "housing crisis", "cost of living crisis", "rent crisis",
+      "nobody getting hired", "job market", "can't afford",
       // Viral cultural MOMENTS (not just any trending thing)
       "tiktok ban", "tiktok controversy", "tiktok",
       "boycott", "protest", "backlash",
@@ -146,6 +155,10 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "reality tv", "reality show", "mormon wives",
       "domestic assault", "domestic violence",
       "arrested", "charged with",
+      // Societal critique patterns Moon uses
+      "collapsing", "destroying", "worse than you thought",
+      "crisis", "epidemic", "addicted", "poisoned",
+      "killing themselves", "suicide rate",
     ],
     weight: 0.8,
   },
@@ -221,6 +234,30 @@ const IRRELEVANT_SIGNALS = [
   // How-to / tutorial content
   "how to", "tutorial", "step by step", "guide",
   "tips and tricks", "beginner's guide",
+
+  // Movie/TV/entertainment product news (not scandals)
+  "starts streaming", "now streaming", "coming to netflix",
+  "first look:", "first trailer", "teaser trailer", "official trailer",
+  "cast in", "has been cast", "joins cast", "casting news",
+  "cinematography", "behind the scenes", "on set",
+  "box office numbers", "opening weekend",
+  "season premiere", "finale recap", "episode recap",
+  "renewal", "renewed for", "picked up for",
+  "film festival", "sundance", "cannes", "tiff",
+  "red carpet", "fashion", "wore", "outfit", "dress",
+  "award winner", "wins oscar", "wins emmy", "wins grammy",
+  "slate", "lineup", "programming",
+
+  // Viral fluff (not culturally significant)
+  "went viral", "goes viral", "gone viral",
+  "viral trend", "viral moment", "viral video",
+  "wholesome", "heartwarming", "adorable",
+  "life hack", "diy",
+
+  // Individual Reddit/forum posts (not stories)
+  "advice please", "any way to find", "help me",
+  "is this a scam", "did i get scammed",
+  "looking for recommendations",
 
   // Generic non-commentary content
   "press release", "press conference",
