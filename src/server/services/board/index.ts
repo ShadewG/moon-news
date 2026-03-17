@@ -2566,6 +2566,9 @@ export async function ensureBoardSeedData() {
     await syncBoardSourceConfigs();
   }
 
+  // Insert any new sources from boardSourceConfigSeeds that don't exist yet
+  await ensureConfiguredSourcesExist(sourceRows);
+
   const [existingChannels] = await db
     .select({ id: boardCompetitorChannels.id })
     .from(boardCompetitorChannels)
@@ -2577,6 +2580,37 @@ export async function ensureBoardSeedData() {
 
   await ensureBoardFeedItemVersionsBackfill();
   await syncBoardStoryCorrectionFlags();
+}
+
+async function ensureConfiguredSourcesExist(
+  existingSources: (typeof boardSources.$inferSelect)[]
+) {
+  const existingKeys = new Set(
+    existingSources.map((s) => buildSourceKey(s.name, s.kind))
+  );
+
+  const missingSources = boardSourceConfigSeeds.filter(
+    (seed) => !existingKeys.has(buildSourceKey(seed.name, seed.kind))
+  );
+
+  if (missingSources.length === 0) return;
+
+  const db = getDb();
+  const now = new Date();
+
+  await db.insert(boardSources).values(
+    missingSources.map((seed) => ({
+      name: seed.name,
+      kind: seed.kind as (typeof boardSources.$inferInsert)["kind"],
+      provider: (seed.provider ?? "internal") as (typeof boardSources.$inferInsert)["provider"],
+      pollIntervalMinutes: seed.pollIntervalMinutes ?? getPollIntervalMinutes(seed.kind),
+      enabled: true,
+      configJson: seed.configJson as Record<string, unknown>,
+      lastPolledAt: null,
+      lastSuccessAt: null,
+      updatedAt: now,
+    }))
+  ).onConflictDoNothing();
 }
 
 async function backfillBoardFeedItemSignals() {
