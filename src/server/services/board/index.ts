@@ -2585,32 +2585,57 @@ export async function ensureBoardSeedData() {
 async function ensureConfiguredSourcesExist(
   existingSources: (typeof boardSources.$inferSelect)[]
 ) {
-  const existingKeys = new Set(
-    existingSources.map((s) => buildSourceKey(s.name, s.kind))
+  const existingByKey = new Map(
+    existingSources.map((s) => [buildSourceKey(s.name, s.kind), s])
   );
-
-  const missingSources = boardSourceConfigSeeds.filter(
-    (seed) => !existingKeys.has(buildSourceKey(seed.name, seed.kind))
-  );
-
-  if (missingSources.length === 0) return;
 
   const db = getDb();
   const now = new Date();
 
-  await db.insert(boardSources).values(
-    missingSources.map((seed) => ({
-      name: seed.name,
-      kind: seed.kind as (typeof boardSources.$inferInsert)["kind"],
+  const toInsert: typeof boardSourceConfigSeeds = [];
+  const toUpdate: { id: string; seed: (typeof boardSourceConfigSeeds)[number] }[] = [];
+
+  for (const seed of boardSourceConfigSeeds) {
+    const key = buildSourceKey(seed.name, seed.kind);
+    const existing = existingByKey.get(key);
+
+    if (!existing) {
+      toInsert.push(seed);
+    } else if (
+      !existing.enabled ||
+      !existing.configJson ||
+      (existing.configJson as Record<string, unknown>).mode === "seed_reference"
+    ) {
+      // Existing source is disabled or has placeholder config — update it
+      toUpdate.push({ id: existing.id, seed });
+    }
+  }
+
+  if (toInsert.length > 0) {
+    await db.insert(boardSources).values(
+      toInsert.map((seed) => ({
+        name: seed.name,
+        kind: seed.kind as (typeof boardSources.$inferInsert)["kind"],
+        provider: (seed.provider ?? "internal") as (typeof boardSources.$inferInsert)["provider"],
+        pollIntervalMinutes: seed.pollIntervalMinutes ?? getPollIntervalMinutes(seed.kind),
+        enabled: true,
+        configJson: seed.configJson as Record<string, unknown>,
+        lastPolledAt: null,
+        lastSuccessAt: null,
+        updatedAt: now,
+      }))
+    ).onConflictDoNothing();
+  }
+
+  for (const { id, seed } of toUpdate) {
+    await db.update(boardSources).set({
+      enabled: true,
       provider: (seed.provider ?? "internal") as (typeof boardSources.$inferInsert)["provider"],
       pollIntervalMinutes: seed.pollIntervalMinutes ?? getPollIntervalMinutes(seed.kind),
-      enabled: true,
       configJson: seed.configJson as Record<string, unknown>,
-      lastPolledAt: null,
-      lastSuccessAt: null,
       updatedAt: now,
-    }))
-  ).onConflictDoNothing();
+    }).where(eq(boardSources.id, id));
+  }
 }
 
 async function backfillBoardFeedItemSignals() {
