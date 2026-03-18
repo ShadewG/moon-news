@@ -11,6 +11,7 @@ import {
   clipLibrary,
 } from "@/server/db/schema";
 import { scoreBoardStoryWithMoonCorpus } from "@/server/services/moon-corpus";
+import { scoreMoonRelevance } from "./moon-relevance";
 
 // ─── Types ───
 
@@ -200,24 +201,27 @@ export async function scoreStory(
     // Visual check is best-effort
   }
 
-  // 6. Moon relevance derived from the real Moon corpus.
+  // 6. Moon relevance — use BOTH corpus scoring AND keyword-based scoring.
+  // The corpus scorer finds topic overlap with Moon's 1.45M word library but
+  // is too generous (gives 70+ to product news). The keyword scorer is strict
+  // about what Moon actually makes videos about. Both must agree.
   const moonResult = await scoreBoardStoryWithMoonCorpus(storyId);
-  const moonRelevance = moonResult?.moonFitScore ?? 0;
+  const corpusScore = moonResult?.moonFitScore ?? 0;
+  const keywordResult = scoreMoonRelevance(story.canonicalTitle);
+  const keywordScore = keywordResult.combinedScore;
+  const moonRelevance = Math.min(corpusScore, keywordScore > 0 ? corpusScore : 20);
 
   // Total — apply both Moon relevance AND age penalty
   // STRICT: if it's not Moon content, it should not score high regardless
   // of how many sources or how recent it is.
-  // "Could Moon make a 10-20 min video about this?" — if no, crush the score.
-  //
-  // The corpus scorer gives 50-70 to almost everything because of generic
-  // term overlap, so the thresholds need to be high.
-  // Also check for hard disqualifiers from the corpus scorer.
   const hasDisqualifiers = (moonResult?.disqualifierCodes?.length ?? 0) > 0;
+  const keywordFilterFailed = keywordScore < 10;
   const relevanceMultiplier = hasDisqualifiers ? 0.1
+    : keywordFilterFailed ? 0.1  // Keywords say "not Moon content" — kill it
     : moonRelevance >= 70 ? 1.0
     : moonRelevance >= 55 ? 0.7
     : moonRelevance >= 40 ? 0.4
-    : 0.08; // Low-fit content gets 8% — effectively killed
+    : 0.08;
 
   const rawTotal =
     sourceScore +
