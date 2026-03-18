@@ -10,7 +10,7 @@ import {
   boardStorySources,
   clipLibrary,
 } from "@/server/db/schema";
-import { scoreMoonRelevance } from "./moon-relevance";
+import { scoreBoardStoryWithMoonCorpus } from "@/server/services/moon-corpus";
 
 // ─── Types ───
 
@@ -200,33 +200,24 @@ export async function scoreStory(
     // Visual check is best-effort
   }
 
-  // 6. Moon Relevance with platform engagement signals
-  const moonResult = scoreMoonRelevance(story.canonicalTitle, null, {
-    sourceCount: sourceCount,
-    controversyScore: story.controversyScore,
-    sentimentMagnitude: Math.abs(story.sentimentScore),
-    hasTwitterDiscourse: story.sourcesCount > 0, // TODO: check actual Twitter sources
-    hasYouTubeContent: visualEvidence > 0,
-    hasMultipleSources: sourceCount >= 3,
-  });
-  const moonRelevance = moonResult.combinedScore;
-
-  // Update vertical to Moon's categories if we found a match
-  if (moonResult.vertical) {
-    await db
-      .update(boardStoryCandidates)
-      .set({ vertical: moonResult.vertical, updatedAt: new Date() })
-      .where(eq(boardStoryCandidates.id, storyId));
-  }
+  // 6. Moon relevance derived from the real Moon corpus.
+  const moonResult = await scoreBoardStoryWithMoonCorpus(storyId);
+  const moonRelevance = moonResult?.moonFitScore ?? 0;
 
   // Total — apply both Moon relevance AND age penalty
   // STRICT: if it's not Moon content, it should not score high regardless
   // of how many sources or how recent it is.
   // "Could Moon make a 10-20 min video about this?" — if no, crush the score.
-  const relevanceMultiplier = moonRelevance >= 50 ? 1.0
-    : moonRelevance >= 30 ? 0.7
-    : moonRelevance >= 15 ? 0.4
-    : 0.05; // Irrelevant content gets 5% — effectively killed
+  //
+  // The corpus scorer gives 50-70 to almost everything because of generic
+  // term overlap, so the thresholds need to be high.
+  // Also check for hard disqualifiers from the corpus scorer.
+  const hasDisqualifiers = (moonResult?.disqualifierCodes?.length ?? 0) > 0;
+  const relevanceMultiplier = hasDisqualifiers ? 0.1
+    : moonRelevance >= 70 ? 1.0
+    : moonRelevance >= 55 ? 0.7
+    : moonRelevance >= 40 ? 0.4
+    : 0.08; // Low-fit content gets 8% — effectively killed
 
   const rawTotal =
     sourceScore +
@@ -290,6 +281,12 @@ export async function scoreStory(
         overall: finalScore,
         tier: getTier(finalScore),
         surgeActive,
+        moonFitScore: moonResult?.moonFitScore ?? 0,
+        moonFitBand: moonResult?.moonFitBand ?? "low",
+        moonCluster: moonResult?.clusterLabel ?? null,
+        coverageMode: moonResult?.coverageMode ?? null,
+        analogTitles: moonResult?.analogs.map((analog) => analog.title) ?? [],
+        reasonCodes: moonResult?.reasonCodes ?? [],
         lastScoredAt: new Date().toISOString(),
       },
       updatedAt: new Date(),
