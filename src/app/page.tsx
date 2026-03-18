@@ -4,41 +4,25 @@ import { useState, useEffect, useRef } from "react";
 import {
   BookOpen,
   Film,
-  Music,
-  Mic,
-  Image,
-  Video,
-  BarChart3,
   Clock,
   Layers,
-  Sparkles,
   Wifi,
   WifiOff,
 } from "lucide-react";
 import { ProjectProvider, useProjectContext } from "@/lib/project-context";
 import { useProjects } from "@/lib/hooks";
 import * as api from "@/lib/api";
-import { formatTimestamp } from "@/lib/sample-data";
+// formatTimestamp removed — not needed without timeline stats
 import Topbar from "@/components/Topbar";
 import ScriptPanel from "@/components/ScriptPanel";
 import ResearchPanel from "@/components/ResearchPanel";
 import FootagePanel from "@/components/FootagePanel";
-import MusicPanel from "@/components/MusicPanel";
-import TranscriptPanel from "@/components/TranscriptPanel";
-import AIImagePanel from "@/components/AIImagePanel";
-import AIVideoPanel from "@/components/AIVideoPanel";
-import Timeline from "@/components/Timeline";
-import ExportModal from "@/components/ExportModal";
 
-type Tab = "research" | "footage" | "music" | "transcripts" | "ai-images" | "ai-video";
+type Tab = "research" | "footage";
 
 const tabs: { id: Tab; label: string; icon: typeof BookOpen; color: string }[] = [
   { id: "research", label: "Research", icon: BookOpen, color: "var(--accent-blue)" },
   { id: "footage", label: "Footage", icon: Film, color: "var(--accent-purple)" },
-  { id: "music", label: "Music", icon: Music, color: "var(--accent-green)" },
-  { id: "transcripts", label: "Transcripts", icon: Mic, color: "var(--accent-yellow)" },
-  { id: "ai-images", label: "AI Images", icon: Image, color: "var(--accent-orange)" },
-  { id: "ai-video", label: "AI Video", icon: Video, color: "var(--accent-red)" },
 ];
 
 export default function Home() {
@@ -76,13 +60,8 @@ export default function Home() {
 function AppShell() {
   const { project, lines, stats, isLive, refetchProject } = useProjectContext();
   const [activeTab, setActiveTab] = useState<Tab>("research");
-  const [exportOpen, setExportOpen] = useState(false);
   const [researchAllRunning, setResearchAllRunning] = useState(false);
 
-  const totalDomains = stats.totalLines * 4;
-  const completeDomains =
-    stats.researchComplete + stats.footageComplete + stats.imagesGenerated + stats.videosGenerated;
-  const progressPct = totalDomains > 0 ? Math.round((completeDomains / totalDomains) * 100) : 0;
   const researchableLines = lines.filter(
     (line) => line.research_status === "pending" || line.research_status === "failed"
   );
@@ -127,7 +106,6 @@ function AppShell() {
   return (
     <div className="h-screen flex flex-col app-shell">
       <Topbar
-        onExportClick={() => setExportOpen(true)}
         onResearchAllClick={handleResearchAllClick}
         researchAllDisabled={!project?.id || researchableLines.length === 0}
         researchAllRunning={researchAllRunning || hasActiveResearch}
@@ -155,33 +133,8 @@ function AppShell() {
           <StatItem icon={Clock} color="text-[var(--accent-orange)]" label={`${stats.researchRunning} running`} />
         )}
         <StatItem icon={Film} color="text-[var(--accent-purple)]" label={`${stats.footageComplete} footage`} />
-        <StatItem icon={Image} color="text-[var(--accent-orange)]" label={`${stats.imagesGenerated} images`} />
-        <StatItem icon={Video} color="text-[var(--accent-red)]" label={`${stats.videosGenerated} videos`} />
-        <StatItem icon={Mic} color="text-[var(--accent-yellow)]" label={`${stats.transcriptsComplete} transcripts`} />
-        <StatItem icon={Music} color="text-[var(--accent-green)]" label={`${stats.musicSelected} music`} />
 
         <div className="flex-1" />
-
-        <div className="flex items-center gap-1.5">
-          <Clock size={11} className="text-[var(--text-muted)]" />
-          <span className="text-[10px] text-[var(--text-muted)]">
-            {formatTimestamp(stats.totalDurationMs)}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Sparkles size={11} className="text-[var(--text-muted)]" />
-          <span className="text-[10px] text-[var(--text-muted)]">{stats.estimatedCost}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <BarChart3 size={11} className="text-[var(--text-muted)]" />
-          <div className="w-16 h-1.5 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[var(--accent-green)] to-[var(--accent-blue)] rounded-full transition-all"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-          <span className="text-[10px] text-[var(--text-muted)] font-mono">{progressPct}%</span>
-        </div>
       </div>
 
       {/* Main Content */}
@@ -214,16 +167,9 @@ function AppShell() {
           <div className="flex-1 min-h-0">
             {activeTab === "research" && <ResearchPanel />}
             {activeTab === "footage" && <FootagePanel />}
-            {activeTab === "music" && <MusicPanel />}
-            {activeTab === "transcripts" && <TranscriptPanel />}
-            {activeTab === "ai-images" && <AIImagePanel />}
-            {activeTab === "ai-video" && <AIVideoPanel />}
           </div>
         </div>
       </div>
-
-      <Timeline />
-      <ExportModal isOpen={exportOpen} onClose={() => setExportOpen(false)} />
     </div>
   );
 }

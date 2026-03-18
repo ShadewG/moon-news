@@ -12,10 +12,7 @@ const NAV_ITEMS = [
 export default function GlobalNav() {
   const pathname = usePathname();
 
-  // Don't show on the main studio page (it has its own full chrome)
-  // Show on: /board, /library, /clips/*, /search/*, /reports/*
-  const isStudioPage = pathname === "/";
-  if (isStudioPage) return null;
+  // Show on all pages
 
   // Determine active section
   const activeSection = pathname.startsWith("/board")

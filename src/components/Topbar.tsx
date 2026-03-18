@@ -2,10 +2,6 @@
 
 import {
   Moon,
-  Download,
-  Play,
-  Settings,
-  Share2,
   Zap,
   ChevronDown,
   GitBranch,
@@ -23,14 +19,12 @@ const statusColors: Record<string, string> = {
 };
 
 interface TopbarProps {
-  onExportClick: () => void;
   onResearchAllClick: () => void;
   researchAllDisabled: boolean;
   researchAllRunning: boolean;
 }
 
 export default function Topbar({
-  onExportClick,
   onResearchAllClick,
   researchAllDisabled,
   researchAllRunning,
@@ -75,31 +69,10 @@ export default function Topbar({
         <button
           onClick={onResearchAllClick}
           disabled={researchAllDisabled || !hasLines}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-[var(--text-secondary)]"
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {researchAllRunning ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
           Research All
-        </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">
-          <Play size={14} />
-          Preview
-        </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">
-          <Share2 size={14} />
-          Share
-        </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors">
-          <Settings size={14} />
-        </button>
-
-        <div className="h-6 w-px bg-[var(--border)] mx-1" />
-
-        <button
-          onClick={onExportClick}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-hover)] transition-colors"
-        >
-          <Download size={14} />
-          Export
         </button>
       </div>
     </header>
