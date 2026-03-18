@@ -157,7 +157,7 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "arrested", "charged with",
       // Societal critique patterns Moon uses
       "collapsing", "destroying", "worse than you thought",
-      "crisis", "epidemic", "addicted", "poisoned",
+      "epidemic", "addicted", "poisoned",
       "killing themselves", "suicide rate",
     ],
     weight: 0.8,
@@ -176,27 +176,32 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "deplatformed", "ratio",
       "parasocial", "stan",
       "penguinz0", "critikal",
-      "twitch", "banned",
-      "toxic workplace", "speak out",
+      "twitch", "banned", "illegal",
+      "toxic workplace", "speak out", "without consent",
     ],
     weight: 0.85,
   },
   "Government / Corruption": {
+    // Moon covers DARK government stories, not daily political news.
+    // "The CIA is on every podcast" YES. "Trump says X" NO.
+    // "Government secret database" YES. "Lawmakers react to X" NO.
     keywords: [
-      "corruption", "bribery", "cover up",
-      "cia", "fbi", "nsa", "whistleblower", "classified", "leaked documents",
-      "war crime", "propaganda", "censorship",
-      "politician scandal", "congress", "senate",
+      // Deep state / conspiracy / dark ops
+      "cia", "fbi secret", "nsa", "whistleblower", "classified", "leaked documents",
+      "surveillance", "spying on citizens", "secret program",
+      "war crime", "propaganda",
       "military industrial",
-      "epstein", "trafficking",
-      "trump", "kickback", "billion dollar",
-      "government", "white house",
-      // Government waste / boondoggles (Moon covers these)
+      "epstein", "trafficking", "cover up",
+      // Corruption (systemic, not just "politician said X")
+      "corruption", "bribery", "insider trading",
+      "kickback", "embezzlement", "money laundering",
+      // Government waste (Moon's angle: "your tax dollars at work")
       "taxpayer", "tax dollars", "government waste", "boondoggle",
       "bridge to nowhere", "over budget", "cost overrun",
-      "unfinished", "still not finished", "ballooned",
-      "million dollar", "newsom", "gavin newsom",
-      "infrastructure", "mismanagement",
+      "unfinished", "ballooned", "mismanagement",
+      "newsom", "gavin newsom",
+      // Secret databases / surveillance state
+      "secret database", "mass surveillance", "tracking citizens",
     ],
     weight: 0.8,
   },
@@ -264,6 +269,19 @@ const IRRELEVANT_SIGNALS = [
   "advice please", "any way to find", "help me",
   "is this a scam", "did i get scammed",
   "looking for recommendations",
+
+  // Routine political news (Moon doesn't do daily political reporting)
+  "lawmakers react", "senator introduces", "bill passes",
+  "bipartisan", "filibuster", "committee hearing",
+  "campaign trail", "polling", "approval rating",
+  "primary election", "midterm", "caucus",
+  "press secretary", "briefing",
+  "diplomatic", "summit", "negotiations",
+  "tariff", "trade deal", "trade war",
+  "right wing", "left wing",
+  "conservative", "liberal", "republican", "democrat",
+  "foreign policy", "nato", "united nations",
+  "world baseball", "olympics",
 
   // Generic non-commentary content
   "press release", "press conference",
