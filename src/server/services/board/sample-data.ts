@@ -1281,6 +1281,40 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
   },
 
   /* ──────────────────────────────────────────────────
+     GOOGLE TRENDS (trending searches via RSS)
+     ────────────────────────────────────────────────── */
+  {
+    name: "Google Trends US",
+    kind: "rss",
+    provider: "internal",
+    pollIntervalMinutes: 15,
+    configJson: {
+      mode: "rss_feed",
+      feedUrl: "https://trends.google.com/trending/rss?geo=US",
+      siteUrl: "https://trends.google.com/trending",
+      sourceType: "news",
+      vertical: "Social Issues / Culture",
+      authorityScore: 85,
+      tags: ["trending", "google-trends", "viral", "culture"],
+    },
+  },
+  {
+    name: "Google Trends UK",
+    kind: "rss",
+    provider: "internal",
+    pollIntervalMinutes: 30,
+    configJson: {
+      mode: "rss_feed",
+      feedUrl: "https://trends.google.com/trending/rss?geo=GB",
+      siteUrl: "https://trends.google.com/trending",
+      sourceType: "news",
+      vertical: "Social Issues / Culture",
+      authorityScore: 80,
+      tags: ["trending", "google-trends", "viral", "uk"],
+    },
+  },
+
+  /* ──────────────────────────────────────────────────
      POP CULTURE / ENTERTAINMENT RSS SOURCES
      ────────────────────────────────────────────────── */
   {
@@ -1506,6 +1540,90 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
       vertical: "Celebrity / Hollywood",
       authorityScore: 68,
       tags: ["celebrity", "entertainment", "lifestyle", "pop-culture"],
+    },
+  },
+
+  /* ──────────────────────────────────────────────────
+     FINANCE / MARKETS / "FOLLOW THE MONEY" TWITTER
+     ────────────────────────────────────────────────── */
+  {
+    name: "Unusual Whales",
+    kind: "x_account",
+    provider: "twitter",
+    pollIntervalMinutes: 15,
+    configJson: {
+      mode: "x_account",
+      handle: "unusual_whales",
+      queryTerms: ["congress", "politician", "insider trading", "stock", "scandal", "billion"],
+      sourceType: "x",
+      vertical: "Government / Corruption",
+      authorityScore: 82,
+      tags: ["x", "finance", "politics", "insider-trading", "corruption"],
+      maxResults: 8,
+    },
+  },
+  {
+    name: "Wall Street Silver",
+    kind: "x_account",
+    provider: "twitter",
+    pollIntervalMinutes: 20,
+    configJson: {
+      mode: "x_account",
+      handle: "WallStreetSilv",
+      queryTerms: ["inflation", "economy", "collapse", "fed", "dollar"],
+      sourceType: "x",
+      vertical: "Big Tech / Billionaires",
+      authorityScore: 74,
+      tags: ["x", "finance", "economy", "markets"],
+      maxResults: 6,
+    },
+  },
+  {
+    name: "ZeroHedge",
+    kind: "x_account",
+    provider: "twitter",
+    pollIntervalMinutes: 20,
+    configJson: {
+      mode: "x_account",
+      handle: "zaborhood",
+      queryTerms: ["crash", "collapse", "bailout", "fraud", "scandal"],
+      sourceType: "x",
+      vertical: "Big Tech / Billionaires",
+      authorityScore: 72,
+      tags: ["x", "finance", "markets", "contrarian"],
+      maxResults: 6,
+    },
+  },
+  {
+    name: "Robert Reich",
+    kind: "x_account",
+    provider: "twitter",
+    pollIntervalMinutes: 20,
+    configJson: {
+      mode: "x_account",
+      handle: "RBReich",
+      queryTerms: ["inequality", "billionaire", "corporate", "workers", "greed"],
+      sourceType: "x",
+      vertical: "Big Tech / Billionaires",
+      authorityScore: 80,
+      tags: ["x", "economics", "inequality", "politics"],
+      maxResults: 6,
+    },
+  },
+  {
+    name: "Open Secrets",
+    kind: "x_account",
+    provider: "twitter",
+    pollIntervalMinutes: 30,
+    configJson: {
+      mode: "x_account",
+      handle: "OpenSecretsDC",
+      queryTerms: ["donation", "lobbying", "dark money", "PAC", "corruption"],
+      sourceType: "x",
+      vertical: "Government / Corruption",
+      authorityScore: 84,
+      tags: ["x", "politics", "money-in-politics", "transparency"],
+      maxResults: 6,
     },
   },
 
