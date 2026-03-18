@@ -191,6 +191,12 @@ const VERTICAL_SIGNALS: Record<MoonVertical, { keywords: string[]; weight: numbe
       "epstein", "trafficking",
       "trump", "kickback", "billion dollar",
       "government", "white house",
+      // Government waste / boondoggles (Moon covers these)
+      "taxpayer", "tax dollars", "government waste", "boondoggle",
+      "bridge to nowhere", "over budget", "cost overrun",
+      "unfinished", "still not finished", "ballooned",
+      "million dollar", "newsom", "gavin newsom",
+      "infrastructure", "mismanagement",
     ],
     weight: 0.8,
   },
