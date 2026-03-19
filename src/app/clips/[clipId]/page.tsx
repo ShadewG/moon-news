@@ -14,18 +14,32 @@ type Props = { params: Promise<{ clipId: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { clipId } = await params;
-  const db = getDb();
-  const [c] = await db.select().from(clipLibrary).where(eq(clipLibrary.id, clipId)).limit(1);
-  return { title: c ? `${c.title.slice(0, 50)} — Clip` : "Clip" };
+  try {
+    const db = getDb();
+    const [c] = await db.select().from(clipLibrary).where(eq(clipLibrary.id, clipId)).limit(1);
+    return { title: c ? `${c.title.slice(0, 50)} — Clip` : "Clip Not Found" };
+  } catch {
+    return { title: "Clip Not Found" };
+  }
 }
 
 export default async function ClipDetailPage({ params }: Props) {
   const { clipId } = await params;
   const db = getDb();
 
-  const [clip] = await db.select().from(clipLibrary).where(eq(clipLibrary.id, clipId)).limit(1);
+  let clip;
+  try {
+    [clip] = await db.select().from(clipLibrary).where(eq(clipLibrary.id, clipId)).limit(1);
+  } catch {
+    // Invalid UUID format
+  }
   if (!clip) {
-    return <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-[#52525b]">Clip not found</div>;
+    return (
+      <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center gap-4">
+        <div className="text-[#52525b] text-lg">Clip not found</div>
+        <a href="/library" className="text-sm text-[#3b82f6] hover:underline">← Back to Library</a>
+      </div>
+    );
   }
 
   const [transcript, quotes, notes, aiQueries] = await Promise.all([
