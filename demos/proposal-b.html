@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote-First Research — Moon News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080C12;
+  --bg1:      #0D1320;
+  --bg2:      #111827;
+  --bg3:      #1a2234;
+  --bg4:      #1f2a3e;
+  --border:   #1e2d44;
+  --border2:  #253348;
+  --cyan:     #00C9E8;
+  --cyan-dim: #004d5a;
+  --amber:    #F59E0B;
+  --amber-dim:#3d2800;
+  --red:      #EF4444;
+  --red-dim:  #3b0f0f;
+  --green:    #10B981;
+  --green-dim:#082b1a;
+  --purple:   #A78BFA;
+  --purple-dim:#2d1f5e;
+  --blue:     #3B82F6;
+  --blue-dim: #1a2d5a;
+  --muted:    #4B5C74;
+  --muted2:   #8899aa;
+  --text:     #CBD5E0;
+  --text-bright:#E8F0F8;
+  --mono: 'IBM Plex Mono', monospace;
+  --serif: 'Fraunces', Georgia, serif;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ── TICKER ── */
+#ticker {
+  height: 32px;
+  background: linear-gradient(90deg, #1a0a00, #2d1600, #1a0a00);
+  border-bottom: 1px solid var(--amber);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+#ticker::before {
+  content: 'TOP QUOTES';
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--amber);
+  padding: 0 16px;
+  white-space: nowrap;
+  z-index: 2;
+  background: linear-gradient(90deg, #2d1600, #2d1600);
+  border-right: 1px solid var(--amber);
+}
+.ticker-inner {
+  display: flex;
+  gap: 0;
+  animation: ticker-scroll 50s linear infinite;
+  white-space: nowrap;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0) }
+  100% { transform: translateX(-50%) }
+}
+.tick-item {
+  padding: 0 32px;
+  font-size: 11px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 1px solid #2a1a00;
+}
+.tick-item .score {
+  color: var(--amber);
+  font-weight: 600;
+}
+.tick-item .label {
+  background: var(--amber);
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+/* ── SHELL ── */
+#shell { display: flex; height: calc(100vh - 32px); }
+
+/* ── LEFT SIDEBAR ── */
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 16px 14px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .moon {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.5px;
+}
+.sidebar-logo .version {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.sidebar-section {
+  padding: 10px 14px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.nav-item {
+  padding: 7px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted2);
+  font-size: 12px;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { background: var(--bg2); color: var(--text-bright); }
+.nav-item.active { background: var(--bg2); color: var(--cyan); border-left-color: var(--cyan); }
+.nav-item .icon { font-size: 13px; width: 16px; text-align: center; }
+.nav-item .nav-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.badge-cyan  { background: var(--cyan-dim); color: var(--cyan); }
+.badge-amber { background: var(--amber-dim); color: var(--amber); }
+.badge-green { background: var(--green-dim); color: var(--green); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+/* Source health */
+.source-row {
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted2);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.source-count { margin-left: auto; font-size: 10px; color: var(--muted); }
+.health-stat {
+  padding: 4px 14px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted2);
+}
+.health-stat .val { color: var(--text-bright); font-weight: 600; }
+
+/* ── MAIN ── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Topbar */
+#topbar {
+  height: 44px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.search-box {
+  flex: 1;
+  max-width: 500px;
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px 6px 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+}
+.search-box input:focus { border-color: var(--cyan); }
+.search-box input::placeholder { color: var(--muted); }
+.topbar-spacer { flex: 1; }
+.topbar-stat {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.topbar-stat .val { color: var(--text); }
+.topbar-clock {
+  font-size: 11px;
+  color: var(--cyan);
+  font-weight: 600;
+  padding: 4px 10px;
+  background: var(--cyan-dim);
+  border-radius: 3px;
+}
+
+/* ── Content ── */
+#content-area { flex: 1; display: flex; overflow: hidden; }
+#quote-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+#quote-list::-webkit-scrollbar { width: 5px; }
+#quote-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Video group ── */
+.video-group { margin-bottom: 16px; }
+.video-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.video-group-header:hover { background: var(--bg2); }
+.video-group-header .vg-thumb {
+  width: 60px;
+  height: 34px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.video-group-header .vg-title {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--text-bright);
+  flex: 1;
+}
+.video-group-header .vg-channel {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.video-group-header .vg-count {
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 600;
+  background: var(--cyan-dim);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.video-group-header .vg-arrow {
+  color: var(--muted);
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+.video-group.collapsed .vg-arrow { transform: rotate(-90deg); }
+.video-group.collapsed .vg-quotes { display: none; }
+.vg-quotes {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+
+/* ── Quote card ── */
+.quote-card {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 15px;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease both;
+}
+.quote-card:last-child { border-bottom: none; }
+.quote-card:hover { background: var(--bg3); }
+.quote-card.active { background: var(--bg3); border-left: 3px solid var(--cyan); }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+
+.qc-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.qc-score {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 36px;
+  text-align: center;
+}
+.qc-score.high { color: var(--cyan); }
+.qc-score.med  { color: var(--amber); }
+.qc-body { flex: 1; }
+.qc-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-bright);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.qc-speaker {
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.qc-ts {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 600;
+  background: var(--cyan-dim);
+  padding: 1px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+.qc-ts:hover { background: #006677; }
+.qc-context {
+  font-size: 11px;
+  color: var(--muted2);
+  line-height: 1.4;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: var(--bg3);
+  border-left: 2px solid var(--amber);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Controversy meter */
+.controversy-meter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  margin-top: 6px;
+}
+.c-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg4);
+  width: 60px;
+  overflow: hidden;
+}
+.c-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--amber), var(--red));
+}
+
+.qc-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.qc-source-thumb {
+  width: 48px;
+  height: 27px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.qc-source-title {
+  font-size: 10px;
+  color: var(--muted2);
+  flex: 1;
+}
+
+.qc-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-play      { background: var(--cyan-dim); color: var(--cyan); }
+.btn-play:hover{ background: #006677; }
+.btn-copy      { background: var(--amber-dim); color: var(--amber); }
+.btn-copy:hover{ background: #4a3000; }
+.btn-save      { background: var(--green-dim); color: var(--green); }
+.btn-save:hover{ background: #103d28; }
+.btn-ai        { background: var(--purple-dim); color: var(--purple); }
+.btn-ai:hover  { background: #3d2a7a; }
+
+/* ── RIGHT PANEL ── */
+#right-panel {
+  width: 380px;
+  min-width: 380px;
+  background: var(--bg1);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: margin-right 0.2s;
+}
+#right-panel.hidden {
+  margin-right: -380px;
+  min-width: 0;
+  width: 0;
+  border: none;
+}
+.panel-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.panel-close {
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.panel-close:hover { background: var(--bg2); color: var(--text); }
+.panel-body { flex: 1; overflow-y: auto; padding: 16px; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.panel-thumb {
+  width: 100%;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.panel-thumb img {
+  width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+.panel-thumb .play-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px; height: 48px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+.panel-thumb:hover .play-overlay {
+  background: rgba(0,201,232,0.3);
+  border-color: var(--cyan);
+}
+
+.panel-section { margin-bottom: 16px; }
+.panel-section-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.detail-row .key { color: var(--muted); }
+.detail-row .val { color: var(--text-bright); font-weight: 600; }
+.detail-row .val.cyan { color: var(--cyan); }
+
+.transcript-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.7;
+  font-family: var(--serif);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.panel-quote-item {
+  padding: 6px 8px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.panel-quote-item:hover {
+  border-color: var(--cyan);
+  background: var(--bg3);
+}
+.pqi-ts {
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.pqi-text {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.sys-note {
+  font-size: 9px;
+  color: var(--muted);
+  padding: 4px 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--amber) }
+  50%      { border-color: #7a4e00 }
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div id="ticker">
+  <div class="ticker-inner" id="ticker-inner"></div>
+</div>
+
+<!-- SHELL -->
+<div id="shell">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="moon">Quote-First</div>
+    <div class="version">v1.0 — Research Workspace</div>
+  </div>
+
+  <div class="sidebar-section">Navigation</div>
+  <div class="nav-item active">
+    <span class="icon">&#128172;</span> All Quotes
+    <span class="nav-badge badge-amber" id="sidebar-quote-count"></span>
+  </div>
+  <div class="nav-item">
+    <span class="icon">&#128218;</span> Clip Library
+  </div>
+  <div class="nav-item">
+    <span class="icon">&#128269;</span> Topic Search
+  </div>
+  <div class="nav-item">
+    <span class="icon">&#129302;</span> Ask AI
+  </div>
+  <div class="nav-item">
+    <span class="icon">&#127760;</span> Sources
+    <span class="nav-badge badge-green">3</span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">Library Health</div>
+  <div class="health-stat">
+    <span>Transcripts</span>
+    <span class="val" id="stat-transcripts"></span>
+  </div>
+  <div class="health-stat">
+    <span>Quotes</span>
+    <span class="val" id="stat-quotes"></span>
+  </div>
+  <div class="health-stat">
+    <span>Clips</span>
+    <span class="val" id="stat-clips"></span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">Providers</div>
+  <div class="source-row">
+    <span class="dot live"></span> YouTube
+    <span class="source-count">&#10003;</span>
+  </div>
+  <div class="source-row">
+    <span class="dot live"></span> Twitter/X
+    <span class="source-count">&#10003;</span>
+  </div>
+  <div class="source-row">
+    <span class="dot live"></span> Internet Archive
+    <span class="source-count">&#10003;</span>
+  </div>
+
+  <div style="flex:1"></div>
+  <div class="sys-note">Quote-centric research view</div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div class="search-box">
+      <input type="text" id="search-input"
+             placeholder="Search quotes, transcripts, speakers..." />
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-stat">
+      Quotes: <span class="val" id="topbar-quotes"></span>
+    </div>
+    <div class="topbar-stat">
+      Videos: <span class="val" id="topbar-videos"></span>
+    </div>
+    <div class="topbar-clock" id="clock"></div>
+  </div>
+
+  <div id="content-area">
+    <div id="quote-list"></div>
+
+    <div id="right-panel" class="hidden">
+      <div class="panel-header">
+        <span class="panel-title">Video Player</span>
+        <span class="panel-close" id="panel-close-btn">&times;</span>
+      </div>
+      <div class="panel-body" id="panel-body"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+(function() {
+  /* ════════════════════════════════════════
+     DATA
+     ════════════════════════════════════════ */
+  var DATA = {
+    clips: [
+      { id:"c88f08ec", external_id:"efs3QRr8LWw", title:"Joe Rogan Experience #1368 - Edward Snowden",
+        channel_or_contributor:"PowerfulJRE", duration_ms:10172000, view_count:39842664, has_transcript:true, quote_count:5 },
+      { id:"8bf2ceb6", external_id:"T3FC7qIAGZk", title:"Andrew Bustamante: CIA Spy | Lex Fridman Podcast #310",
+        channel_or_contributor:"Lex Fridman", duration_ms:13989000, view_count:19751587, has_transcript:true, quote_count:5 },
+      { id:"c3d0591f", external_id:"yUNoJ32eLBc", title:"CIA Whistleblower: They Can See All Your Messages!",
+        channel_or_contributor:"The Diary Of A CEO", duration_ms:6356000, view_count:9398345, has_transcript:true, quote_count:5 },
+      { id:"351d537c", external_id:"Pcfwx50zl40", title:"How CIA Black Ops Actually Work | Authorized Account",
+        channel_or_contributor:"Insider", duration_ms:3462000, view_count:7446241, has_transcript:true, quote_count:5 },
+      { id:"626308c2", external_id:"TZqADzuu73g", title:"Joe Rogan Experience #2392 - John Kiriakou",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9066000, view_count:6803901, has_transcript:true, quote_count:5 },
+      { id:"de75dfda", external_id:"fu6bYPTp_kE", title:"Former CIA Spies (NEW): Leave the USA Before 2030!",
+        channel_or_contributor:"The Diary Of A CEO", duration_ms:9150000, view_count:5469475, has_transcript:true, quote_count:5 },
+      { id:"a18c61fc", external_id:"-v55tpm11J8", title:"The CIA Officer Who Exposed America\u2019s Torture Programme",
+        channel_or_contributor:"LADbible Stories", duration_ms:2216000, view_count:4390126, has_transcript:true, quote_count:5 },
+      { id:"fd2179eb", external_id:"t3FxH39oYsA", title:"Mossad, Terrifying CIA Technology, Blackwater & The Most Secret CIA Unit",
+        channel_or_contributor:"Dalton Fischer Podcast", duration_ms:15500000, view_count:4084194, has_transcript:true, quote_count:5 },
+      { id:"3dd31c01", external_id:"K-Q4r37XgVw", title:"American CIA Spy: US scared of India & Russia, RAW vs ISI",
+        channel_or_contributor:"Raj Shamani", duration_ms:8984000, view_count:2120159, has_transcript:true, quote_count:5 }
+    ],
+    quotes: [
+      { quote_text:"going to transform people\u2019s opinion about CIA in two big ways. First, they\u2019ll understand that CIA is not what the movies portray it to be.",
+        speaker:"Andrew Bustamante", start_ms:331120, relevance_score:100,
+        context:"Core themes of mole betrayal, use of terrorism tactics, morally ambivalent espionage.",
+        video_title:"Former CIA Spies (NEW): Leave the USA Before 2030!", external_id:"fu6bYPTp_kE", clip_id:"de75dfda" },
+      { quote_text:"why you and others called her bloody Gina we did call her bloody Gina. Gina was always very quick, very willing to use force.",
+        speaker:"John Kiriakou", start_ms:121829, relevance_score:100,
+        context:"Directly alleges the use of torture by Gina Haspel\u2019s group.",
+        video_title:"She Tortured Just for the Sake of Torture", external_id:"ZpDc1hscfeQ", clip_id:"ext-1" },
+      { quote_text:"I can\u2019t tell you. You don\u2019t have a need to know. And I said, No, that\u2019s cool. He said, Who is he anyway?",
+        speaker:"John Kiriakou", start_ms:284080, relevance_score:100,
+        context:"Reveals the CIA\u2019s implementation of the torture program.",
+        video_title:"Joe Rogan Experience #2392 - John Kiriakou", external_id:"TZqADzuu73g", clip_id:"626308c2" },
+      { quote_text:"They\u2019re going to leave somebody out to dry to protect themselves. So I called Brian Ross. I said, I\u2019ll give you your interview.",
+        speaker:"John Kiriakou", start_ms:1950799, relevance_score:100,
+        context:"Evidences whistleblower retaliation where speaking truth led to spying charges.",
+        video_title:"Joe Rogan Experience #2392 - John Kiriakou", external_id:"TZqADzuu73g", clip_id:"626308c2" },
+      { quote_text:"Your problem is you think this is about justice and it\u2019s not about justice. It\u2019s about mitigating damage. Take the deal.",
+        speaker:"CIA Officer", start_ms:2017679, relevance_score:100,
+        context:"The moral imperative to expose the CIA\u2019s torture program.",
+        video_title:"The CIA Officer Who Exposed America\u2019s Torture Programme", external_id:"-v55tpm11J8", clip_id:"a18c61fc" },
+      { quote_text:"squeezed my hand and I said, Remember, you have to cooperate. And then he flew off.",
+        speaker:"CIA Officer", start_ms:1465200, relevance_score:98,
+        context:"Direct evidence of the CIA\u2019s sanctioned torture program.",
+        video_title:"The CIA Officer Who Exposed America\u2019s Torture Programme", external_id:"-v55tpm11J8", clip_id:"a18c61fc" },
+      { quote_text:"this torture program is so wrong and so illegal. Somebody\u2019s going to say something to the media, and nobody did.",
+        speaker:"John Kiriakou", start_ms:2410880, relevance_score:98,
+        context:"Official CIA endorsement of a torture program.",
+        video_title:"How CIA Black Ops Actually Work", external_id:"Pcfwx50zl40", clip_id:"351d537c" },
+      { quote_text:"smart TV and turn a speaker into a microphone, even though the TV is off and broadcast back to the CIA. Absolutely.",
+        speaker:"John Kiriakou", start_ms:16160, relevance_score:98,
+        context:"CIA\u2019s surveillance capabilities via consumer technology.",
+        video_title:"CIA Whistleblower: They Can See All Your Messages!", external_id:"yUNoJ32eLBc", clip_id:"c3d0591f" },
+      { quote_text:"Billions of dollars are spent spying on Americans, whether it\u2019s NSA or CIA or the FBI.",
+        speaker:"John Kiriakou", start_ms:320, relevance_score:95,
+        context:"Reveals the extent of CIA surveillance capabilities.",
+        video_title:"CIA Whistleblower: They Can See All Your Messages!", external_id:"yUNoJ32eLBc", clip_id:"c3d0591f" },
+      { quote_text:"When this story hits the airwaves, it\u2019s going to transform people\u2019s opinion about the CIA.",
+        speaker:"Andrew Bustamante", start_ms:80, relevance_score:95,
+        context:"Broad impact on public understanding of the CIA.",
+        video_title:"Former CIA Spies (NEW): Leave the USA Before 2030!", external_id:"fu6bYPTp_kE", clip_id:"de75dfda" },
+      { quote_text:"as long as there\u2019s conflict between India and Pakistan, there will always be an interest from both sides to get help from the US.",
+        speaker:"Andrew", start_ms:1598000, relevance_score:98,
+        context:"CIA\u2019s role in perpetuating geopolitical conflict.",
+        video_title:"American CIA Spy: US scared of India & Russia", external_id:"K-Q4r37XgVw", clip_id:"3dd31c01" },
+      { quote_text:"people died after this. But that was one of the things that led the CIA to become really interested in hallucinogens.",
+        speaker:"John Lisle", start_ms:1620159, relevance_score:98,
+        context:"CIA\u2019s exploitation and surveillance tactics involving drugs.",
+        video_title:"Joe Rogan Experience #2419 - John Lisle", external_id:"ZrUQdGi0HF8", clip_id:"ext-2" },
+      { quote_text:"somebody in the White House is going to do the right thing. I hope that\u2019s the case.",
+        speaker:"John Kiriakou", start_ms:2501359, relevance_score:95,
+        context:"Whistleblower retaliation and espionage surveillance.",
+        video_title:"How CIA Black Ops Actually Work", external_id:"Pcfwx50zl40", clip_id:"351d537c" }
+    ]
+  };
+
+  /* ════════════════════════════════════════
+     UTILITIES
+     ════════════════════════════════════════ */
+  function fmtMs(ms) {
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function fmtDuration(ms) {
+    var s = Math.floor(ms / 1000);
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    return h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+  }
+
+  function fmtViews(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+    return '' + n;
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  /* ════════════════════════════════════════
+     POPULATE STATS
+     ════════════════════════════════════════ */
+  var totalTranscripts = DATA.clips.filter(function(c) { return c.has_transcript; }).length;
+  document.getElementById('stat-transcripts').textContent = totalTranscripts;
+  document.getElementById('stat-quotes').textContent = DATA.quotes.length;
+  document.getElementById('stat-clips').textContent = DATA.clips.length;
+  document.getElementById('topbar-quotes').textContent = DATA.quotes.length;
+  document.getElementById('sidebar-quote-count').textContent = DATA.quotes.length;
+
+  var uniqueVids = {};
+  DATA.quotes.forEach(function(q) { uniqueVids[q.external_id] = true; });
+  document.getElementById('topbar-videos').textContent = Object.keys(uniqueVids).length;
+
+  /* ════════════════════════════════════════
+     CLOCK
+     ════════════════════════════════════════ */
+  function updateClock() {
+    document.getElementById('clock').textContent =
+      new Date().toLocaleTimeString('en-US', { hour12: false });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ════════════════════════════════════════
+     TICKER
+     ════════════════════════════════════════ */
+  (function buildTicker() {
+    var container = document.getElementById('ticker-inner');
+    var frag = document.createDocumentFragment();
+
+    function addItems() {
+      DATA.quotes.slice(0, 8).forEach(function(q) {
+        var item = el('div', 'tick-item');
+        item.appendChild(el('span', 'label', '' + q.relevance_score));
+        item.appendChild(
+          document.createTextNode(' \u201c' + q.quote_text.substring(0, 70) + '\u2026\u201d \u2014 ' + (q.speaker || 'Unknown'))
+        );
+        frag.appendChild(item);
+      });
+    }
+
+    addItems();
+    addItems();
+    container.appendChild(frag);
+  })();
+
+  /* ════════════════════════════════════════
+     NAV ITEMS
+     ════════════════════════════════════════ */
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+      item.classList.add('active');
+    });
+  });
+
+  /* ════════════════════════════════════════
+     GROUP QUOTES BY VIDEO
+     ════════════════════════════════════════ */
+  function groupByVideo(quotes) {
+    var groups = {};
+    var order = [];
+    quotes.forEach(function(q) {
+      if (!groups[q.external_id]) {
+        groups[q.external_id] = {
+          title: q.video_title,
+          external_id: q.external_id,
+          quotes: []
+        };
+        order.push(q.external_id);
+      }
+      groups[q.external_id].quotes.push(q);
+    });
+    return order.map(function(eid) { return groups[eid]; });
+  }
+
+  /* ════════════════════════════════════════
+     RENDER QUOTES
+     ════════════════════════════════════════ */
+  var searchTerm = '';
+
+  function renderQuotes() {
+    var list = document.getElementById('quote-list');
+    list.textContent = '';
+
+    var filtered = DATA.quotes;
+    if (searchTerm) {
+      var term = searchTerm.toLowerCase();
+      filtered = DATA.quotes.filter(function(q) {
+        return q.quote_text.toLowerCase().indexOf(term) !== -1 ||
+          (q.speaker || '').toLowerCase().indexOf(term) !== -1 ||
+          q.video_title.toLowerCase().indexOf(term) !== -1 ||
+          q.context.toLowerCase().indexOf(term) !== -1;
+      });
+    }
+
+    var groups = groupByVideo(filtered);
+
+    groups.forEach(function(g) {
+      var grp = el('div', 'video-group');
+
+      // Group header
+      var hdr = el('div', 'video-group-header');
+      var thumb = document.createElement('img');
+      thumb.className = 'vg-thumb';
+      thumb.src = 'https://i.ytimg.com/vi/' + g.external_id + '/default.jpg';
+      thumb.alt = g.title;
+
+      var titleWrap = el('div', '');
+      titleWrap.style.flex = '1';
+      var title = el('div', 'vg-title', g.title);
+      titleWrap.appendChild(title);
+
+      var count = el('span', 'vg-count', g.quotes.length + ' quotes');
+      var arrow = el('span', 'vg-arrow', '\u25bc');
+
+      hdr.appendChild(thumb);
+      hdr.appendChild(titleWrap);
+      hdr.appendChild(count);
+      hdr.appendChild(arrow);
+      hdr.addEventListener('click', function() { grp.classList.toggle('collapsed'); });
+      grp.appendChild(hdr);
+
+      // Quote cards
+      var qContainer = el('div', 'vg-quotes');
+
+      g.quotes.forEach(function(q) {
+        var card = el('div', 'quote-card');
+        card.addEventListener('click', function() {
+          openPanel(q);
+          document.querySelectorAll('.quote-card').forEach(function(c) { c.classList.remove('active'); });
+          card.classList.add('active');
+        });
+
+        // Score + body
+        var header = el('div', 'qc-header');
+        var scoreClass = q.relevance_score >= 95 ? 'high' : (q.relevance_score >= 80 ? 'med' : '');
+        var score = el('div', 'qc-score ' + scoreClass, '' + q.relevance_score);
+
+        var body = el('div', 'qc-body');
+        body.appendChild(el('div', 'qc-text', '\u201c' + q.quote_text + '\u201d'));
+        body.appendChild(el('div', 'qc-speaker', q.speaker || 'Unknown Speaker'));
+
+        var ts = el('span', 'qc-ts', '[' + fmtMs(q.start_ms) + ']');
+        ts.addEventListener('click', function(e) {
+          e.stopPropagation();
+          window.open('https://youtube.com/watch?v=' + q.external_id + '&t=' + Math.floor(q.start_ms / 1000), '_blank');
+        });
+        body.appendChild(ts);
+
+        body.appendChild(el('div', 'qc-context', q.context));
+
+        // Controversy meter
+        var cm = el('div', 'controversy-meter');
+        cm.appendChild(el('span', '', 'Relevance'));
+        var bar = el('div', 'c-bar');
+        var fill = el('div', 'c-fill');
+        fill.style.width = q.relevance_score + '%';
+        bar.appendChild(fill);
+        cm.appendChild(bar);
+        cm.appendChild(el('span', '', q.relevance_score + '/100'));
+        body.appendChild(cm);
+
+        header.appendChild(score);
+        header.appendChild(body);
+        card.appendChild(header);
+
+        // Source row
+        var src = el('div', 'qc-source');
+        var srcThumb = document.createElement('img');
+        srcThumb.className = 'qc-source-thumb';
+        srcThumb.src = 'https://i.ytimg.com/vi/' + q.external_id + '/default.jpg';
+        src.appendChild(srcThumb);
+        src.appendChild(el('div', 'qc-source-title', q.video_title));
+        card.appendChild(src);
+
+        // Action buttons
+        var act = el('div', 'qc-actions');
+        var btnPlay = el('button', 'btn btn-play', '\u25b6 Play at Timestamp');
+        btnPlay.addEventListener('click', function(e) {
+          e.stopPropagation();
+          window.open('https://youtube.com/watch?v=' + q.external_id + '&t=' + Math.floor(q.start_ms / 1000), '_blank');
+        });
+        var btnCopy = el('button', 'btn btn-copy', '\ud83d\udccb Copy Quote');
+        btnCopy.addEventListener('click', function(e) {
+          e.stopPropagation();
+          navigator.clipboard.writeText(q.quote_text);
+          btnCopy.textContent = '\u2713 Copied!';
+          setTimeout(function() { btnCopy.textContent = '\ud83d\udccb Copy Quote'; }, 1500);
+        });
+        var btnSave = el('button', 'btn btn-save', '\ud83d\udccc Save to Notes');
+        btnSave.addEventListener('click', function(e) {
+          e.stopPropagation();
+          btnSave.textContent = '\u2713 Saved!';
+          setTimeout(function() { btnSave.textContent = '\ud83d\udccc Save to Notes'; }, 1500);
+        });
+        act.appendChild(btnPlay);
+        act.appendChild(btnCopy);
+        act.appendChild(btnSave);
+        card.appendChild(act);
+
+        qContainer.appendChild(card);
+      });
+
+      grp.appendChild(qContainer);
+      list.appendChild(grp);
+    });
+  }
+
+  /* ════════════════════════════════════════
+     OPEN RIGHT PANEL
+     ════════════════════════════════════════ */
+  function openPanel(q) {
+    var panel = document.getElementById('right-panel');
+    panel.classList.remove('hidden');
+    var body = document.getElementById('panel-body');
+    body.textContent = '';
+
+    var clip = DATA.clips.find(function(c) { return c.external_id === q.external_id; });
+
+    // Thumbnail
+    var thumb = el('div', 'panel-thumb');
+    thumb.addEventListener('click', function() {
+      window.open('https://youtube.com/watch?v=' + q.external_id + '&t=' + Math.floor(q.start_ms / 1000), '_blank');
+    });
+    var img = document.createElement('img');
+    img.src = 'https://i.ytimg.com/vi/' + q.external_id + '/hqdefault.jpg';
+    img.alt = q.video_title;
+    thumb.appendChild(img);
+    thumb.appendChild(el('div', 'play-overlay', '\u25b6'));
+    body.appendChild(thumb);
+
+    // Video details
+    var sec1 = el('div', 'panel-section');
+    sec1.appendChild(el('div', 'panel-section-title', 'Video Details'));
+
+    var titleRow = el('div', 'detail-row');
+    titleRow.appendChild(el('span', 'key', 'Title'));
+    titleRow.appendChild(el('span', 'val', q.video_title));
+    sec1.appendChild(titleRow);
+
+    if (clip) {
+      var dets = [
+        ['Channel', clip.channel_or_contributor],
+        ['Duration', fmtDuration(clip.duration_ms)],
+        ['Views', fmtViews(clip.view_count)]
+      ];
+      dets.forEach(function(d) {
+        var row = el('div', 'detail-row');
+        row.appendChild(el('span', 'key', d[0]));
+        row.appendChild(el('span', 'val cyan', d[1]));
+        sec1.appendChild(row);
+      });
+    }
+    body.appendChild(sec1);
+
+    // All quotes from this video
+    var videoQuotes = DATA.quotes.filter(function(vq) { return vq.external_id === q.external_id; });
+    var sec2 = el('div', 'panel-section');
+    sec2.appendChild(el('div', 'panel-section-title', 'All Quotes from Video (' + videoQuotes.length + ')'));
+
+    videoQuotes.forEach(function(vq) {
+      var qi = el('div', 'panel-quote-item');
+      qi.addEventListener('click', function() {
+        window.open('https://youtube.com/watch?v=' + vq.external_id + '&t=' + Math.floor(vq.start_ms / 1000), '_blank');
+      });
+      qi.appendChild(el('div', 'pqi-ts', '[' + fmtMs(vq.start_ms) + '] ' + (vq.speaker || 'Unknown')));
+      qi.appendChild(el('div', 'pqi-text', '\u201c' + vq.quote_text.substring(0, 100) + '\u2026\u201d'));
+      sec2.appendChild(qi);
+    });
+    body.appendChild(sec2);
+
+    // Transcript preview
+    var sec3 = el('div', 'panel-section');
+    sec3.appendChild(el('div', 'panel-section-title', 'Transcript Preview'));
+    var tBlock = el('div', 'transcript-block');
+    tBlock.textContent = '[Transcript available] Full transcript loaded from research database. Click timestamps above to jump to specific moments.\n\nKey topics: CIA operations, whistleblower retaliation, torture programs, intelligence gathering, surveillance technology, geopolitical strategy.';
+    sec3.appendChild(tBlock);
+    body.appendChild(sec3);
+  }
+
+  /* ════════════════════════════════════════
+     CLOSE PANEL
+     ════════════════════════════════════════ */
+  document.getElementById('panel-close-btn').addEventListener('click', function() {
+    document.getElementById('right-panel').classList.add('hidden');
+    document.querySelectorAll('.quote-card').forEach(function(c) { c.classList.remove('active'); });
+  });
+
+  /* ════════════════════════════════════════
+     SEARCH
+     ════════════════════════════════════════ */
+  document.getElementById('search-input').addEventListener('input', function(e) {
+    searchTerm = e.target.value;
+    renderQuotes();
+  });
+
+  /* ════════════════════════════════════════
+     INITIAL RENDER
+     ════════════════════════════════════════ */
+  renderQuotes();
+
+})();
+</script>
+</body>
+</html>

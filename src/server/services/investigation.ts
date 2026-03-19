@@ -18,6 +18,7 @@ import {
 } from "@/server/db/schema";
 import { classifyLine, type LineClassification } from "@/server/providers/openai";
 import { searchLineResearch } from "@/server/providers/parallel";
+import { analyzeScriptLineWithMoonCorpus } from "@/server/services/moon-corpus";
 import { runVisualSearchTask } from "./visual-search";
 
 export const INVESTIGATE_LINE_TASK_ID = "investigate-line";
@@ -61,10 +62,26 @@ async function buildScriptContext(
     .join("\n");
 }
 
+type EnrichedLineClassification = LineClassification & {
+  moon_story_fit: number;
+  moon_fit_band: string;
+  likely_vertical: string | null;
+  coverage_mode: string | null;
+  analog_clip_ids: string[];
+  analog_titles: string[];
+  hook_style: string | null;
+  expected_visual_mix: string[];
+  primary_entities: string[];
+  secondary_entities: string[];
+  archive_keywords: string[];
+  youtube_keywords: string[];
+  reason_codes: string[];
+};
+
 export async function runClassifyLineTask(input: {
   scriptLineId: string;
   projectId: string;
-}): Promise<LineClassification> {
+}): Promise<EnrichedLineClassification> {
   const db = getDb();
 
   const [record] = await db
@@ -94,12 +111,36 @@ export async function runClassifyLineTask(input: {
     projectTitle: record.project.title,
     scriptContext,
   });
+  const moonAnalysis = await analyzeScriptLineWithMoonCorpus({
+    lineText: record.line.text,
+    scriptContext,
+  });
+  const mergedSearchKeywords = Array.from(
+    new Set([...classification.search_keywords, ...moonAnalysis.searchKeywords])
+  ).slice(0, 8);
+  const enrichedClassification: EnrichedLineClassification = {
+    ...classification,
+    search_keywords: mergedSearchKeywords,
+    moon_story_fit: moonAnalysis.moonStoryFit,
+    moon_fit_band: moonAnalysis.moonFitBand,
+    likely_vertical: moonAnalysis.likelyVertical,
+    coverage_mode: moonAnalysis.coverageMode,
+    analog_clip_ids: moonAnalysis.analogClipIds,
+    analog_titles: moonAnalysis.analogTitles,
+    hook_style: moonAnalysis.hookStyle,
+    expected_visual_mix: moonAnalysis.expectedVisualMix,
+    primary_entities: moonAnalysis.primaryEntities,
+    secondary_entities: moonAnalysis.secondaryEntities,
+    archive_keywords: moonAnalysis.archiveKeywords,
+    youtube_keywords: moonAnalysis.youtubeKeywords,
+    reason_codes: moonAnalysis.reasonCodes,
+  };
 
   await db
     .update(scriptLines)
     .set({
       lineContentCategory: classification.category,
-      classificationJson: classification,
+      classificationJson: enrichedClassification,
       updatedAt: new Date(),
     })
     .where(eq(scriptLines.id, input.scriptLineId));
@@ -122,7 +163,7 @@ export async function runClassifyLineTask(input: {
     });
   }
 
-  return classification;
+  return enrichedClassification;
 }
 
 // ─── Full Investigation Orchestrator ───

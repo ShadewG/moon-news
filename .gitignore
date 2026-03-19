@@ -36,6 +36,7 @@ yarn-error.log*
 # local media + trigger cache
 .moon-news-media/
 .trigger/
+.playwright-mcp/
 
 # vercel
 .vercel

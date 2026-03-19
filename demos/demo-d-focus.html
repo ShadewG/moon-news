@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal D — Focus Mode</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #09090b; color: #d4d4d8; min-height: 100vh; }
+
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid #27272a; background: #0c0c0f; position: sticky; top: 0; z-index: 50; }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header h1 { font-size: 16px; font-weight: 600; color: #fafafa; }
+  .header .badge { background: #7c3aed; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 9999px; }
+  .header .subtitle { font-size: 12px; color: #71717a; }
+  .search-trigger { background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 6px 14px; color: #71717a; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .search-trigger:hover { border-color: #3f3f46; }
+  .search-trigger kbd { background: #27272a; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-family: monospace; }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  /* Navigation arrows */
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .nav-btn { background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 8px 18px; color: #d4d4d8; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .nav-btn:hover { border-color: #7c3aed; color: #fff; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; border-color: #27272a; color: #71717a; }
+  .nav-btn svg { width: 14px; height: 14px; fill: currentColor; }
+  .clip-counter { font-size: 12px; color: #71717a; }
+
+  /* Player */
+  .player-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 24px; cursor: pointer; }
+  .player-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+  .player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 72px; height: 72px; background: rgba(124,58,237,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+  .play-btn:hover { transform: translate(-50%, -50%) scale(1.1); }
+  .play-btn svg { width: 28px; height: 28px; fill: #fff; margin-left: 4px; }
+
+  /* Title & meta */
+  .video-title { font-size: 22px; font-weight: 600; color: #fafafa; line-height: 1.3; margin-bottom: 10px; }
+  .video-meta { display: flex; gap: 16px; align-items: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .video-meta span { font-size: 13px; color: #71717a; }
+  .video-meta .channel { color: #a1a1aa; font-weight: 500; }
+  .meta-badge { font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 500; }
+  .meta-badge.views { background: #172554; color: #60a5fa; }
+  .meta-badge.quotes { background: #422006; color: #f59e0b; }
+  .meta-badge.transcript { background: #052e16; color: #22c55e; }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 0; border-bottom: 1px solid #27272a; margin-bottom: 24px; }
+  .tab-bar button { background: none; border: none; border-bottom: 2px solid transparent; color: #71717a; font-size: 14px; padding: 10px 20px; cursor: pointer; transition: all 0.15s; }
+  .tab-bar button:hover { color: #d4d4d8; }
+  .tab-bar button.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Quote cards */
+  .quote-card { background: #18181b; border-left: 3px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 12px; }
+  .quote-card .q-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .quote-card .speaker { font-size: 13px; color: #f59e0b; font-weight: 600; }
+  .quote-card .timestamp { font-size: 12px; color: #7c3aed; cursor: pointer; font-family: monospace; padding: 3px 8px; background: #1e1b4b; border-radius: 4px; }
+  .quote-card .timestamp:hover { background: #2e1065; }
+  .quote-card .text { font-size: 15px; color: #e4e4e7; line-height: 1.7; }
+  .quote-card .context { font-size: 12px; color: #71717a; margin-top: 8px; font-style: italic; }
+
+  /* Transcript */
+  .transcript-placeholder { color: #71717a; font-size: 14px; text-align: center; padding: 40px 0; }
+
+  /* Notes */
+  .notes-area textarea { width: 100%; min-height: 200px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 14px; color: #d4d4d8; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; font-family: inherit; }
+  .notes-area textarea:focus { border-color: #7c3aed; }
+  .notes-area textarea::placeholder { color: #52525b; }
+
+  /* AI Tab */
+  .ai-input-area { display: flex; gap: 10px; margin-bottom: 20px; }
+  .ai-input-area input { flex: 1; background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 12px 14px; color: #d4d4d8; font-size: 14px; outline: none; }
+  .ai-input-area input:focus { border-color: #7c3aed; }
+  .ai-input-area button { background: #7c3aed; border: none; color: #fff; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; }
+  .ai-response { background: #18181b; border-radius: 8px; padding: 18px; font-size: 14px; line-height: 1.7; color: #a1a1aa; }
+
+  /* Spotlight search overlay */
+  .spotlight { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; justify-content: center; padding-top: 15vh; }
+  .spotlight.visible { display: flex; }
+  .spotlight-box { width: 560px; max-width: 90vw; background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .spotlight-box input { width: 100%; background: transparent; border: none; border-bottom: 1px solid #27272a; padding: 16px 20px; color: #fafafa; font-size: 16px; outline: none; }
+  .spotlight-box input::placeholder { color: #52525b; }
+  .spotlight-results { max-height: 400px; overflow-y: auto; }
+  .spot-item { display: flex; gap: 12px; padding: 10px 16px; cursor: pointer; align-items: center; border-bottom: 1px solid #1a1a1e; }
+  .spot-item:hover, .spot-item.selected { background: #27272a; }
+  .spot-item img { width: 64px; height: 36px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+  .spot-item .spot-info { flex: 1; min-width: 0; }
+  .spot-item .spot-title { font-size: 13px; color: #e4e4e7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spot-item .spot-meta { font-size: 11px; color: #71717a; margin-top: 2px; }
+  .spot-item .spot-type { font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+  .spot-type-clip { background: #172554; color: #60a5fa; }
+  .spot-type-quote { background: #422006; color: #f59e0b; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>Proposal D</h1>
+    <span class="badge">Focus Mode</span>
+    <span class="subtitle">Minimal, distraction-free viewing</span>
+  </div>
+  <button class="search-trigger" id="searchTrigger">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Search <kbd>Cmd+K</kbd>
+  </button>
+</div>
+
+<div class="main">
+  <div class="nav-row">
+    <button class="nav-btn" id="prevBtn">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> Previous
+    </button>
+    <span class="clip-counter" id="clipCounter">1 / 20</span>
+    <button class="nav-btn" id="nextBtn">
+      Next <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <div class="player-wrapper" id="playerWrapper">
+    <img id="playerThumb" src="" alt="">
+    <div class="play-btn" id="playBtn">
+      <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+    </div>
+  </div>
+
+  <h2 class="video-title" id="videoTitle"></h2>
+  <div class="video-meta" id="videoMeta"></div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="active" data-tab="quotes">Quotes</button>
+    <button data-tab="transcript">Transcript</button>
+    <button data-tab="notes">Notes</button>
+    <button data-tab="askai">Ask AI</button>
+  </div>
+
+  <div class="tab-pane active" id="tab-quotes"></div>
+  <div class="tab-pane" id="tab-transcript">
+    <div class="transcript-placeholder">Transcript content would appear here when available. This clip has a transcript ready for review.</div>
+  </div>
+  <div class="tab-pane" id="tab-notes">
+    <div class="notes-area">
+      <textarea id="notesTextarea" placeholder="Write your research notes for this clip here..."></textarea>
+    </div>
+  </div>
+  <div class="tab-pane" id="tab-askai">
+    <div class="ai-input-area">
+      <input type="text" id="aiQuestion" placeholder="Ask a question about this clip...">
+      <button id="aiAskBtn">Ask</button>
+    </div>
+    <div class="ai-response" id="aiResponse">Ask a question to get AI-generated analysis about the content of this clip.</div>
+  </div>
+</div>
+
+<div class="spotlight" id="spotlight">
+  <div class="spotlight-box">
+    <input type="text" id="spotlightInput" placeholder="Search clips and quotes...">
+    <div class="spotlight-results" id="spotlightResults"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+var DATA = {"clips":[{"id":"c88f08ec-1442-45de-bc75-257358729832","provider":"youtube","external_id":"efs3QRr8LWw","title":"Joe Rogan Experience #1368 - Edward Snowden","channel_or_contributor":"PowerfulJRE","duration_ms":10172000,"view_count":39842664,"has_transcript":true,"quote_count":5},{"id":"8bf2ceb6-7163-44d1-ab4a-f4db89f221b0","provider":"youtube","external_id":"T3FC7qIAGZk","title":"Andrew Bustamante: CIA Spy | Lex Fridman Podcast #310","channel_or_contributor":"Lex Fridman","duration_ms":13989000,"view_count":19751587,"has_transcript":true,"quote_count":5},{"id":"ec51aceb-66f8-4b0b-9469-3c500733248d","provider":"youtube","external_id":"GyE55eB9Afc","title":"Former CIA Agent Mike Baker on China's 2049 Plan","channel_or_contributor":"PowerfulJRE","duration_ms":853000,"view_count":14593235,"has_transcript":true,"quote_count":4},{"id":"c3d0591f-9d83-4910-91f0-6d420ffe9ba5","provider":"youtube","external_id":"yUNoJ32eLBc","title":"CIA Whistleblower: They Can See All Your Messages!","channel_or_contributor":"The Diary Of A CEO","duration_ms":6356000,"view_count":9398345,"has_transcript":true,"quote_count":5},{"id":"85ce751f-260b-4a8e-95a1-1a24e0a5fecc","provider":"youtube","external_id":"xQEmYYpWt2g","title":"Former CIA Officer Mike Baker on Ukraine and Putin","channel_or_contributor":"PowerfulJRE","duration_ms":906000,"view_count":7488432,"has_transcript":true,"quote_count":5},{"id":"351d537c-6992-447c-afe5-2135ade6462e","provider":"youtube","external_id":"Pcfwx50zl40","title":"How CIA Black Ops Actually Work | Authorized Account | Insider","channel_or_contributor":"Insider","duration_ms":3462000,"view_count":7446241,"has_transcript":true,"quote_count":5},{"id":"626308c2-4120-4a4e-b8aa-72fc2b70c220","provider":"youtube","external_id":"TZqADzuu73g","title":"Joe Rogan Experience #2392 - John Kiriakou","channel_or_contributor":"PowerfulJRE","duration_ms":9066000,"view_count":6803901,"has_transcript":true,"quote_count":5},{"id":"63604621-9f7a-4752-befd-31ccaf583b40","provider":"youtube","external_id":"kA6eBKvph_Y","title":"The Secret History of MK Ultra w/Tom O'Neill | Joe Rogan","channel_or_contributor":"JRE Clips","duration_ms":1243000,"view_count":6150701,"has_transcript":true,"quote_count":5},{"id":"f8a48e63-29f3-4866-943e-47a4fbd367d5","provider":"youtube","external_id":"gcgC532OPhw","title":"Joe Rogan Experience #2207 - Shawn Ryan","channel_or_contributor":"PowerfulJRE","duration_ms":9730000,"view_count":5638045,"has_transcript":true,"quote_count":5},{"id":"de75dfda-986c-4f4e-a8f6-d04e10af178d","provider":"youtube","external_id":"fu6bYPTp_kE","title":"Former CIA Spies (NEW): Leave the USA Before 2030! The CIA Tried To Ban This Story!","channel_or_contributor":"The Diary Of A CEO","duration_ms":9150000,"view_count":5469475,"has_transcript":true,"quote_count":5},{"id":"e345e203-32bb-44a4-9256-bd0e12f5517f","provider":"youtube","external_id":"C81bFx8CSA8","title":"Joe Rogan Experience #2334 - Kash Patel","channel_or_contributor":"PowerfulJRE","duration_ms":7096000,"view_count":4568915,"has_transcript":true,"quote_count":5},{"id":"a18c61fc-5e96-4340-9b96-a7da30ef935a","provider":"youtube","external_id":"-v55tpm11J8","title":"The CIA Officer Who Exposed America's Torture Programme | Minutes With","channel_or_contributor":"LADbible Stories","duration_ms":2216000,"view_count":4390126,"has_transcript":true,"quote_count":5},{"id":"fd2179eb-25be-478b-824c-5b4422e964cd","provider":"youtube","external_id":"t3FxH39oYsA","title":"Mossad, Terrifying CIA Technology, Blackwater & The Most Secret CIA Unit | John Kiriakou","channel_or_contributor":"Dalton Fischer Podcast","duration_ms":15500000,"view_count":4084194,"has_transcript":true,"quote_count":5},{"id":"bc5d6f1b-e2b8-4fc6-b67c-71a37bcc7d75","provider":"youtube","external_id":"2z4i2yynAs4","title":"How CIA Whistleblower John Kiriakou Went to Prison for Exposing the Post-9/11 Torture Program","channel_or_contributor":"JRE Clips","duration_ms":920000,"view_count":3516868,"has_transcript":true,"quote_count":0},{"id":"feda0279-22c7-41ce-a3af-f0e79c684025","provider":"youtube","external_id":"DJsOmYjsy88","title":"Joe Rogan Discusses JFK Assassination with Former CIA Officer","channel_or_contributor":"JRE Clips","duration_ms":1115000,"view_count":3457253,"has_transcript":true,"quote_count":0},{"id":"e02d2038-e808-4a35-a442-a2cd2805eca6","provider":"youtube","external_id":"wQ0GD9SpH_o","title":"Joe Rogan Experience #1414 - Mike Baker","channel_or_contributor":"PowerfulJRE","duration_ms":9039000,"view_count":3159362,"has_transcript":true,"quote_count":0},{"id":"3dd31c01-e035-4199-9fba-70815596fe4c","provider":"youtube","external_id":"K-Q4r37XgVw","title":"American CIA Spy: US scared of India & Russia, RAW vs ISI, Trump & Modi | Andrew | FO441 Raj Shamani","channel_or_contributor":"Raj Shamani","duration_ms":8984000,"view_count":2120159,"has_transcript":true,"quote_count":5},{"id":"ad8d229e-ea6f-402d-a93b-bfaf97867e2a","provider":"youtube","external_id":"eRlkH1OpXGI","title":"Former CIA Agent Mike Baker Bursts Iran WW3 Bubble | Joe Rogan","channel_or_contributor":"JRE Clips","duration_ms":1198000,"view_count":2084175,"has_transcript":true,"quote_count":0},{"id":"aabce3c7-af07-426b-9782-a384b00ae1bb","provider":"youtube","external_id":"cJp_0N8e7_U","title":"How the CIA recruits agents | Minutes With","channel_or_contributor":"LADbible Stories","duration_ms":74000,"view_count":2000150,"has_transcript":true,"quote_count":2},{"id":"670687d8-9199-4714-b1c7-15ca64a87bc2","provider":"youtube","external_id":"_R2JwJ0A1QE","title":"Joe Rogan Experience #2278 - Chase Hughes","channel_or_contributor":"PowerfulJRE","duration_ms":10462000,"view_count":1942816,"has_transcript":true,"quote_count":0}],"quotes":[{"quote_text":"going to transform people's opinion about CIA in two big ways. First, they'll understand that CIA is not what the movies portray it to be.","speaker":"Andrew Bamante","start_ms":331120,"relevance_score":100,"context":"Core themes of mole betrayal, morally ambivalent espionage, and the CIA's goal to protect national security.","video_title":"Former CIA Spies (NEW): Leave the USA Before 2030!","external_id":"fu6bYPTp_kE","channel_or_contributor":"The Diary Of A CEO","clip_id":"de75dfda-986c-4f4e-a8f6-d04e10af178d"},{"quote_text":"why you and others called her bloody Gina we did call her bloody Gina...","speaker":"John Kiriakou","start_ms":121829,"relevance_score":100,"context":"Alleges the use of torture by Gina Haspel's group as cruelty rather than intelligence gathering.","video_title":"She Tortured Just for the Sake of Torture","external_id":"ZpDc1hscfeQ","channel_or_contributor":"Democracy Now!","clip_id":"3701877f-d639-434c-a36c-9d393d29d756"},{"quote_text":"'I can't tell you. You don't have a need to know.' And I said, 'No, that's cool.","speaker":"John Kiriakou","start_ms":284080,"relevance_score":100,"context":"Reveals the CIA's implementation of the torture program euphemized as 'enhanced interrogation'.","video_title":"Joe Rogan Experience #2392 - John Kiriakou","external_id":"TZqADzuu73g","channel_or_contributor":"PowerfulJRE","clip_id":"626308c2-4120-4a4e-b8aa-72fc2b70c220"},{"quote_text":"They're going to leave somebody out to dry to protect themselves. So I called Brian Ross. I said, 'I'll give you your interview.","speaker":"John Kiriakou","start_ms":1950799,"relevance_score":100,"context":"Evidences whistleblower retaliation where speaking truth led to spying charges.","video_title":"Joe Rogan Experience #2392 - John Kiriakou","external_id":"TZqADzuu73g","channel_or_contributor":"PowerfulJRE","clip_id":"626308c2-4120-4a4e-b8aa-72fc2b70c220"},{"quote_text":"got right in my face and he said, 'Your problem is you think this is about justice and it's not about justice. It's about mitigating damage. Take the deal.","speaker":"CIA Officer","start_ms":2017679,"relevance_score":100,"context":"The moral imperative to expose the CIA's torture program and wrongdoing within senior ranks.","video_title":"The CIA Officer Who Exposed America's Torture Programme","external_id":"-v55tpm11J8","channel_or_contributor":"LADbible Stories","clip_id":"a18c61fc-5e96-4340-9b96-a7da30ef935a"},{"quote_text":"this torture program is so wrong and so illegal. Somebody's going to say something to the media, and nobody did.","speaker":"John Kuryaku","start_ms":2410880,"relevance_score":98,"context":"Official CIA endorsement of a torture program.","video_title":"How CIA Black Ops Actually Work","external_id":"Pcfwx50zl40","channel_or_contributor":"Insider","clip_id":"351d537c-6992-447c-afe5-2135ade6462e"},{"quote_text":"squeezed my hand and I said, 'Remember, you have to cooperate.' And then he flew off.","speaker":"CIA Officer","start_ms":1465200,"relevance_score":98,"context":"Direct evidence of the CIA's sanctioned torture program.","video_title":"The CIA Officer Who Exposed America's Torture Programme","external_id":"-v55tpm11J8","channel_or_contributor":"LADbible Stories","clip_id":"a18c61fc-5e96-4340-9b96-a7da30ef935a"},{"quote_text":"as long as there's conflict between India and Pakistan, there will always be an interest from both sides to get help from the United States.","speaker":"Andrew","start_ms":1598000,"relevance_score":98,"context":"CIA's role in perpetuating conflict between India and Pakistan.","video_title":"American CIA Spy: US scared of India & Russia","external_id":"K-Q4r37XgVw","channel_or_contributor":"Raj Shamani","clip_id":"3dd31c01-e035-4199-9fba-70815596fe4c"},{"quote_text":"smart TV and turn a speaker into a microphone, even though the TV is off and broadcast back to the CIA. Absolutely.","speaker":"John Kuryoku","start_ms":16160,"relevance_score":98,"context":"CIA's surveillance capabilities through technology.","video_title":"CIA Whistleblower: They Can See All Your Messages!","external_id":"yUNoJ32eLBc","channel_or_contributor":"The Diary Of A CEO","clip_id":"c3d0591f-9d83-4910-91f0-6d420ffe9ba5"},{"quote_text":"Billions of dollars are spent spying on Americans, whether it's NSA or CIA or the FBI.","speaker":"John Kuryoku","start_ms":320,"relevance_score":95,"context":"The extent of CIA surveillance capabilities.","video_title":"CIA Whistleblower: They Can See All Your Messages!","external_id":"yUNoJ32eLBc","channel_or_contributor":"The Diary Of A CEO","clip_id":"c3d0591f-9d83-4910-91f0-6d420ffe9ba5"},{"quote_text":"When this story hits the airwaves, it's going to transform people's opinion about the CIA.","speaker":"Andrew Bamante","start_ms":80,"relevance_score":95,"context":"Broad impact on public understanding of the CIA.","video_title":"Former CIA Spies (NEW): Leave the USA Before 2030!","external_id":"fu6bYPTp_kE","channel_or_contributor":"The Diary Of A CEO","clip_id":"de75dfda-986c-4f4e-a8f6-d04e10af178d"}]};
+
+var clips = DATA.clips;
+var quotes = DATA.quotes;
+var currentIndex = 0;
+var notesMap = {};
+
+function formatDuration(ms) {
+  var totalSec = Math.floor(ms / 1000);
+  var h = Math.floor(totalSec / 3600);
+  var m = Math.floor((totalSec % 3600) / 60);
+  var s = totalSec % 60;
+  if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function formatTimestamp(ms) {
+  var totalSec = Math.floor(ms / 1000);
+  var m = Math.floor(totalSec / 60);
+  var s = totalSec % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function decodeHTML(str) {
+  return str.replace(/&#39;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+}
+
+function el(tag, attrs, children) {
+  var e = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function(k) {
+    if (k === 'className') e.className = attrs[k];
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+    else if (k === 'style' && typeof attrs[k] === 'string') e.setAttribute('style', attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  if (typeof children === 'string') e.textContent = children;
+  else if (Array.isArray(children)) children.forEach(function(c) { if (c) e.appendChild(c); });
+  return e;
+}
+
+function jumpToTime(externalId, startMs) {
+  var wrapper = document.getElementById('playerWrapper');
+  var thumb = document.getElementById('playerThumb');
+  var playBtn = document.getElementById('playBtn');
+  thumb.style.display = 'none';
+  playBtn.style.display = 'none';
+  var old = wrapper.querySelector('iframe');
+  if (old) old.remove();
+  var seconds = Math.floor(startMs / 1000);
+  var iframe = document.createElement('iframe');
+  iframe.src = 'https://www.youtube.com/embed/' + externalId + '?autoplay=1&start=' + seconds;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  wrapper.appendChild(iframe);
+}
+
+function loadClip(index) {
+  // Save notes for current clip
+  var ta = document.getElementById('notesTextarea');
+  if (ta && clips[currentIndex]) {
+    notesMap[clips[currentIndex].id] = ta.value;
+  }
+
+  currentIndex = index;
+  var clip = clips[index];
+
+  // Player
+  var wrapper = document.getElementById('playerWrapper');
+  var thumb = document.getElementById('playerThumb');
+  var playBtn = document.getElementById('playBtn');
+  var old = wrapper.querySelector('iframe');
+  if (old) old.remove();
+  thumb.src = 'https://i.ytimg.com/vi/' + clip.external_id + '/hqdefault.jpg';
+  thumb.style.display = 'block';
+  playBtn.style.display = 'flex';
+
+  wrapper.onclick = function() {
+    thumb.style.display = 'none';
+    playBtn.style.display = 'none';
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube.com/embed/' + clip.external_id + '?autoplay=1';
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    wrapper.appendChild(iframe);
+    wrapper.onclick = null;
+  };
+
+  // Title & meta
+  document.getElementById('videoTitle').textContent = decodeHTML(clip.title);
+  var meta = document.getElementById('videoMeta');
+  meta.replaceChildren();
+  meta.appendChild(el('span', { className: 'channel' }, clip.channel_or_contributor));
+  meta.appendChild(el('span', null, formatDuration(clip.duration_ms)));
+  meta.appendChild(el('span', { className: 'meta-badge views' }, clip.view_count.toLocaleString() + ' views'));
+  if (clip.quote_count > 0) {
+    meta.appendChild(el('span', { className: 'meta-badge quotes' }, clip.quote_count + ' quotes'));
+  }
+  if (clip.has_transcript) {
+    meta.appendChild(el('span', { className: 'meta-badge transcript' }, 'Transcript'));
+  }
+
+  // Counter
+  document.getElementById('clipCounter').textContent = (index + 1) + ' / ' + clips.length;
+
+  // Nav buttons
+  document.getElementById('prevBtn').disabled = (index === 0);
+  document.getElementById('nextBtn').disabled = (index === clips.length - 1);
+
+  // Quotes tab
+  var clipQuotes = quotes.filter(function(q) { return q.clip_id === clip.id || q.external_id === clip.external_id; });
+  var quotesPane = document.getElementById('tab-quotes');
+  quotesPane.replaceChildren();
+  if (clipQuotes.length === 0) {
+    quotesPane.appendChild(el('div', { style: 'color:#71717a;font-size:14px;text-align:center;padding:40px 0;' }, 'No quotes available for this clip.'));
+  } else {
+    clipQuotes.forEach(function(q) {
+      var card = el('div', { className: 'quote-card' });
+      var top = el('div', { className: 'q-top' });
+      top.appendChild(el('span', { className: 'speaker' }, q.speaker || 'Unknown Speaker'));
+      var eid = q.external_id || clip.external_id;
+      top.appendChild(el('span', { className: 'timestamp', onClick: function() { jumpToTime(eid, q.start_ms); } }, formatTimestamp(q.start_ms)));
+      card.appendChild(top);
+      card.appendChild(el('div', { className: 'text' }, '"' + q.quote_text + '"'));
+      if (q.context) {
+        card.appendChild(el('div', { className: 'context' }, q.context));
+      }
+      quotesPane.appendChild(card);
+    });
+  }
+
+  // Restore notes
+  document.getElementById('notesTextarea').value = notesMap[clip.id] || '';
+}
+
+// Nav
+document.getElementById('prevBtn').addEventListener('click', function() {
+  if (currentIndex > 0) loadClip(currentIndex - 1);
+});
+document.getElementById('nextBtn').addEventListener('click', function() {
+  if (currentIndex < clips.length - 1) loadClip(currentIndex + 1);
+});
+
+// Tabs
+document.querySelectorAll('#tabBar button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#tabBar button').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// AI
+document.getElementById('aiAskBtn').addEventListener('click', function() {
+  var q = document.getElementById('aiQuestion').value;
+  if (!q) return;
+  var clip = clips[currentIndex];
+  var resp = document.getElementById('aiResponse');
+  resp.replaceChildren();
+  resp.appendChild(el('strong', null, 'Q: ' + q));
+  resp.appendChild(document.createElement('br'));
+  resp.appendChild(document.createElement('br'));
+  resp.appendChild(document.createTextNode('Analyzing "' + decodeHTML(clip.title) + '": This clip explores themes of intelligence operations and institutional accountability. Key discussion points include surveillance programs, whistleblower experiences, and the balance between national security imperatives and civil liberties. The speaker provides first-hand accounts of operational realities within intelligence agencies.'));
+  resp.appendChild(document.createElement('br'));
+  resp.appendChild(document.createElement('br'));
+  var em = document.createElement('em');
+  em.style.color = '#71717a';
+  em.textContent = 'This is a mock AI response for demonstration purposes.';
+  resp.appendChild(em);
+  document.getElementById('aiQuestion').value = '';
+});
+
+// Spotlight search
+var spotlight = document.getElementById('spotlight');
+var spotInput = document.getElementById('spotlightInput');
+
+function openSpotlight() {
+  spotlight.classList.add('visible');
+  spotInput.value = '';
+  spotInput.focus();
+  renderSpotlight('');
+}
+
+function closeSpotlight() {
+  spotlight.classList.remove('visible');
+}
+
+function renderSpotlight(query) {
+  var results = document.getElementById('spotlightResults');
+  results.replaceChildren();
+  var q = query.toLowerCase();
+
+  clips.forEach(function(c, idx) {
+    var title = decodeHTML(c.title);
+    if (q && !title.toLowerCase().includes(q) && !c.channel_or_contributor.toLowerCase().includes(q)) return;
+    var item = el('div', { className: 'spot-item', onClick: function() { closeSpotlight(); loadClip(idx); } }, [
+      el('img', { src: 'https://i.ytimg.com/vi/' + c.external_id + '/hqdefault.jpg', alt: '' }),
+      el('div', { className: 'spot-info' }, [
+        el('div', { className: 'spot-title' }, title),
+        el('div', { className: 'spot-meta' }, c.channel_or_contributor + ' | ' + c.view_count.toLocaleString() + ' views')
+      ]),
+      el('span', { className: 'spot-type spot-type-clip' }, 'Clip')
+    ]);
+    results.appendChild(item);
+  });
+
+  quotes.forEach(function(quote) {
+    if (q && !quote.quote_text.toLowerCase().includes(q) && !(quote.speaker || '').toLowerCase().includes(q)) return;
+    var clipIdx = clips.findIndex(function(c) { return c.external_id === quote.external_id; });
+    var item = el('div', { className: 'spot-item', onClick: function() {
+      closeSpotlight();
+      if (clipIdx >= 0) loadClip(clipIdx);
+      jumpToTime(quote.external_id, quote.start_ms);
+    }}, [
+      el('div', { className: 'spot-info', style: 'padding-left:8px;' }, [
+        el('div', { className: 'spot-title' }, '"' + quote.quote_text.substring(0, 80) + '..."'),
+        el('div', { className: 'spot-meta' }, (quote.speaker || 'Unknown') + ' | ' + formatTimestamp(quote.start_ms))
+      ]),
+      el('span', { className: 'spot-type spot-type-quote' }, 'Quote')
+    ]);
+    results.appendChild(item);
+  });
+
+  if (results.children.length === 0) {
+    results.appendChild(el('div', { style: 'color:#71717a;font-size:13px;text-align:center;padding:30px 0;' }, 'No results found'));
+  }
+}
+
+document.getElementById('searchTrigger').addEventListener('click', openSpotlight);
+
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    if (spotlight.classList.contains('visible')) {
+      closeSpotlight();
+    } else {
+      openSpotlight();
+    }
+  }
+  if (e.key === 'Escape' && spotlight.classList.contains('visible')) {
+    closeSpotlight();
+  }
+  // Arrow keys for prev/next
+  if (!spotlight.classList.contains('visible')) {
+    if (e.key === 'ArrowLeft' && currentIndex > 0) loadClip(currentIndex - 1);
+    if (e.key === 'ArrowRight' && currentIndex < clips.length - 1) loadClip(currentIndex + 1);
+  }
+});
+
+spotlight.addEventListener('click', function(e) {
+  if (e.target === spotlight) closeSpotlight();
+});
+
+spotInput.addEventListener('input', function() {
+  renderSpotlight(spotInput.value);
+});
+
+// Init
+loadClip(0);
+})();
+</script>
+</body>
+</html>

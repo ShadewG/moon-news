@@ -9,7 +9,7 @@ import {
   type ScriptAgentStageKey,
   scriptAgentRunSchema,
 } from "@/lib/script-agent";
-import { isTriggerConfigured } from "@/server/config/env";
+import { getEnv, isTriggerConfigured } from "@/server/config/env";
 import { getDb } from "@/server/db/client";
 import {
   scriptAgentClaims,
@@ -21,7 +21,20 @@ import {
 } from "@/server/db/schema";
 import { extractContent } from "@/server/services/board/content-extractor";
 import { searchNewsStory } from "@/server/services/board/news-search";
-import { generateScriptLabOutputs } from "@/server/services/script-lab";
+import {
+  analyzeRetentionStage,
+  assembleScriptDraftFromSections,
+  critiqueScriptDraft,
+  expandDraftToMinimumLength,
+  generateOutlineStage,
+  generateResearchStage,
+  generateSectionPlanStage,
+  generateStoryboardStage,
+  polishScriptDraft,
+  prepareScriptLabPipelineContext,
+  reviseSectionDraftsStage,
+  writeSectionDraftsStage,
+} from "@/server/services/script-lab";
 import { searchTopic } from "@/server/services/topic-search";
 
 export const SCRIPT_AGENT_TASK_ID = "run-script-agent";
@@ -33,9 +46,14 @@ const SCRIPT_AGENT_STAGE_ORDER: ScriptAgentStageKey[] = [
   "synthesize_research",
   "build_outline",
   "build_storyboard",
-  "draft_script",
+  "plan_sections",
+  "write_sections",
+  "assemble_draft",
   "critique_script",
+  "revise_sections",
   "analyze_retention",
+  "polish_script",
+  "expand_script",
   "finalize_script",
 ];
 
@@ -510,7 +528,7 @@ async function extractEvidenceForRun(runId: string, input: ScriptAgentRequest) {
   };
 }
 
-async function synthesizeAndWriteRun(runId: string, input: ScriptAgentRequest) {
+async function prepareScriptContextForRun(runId: string, input: ScriptAgentRequest) {
   const db = getDb();
   const [sourceRows, quoteRows] = await Promise.all([
     db
@@ -550,59 +568,41 @@ async function synthesizeAndWriteRun(runId: string, input: ScriptAgentRequest) {
     researchText: compiledResearchText,
   };
 
-  const result = await generateScriptLabOutputs(enrichedInput);
+  const context = await prepareScriptLabPipelineContext(enrichedInput);
 
+  return {
+    context,
+    sourceRows,
+    quoteRows,
+    compiledResearchText,
+  };
+}
+
+async function persistResearchClaims(runId: string, researchStage: {
+  keyClaims: string[];
+  riskyClaims: string[];
+  quoteEvidence: Array<{ sourceTitle: string }>;
+}) {
+  const db = getDb();
   await db.delete(scriptAgentClaims).where(eq(scriptAgentClaims.runId, runId));
-  if (result.stages?.research.keyClaims.length) {
-    const evidenceRefs = result.stages.research.quoteEvidence
+  if (researchStage.keyClaims.length) {
+    const evidenceRefs = researchStage.quoteEvidence
       .slice(0, 4)
       .map((quote) => quote.sourceTitle);
 
     await db.insert(scriptAgentClaims).values(
-      result.stages.research.keyClaims.map((claimText) => ({
+      researchStage.keyClaims.map((claimText) => ({
         runId,
         claimText,
         supportLevel: 75,
-        riskLevel: result.stages?.research.riskyClaims.includes(claimText) ? 75 : 20,
+        riskLevel: researchStage.riskyClaims.includes(claimText) ? 75 : 20,
         evidenceRefsJson: evidenceRefs,
-        notes: result.stages?.research.riskyClaims.includes(claimText)
+        notes: researchStage.riskyClaims.includes(claimText)
           ? "Flagged during research synthesis as a risky or high-context claim."
           : null,
       }))
     );
   }
-
-  const stageOutputs: Partial<Record<ScriptAgentStageKey, unknown>> = {
-    build_outline: result.stages?.outline ?? null,
-    build_storyboard: result.stages?.storyboard ?? null,
-    draft_script: result.variants.claude,
-    critique_script: {
-      editorialNotes: result.variants.claude.editorialNotes ?? [],
-    },
-    analyze_retention: result.stages?.retention ?? null,
-    finalize_script: result.variants.final ?? result.variants.hybrid ?? null,
-  };
-
-  for (const [stageKey, outputJson] of Object.entries(stageOutputs) as Array<[ScriptAgentStageKey, unknown]>) {
-    await markStageComplete(runId, stageKey, outputJson);
-  }
-
-  await db
-    .update(scriptAgentRuns)
-    .set({
-      status: "complete",
-      currentStage: "finalize_script",
-      resultJson: result,
-      completedAt: new Date(),
-      updatedAt: new Date(),
-      errorText: null,
-    })
-    .where(eq(scriptAgentRuns.id, runId));
-
-  return {
-    result,
-    compiledResearchTextLength: compiledResearchText.length,
-  };
 }
 
 export async function createScriptAgentRun(input: ScriptAgentRequest) {
@@ -687,15 +687,267 @@ export async function runScriptAgentTask(input: { runId: string }) {
     await runStage(input.runId, "extract_evidence", { storyTitle: request.storyTitle }, () =>
       extractEvidenceForRun(input.runId, request)
     );
-    await markStageRunning(input.runId, "synthesize_research", {
-      storyTitle: request.storyTitle,
-      researchDepth: request.researchDepth,
-    });
-    const synthesized = await synthesizeAndWriteRun(input.runId, request);
-    await markStageComplete(input.runId, "synthesize_research", synthesized.result.stages?.research ?? null);
-    return synthesized;
+    const prepared = await prepareScriptContextForRun(input.runId, request);
+    const researchStage = await runStage(
+      input.runId,
+      "synthesize_research",
+      {
+        storyTitle: request.storyTitle,
+        researchDepth: request.researchDepth,
+        compiledResearchTextLength: prepared.compiledResearchText.length,
+      },
+      () =>
+        generateResearchStage({
+          input: prepared.context.input,
+          moonAnalysis: prepared.context.moonAnalysis,
+          researchPacket: prepared.context.researchPacket,
+        })
+    );
+    await persistResearchClaims(input.runId, researchStage);
+
+    const outlineStage = await runStage(
+      input.runId,
+      "build_outline",
+      {
+        thesis: researchStage.thesis,
+        targetWordRange: prepared.context.targetWordRange,
+      },
+      () =>
+        generateOutlineStage({
+          researchPacket: prepared.context.researchPacket,
+          researchStage,
+          targetWordRange: prepared.context.targetWordRange,
+        })
+    );
+
+    const storyboardStage = await runStage(
+      input.runId,
+      "build_storyboard",
+      {
+        sectionCount: outlineStage.sections.length,
+      },
+      async () =>
+        generateStoryboardStage({
+          outlineStage,
+          researchStage,
+        })
+    );
+
+    const sectionPlanStage = await runStage(
+      input.runId,
+      "plan_sections",
+      {
+        sectionCount: outlineStage.sections.length,
+      },
+      () =>
+        generateSectionPlanStage({
+          researchPacket: prepared.context.researchPacket,
+          researchStage,
+          outlineStage,
+          storyboardStage,
+        })
+    );
+
+    const sectionDraftsStage = await runStage(
+      input.runId,
+      "write_sections",
+      {
+        sectionCount: sectionPlanStage.sections.length,
+      },
+      () =>
+        writeSectionDraftsStage({
+          context: prepared.context,
+          researchStage,
+          outlineStage,
+          storyboardStage,
+          sectionPlanStage,
+        })
+    );
+
+    const claudeDraft = await runStage(
+      input.runId,
+      "assemble_draft",
+      {
+        sectionCount: sectionDraftsStage.sections.length,
+      },
+      () =>
+        assembleScriptDraftFromSections({
+          researchPacket: prepared.context.researchPacket,
+          researchStage,
+          outlineStage,
+          sectionDrafts: sectionDraftsStage,
+        })
+    );
+
+    const critique = await runStage(
+      input.runId,
+      "critique_script",
+      {
+        draftWordCount: claudeDraft.script.split(/\s+/).filter(Boolean).length,
+      },
+      () =>
+        critiqueScriptDraft({
+          researchPacket: prepared.context.researchPacket,
+          otherLabel: "Claude first pass",
+          otherDraft: claudeDraft,
+        })
+    );
+
+    const retentionStage = await runStage(
+      input.runId,
+      "analyze_retention",
+      {
+        draftWordCount: claudeDraft.script.split(/\s+/).filter(Boolean).length,
+      },
+      () =>
+        analyzeRetentionStage({
+          researchPacket: prepared.context.researchPacket,
+          researchStage,
+          outlineStage,
+          claudeDraft,
+        })
+    );
+
+    const finalSectionDraftsStage = await runStage(
+      input.runId,
+      "revise_sections",
+      {
+        sectionCount: sectionDraftsStage.sections.length,
+        critiqueMustFixCount: critique.mustFix.length,
+      },
+      () =>
+        reviseSectionDraftsStage({
+          context: prepared.context,
+          researchStage,
+          outlineStage,
+          storyboardStage,
+          sectionPlanStage,
+          sectionDrafts: sectionDraftsStage,
+          critique,
+          retentionStage,
+        })
+    );
+
+    const polishedDraft = await runStage(
+      input.runId,
+      "polish_script",
+      {
+        sectionCount: finalSectionDraftsStage.sections.length,
+      },
+      async () => {
+        const revisedDraft = await assembleScriptDraftFromSections({
+          researchPacket: prepared.context.researchPacket,
+          researchStage,
+          outlineStage,
+          sectionDrafts: finalSectionDraftsStage,
+        });
+
+        return polishScriptDraft({
+          researchPacket: prepared.context.researchPacket,
+          draft: revisedDraft,
+          styleFlags: [...critique.mustFix, ...retentionStage.mustFix].slice(0, 10),
+        });
+      }
+    );
+
+    const expandedDraft = await runStage(
+      input.runId,
+      "expand_script",
+      {
+        targetWordRange: prepared.context.targetWordRange,
+      },
+      () =>
+        expandDraftToMinimumLength({
+          input: prepared.context.input,
+          researchPacket: prepared.context.researchPacket,
+          draft: polishedDraft,
+        })
+    );
+
+    const result = {
+      generationMode: "claude_only" as const,
+      input: request,
+      moonAnalysis: {
+        moonFitScore: prepared.context.moonAnalysis.moonFitScore,
+        moonFitBand: prepared.context.moonAnalysis.moonFitBand,
+        clusterLabel: prepared.context.moonAnalysis.clusterLabel,
+        coverageMode: prepared.context.moonAnalysis.coverageMode,
+        reasonCodes: prepared.context.moonAnalysis.reasonCodes,
+        analogTitles: prepared.context.moonAnalysis.analogs.map((analog) => analog.title),
+      },
+      variants: {
+        claude: {
+          model: getEnv().ANTHROPIC_MODEL,
+          draft: claudeDraft,
+          editorialNotes: [
+            `section_count:${sectionDraftsStage.sections.length}`,
+            `source_count:${prepared.sourceRows.length}`,
+            `quote_count:${prepared.quoteRows.length}`,
+            ...critique.mustFix.slice(0, 6),
+          ].slice(0, 12),
+        },
+        final: {
+          model: getEnv().ANTHROPIC_MODEL,
+          draft: expandedDraft.draft,
+          editorialNotes: [
+            `final_word_count:${expandedDraft.wordCount}`,
+            `target_word_range:${expandedDraft.targetWordRange.minWords}-${expandedDraft.targetWordRange.maxWords}`,
+            ...expandedDraft.notes,
+            ...retentionStage.mustFix.slice(0, 4),
+          ].slice(0, 12),
+        },
+      },
+      stages: {
+        research: researchStage,
+        outline: outlineStage,
+        storyboard: storyboardStage,
+        sectionPlan: sectionPlanStage,
+        sectionDrafts: sectionDraftsStage,
+        finalSectionDrafts: finalSectionDraftsStage,
+        retention: retentionStage,
+      },
+    };
+
+    await runStage(
+      input.runId,
+      "finalize_script",
+      {
+        finalWordCount: expandedDraft.wordCount,
+      },
+      async () => {
+        await db
+          .update(scriptAgentRuns)
+          .set({
+            status: "complete",
+            currentStage: "finalize_script",
+            resultJson: result,
+            completedAt: new Date(),
+            updatedAt: new Date(),
+            errorText: null,
+          })
+          .where(eq(scriptAgentRuns.id, input.runId));
+
+        return result.variants.final;
+      }
+    );
+
+    return {
+      result,
+      compiledResearchTextLength: prepared.compiledResearchText.length,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown script-agent error";
+    const latestRun = await db
+      .select({ currentStage: scriptAgentRuns.currentStage })
+      .from(scriptAgentRuns)
+      .where(eq(scriptAgentRuns.id, input.runId))
+      .limit(1)
+      .then((rows) => rows[0] ?? null);
+
+    if (latestRun?.currentStage) {
+      await markStageFailed(input.runId, latestRun.currentStage, message);
+    }
+
     await db
       .update(scriptAgentRuns)
       .set({

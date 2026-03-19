@@ -15,6 +15,8 @@ const serverEnvSchema = z.object({
   OPENAI_RESEARCH_MODEL: z.string().default("gpt-4.1-mini"),
   OPENAI_IMAGE_MODEL: z.string().default("gpt-image-1"),
   OPENAI_VIDEO_MODEL: z.string().default("sora-2"),
+  ANTHROPIC_API_KEY: z.string().min(1).optional(),
+  ANTHROPIC_MODEL: z.string().default("claude-opus-4-6"),
   GEMINI_API_KEY: z.string().min(1).optional(),
   GEMINI_IMAGE_MODEL: z.string().default("gemini-2.5-flash-image"),
   PARALLEL_API_KEY: z.string().min(1).optional(),

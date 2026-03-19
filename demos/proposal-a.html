@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Board — Moon News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080C12;
+  --bg1:      #0D1320;
+  --bg2:      #111827;
+  --bg3:      #1a2234;
+  --bg4:      #1f2a3e;
+  --border:   #1e2d44;
+  --border2:  #253348;
+  --cyan:     #00C9E8;
+  --cyan-dim: #004d5a;
+  --amber:    #F59E0B;
+  --amber-dim:#3d2800;
+  --red:      #EF4444;
+  --red-dim:  #3b0f0f;
+  --green:    #10B981;
+  --green-dim:#082b1a;
+  --purple:   #A78BFA;
+  --purple-dim:#2d1f5e;
+  --blue:     #3B82F6;
+  --blue-dim: #1a2d5a;
+  --muted:    #4B5C74;
+  --muted2:   #8899aa;
+  --text:     #CBD5E0;
+  --text-bright:#E8F0F8;
+  --mono: 'IBM Plex Mono', monospace;
+  --serif: 'Fraunces', Georgia, serif;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ── QUOTE TICKER ── */
+#ticker {
+  height: 32px;
+  background: linear-gradient(90deg, #0a0a1a, #0d1628, #0a0a1a);
+  border-bottom: 1px solid var(--cyan);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+#ticker::before {
+  content: 'QUOTE FEED';
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--cyan);
+  padding: 0 16px;
+  white-space: nowrap;
+  z-index: 2;
+  background: linear-gradient(90deg, #0d1628, #0d1628);
+  border-right: 1px solid var(--cyan);
+}
+.ticker-inner {
+  display: flex;
+  gap: 0;
+  animation: ticker-scroll 60s linear infinite;
+  white-space: nowrap;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0) }
+  100% { transform: translateX(-50%) }
+}
+.tick-item {
+  padding: 0 32px;
+  font-size: 11px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 1px solid var(--border);
+}
+.tick-item .ts { color: var(--cyan); font-weight: 600; font-size: 10px; }
+.tick-item .speaker { color: var(--amber); font-weight: 500; }
+
+/* ── SHELL ── */
+#shell { display: flex; height: calc(100vh - 32px); }
+
+/* ── LEFT SIDEBAR ── */
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 16px 14px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-logo .moon {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.5px;
+}
+.sidebar-logo .version {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.sidebar-section {
+  padding: 10px 14px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.nav-item {
+  padding: 7px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted2);
+  font-size: 12px;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { background: var(--bg2); color: var(--text-bright); }
+.nav-item.active { background: var(--bg2); color: var(--cyan); border-left-color: var(--cyan); }
+.nav-item .icon { font-size: 13px; width: 16px; text-align: center; }
+.nav-item .nav-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.badge-cyan { background: var(--cyan-dim); color: var(--cyan); }
+.badge-amber { background: var(--amber-dim); color: var(--amber); }
+.badge-green { background: var(--green-dim); color: var(--green); }
+.badge-red { background: var(--red-dim); color: var(--red); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+/* Source health */
+.source-row {
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted2);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.source-count { margin-left: auto; font-size: 10px; color: var(--muted); }
+.health-stat {
+  padding: 4px 14px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted2);
+}
+.health-stat .val { color: var(--text-bright); font-weight: 600; }
+
+/* Controversy meter */
+.controversy-meter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  margin-top: 6px;
+}
+.c-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg4);
+  width: 60px;
+  overflow: hidden;
+}
+.c-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--amber), var(--red));
+}
+
+/* Sentiment bar */
+.card-sentiment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.sentiment-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg4);
+  width: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.sentiment-fill {
+  height: 100%;
+  border-radius: 2px;
+  position: absolute;
+  left: 50%;
+}
+.sentiment-fill.neg {
+  background: var(--red);
+  transform-origin: right;
+  left: auto;
+  right: 50%;
+}
+.sentiment-fill.pos {
+  background: var(--green);
+  transform-origin: left;
+}
+
+/* ── MAIN ── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Topbar */
+#topbar {
+  height: 44px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.view-tabs { display: flex; gap: 2px; }
+.vtab {
+  padding: 5px 14px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--muted2);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.vtab:hover { background: var(--bg3); color: var(--text); }
+.vtab.active { background: var(--bg3); color: var(--cyan); }
+.topbar-spacer { flex: 1; }
+.topbar-stat {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.topbar-stat .val { color: var(--text); }
+.topbar-clock {
+  font-size: 11px;
+  color: var(--cyan);
+  font-weight: 600;
+  padding: 4px 10px;
+  background: var(--cyan-dim);
+  border-radius: 3px;
+}
+
+/* ── Content ── */
+#content-area { flex: 1; display: flex; overflow: hidden; }
+#clip-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+#clip-list::-webkit-scrollbar { width: 5px; }
+#clip-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Clip card ── */
+.clip-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 13px 15px;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease both;
+}
+.clip-card:hover {
+  border-color: var(--border2);
+  background: var(--bg3);
+  transform: translateY(-1px);
+}
+.clip-card.active {
+  border-color: var(--cyan);
+  background: var(--bg3);
+}
+.clip-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--border2);
+}
+.clip-card.high-rel::before { background: var(--cyan); }
+.clip-card.med-rel::before { background: var(--amber); }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+.clip-card:nth-child(1) { animation-delay: 0.05s }
+.clip-card:nth-child(2) { animation-delay: 0.10s }
+.clip-card:nth-child(3) { animation-delay: 0.15s }
+.clip-card:nth-child(4) { animation-delay: 0.20s }
+.clip-card:nth-child(5) { animation-delay: 0.25s }
+.clip-card:nth-child(6) { animation-delay: 0.30s }
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.card-score {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1;
+  min-width: 36px;
+  text-align: center;
+}
+.card-score.high { color: var(--cyan); }
+.card-score.med  { color: var(--amber); }
+.card-title-block { flex: 1; }
+.card-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-bright);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.card-meta {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.card-meta span { display: flex; align-items: center; gap: 3px; }
+.card-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.cbadge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cbadge.transcript { background: var(--green-dim); color: var(--green); }
+.cbadge.quotes     { background: var(--cyan-dim); color: var(--cyan); }
+.cbadge.views-high { background: var(--amber-dim); color: var(--amber); }
+.cbadge.long-form  { background: var(--purple-dim); color: var(--purple); }
+.cbadge.source     { background: var(--bg4); color: var(--muted2); border: 1px solid var(--border2); }
+
+.card-sources { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.source-chip {
+  font-size: 9px;
+  padding: 2px 7px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--muted2);
+}
+.source-chip.yt   { border-color: #ff000044; color: #ff6666; }
+.source-chip.x    { border-color: #ffffff22; color: #aaa; }
+.source-chip.ia   { border-color: #3b82f622; color: #6b9cf5; }
+.source-chip.news { border-color: #3b82f622; color: #6b9cf5; }
+
+.quote-preview {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.5;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  background: var(--bg3);
+  border-left: 2px solid var(--cyan);
+  border-radius: 0 4px 4px 0;
+  max-height: 50px;
+  overflow: hidden;
+}
+.card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-play      { background: var(--cyan-dim);   color: var(--cyan); }
+.btn-play:hover{ background: #006677; }
+.btn-quotes    { background: var(--amber-dim);  color: var(--amber); }
+.btn-quotes:hover{ background: #4a3000; }
+.btn-transcript{ background: var(--green-dim);  color: var(--green); }
+.btn-transcript:hover{ background: #103d28; }
+.btn-ai        { background: var(--purple-dim); color: var(--purple); }
+.btn-ai:hover  { background: #3d2a7a; }
+
+/* ── RIGHT PANEL ── */
+#right-panel {
+  width: 380px;
+  min-width: 380px;
+  background: var(--bg1);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: margin-right 0.2s;
+}
+#right-panel.hidden {
+  margin-right: -380px;
+  min-width: 0;
+  width: 0;
+  border: none;
+}
+.panel-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.panel-close {
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.panel-close:hover { background: var(--bg2); color: var(--text); }
+.panel-body { flex: 1; overflow-y: auto; padding: 16px; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.panel-thumb {
+  width: 100%;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.panel-thumb img {
+  width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+.panel-thumb .play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+.panel-thumb:hover .play-overlay {
+  background: rgba(0,201,232,0.3);
+  border-color: var(--cyan);
+}
+
+.panel-section { margin-bottom: 16px; }
+.panel-section-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.detail-row .key { color: var(--muted); }
+.detail-row .val { color: var(--text-bright); font-weight: 600; }
+.detail-row .val.cyan  { color: var(--cyan); }
+.detail-row .val.amber { color: var(--amber); }
+.detail-row .val.green { color: var(--green); }
+.detail-row .val.red   { color: var(--red); }
+
+.quote-item {
+  padding: 8px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.quote-item:hover { border-color: var(--cyan); background: var(--bg3); }
+.quote-item .q-ts     { font-size: 10px; color: var(--cyan); font-weight: 600; margin-bottom: 3px; }
+.quote-item .q-text   { font-family: var(--serif); font-style: italic; font-size: 12px; color: var(--text); line-height: 1.4; }
+.quote-item .q-speaker{ font-size: 10px; color: var(--amber); margin-top: 3px; }
+.quote-item .q-relevance { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+.panel-input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+}
+.panel-input:focus { border-color: var(--cyan); }
+.panel-input-row { display: flex; gap: 6px; margin-top: 6px; }
+
+/* AI tools panel */
+.ai-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.ai-tool-btn {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ai-tool-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: var(--purple-dim);
+}
+
+/* System note */
+.sys-note {
+  font-size: 9px;
+  color: var(--muted);
+  padding: 4px 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* Loading animation for panel */
+@keyframes blink {
+  0%, 100% { opacity: 1 }
+  50%      { opacity: 0 }
+}
+.ai-typing {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--cyan);
+  animation: blink 0.8s step-end infinite;
+  vertical-align: middle;
+}
+
+/* Pulse border for surge items */
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--amber) }
+  50%      { border-color: #7a4e00 }
+}
+</style>
+</head>
+<body>
+
+<!-- QUOTE TICKER -->
+<div id="ticker">
+  <div class="ticker-inner" id="ticker-inner"></div>
+</div>
+
+<!-- SHELL -->
+<div id="shell">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div>
+      <div class="moon">Research Board</div>
+      <div class="version">v1.0 — CIA Investigation</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Navigation</div>
+  <div class="nav-item active" data-nav="library">
+    <span class="icon">&#128218;</span> Clip Library
+  </div>
+  <div class="nav-item" data-nav="quotes">
+    <span class="icon">&#128172;</span> Quote Feed
+    <span class="nav-badge badge-cyan" id="quote-count-badge"></span>
+  </div>
+  <div class="nav-item" data-nav="search">
+    <span class="icon">&#128269;</span> Topic Search
+  </div>
+  <div class="nav-item" data-nav="ai">
+    <span class="icon">&#129302;</span> Ask AI
+  </div>
+  <div class="nav-item" data-nav="sources">
+    <span class="icon">&#127760;</span> Sources
+    <span class="nav-badge badge-green" id="source-count-badge"></span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">Library Health</div>
+  <div class="health-stat">
+    <span>Transcripts</span>
+    <span class="val" id="stat-transcripts"></span>
+  </div>
+  <div class="health-stat">
+    <span>Quotes</span>
+    <span class="val" id="stat-quotes"></span>
+  </div>
+  <div class="health-stat">
+    <span>Clips</span>
+    <span class="val" id="stat-clips"></span>
+  </div>
+  <div class="health-stat">
+    <span>Tweets</span>
+    <span class="val" id="stat-tweets"></span>
+  </div>
+  <div class="health-stat">
+    <span>Total Views</span>
+    <span class="val" id="stat-views"></span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">Providers</div>
+  <div class="source-row">
+    <span class="dot live"></span> YouTube
+    <span class="source-count">&#10003;</span>
+  </div>
+  <div class="source-row">
+    <span class="dot live"></span> Twitter/X
+    <span class="source-count">&#10003;</span>
+  </div>
+  <div class="source-row">
+    <span class="dot live"></span> Internet Archive
+    <span class="source-count">&#10003;</span>
+  </div>
+
+  <div style="flex:1"></div>
+  <div class="sys-note">Research database loaded</div>
+</nav>
+
+<!-- MAIN PANEL -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="view-tabs" id="view-tabs"></div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-stat">
+      Clips: <span class="val" id="topbar-clips"></span>
+    </div>
+    <div class="topbar-stat">
+      Quotes: <span class="val" id="topbar-quotes"></span>
+    </div>
+    <div class="topbar-clock" id="clock"></div>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div id="content-area">
+    <div id="clip-list"></div>
+
+    <!-- RIGHT DETAIL PANEL -->
+    <div id="right-panel" class="hidden">
+      <div class="panel-header">
+        <span class="panel-title">Clip Details</span>
+        <span class="panel-close" id="panel-close-btn">&times;</span>
+      </div>
+      <div class="panel-body" id="panel-body"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function() {
+  /* ════════════════════════════════════════
+     DATA — embedded from research database
+     ════════════════════════════════════════ */
+  var DATA = {
+    clips: [
+      { id:"c88f08ec", external_id:"efs3QRr8LWw", title:"Joe Rogan Experience #1368 - Edward Snowden",
+        channel_or_contributor:"PowerfulJRE", duration_ms:10172000, view_count:39842664, has_transcript:true, quote_count:5 },
+      { id:"8bf2ceb6", external_id:"T3FC7qIAGZk", title:"Andrew Bustamante: CIA Spy | Lex Fridman Podcast #310",
+        channel_or_contributor:"Lex Fridman", duration_ms:13989000, view_count:19751587, has_transcript:true, quote_count:5 },
+      { id:"ec51aceb", external_id:"GyE55eB9Afc", title:"Former CIA Agent Mike Baker on China\u2019s 2049 Plan",
+        channel_or_contributor:"PowerfulJRE", duration_ms:853000, view_count:14593235, has_transcript:true, quote_count:4 },
+      { id:"c3d0591f", external_id:"yUNoJ32eLBc", title:"CIA Whistleblower: They Can See All Your Messages!",
+        channel_or_contributor:"The Diary Of A CEO", duration_ms:6356000, view_count:9398345, has_transcript:true, quote_count:5 },
+      { id:"85ce751f", external_id:"xQEmYYpWt2g", title:"Former CIA Officer Mike Baker on Ukraine and Putin",
+        channel_or_contributor:"PowerfulJRE", duration_ms:906000, view_count:7488432, has_transcript:true, quote_count:5 },
+      { id:"351d537c", external_id:"Pcfwx50zl40", title:"How CIA Black Ops Actually Work | Authorized Account",
+        channel_or_contributor:"Insider", duration_ms:3462000, view_count:7446241, has_transcript:true, quote_count:5 },
+      { id:"626308c2", external_id:"TZqADzuu73g", title:"Joe Rogan Experience #2392 - John Kiriakou",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9066000, view_count:6803901, has_transcript:true, quote_count:5 },
+      { id:"63604621", external_id:"kA6eBKvph_Y", title:"The Secret History of MK Ultra w/Tom O\u2019Neill",
+        channel_or_contributor:"JRE Clips", duration_ms:1243000, view_count:6150701, has_transcript:true, quote_count:5 },
+      { id:"f8a48e63", external_id:"gcgC532OPhw", title:"Joe Rogan Experience #2207 - Shawn Ryan",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9730000, view_count:5638045, has_transcript:true, quote_count:5 },
+      { id:"de75dfda", external_id:"fu6bYPTp_kE", title:"Former CIA Spies (NEW): Leave the USA Before 2030!",
+        channel_or_contributor:"The Diary Of A CEO", duration_ms:9150000, view_count:5469475, has_transcript:true, quote_count:5 },
+      { id:"e345e203", external_id:"C81bFx8CSA8", title:"Joe Rogan Experience #2334 - Kash Patel",
+        channel_or_contributor:"PowerfulJRE", duration_ms:7096000, view_count:4568915, has_transcript:true, quote_count:5 },
+      { id:"a18c61fc", external_id:"-v55tpm11J8", title:"The CIA Officer Who Exposed America\u2019s Torture Programme",
+        channel_or_contributor:"LADbible Stories", duration_ms:2216000, view_count:4390126, has_transcript:true, quote_count:5 },
+      { id:"fd2179eb", external_id:"t3FxH39oYsA", title:"Mossad, Terrifying CIA Technology, Blackwater & The Most Secret CIA Unit",
+        channel_or_contributor:"Dalton Fischer Podcast", duration_ms:15500000, view_count:4084194, has_transcript:true, quote_count:5 },
+      { id:"bc5d6f1b", external_id:"2z4i2yynAs4", title:"How CIA Whistleblower John Kiriakou Went to Prison",
+        channel_or_contributor:"JRE Clips", duration_ms:920000, view_count:3516868, has_transcript:true, quote_count:0 },
+      { id:"feda0279", external_id:"DJsOmYjsy88", title:"Joe Rogan Discusses JFK Assassination with Former CIA Officer",
+        channel_or_contributor:"JRE Clips", duration_ms:1115000, view_count:3457253, has_transcript:true, quote_count:0 },
+      { id:"e02d2038", external_id:"wQ0GD9SpH_o", title:"Joe Rogan Experience #1414 - Mike Baker",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9039000, view_count:3159362, has_transcript:true, quote_count:0 },
+      { id:"3dd31c01", external_id:"K-Q4r37XgVw", title:"American CIA Spy: US scared of India & Russia, RAW vs ISI",
+        channel_or_contributor:"Raj Shamani", duration_ms:8984000, view_count:2120159, has_transcript:true, quote_count:5 },
+      { id:"ad8d229e", external_id:"eRlkH1OpXGI", title:"Former CIA Agent Mike Baker Bursts Iran WW3 Bubble",
+        channel_or_contributor:"JRE Clips", duration_ms:1198000, view_count:2084175, has_transcript:true, quote_count:0 },
+      { id:"aabce3c7", external_id:"cJp_0N8e7_U", title:"How the CIA recruits agents | Minutes With",
+        channel_or_contributor:"LADbible Stories", duration_ms:74000, view_count:2000150, has_transcript:true, quote_count:2 },
+      { id:"670687d8", external_id:"_R2JwJ0A1QE", title:"Joe Rogan Experience #2278 - Chase Hughes",
+        channel_or_contributor:"PowerfulJRE", duration_ms:10462000, view_count:1942816, has_transcript:true, quote_count:0 }
+    ],
+    quotes: [
+      { quote_text:"going to transform people\u2019s opinion about CIA in two big ways. First, they\u2019ll understand that CIA is not what the movies portray it to be.",
+        speaker:"Andrew Bustamante", start_ms:331120, relevance_score:100,
+        context:"Core themes of mole betrayal, use of terrorism tactics, morally ambivalent espionage.",
+        video_title:"Former CIA Spies (NEW): Leave the USA Before 2030!", external_id:"fu6bYPTp_kE", clip_id:"de75dfda" },
+      { quote_text:"why you and others called her bloody Gina we did call her bloody Gina. Gina was always very quick, very willing to use force.",
+        speaker:"John Kiriakou", start_ms:121829, relevance_score:100,
+        context:"Directly alleges the use of torture by Gina Haspel\u2019s group.",
+        video_title:"She Tortured Just for the Sake of Torture", external_id:"ZpDc1hscfeQ", clip_id:"ext-1" },
+      { quote_text:"I can\u2019t tell you. You don\u2019t have a need to know. And I said, No, that\u2019s cool. He said, Who is he anyway?",
+        speaker:"John Kiriakou", start_ms:284080, relevance_score:100,
+        context:"Reveals the CIA\u2019s implementation of the torture program.",
+        video_title:"Joe Rogan Experience #2392 - John Kiriakou", external_id:"TZqADzuu73g", clip_id:"626308c2" },
+      { quote_text:"They\u2019re going to leave somebody out to dry to protect themselves. So I called Brian Ross. I said, I\u2019ll give you your interview.",
+        speaker:"John Kiriakou", start_ms:1950799, relevance_score:100,
+        context:"Evidences whistleblower retaliation where speaking truth led to spying charges.",
+        video_title:"Joe Rogan Experience #2392 - John Kiriakou", external_id:"TZqADzuu73g", clip_id:"626308c2" },
+      { quote_text:"Your problem is you think this is about justice and it\u2019s not about justice. It\u2019s about mitigating damage. Take the deal.",
+        speaker:"CIA Officer", start_ms:2017679, relevance_score:100,
+        context:"The moral imperative to expose the CIA\u2019s torture program.",
+        video_title:"The CIA Officer Who Exposed America\u2019s Torture Programme", external_id:"-v55tpm11J8", clip_id:"a18c61fc" },
+      { quote_text:"squeezed my hand and I said, Remember, you have to cooperate. And then he flew off.",
+        speaker:"CIA Officer", start_ms:1465200, relevance_score:98,
+        context:"Direct evidence of the CIA\u2019s sanctioned torture program.",
+        video_title:"The CIA Officer Who Exposed America\u2019s Torture Programme", external_id:"-v55tpm11J8", clip_id:"a18c61fc" },
+      { quote_text:"this torture program is so wrong and so illegal. Somebody\u2019s going to say something to the media, and nobody did.",
+        speaker:"John Kiriakou", start_ms:2410880, relevance_score:98,
+        context:"Official CIA endorsement of a torture program.",
+        video_title:"How CIA Black Ops Actually Work", external_id:"Pcfwx50zl40", clip_id:"351d537c" },
+      { quote_text:"smart TV and turn a speaker into a microphone, even though the TV is off and broadcast back to the CIA. Absolutely.",
+        speaker:"John Kiriakou", start_ms:16160, relevance_score:98,
+        context:"CIA\u2019s surveillance capabilities via consumer technology.",
+        video_title:"CIA Whistleblower: They Can See All Your Messages!", external_id:"yUNoJ32eLBc", clip_id:"c3d0591f" },
+      { quote_text:"Billions of dollars are spent spying on Americans, whether it\u2019s NSA or CIA or the FBI.",
+        speaker:"John Kiriakou", start_ms:320, relevance_score:95,
+        context:"Reveals the extent of CIA surveillance capabilities.",
+        video_title:"CIA Whistleblower: They Can See All Your Messages!", external_id:"yUNoJ32eLBc", clip_id:"c3d0591f" },
+      { quote_text:"When this story hits the airwaves, it\u2019s going to transform people\u2019s opinion about the CIA.",
+        speaker:"Andrew Bustamante", start_ms:80, relevance_score:95,
+        context:"Broad impact on public understanding of the CIA.",
+        video_title:"Former CIA Spies (NEW): Leave the USA Before 2030!", external_id:"fu6bYPTp_kE", clip_id:"de75dfda" },
+      { quote_text:"as long as there\u2019s conflict between India and Pakistan, there will always be an interest from both sides to get help from the US.",
+        speaker:"Andrew", start_ms:1598000, relevance_score:98,
+        context:"CIA\u2019s role in perpetuating geopolitical conflict.",
+        video_title:"American CIA Spy: US scared of India & Russia", external_id:"K-Q4r37XgVw", clip_id:"3dd31c01" },
+      { quote_text:"people died after this. But that was one of the things that led the CIA to become really interested in hallucinogens.",
+        speaker:"John Lisle", start_ms:1620159, relevance_score:98,
+        context:"CIA\u2019s exploitation and surveillance tactics involving drugs.",
+        video_title:"Joe Rogan Experience #2419 - John Lisle", external_id:"ZrUQdGi0HF8", clip_id:"ext-2" },
+      { quote_text:"somebody in the White House is going to do the right thing. I hope that\u2019s the case.",
+        speaker:"John Kiriakou", start_ms:2501359, relevance_score:95,
+        context:"Whistleblower retaliation and espionage surveillance.",
+        video_title:"How CIA Black Ops Actually Work", external_id:"Pcfwx50zl40", clip_id:"351d537c" }
+    ],
+    tweets: [
+      { id:"t1", title:"Trump recycles George W. Bush\u2019s Iraq war WMD propaganda, warning that Iran is planning to strike Europe",
+        source_url:"https://x.com/MaxBlumenthal/status/2026511584256766000", channel_or_contributor:"@MaxBlumenthal", view_count:3260723 },
+      { id:"t2", title:"John Kiriakou committed Washington\u2019s one unpardonable sin: he embarrassed the CIA.",
+        source_url:"https://x.com/TuckerCarlson/status/1930309073875927551", channel_or_contributor:"@TuckerCarlson", view_count:3110763 },
+      { id:"t3", title:"CIA SECRETS, TORTURE, AND THE NEW AGE OF SPYING. Black sites. Honeypots. AI surveillance.",
+        source_url:"https://x.com/MarioNawfal/status/1984754944205840445", channel_or_contributor:"@MarioNawfal", view_count:1782428 },
+      { id:"t4", title:"Tulsi Gabbard CONFIRMS That Operation Mockingbird is STILL Ongoing inside the CIA",
+        source_url:"https://x.com/bennyjohnson/status/1951054781528567863", channel_or_contributor:"@bennyjohnson", view_count:1343737 },
+      { id:"t5", title:"John Kiriakou on CIA torture tactics: They strip you naked, chain you to the ceiling, chill the cell to 50\u00b0F",
+        source_url:"https://x.com/joeroganhq/status/2002066522555232558", channel_or_contributor:"@joeroganhq", view_count:1012377 }
+    ]
+  };
+
+  /* ════════════════════════════════════════
+     UTILITY FUNCTIONS
+     ════════════════════════════════════════ */
+  function fmtDuration(ms) {
+    var s = Math.floor(ms / 1000);
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    return h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+  }
+
+  function fmtViews(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+    return '' + n;
+  }
+
+  function fmtMs(ms) {
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function getQuotesForClip(cid) {
+    return DATA.quotes.filter(function(q) { return q.clip_id === cid; });
+  }
+
+  function getTopQuote(cid) {
+    var qs = getQuotesForClip(cid);
+    if (!qs.length) return null;
+    return qs.reduce(function(a, b) {
+      return a.relevance_score >= b.relevance_score ? a : b;
+    });
+  }
+
+  function getMaxRel(cid) {
+    var qs = getQuotesForClip(cid);
+    return qs.length ? Math.max.apply(null, qs.map(function(q) { return q.relevance_score; })) : 0;
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  /* ════════════════════════════════════════
+     POPULATE STATS
+     ════════════════════════════════════════ */
+  var totalTranscripts = DATA.clips.filter(function(c) { return c.has_transcript; }).length;
+  var totalQuotes = DATA.quotes.length;
+  var totalClips = DATA.clips.length;
+  var totalTweets = DATA.tweets.length;
+  var totalViews = DATA.clips.reduce(function(s, c) { return s + c.view_count; }, 0);
+
+  document.getElementById('stat-transcripts').textContent = totalTranscripts;
+  document.getElementById('stat-quotes').textContent = totalQuotes;
+  document.getElementById('stat-clips').textContent = totalClips;
+  document.getElementById('stat-tweets').textContent = totalTweets;
+  document.getElementById('stat-views').textContent = fmtViews(totalViews);
+  document.getElementById('topbar-clips').textContent = totalClips;
+  document.getElementById('topbar-quotes').textContent = totalQuotes;
+  document.getElementById('quote-count-badge').textContent = totalQuotes;
+  document.getElementById('source-count-badge').textContent = '3';
+
+  /* ════════════════════════════════════════
+     CLOCK
+     ════════════════════════════════════════ */
+  function updateClock() {
+    var d = new Date();
+    document.getElementById('clock').textContent = d.toLocaleTimeString('en-US', { hour12: false });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ════════════════════════════════════════
+     TICKER
+     ════════════════════════════════════════ */
+  (function buildTicker() {
+    var container = document.getElementById('ticker-inner');
+    var frag = document.createDocumentFragment();
+
+    function addItems() {
+      DATA.quotes.slice(0, 8).forEach(function(q) {
+        var item = el('div', 'tick-item');
+        var ts = el('span', 'ts', '[' + fmtMs(q.start_ms) + ']');
+        var txt = document.createTextNode(' \u201c' + q.quote_text.substring(0, 80) + '\u2026\u201d ');
+        var sp = el('span', 'speaker', '\u2014 ' + (q.speaker || 'Unknown') + ' \u00b7 ' + q.video_title.substring(0, 30));
+        item.appendChild(ts);
+        item.appendChild(txt);
+        item.appendChild(sp);
+        frag.appendChild(item);
+      });
+    }
+
+    addItems();
+    addItems(); // duplicate for seamless loop
+    container.appendChild(frag);
+  })();
+
+  /* ════════════════════════════════════════
+     VIEW TABS
+     ════════════════════════════════════════ */
+  var currentFilter = 'all';
+  var activeClipId = null;
+
+  var tabDefs = [
+    { id: 'all',         label: 'All Clips' },
+    { id: 'quotes',      label: 'With Quotes' },
+    { id: 'transcripts', label: 'With Transcripts' },
+    { id: 'twitter',     label: 'Twitter' }
+  ];
+
+  (function buildTabs() {
+    var container = document.getElementById('view-tabs');
+    tabDefs.forEach(function(td) {
+      var tab = el('div', 'vtab' + (td.id === 'all' ? ' active' : ''), td.label);
+      tab.setAttribute('data-filter', td.id);
+      tab.addEventListener('click', function() {
+        currentFilter = td.id;
+        container.querySelectorAll('.vtab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        renderClips();
+      });
+      container.appendChild(tab);
+    });
+  })();
+
+  /* ════════════════════════════════════════
+     NAV ITEMS
+     ════════════════════════════════════════ */
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+      item.classList.add('active');
+    });
+  });
+
+  /* ════════════════════════════════════════
+     RENDER CLIP LIST
+     ════════════════════════════════════════ */
+  function renderClips() {
+    var list = document.getElementById('clip-list');
+    list.textContent = '';
+
+    // Twitter view
+    if (currentFilter === 'twitter') {
+      DATA.tweets.forEach(function(t) {
+        var card = el('div', 'clip-card');
+        card.addEventListener('click', function() { window.open(t.source_url, '_blank'); });
+
+        var hdr = el('div', 'card-header');
+        var score = el('div', 'card-score med', fmtViews(t.view_count));
+        var tb = el('div', 'card-title-block');
+        var title = el('div', 'card-title', t.title);
+        var meta = el('div', 'card-meta');
+        meta.appendChild(el('span', '', t.channel_or_contributor));
+        meta.appendChild(el('span', '', 'Views: ' + fmtViews(t.view_count)));
+        tb.appendChild(title);
+        tb.appendChild(meta);
+        hdr.appendChild(score);
+        hdr.appendChild(tb);
+        card.appendChild(hdr);
+
+        var srcs = el('div', 'card-sources');
+        srcs.appendChild(el('span', 'source-chip x', 'X / Twitter'));
+        card.appendChild(srcs);
+
+        var act = el('div', 'card-actions');
+        var btn = document.createElement('a');
+        btn.className = 'btn btn-play';
+        btn.textContent = 'Open Tweet';
+        btn.href = t.source_url;
+        btn.target = '_blank';
+        act.appendChild(btn);
+        card.appendChild(act);
+        list.appendChild(card);
+      });
+      return;
+    }
+
+    // Clip views
+    var clips = DATA.clips.slice();
+    if (currentFilter === 'quotes') {
+      clips = clips.filter(function(c) { return c.quote_count > 0; });
+    } else if (currentFilter === 'transcripts') {
+      clips = clips.filter(function(c) { return c.has_transcript; });
+    }
+    clips.sort(function(a, b) { return b.view_count - a.view_count; });
+
+    clips.forEach(function(c) {
+      var rel = getMaxRel(c.id);
+      var topQ = getTopQuote(c.id);
+      var relClass = rel >= 95 ? 'high' : (rel >= 80 ? 'med' : '');
+      var cardCls = 'clip-card';
+      if (rel >= 95) cardCls += ' high-rel';
+      else if (rel >= 80) cardCls += ' med-rel';
+      if (activeClipId === c.id) cardCls += ' active';
+
+      var card = el('div', cardCls);
+      card.setAttribute('data-id', c.id);
+      card.addEventListener('click', function() { selectClip(c.id); });
+
+      // Header with score + title
+      var hdr = el('div', 'card-header');
+      var sc = el('div', 'card-score ' + relClass, rel || '--');
+      var tb = el('div', 'card-title-block');
+      var tt = el('div', 'card-title', c.title);
+      var meta = el('div', 'card-meta');
+      meta.appendChild(el('span', '', c.channel_or_contributor));
+      meta.appendChild(el('span', '', fmtViews(c.view_count) + ' views'));
+      meta.appendChild(el('span', '', fmtDuration(c.duration_ms)));
+      tb.appendChild(tt);
+      tb.appendChild(meta);
+      hdr.appendChild(sc);
+      hdr.appendChild(tb);
+      card.appendChild(hdr);
+
+      // Badges
+      var badges = el('div', 'card-badges');
+      if (c.has_transcript)  badges.appendChild(el('span', 'cbadge transcript', 'TRANSCRIPT'));
+      if (c.quote_count > 0) badges.appendChild(el('span', 'cbadge quotes', c.quote_count + ' QUOTES'));
+      if (c.view_count >= 5e6) badges.appendChild(el('span', 'cbadge views-high', 'VIRAL'));
+      if (c.duration_ms >= 3600000) badges.appendChild(el('span', 'cbadge long-form', 'LONG-FORM'));
+      card.appendChild(badges);
+
+      // Source chips
+      var srcs = el('div', 'card-sources');
+      srcs.appendChild(el('span', 'source-chip yt', 'YouTube'));
+      srcs.appendChild(el('span', 'source-chip ia', 'Internet Archive'));
+      card.appendChild(srcs);
+
+      // Controversy meter for clips with quotes
+      if (rel > 0) {
+        var cm = el('div', 'controversy-meter');
+        cm.appendChild(el('span', '', 'Controversy'));
+        var bar = el('div', 'c-bar');
+        var fill = el('div', 'c-fill');
+        fill.style.width = Math.min(rel, 100) + '%';
+        bar.appendChild(fill);
+        cm.appendChild(bar);
+        cm.appendChild(el('span', '', rel + '/100'));
+        card.appendChild(cm);
+      }
+
+      // Quote preview
+      if (topQ) {
+        var qp = el('div', 'quote-preview', '\u201c' + topQ.quote_text.substring(0, 120) + '\u2026\u201d');
+        card.appendChild(qp);
+      }
+
+      // Action buttons
+      var act = el('div', 'card-actions');
+      var btnPlay = el('button', 'btn btn-play', '\u25b6 Play');
+      btnPlay.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window.open('https://youtube.com/watch?v=' + c.external_id, '_blank');
+      });
+      var btnQ = el('button', 'btn btn-quotes', '\ud83d\udcac Quotes');
+      btnQ.addEventListener('click', function(e) { e.stopPropagation(); selectClip(c.id); });
+      var btnT = el('button', 'btn btn-transcript', '\ud83d\udcdd Transcript');
+      btnT.addEventListener('click', function(e) { e.stopPropagation(); selectClip(c.id); });
+      var btnAi = el('button', 'btn btn-ai', '\ud83e\udd16 Ask AI');
+      btnAi.addEventListener('click', function(e) { e.stopPropagation(); selectClip(c.id); });
+
+      act.appendChild(btnPlay);
+      act.appendChild(btnQ);
+      act.appendChild(btnT);
+      act.appendChild(btnAi);
+      card.appendChild(act);
+      list.appendChild(card);
+    });
+  }
+
+  /* ════════════════════════════════════════
+     SELECT CLIP — POPULATE RIGHT PANEL
+     ════════════════════════════════════════ */
+  function selectClip(clipId) {
+    activeClipId = clipId;
+    var clip = DATA.clips.find(function(c) { return c.id === clipId; });
+    if (!clip) return;
+
+    var panel = document.getElementById('right-panel');
+    panel.classList.remove('hidden');
+    var body = document.getElementById('panel-body');
+    body.textContent = '';
+
+    // YouTube thumbnail
+    var thumb = el('div', 'panel-thumb');
+    thumb.addEventListener('click', function() {
+      window.open('https://youtube.com/watch?v=' + clip.external_id, '_blank');
+    });
+    var img = document.createElement('img');
+    img.src = 'https://i.ytimg.com/vi/' + clip.external_id + '/hqdefault.jpg';
+    img.alt = clip.title;
+    var playOv = el('div', 'play-overlay', '\u25b6');
+    thumb.appendChild(img);
+    thumb.appendChild(playOv);
+    body.appendChild(thumb);
+
+    // Details section
+    var sec1 = el('div', 'panel-section');
+    sec1.appendChild(el('div', 'panel-section-title', 'Details'));
+    var details = [
+      ['Channel',    clip.channel_or_contributor, ''],
+      ['Duration',   fmtDuration(clip.duration_ms), ''],
+      ['Views',      fmtViews(clip.view_count), 'cyan'],
+      ['Transcript', clip.has_transcript ? 'Available' : 'Missing', clip.has_transcript ? 'green' : 'amber'],
+      ['Quotes',     '' + clip.quote_count, 'amber'],
+      ['Provider',   'YouTube', 'cyan']
+    ];
+    details.forEach(function(d) {
+      var row = el('div', 'detail-row');
+      row.appendChild(el('span', 'key', d[0]));
+      row.appendChild(el('span', 'val' + (d[2] ? ' ' + d[2] : ''), d[1]));
+      sec1.appendChild(row);
+    });
+    body.appendChild(sec1);
+
+    // Quotes section
+    var quotes = getQuotesForClip(clipId);
+    var sec2 = el('div', 'panel-section');
+    sec2.appendChild(el('div', 'panel-section-title', 'Quotes (' + quotes.length + ')'));
+
+    if (quotes.length === 0) {
+      sec2.appendChild(el('div', '', 'No quotes extracted yet.'));
+      sec2.lastChild.style.cssText = 'font-size:11px;color:var(--muted);';
+    } else {
+      quotes.forEach(function(q) {
+        var qi = el('div', 'quote-item');
+        qi.addEventListener('click', function() {
+          window.open('https://youtube.com/watch?v=' + clip.external_id + '&t=' + Math.floor(q.start_ms / 1000), '_blank');
+        });
+        qi.appendChild(el('div', 'q-ts', '[' + fmtMs(q.start_ms) + ']'));
+        qi.appendChild(el('div', 'q-text', '\u201c' + q.quote_text + '\u201d'));
+        qi.appendChild(el('div', 'q-speaker', q.speaker || 'Unknown'));
+        qi.appendChild(el('div', 'q-relevance', 'Relevance: ' + q.relevance_score + '/100 \u2014 ' + q.context.substring(0, 80) + '\u2026'));
+        sec2.appendChild(qi);
+      });
+    }
+    body.appendChild(sec2);
+
+    // Notes section
+    var sec3 = el('div', 'panel-section');
+    sec3.appendChild(el('div', 'panel-section-title', 'Research Notes'));
+    var ta1 = document.createElement('textarea');
+    ta1.className = 'panel-input';
+    ta1.placeholder = 'Add research notes for this clip...\n\nKey observations:\n- \n\nScript angles:\n- ';
+    sec3.appendChild(ta1);
+    body.appendChild(sec3);
+
+    // Ask AI section
+    var sec4 = el('div', 'panel-section');
+    sec4.appendChild(el('div', 'panel-section-title', 'Ask AI'));
+    var ta2 = document.createElement('textarea');
+    ta2.className = 'panel-input';
+    ta2.placeholder = 'Ask about this clip...';
+    ta2.style.minHeight = '40px';
+    sec4.appendChild(ta2);
+
+    var btnRow = el('div', 'panel-input-row');
+    var askBtn = el('button', 'btn btn-ai', '\ud83e\udd16 Ask');
+    btnRow.appendChild(askBtn);
+    sec4.appendChild(btnRow);
+
+    // AI quick-action tools
+    var tools = el('div', 'ai-tools');
+    ['Summarize', 'Key Claims', 'Fact Check', 'Script Angle', 'Compare'].forEach(function(label) {
+      var tb = el('button', 'ai-tool-btn', label);
+      tools.appendChild(tb);
+    });
+    sec4.appendChild(tools);
+    body.appendChild(sec4);
+
+    // Highlight active card in list
+    document.querySelectorAll('.clip-card').forEach(function(card) {
+      card.classList.toggle('active', card.getAttribute('data-id') === clipId);
+    });
+  }
+
+  /* ════════════════════════════════════════
+     CLOSE PANEL
+     ════════════════════════════════════════ */
+  document.getElementById('panel-close-btn').addEventListener('click', function() {
+    document.getElementById('right-panel').classList.add('hidden');
+    activeClipId = null;
+    document.querySelectorAll('.clip-card').forEach(function(c) {
+      c.classList.remove('active');
+    });
+  });
+
+  /* ════════════════════════════════════════
+     INITIAL RENDER
+     ════════════════════════════════════════ */
+  renderClips();
+
+})();
+</script>
+</body>
+</html>

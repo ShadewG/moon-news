@@ -1,148 +1,334 @@
-# Moon News Studio — Implementation Plan
+# Moon Corpus Filter + Script Analysis Plan
 
-## Phase 1: CIA Terminal UI (Claude — NOW)
-Rebuild the board-client.tsx with the FOIA researcher aesthetic:
-- Ultra-dark (#080808), monospace (11px), data-dense
-- Stats bar with pipes `|` as separators
-- Compact rows instead of cards
-- Tags as small colored pills
-- Running task indicators with elapsed time
-- Filter bar with dropdowns
-- View tabs (board | queue | competitors | sources)
-- Right panel with research results
+## Goal
 
-## Phase 2: Deep Research Pipeline (Codex — Backend)
-Adapt the FOIA researcher's multi-source parallel search for news stories.
+Use the full Moon back-catalog already in production to rebuild two weak areas:
 
-### Tasks for Codex:
+1. board story filtering and ranking
+2. script-line analysis for research / footage search
 
-**Task 1: Multi-source news search service**
-File: `src/server/services/board/news-search.ts`
-- Create a `searchNewsStory(query, mode)` function
-- Mode: "quick" (2 sources, 8 results) vs "full" (5+ sources, 30 results)
-- Sources to search in parallel:
-  - Serper API (Google search) — add SERPER_API_KEY to env
-  - Perplexity Sonar API — add PERPLEXITY_API_KEY to env
-  - Google News RSS (free, no key)
-  - Hacker News API (free)
-  - Reddit search API (free)
-  - Our existing: YouTube, Twitter/X (xAI Grok), Internet Archive
-- Deduplicate results by URL (canonicalize: strip tracking params, lowercase host)
-- Return: array of { title, url, source, snippet, publishedAt, relevanceScore }
+The current heuristic filter is underfitting the real corpus, so this should move from hand-tuned keywords to a corpus-derived scoring system.
 
-**Task 2: Content extraction with fallback chain**
-File: `src/server/services/board/content-extractor.ts`
-- Create `extractArticleContent(url)` with fallback:
-  1. Try Firecrawl (existing)
-  2. Fallback to direct fetch + HTML parsing (regex-based, strip tags, get main content)
-  3. Fallback to Perplexity "summarize this URL"
-- Return: { title, content, author, publishedAt, siteName }
-- Cache extracted content in a new `extracted_content_cache` table (keyed by URL hash)
+## Key Findings
 
-**Task 3: Story synthesis (GPT deep research)**
-File: `src/server/services/board/story-research.ts`
-- Create `deepResearchStory(storyId, mode)` function
-- Steps:
-  1. Get all feed items linked to the story
-  2. Run `searchNewsStory()` with story title/keywords
-  3. Extract content from top 15-30 results (parallel, semaphore 5)
-  4. Synthesize with OpenAI: structured output with
-     - summary (3 paragraphs)
-     - timeline (key events with dates)
-     - key_players (people/orgs involved)
-     - controversy_score (0-100)
-     - format_suggestion (Full Video / Short / Both)
-     - angle_suggestions (3 documentary angles)
-     - title_options (5 clickable titles)
-     - script_opener (first paragraph of script)
-  5. Save result to board_story_ai_outputs
-  6. Update story score based on research findings
-- Emit progress events for live tracking
+The production Moon corpus already gives us a strong training/reference set:
 
-**Task 4: Story scoring algorithm**
-File: `src/server/services/board/story-scorer.ts`
-- Adapt the FOIA case_evaluator.py scoring for news stories:
-  - Source Score (30pts): source_count × 3, capped at 30. Bonus for tier-1 sources (NYT, Reuters, AP)
-  - Controversy Score (25pts): sentiment polarity × engagement metrics
-  - Timeliness Score (20pts): recency bonus (breaking = 20, today = 15, this week = 10, older = 5)
-  - Competitor Overlap (15pts): +15 if competitors are covering it, +10 if adjacent
-  - Visual Evidence Score (10pts): +10 if video exists, +5 if images, +3 if infographics
-- Surge detection: if velocity (items/hour) > 3× 7-day baseline, flag as surge
-- Return: { totalScore, breakdown, tier (S/A/B/C/D), surgeActive }
+- `349` Moon videos in `clip_library`
+- `346` full transcripts in `transcript_cache`
+- `1,453,833` transcript words
+- metadata per clip: title, duration, views, upload date, thumbnail
+- `channelOrContributor = "Moon"`
+- `metadataJson.isMoonVideo = true`
 
-**Task 5: Live progress streaming**
-File: `src/server/services/board/progress.ts`
-- Create a progress event system for long-running research
-- Store progress in a `research_progress` table:
-  - task_id, step (searching | extracting | synthesizing | scoring),
-  - progress (0-100), message, started_at, updated_at
-- API endpoint: `GET /api/board/stories/:id/progress` (poll every 2s)
-- Steps to track:
-  1. searching (0-20%) — querying news sources
-  2. extracting (20-50%) — pulling full content from URLs
-  3. synthesizing (50-80%) — AI generating summary/analysis
-  4. scoring (80-90%) — calculating story score
-  5. complete (100%) — done
+Current board filter performance is poor against Moon's own catalog.
 
-**Task 6: Extracted content cache table**
-Migration for:
-```sql
-CREATE TABLE extracted_content_cache (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  url_hash text NOT NULL UNIQUE,
-  url text NOT NULL,
-  title text,
-  content text NOT NULL,
-  author text,
-  published_at text,
-  site_name text,
-  word_count integer DEFAULT 0,
-  extracted_at timestamptz DEFAULT now()
-);
-CREATE INDEX idx_ecc_url_hash ON extracted_content_cache(url_hash);
+Corpus evaluation against the current scorer in [moon-relevance.ts](/Users/samuelhylton/Documents/gits/moon-news/src/server/services/board/moon-relevance.ts):
+
+- average title-only score: `4.1`
+- average transcript score: `14.9`
+- title-only p50: `0`
+- transcript p50: `10`
+- `211 / 349` Moon videos score below `15`
+- `281 / 349` Moon videos score below `30`
+
+That means the current thresholded heuristic is rejecting a large share of real Moon-style topics. This is the main reason story filters feel off.
+
+## Backend Plan (Codex)
+
+### 1. Add a Moon corpus analysis domain
+
+Create a new backend area:
+
+```text
+src/server/services/moon-corpus/
+src/server/services/moon-corpus/index.ts
+src/server/services/moon-corpus/features.ts
+src/server/services/moon-corpus/clusters.ts
+src/server/services/moon-corpus/analogs.ts
+src/server/services/moon-corpus/scorer.ts
+src/server/services/moon-corpus/script-analysis.ts
+src/trigger/tasks/moon-corpus/
 ```
 
-**Task 7: Research progress table**
-Migration for:
-```sql
-CREATE TABLE research_progress (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  story_id uuid REFERENCES board_story_candidates(id) ON DELETE CASCADE,
-  task_type text NOT NULL DEFAULT 'deep_research',
-  step text NOT NULL DEFAULT 'pending',
-  progress integer NOT NULL DEFAULT 0,
-  message text,
-  metadata_json jsonb,
-  started_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-CREATE INDEX idx_rp_story ON research_progress(story_id);
-```
+Responsibility:
 
-### Environment variables to add:
-```
-SERPER_API_KEY=       # serper.dev — Google search API
-PERPLEXITY_API_KEY=   # Perplexity Sonar — AI search
-```
+- analyze Moon clips and transcripts
+- derive reusable topic/style/format features
+- expose scoring helpers for board stories and script lines
 
-## Phase 3: Board UI Features (Claude — After Phase 2)
-- Wire deep research into the board UI
-- Live progress tracker (like FOIA's ResearchLiveTracker)
-- Research results modal with tabs (Summary | Sources | Timeline | Clips)
-- "Find Footage" button → topic search in clip library
-- Notion export integration (if needed)
+### 2. Persist corpus-derived features
 
-## Phase 4: Recurring Automation (Codex — Backend)
-- Trigger.dev scheduled tasks:
-  - `poll-rss-feeds` — every 15 min
-  - `poll-competitors` — every 15 min
-  - `score-stories` — after each poll cycle
-  - `detect-surges` — compare velocity to baseline
-  - `refresh-ticker` — update ticker alerts
-- Auto-research: when a story hits score > 80, auto-trigger quick research
+Add new tables in [schema.ts](/Users/samuelhylton/Documents/gits/moon-news/src/server/db/schema.ts):
 
-## Phase 5: Cross-tool Integration
-- Board → Library: "Find Footage" opens topic search with story keywords
-- Library → Board: clips/quotes can be linked to board stories
-- Shared nav: `/board` ←→ `/library` ←→ `/clips/:id`
-- Global Cmd+K search across stories + clips + quotes
+- `moon_video_profiles`
+  - one row per Moon clip
+  - fields:
+    - `clip_id`
+    - `title_terms_json`
+    - `transcript_terms_json`
+    - `named_entities_json`
+    - `vertical_guess`
+    - `coverage_mode`
+    - `style_terms_json`
+    - `hook_terms_json`
+    - `duration_bucket`
+    - `view_percentile`
+    - `word_count`
+    - `profile_version`
+    - `analyzed_at`
+- `moon_corpus_terms`
+  - corpus-level weighted terms and phrases
+  - fields:
+    - `term`
+    - `term_type`
+    - `document_frequency`
+    - `weight`
+    - `lift`
+    - `profile_version`
+- `moon_corpus_clusters`
+  - reusable topic/angle clusters inferred from the Moon library
+  - fields:
+    - `cluster_key`
+    - `label`
+    - `keywords_json`
+    - `entity_keys_json`
+    - `example_clip_ids_json`
+    - `coverage_mode`
+    - `profile_version`
+- `moon_story_scores`
+  - optional cache per board story for explainable Moon-fit scoring
+  - fields:
+    - `story_id`
+    - `moon_fit_score`
+    - `cluster_key`
+    - `coverage_mode`
+    - `analog_clip_ids_json`
+    - `reason_codes_json`
+    - `scored_at`
+    - `profile_version`
+
+This keeps the Moon profile versioned and queryable instead of recomputing everything ad hoc.
+
+### 3. Run a full corpus pass over the 349 Moon videos
+
+Add Trigger jobs:
+
+- `analyze-moon-corpus`
+- `refresh-moon-video-profiles`
+- `score-board-stories-with-moon-corpus`
+
+Job behavior:
+
+1. load all `clip_library` rows where `channelOrContributor = 'Moon'`
+2. join transcript text and segments from `transcript_cache`
+3. extract title terms, transcript phrases, entities, hook patterns, controversy terms, institutional/failure patterns, culture-war patterns, biography patterns, and documentary angle types
+4. assign rough cluster + coverage mode for each video
+5. compute reusable corpus term weights and cluster exemplars
+6. persist profiles and cluster data
+7. rescore all board stories against that reference set
+
+### 4. Replace the current Moon relevance heuristic for board stories
+
+Target file: [moon-relevance.ts](/Users/samuelhylton/Documents/gits/moon-news/src/server/services/board/moon-relevance.ts)
+
+Instead of relying mainly on manual keyword weights, build a scorer that combines:
+
+- title overlap with high-lift Moon terms
+- transcript/body overlap with high-lift Moon terms
+- entity overlap with Moon clusters
+- coverage-mode similarity
+- controversy/institutional-failure/social-commentary signals
+- nearest-analog similarity to real Moon videos
+- corpus recency weighting, with Moon videos from the last 3 months carrying a 5x multiplier and then decaying by age
+- recency and board-story score as a secondary factor, not the main Moon-fit signal
+
+New scorer output should include:
+
+- `moonFitScore`
+- `moonFitBand` (`high`, `medium`, `low`)
+- `moonCluster`
+- `coverageMode`
+- `analogClipIds`
+- `analogTitles`
+- `reasonCodes`
+- `disqualifierCodes`
+
+### 5. Upgrade story list filtering and sorting
+
+Target API: [route.ts](/Users/samuelhylton/Documents/gits/moon-news/src/app/api/board/stories/route.ts)
+
+Extend `GET /api/board/stories` filters with:
+
+- `moonFitBand`
+- `moonCluster`
+- `coverageMode`
+- `vertical`
+- `hasAnalogs`
+- `minMoonFitScore`
+- `sort=moonFit|storyScore|controversy|recency|analogs|views`
+
+Extend list response rows from [index.ts](/Users/samuelhylton/Documents/gits/moon-news/src/server/services/board/index.ts) to include:
+
+- `moonFitScore`
+- `moonFitBand`
+- `moonCluster`
+- `coverageMode`
+- `analogTitles`
+- `analogMedianViews`
+- `analogMedianDurationMinutes`
+- `reasonCodes`
+
+This gives the UI much narrower, explainable story filters instead of a single weak generic relevance score.
+
+### 6. Upgrade story detail with Moon analogs
+
+Target API: `GET /api/board/stories/:storyId`
+
+Add a Moon-analysis block to the story detail payload:
+
+- top matching Moon videos
+- why they matched
+- dominant cluster
+- likely format fit
+- likely title/hook patterns
+- typical duration/view benchmarks from matching analogs
+
+This gives editors a better answer than “is this vaguely Moon-relevant?” It answers “what kind of Moon video is this most like?”
+
+### 7. Upgrade the script analysis tool
+
+Current issue:
+
+[openai.ts](/Users/samuelhylton/Documents/gits/moon-news/src/server/providers/openai.ts) only classifies script lines for footage search categories. It does not use Moon's own corpus.
+
+Target changes:
+
+- expand `classifyLine(...)` into a richer Moon-aware analysis contract
+- use Moon corpus features to improve keyword generation and visual strategy
+
+New output fields should include:
+
+- `moon_story_fit`
+- `likely_vertical`
+- `coverage_mode`
+- `analog_clip_ids`
+- `analog_titles`
+- `hook_style`
+- `expected_visual_mix`
+- `primary_entities`
+- `secondary_entities`
+- `search_keywords`
+- `archive_keywords`
+- `youtube_keywords`
+- `ai_generation_recommended`
+- `ai_generation_reason`
+
+Wire this into [investigation.ts](/Users/samuelhylton/Documents/gits/moon-news/src/server/services/investigation.ts) so line investigation gets:
+
+- better search keywords
+- better archive / YouTube search pivots
+- more precise AI generation suggestions
+- analog-aware visual recommendations
+
+### 8. Add corpus-backed search helpers for research
+
+Add helper endpoints/services to support future UI and research flows:
+
+- `GET /api/moon-corpus/clusters`
+- `GET /api/moon-corpus/analogs?storyId=...`
+- `GET /api/moon-corpus/analogs?lineId=...`
+- `POST /api/moon-corpus/rebuild`
+
+These should make it easy to inspect the corpus model, not just use it implicitly.
+
+### 9. Keep the first implementation statistical + rules-based
+
+Do not make v1 depend on embeddings infrastructure or a separate vector DB.
+
+Use:
+
+- token/phrase lift
+- entity overlap
+- profile/cluster similarity
+- analog voting
+- OpenAI only where useful for normalization or cluster labeling
+
+This keeps it cheap and deployable inside the current stack.
+
+## Frontend Plan (Claude)
+
+Claude should build against the new API fields once backend is ready.
+
+### Board filters
+
+Update `/board` story controls to expose:
+
+- `Moon Fit`: high / medium / low
+- `Cluster`
+- `Coverage Mode`
+- `Has Analogs`
+- `Sort by Moon Fit`
+
+### Story cards
+
+Show compact explainers:
+
+- Moon-fit badge
+- cluster label
+- top 1-2 analog titles
+- short reason chips from `reasonCodes`
+
+### Story detail panel
+
+Add a `Moon Analogs` section with:
+
+- top matching Moon videos
+- benchmark duration/views
+- matched terms/entities
+- suggested angle / format
+
+### Script workspace
+
+Where script-line analysis is surfaced, add:
+
+- likely Moon angle
+- best analog clips
+- improved provider-specific search keywords
+- stronger AI-generation guidance
+
+## Execution Order
+
+### Phase 1
+
+- add schema for corpus profiles and score cache
+- add corpus analysis services
+- run the first 349-video analysis pass
+- persist profiles and clusters
+
+### Phase 2
+
+- replace board Moon filter/scorer
+- extend `GET /api/board/stories`
+- extend `GET /api/board/stories/:storyId`
+- expose Moon analog data and explainers
+
+### Phase 3
+
+- upgrade script-line analysis contract
+- update investigation pipeline to use Moon-aware search terms and analogs
+
+### Phase 4
+
+- Claude wires the new filters and story-detail affordances into `/board`
+- Claude wires Moon-aware analysis into the script workspace UI
+
+## Expected Outcome
+
+After this work, the board should stop behaving like a generic controversy/news filter and start behaving like a Moon-specific editorial selector.
+
+Success criteria:
+
+- real Moon videos no longer score poorly under the Moon filter
+- story lists can be narrowed by actual Moon-style topic clusters and coverage modes
+- story detail shows useful analogs from Moon's own history
+- script analysis produces better research keywords and visual plans because it understands what kind of Moon story the line belongs to

@@ -29,6 +29,7 @@ import {
   boardStoryCandidates,
   boardStorySources,
   boardSurgeAlerts,
+  moonStoryScores,
   boardTickerEvents,
   boardStoryStatusEnum,
   boardStoryTypeEnum,
@@ -53,6 +54,11 @@ import {
 } from "./format-recommendation";
 import { generateBoardAiOutput } from "./ai-outputs";
 import { scoreStory } from "./story-scorer";
+import {
+  getMoonStoryScoresByStoryIds,
+  scoreBoardStoriesWithMoonCorpus,
+  scoreBoardStoryWithMoonCorpus,
+} from "@/server/services/moon-corpus";
 
 export type BoardStoryStatus = (typeof boardStoryStatusEnum.enumValues)[number];
 export type BoardStoryType = (typeof boardStoryTypeEnum.enumValues)[number];
@@ -80,6 +86,14 @@ export interface BoardStorySummary {
   score: number;
   scoreJson: Record<string, unknown> | null;
   metadataJson: Record<string, unknown> | null;
+  moonFitScore: number;
+  moonFitBand: string;
+  moonCluster: string | null;
+  coverageMode: string | null;
+  analogTitles: string[];
+  analogMedianViews: number | null;
+  analogMedianDurationMinutes: number | null;
+  reasonCodes: string[];
   formatRecommendation: BoardFormatRecommendation;
   sourcePreviews: BoardStorySourcePreview[];
 }
@@ -108,6 +122,27 @@ export interface BoardStoryDetail {
   story: BoardStorySummary;
   sources: BoardStorySourcePreview[];
   versionHistory: BoardStoryVersionEntry[];
+  moonAnalysis: {
+    moonFitScore: number;
+    moonFitBand: string;
+    clusterKey: string | null;
+    clusterLabel: string | null;
+    coverageMode: string | null;
+    analogs: Array<{
+      clipId: string;
+      title: string;
+      sourceUrl: string | null;
+      previewUrl: string | null;
+      uploadDate: string | null;
+      durationMs: number | null;
+      viewCount: number | null;
+      similarityScore: number;
+    }>;
+    analogMedianViews: number | null;
+    analogMedianDurationMinutes: number | null;
+    reasonCodes: string[];
+    disqualifierCodes: string[];
+  } | null;
   aiOutputs: Record<
     BoardAiOutputKind,
     {
@@ -150,6 +185,13 @@ export interface ListBoardStoriesInput {
   status?: BoardStoryStatus;
   storyType?: BoardStoryType;
   search?: string;
+  moonFitBand?: string;
+  moonCluster?: string;
+  coverageMode?: string;
+  vertical?: string;
+  hasAnalogs?: boolean;
+  minMoonFitScore?: number;
+  sort?: "moonFit" | "storyScore" | "controversy" | "recency" | "analogs" | "views";
   page?: number;
   limit?: number;
 }
@@ -169,6 +211,13 @@ export interface ListBoardStoriesResult {
     status: BoardStoryStatus | null;
     storyType: BoardStoryType | null;
     search: string;
+    moonFitBand: string;
+    moonCluster: string;
+    coverageMode: string;
+    vertical: string;
+    hasAnalogs: boolean | null;
+    minMoonFitScore: number | null;
+    sort: string;
   };
 }
 
@@ -1504,12 +1553,35 @@ async function getSourcePreviewsForStories(storyIds: string[]) {
 
 function mapStorySummary(
   story: typeof boardStoryCandidates.$inferSelect,
-  previews: BoardStorySourcePreview[]
+  previews: BoardStorySourcePreview[],
+  moonScore?: typeof moonStoryScores.$inferSelect | null
 ): BoardStorySummary {
   const metadataJson = coerceObject(story.metadataJson);
   const scoreJson = coerceObject(story.scoreJson);
   const score =
     typeof scoreJson?.overall === "number" ? (scoreJson.overall as number) : story.surgeScore;
+  const moonFitScore =
+    moonScore?.moonFitScore ??
+    (typeof scoreJson?.moonFitScore === "number" ? (scoreJson.moonFitScore as number) : 0);
+  const moonFitBand =
+    moonScore?.moonFitBand ??
+    (typeof scoreJson?.moonFitBand === "string" ? (scoreJson.moonFitBand as string) : "low");
+  const moonCluster =
+    moonScore?.clusterLabel ??
+    (typeof scoreJson?.moonCluster === "string" ? (scoreJson.moonCluster as string) : null);
+  const coverageMode =
+    moonScore?.coverageMode ??
+    (typeof scoreJson?.coverageMode === "string" ? (scoreJson.coverageMode as string) : null);
+  const analogTitles =
+    moonScore?.analogTitlesJson && Array.isArray(moonScore.analogTitlesJson)
+      ? coerceStringArray(moonScore.analogTitlesJson)
+      : coerceStringArray(scoreJson?.analogTitles);
+  const analogMedianViews = moonScore?.analogMedianViews ?? null;
+  const analogMedianDurationMinutes = moonScore?.analogMedianDurationMinutes ?? null;
+  const reasonCodes =
+    moonScore?.reasonCodesJson && Array.isArray(moonScore.reasonCodesJson)
+      ? coerceStringArray(moonScore.reasonCodesJson)
+      : coerceStringArray(scoreJson?.reasonCodes);
   const formatRecommendation = buildBoardFormatRecommendation({
     story: {
       storyType: story.storyType,
@@ -1554,6 +1626,14 @@ function mapStorySummary(
     score,
     scoreJson,
     metadataJson,
+    moonFitScore,
+    moonFitBand,
+    moonCluster,
+    coverageMode,
+    analogTitles,
+    analogMedianViews,
+    analogMedianDurationMinutes,
+    reasonCodes,
     formatRecommendation,
     sourcePreviews: previews.slice(0, 4),
   };
@@ -2894,9 +2974,15 @@ export async function listBoardStories(
   const status = input.status ?? null;
   const storyType = input.storyType ?? null;
   const search = normalizeSearch(input.search);
+  const moonFitBand = input.moonFitBand?.trim().toLowerCase() ?? "";
+  const moonCluster = input.moonCluster?.trim().toLowerCase() ?? "";
+  const coverageMode = input.coverageMode?.trim().toLowerCase() ?? "";
+  const vertical = input.vertical?.trim().toLowerCase() ?? "";
+  const hasAnalogs = typeof input.hasAnalogs === "boolean" ? input.hasAnalogs : null;
+  const minMoonFitScore = typeof input.minMoonFitScore === "number" ? Math.max(0, input.minMoonFitScore) : null;
+  const sort = input.sort ?? (view === "controversy" ? "controversy" : "moonFit");
   const page = normalizePage(input.page);
   const limit = normalizeLimit(input.limit);
-  const offset = (page - 1) * limit;
 
   const filters = [];
 
@@ -2918,43 +3004,81 @@ export async function listBoardStories(
     );
   }
 
-  const where = filters.length > 0 ? and(...filters) : sql`true`;
-  const overallScoreOrder = sql<number>`coalesce((${boardStoryCandidates.scoreJson}->>'overall')::int, ${boardStoryCandidates.surgeScore})`;
-  const orderBy =
-    view === "controversy"
-      ? [
-          desc(boardStoryCandidates.controversyScore),
-          desc(overallScoreOrder),
-          desc(boardStoryCandidates.lastSeenAt),
-        ]
-      : [
-          desc(overallScoreOrder),
-          desc(boardStoryCandidates.controversyScore),
-          desc(boardStoryCandidates.lastSeenAt),
-        ];
+  if (vertical.length > 0) {
+    filters.push(ilike(boardStoryCandidates.vertical, `%${vertical}%`));
+  }
 
-  const [rows, countRows] = await Promise.all([
-    db
-      .select()
-      .from(boardStoryCandidates)
-      .where(where)
-      .orderBy(...orderBy)
-      .limit(limit)
-      .offset(offset),
-    db
-      .select({
-        totalCount: sql<number>`count(*)::int`,
-      })
-      .from(boardStoryCandidates)
-      .where(where),
-  ]);
+  const where = filters.length > 0 ? and(...filters) : sql`true`;
+  const rows = await db
+    .select()
+    .from(boardStoryCandidates)
+    .where(where);
+
+  let moonScoreMap = await getMoonStoryScoresByStoryIds(rows.map((row) => row.id));
+  const missingStoryIds = rows
+    .map((row) => row.id)
+    .filter((storyId) => !moonScoreMap.has(storyId));
+
+  if (missingStoryIds.length > 0) {
+    await scoreBoardStoriesWithMoonCorpus(missingStoryIds);
+    moonScoreMap = await getMoonStoryScoresByStoryIds(rows.map((row) => row.id));
+  }
 
   const previewsByStory = await getSourcePreviewsForStories(rows.map((row) => row.id));
-  const totalCount = countRows[0]?.totalCount ?? 0;
+  const summaries = rows
+    .map((row) => mapStorySummary(row, previewsByStory.get(row.id) ?? [], moonScoreMap.get(row.id) ?? null))
+    .filter((story) => {
+      if (moonFitBand && story.moonFitBand.toLowerCase() !== moonFitBand) {
+        return false;
+      }
+
+      if (moonCluster && !(story.moonCluster ?? "").toLowerCase().includes(moonCluster)) {
+        return false;
+      }
+
+      if (coverageMode && !(story.coverageMode ?? "").toLowerCase().includes(coverageMode)) {
+        return false;
+      }
+
+      if (hasAnalogs !== null) {
+        const hasAnyAnalogs = story.analogTitles.length > 0;
+        if (hasAnalogs !== hasAnyAnalogs) {
+          return false;
+        }
+      }
+
+      if (minMoonFitScore !== null && story.moonFitScore < minMoonFitScore) {
+        return false;
+      }
+
+      return true;
+    });
+
+  summaries.sort((left, right) => {
+    switch (sort) {
+      case "controversy":
+        return right.controversyScore - left.controversyScore || right.score - left.score;
+      case "recency":
+        return (Date.parse(right.lastSeenAt ?? "") || 0) - (Date.parse(left.lastSeenAt ?? "") || 0);
+      case "views":
+        return (right.analogMedianViews ?? 0) - (left.analogMedianViews ?? 0) || right.moonFitScore - left.moonFitScore;
+      case "analogs":
+        return right.analogTitles.length - left.analogTitles.length || right.moonFitScore - left.moonFitScore;
+      case "storyScore":
+        return right.score - left.score || right.moonFitScore - left.moonFitScore;
+      case "moonFit":
+      default:
+        return right.moonFitScore - left.moonFitScore || right.score - left.score || right.controversyScore - left.controversyScore;
+    }
+  });
+
+  const totalCount = summaries.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const offset = (page - 1) * limit;
+  const stories = summaries.slice(offset, offset + limit);
 
   return {
-    stories: rows.map((row) => mapStorySummary(row, previewsByStory.get(row.id) ?? [])),
+    stories,
     pageInfo: {
       page,
       limit,
@@ -2968,6 +3092,13 @@ export async function listBoardStories(
       status,
       storyType,
       search,
+      moonFitBand,
+      moonCluster,
+      coverageMode,
+      vertical,
+      hasAnalogs,
+      minMoonFitScore,
+      sort,
     },
   };
 }
@@ -2982,7 +3113,7 @@ export async function getBoardStoryDetail(storyIdOrSlug: string): Promise<BoardS
     return null;
   }
 
-  const [previewsByStory, aiOutputRows, queueRows] = await Promise.all([
+  const [previewsByStory, aiOutputRows, queueRows, moonAnalysis] = await Promise.all([
     getSourcePreviewsForStories([story.id]),
     db
       .select()
@@ -2994,6 +3125,7 @@ export async function getBoardStoryDetail(storyIdOrSlug: string): Promise<BoardS
       .from(boardQueueItems)
       .where(eq(boardQueueItems.storyId, story.id))
       .limit(1),
+    scoreBoardStoryWithMoonCorpus(story.id),
   ]);
 
   const sources = previewsByStory.get(story.id) ?? [];
@@ -3060,7 +3192,8 @@ export async function getBoardStoryDetail(storyIdOrSlug: string): Promise<BoardS
         linkedProjectId: queueRows[0].linkedProjectId,
       }
     : null;
-  const storySummary = mapStorySummary(story, sources);
+  const moonScore = (await getMoonStoryScoresByStoryIds([story.id])).get(story.id) ?? null;
+  const storySummary = mapStorySummary(story, sources, moonScore);
 
   return {
     story: storySummary,
@@ -3075,6 +3208,29 @@ export async function getBoardStoryDetail(storyIdOrSlug: string): Promise<BoardS
       versionNumber: row.versionNumber,
       capturedAt: toIsoString(row.capturedAt) ?? new Date().toISOString(),
     })),
+    moonAnalysis: moonAnalysis
+      ? {
+          moonFitScore: moonAnalysis.moonFitScore,
+          moonFitBand: moonAnalysis.moonFitBand,
+          clusterKey: moonAnalysis.clusterKey,
+          clusterLabel: moonAnalysis.clusterLabel,
+          coverageMode: moonAnalysis.coverageMode,
+          analogs: moonAnalysis.analogs.map((analog) => ({
+            clipId: analog.clipId,
+            title: analog.title,
+            sourceUrl: analog.sourceUrl,
+            previewUrl: analog.previewUrl,
+            uploadDate: analog.uploadDate,
+            durationMs: analog.durationMs,
+            viewCount: analog.viewCount,
+            similarityScore: analog.similarityScore,
+          })),
+          analogMedianViews: moonAnalysis.analogMedianViews,
+          analogMedianDurationMinutes: moonAnalysis.analogMedianDurationMinutes,
+          reasonCodes: moonAnalysis.reasonCodes,
+          disqualifierCodes: moonAnalysis.disqualifierCodes,
+        }
+      : null,
     aiOutputs,
     formatRecommendation: storySummary.formatRecommendation,
     queueItem,

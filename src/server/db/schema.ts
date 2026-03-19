@@ -140,6 +140,33 @@ export const boardAlertTypeEnum = pgEnum("board_alert_type", [
   "correction",
 ]);
 
+export const scriptAgentStageEnum = pgEnum("script_agent_stage", [
+  "discover_sources",
+  "ingest_sources",
+  "extract_evidence",
+  "synthesize_research",
+  "build_outline",
+  "build_storyboard",
+  "plan_sections",
+  "write_sections",
+  "assemble_draft",
+  "critique_script",
+  "revise_sections",
+  "analyze_retention",
+  "polish_script",
+  "expand_script",
+  "finalize_script",
+]);
+
+export const scriptAgentSourceKindEnum = pgEnum("script_agent_source_kind", [
+  "research_dossier",
+  "article",
+  "video",
+  "social_post",
+  "library_clip",
+  "generated_note",
+]);
+
 export const projects = pgTable(
   "projects",
   {
@@ -463,6 +490,97 @@ export const transcriptCache = pgTable(
   ]
 );
 
+export const moonVideoProfiles = pgTable(
+  "moon_video_profiles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clipId: uuid("clip_id")
+      .notNull()
+      .references(() => clipLibrary.id, { onDelete: "cascade" }),
+    clusterKey: text("cluster_key"),
+    clusterLabel: text("cluster_label"),
+    coverageMode: text("coverage_mode"),
+    verticalGuess: text("vertical_guess"),
+    titleTermsJson: jsonb("title_terms_json").notNull().default([]),
+    transcriptTermsJson: jsonb("transcript_terms_json").notNull().default([]),
+    namedEntitiesJson: jsonb("named_entities_json").notNull().default([]),
+    hookTermsJson: jsonb("hook_terms_json").notNull().default([]),
+    styleTermsJson: jsonb("style_terms_json").notNull().default([]),
+    durationBucket: text("duration_bucket"),
+    viewPercentile: real("view_percentile").notNull().default(0),
+    recencyWeight: real("recency_weight").notNull().default(1),
+    wordCount: integer("word_count").notNull().default(0),
+    sourcePublishedAt: timestamp("source_published_at", { withTimezone: true }),
+    profileVersion: integer("profile_version").notNull().default(1),
+    analyzedAt: timestamp("analyzed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("moon_video_profiles_clip_id_unique").on(table.clipId),
+    index("moon_video_profiles_cluster_key_index").on(table.clusterKey),
+    index("moon_video_profiles_coverage_mode_index").on(table.coverageMode),
+    index("moon_video_profiles_profile_version_index").on(table.profileVersion),
+  ]
+);
+
+export const moonCorpusTerms = pgTable(
+  "moon_corpus_terms",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    term: text("term").notNull(),
+    termType: text("term_type").notNull().default("keyword"),
+    documentFrequency: integer("document_frequency").notNull().default(0),
+    weightedDocumentFrequency: real("weighted_document_frequency").notNull().default(0),
+    weight: real("weight").notNull().default(0),
+    lift: real("lift").notNull().default(0),
+    exampleClipIdsJson: jsonb("example_clip_ids_json").notNull().default([]),
+    profileVersion: integer("profile_version").notNull().default(1),
+    analyzedAt: timestamp("analyzed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("moon_corpus_terms_term_type_version_unique").on(
+      table.term,
+      table.termType,
+      table.profileVersion
+    ),
+    index("moon_corpus_terms_weight_index").on(table.weight),
+    index("moon_corpus_terms_profile_version_index").on(table.profileVersion),
+  ]
+);
+
+export const moonCorpusClusters = pgTable(
+  "moon_corpus_clusters",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clusterKey: text("cluster_key").notNull(),
+    label: text("label").notNull(),
+    coverageMode: text("coverage_mode"),
+    keywordsJson: jsonb("keywords_json").notNull().default([]),
+    entityKeysJson: jsonb("entity_keys_json").notNull().default([]),
+    exampleClipIdsJson: jsonb("example_clip_ids_json").notNull().default([]),
+    profileVersion: integer("profile_version").notNull().default(1),
+    analyzedAt: timestamp("analyzed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("moon_corpus_clusters_key_version_unique").on(
+      table.clusterKey,
+      table.profileVersion
+    ),
+    index("moon_corpus_clusters_coverage_mode_index").on(table.coverageMode),
+  ]
+);
+
 export const clipSearches = pgTable(
   "clip_searches",
   {
@@ -747,6 +865,41 @@ export const boardStorySources = pgTable(
   ]
 );
 
+export const moonStoryScores = pgTable(
+  "moon_story_scores",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyId: uuid("story_id")
+      .notNull()
+      .references(() => boardStoryCandidates.id, { onDelete: "cascade" }),
+    moonFitScore: integer("moon_fit_score").notNull().default(0),
+    moonFitBand: text("moon_fit_band").notNull().default("low"),
+    clusterKey: text("cluster_key"),
+    clusterLabel: text("cluster_label"),
+    coverageMode: text("coverage_mode"),
+    analogClipIdsJson: jsonb("analog_clip_ids_json").notNull().default([]),
+    analogTitlesJson: jsonb("analog_titles_json").notNull().default([]),
+    analogMedianViews: integer("analog_median_views"),
+    analogMedianDurationMinutes: real("analog_median_duration_minutes"),
+    reasonCodesJson: jsonb("reason_codes_json").notNull().default([]),
+    disqualifierCodesJson: jsonb("disqualifier_codes_json").notNull().default([]),
+    profileVersion: integer("profile_version").notNull().default(1),
+    scoredAt: timestamp("scored_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("moon_story_scores_story_id_unique").on(table.storyId),
+    index("moon_story_scores_fit_band_index").on(table.moonFitBand),
+    index("moon_story_scores_cluster_key_index").on(table.clusterKey),
+    index("moon_story_scores_coverage_mode_index").on(table.coverageMode),
+    index("moon_story_scores_score_index").on(table.moonFitScore),
+  ]
+);
+
 export const boardStoryAiOutputs = pgTable(
   "board_story_ai_outputs",
   {
@@ -926,6 +1079,179 @@ export const boardSurgeAlerts = pgTable(
     index("board_surge_alerts_alert_type_index").on(table.alertType),
     index("board_surge_alerts_created_at_index").on(table.createdAt),
     index("board_surge_alerts_dismissed_at_index").on(table.dismissedAt),
+  ]
+);
+
+export const scriptLabRuns = pgTable(
+  "script_lab_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyTitle: text("story_title").notNull(),
+    requestJson: jsonb("request_json").notNull(),
+    resultJson: jsonb("result_json").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_lab_runs_story_title_index").on(table.storyTitle),
+    index("script_lab_runs_created_at_index").on(table.createdAt),
+  ]
+);
+
+export const scriptAgentRuns = pgTable(
+  "script_agent_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    storyTitle: text("story_title").notNull(),
+    status: processingStatusEnum("status").notNull().default("pending"),
+    currentStage: scriptAgentStageEnum("current_stage"),
+    researchDepth: text("research_depth").notNull().default("deep"),
+    triggerRunId: text("trigger_run_id"),
+    requestJson: jsonb("request_json").notNull(),
+    resultJson: jsonb("result_json"),
+    errorText: text("error_text"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_agent_runs_story_title_index").on(table.storyTitle),
+    index("script_agent_runs_status_index").on(table.status),
+    index("script_agent_runs_created_at_index").on(table.createdAt),
+  ]
+);
+
+export const scriptAgentStages = pgTable(
+  "script_agent_stages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => scriptAgentRuns.id, { onDelete: "cascade" }),
+    stageKey: scriptAgentStageEnum("stage_key").notNull(),
+    stageOrder: integer("stage_order").notNull().default(0),
+    status: processingStatusEnum("status").notNull().default("pending"),
+    inputJson: jsonb("input_json"),
+    outputJson: jsonb("output_json"),
+    errorText: text("error_text"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("script_agent_stages_run_stage_unique").on(table.runId, table.stageKey),
+    index("script_agent_stages_run_id_index").on(table.runId),
+    index("script_agent_stages_status_index").on(table.status),
+  ]
+);
+
+export const scriptAgentSources = pgTable(
+  "script_agent_sources",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => scriptAgentRuns.id, { onDelete: "cascade" }),
+    stageKey: scriptAgentStageEnum("stage_key"),
+    sourceKind: scriptAgentSourceKindEnum("source_kind").notNull(),
+    providerName: text("provider_name").notNull().default("internal"),
+    title: text("title").notNull(),
+    url: text("url"),
+    snippet: text("snippet"),
+    publishedAt: text("published_at"),
+    clipId: uuid("clip_id").references(() => clipLibrary.id, {
+      onDelete: "set null",
+    }),
+    contentStatus: processingStatusEnum("content_status")
+      .notNull()
+      .default("pending"),
+    transcriptStatus: processingStatusEnum("transcript_status")
+      .notNull()
+      .default("pending"),
+    contentJson: jsonb("content_json"),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_agent_sources_run_id_index").on(table.runId),
+    index("script_agent_sources_source_kind_index").on(table.sourceKind),
+    index("script_agent_sources_provider_name_index").on(table.providerName),
+    index("script_agent_sources_clip_id_index").on(table.clipId),
+  ]
+);
+
+export const scriptAgentQuotes = pgTable(
+  "script_agent_quotes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => scriptAgentRuns.id, { onDelete: "cascade" }),
+    sourceId: uuid("source_id").references(() => scriptAgentSources.id, {
+      onDelete: "set null",
+    }),
+    sourceLabel: text("source_label").notNull(),
+    sourceUrl: text("source_url"),
+    quoteText: text("quote_text").notNull(),
+    speaker: text("speaker"),
+    context: text("context"),
+    relevanceScore: integer("relevance_score").notNull().default(0),
+    startMs: integer("start_ms"),
+    endMs: integer("end_ms"),
+    metadataJson: jsonb("metadata_json"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_agent_quotes_run_id_index").on(table.runId),
+    index("script_agent_quotes_source_id_index").on(table.sourceId),
+    index("script_agent_quotes_relevance_score_index").on(table.relevanceScore),
+  ]
+);
+
+export const scriptAgentClaims = pgTable(
+  "script_agent_claims",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => scriptAgentRuns.id, { onDelete: "cascade" }),
+    claimText: text("claim_text").notNull(),
+    supportLevel: integer("support_level").notNull().default(50),
+    riskLevel: integer("risk_level").notNull().default(0),
+    evidenceRefsJson: jsonb("evidence_refs_json").notNull().default([]),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_agent_claims_run_id_index").on(table.runId),
+    index("script_agent_claims_support_level_index").on(table.supportLevel),
+    index("script_agent_claims_risk_level_index").on(table.riskLevel),
   ]
 );
 

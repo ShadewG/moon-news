@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Split Research Workspace — Moon News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080C12;
+  --bg1:      #0D1320;
+  --bg2:      #111827;
+  --bg3:      #1a2234;
+  --bg4:      #1f2a3e;
+  --border:   #1e2d44;
+  --border2:  #253348;
+  --cyan:     #00C9E8;
+  --cyan-dim: #004d5a;
+  --amber:    #F59E0B;
+  --amber-dim:#3d2800;
+  --red:      #EF4444;
+  --red-dim:  #3b0f0f;
+  --green:    #10B981;
+  --green-dim:#082b1a;
+  --purple:   #A78BFA;
+  --purple-dim:#2d1f5e;
+  --blue:     #3B82F6;
+  --blue-dim: #1a2d5a;
+  --muted:    #4B5C74;
+  --muted2:   #8899aa;
+  --text:     #CBD5E0;
+  --text-bright:#E8F0F8;
+  --mono: 'IBM Plex Mono', monospace;
+  --serif: 'Fraunces', Georgia, serif;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ── SHELL ── */
+#shell { display: flex; height: 100vh; }
+
+/* ── THIN SIDEBAR ── */
+#sidebar {
+  width: 56px;
+  min-width: 56px;
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 12px;
+  gap: 4px;
+}
+.sb-item {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--muted2);
+  gap: 2px;
+  position: relative;
+}
+.sb-item:hover {
+  background: var(--bg2);
+  color: var(--text-bright);
+}
+.sb-item.active {
+  background: var(--bg3);
+  color: var(--cyan);
+}
+.sb-item .sb-icon { font-size: 16px; }
+.sb-item .sb-label {
+  font-size: 7px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sb-divider {
+  width: 28px;
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+}
+.sb-spacer { flex: 1; }
+.sb-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 7px;
+  font-weight: 700;
+  background: var(--cyan);
+  color: #000;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+/* ── SPLIT LAYOUT ── */
+#split { flex: 1; display: flex; overflow: hidden; }
+
+/* ── LEFT BROWSER ── */
+#browser {
+  width: 45%;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.browser-tabs {
+  display: flex;
+  height: 36px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.bt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.bt:hover { color: var(--text); background: var(--bg2); }
+.bt.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+  background: var(--bg2);
+}
+.browser-search {
+  padding: 8px 12px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: none;
+}
+.browser-search.visible { display: block; }
+.browser-search input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+}
+.browser-search input:focus { border-color: var(--cyan); }
+.browser-search input::placeholder { color: var(--muted); }
+#browser-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+#browser-list::-webkit-scrollbar { width: 4px; }
+#browser-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Compact clip card ── */
+.compact-clip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  animation: fadeInUp 0.25s ease both;
+}
+.compact-clip:hover {
+  border-color: var(--border2);
+  background: var(--bg3);
+}
+.compact-clip.active {
+  border-color: var(--cyan);
+  background: var(--bg3);
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+.cc-thumb {
+  width: 80px;
+  height: 45px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg4);
+}
+.cc-info { flex: 1; min-width: 0; }
+.cc-title {
+  font-family: var(--serif);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-bright);
+  line-height: 1.3;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cc-meta {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+}
+.cc-badges { display: flex; gap: 4px; margin-top: 3px; }
+.cc-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+.cc-badge.transcript { background: var(--green-dim); color: var(--green); }
+.cc-badge.quotes     { background: var(--cyan-dim); color: var(--cyan); }
+.cc-badge.viral      { background: var(--amber-dim); color: var(--amber); }
+.cc-badge.long-form  { background: var(--purple-dim); color: var(--purple); }
+
+/* ── Compact quote card ── */
+.compact-quote {
+  padding: 8px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  animation: fadeInUp 0.25s ease both;
+}
+.compact-quote:hover {
+  border-color: var(--border2);
+  background: var(--bg3);
+}
+.compact-quote.active {
+  border-color: var(--cyan);
+  background: var(--bg3);
+}
+.cq-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+.cq-meta {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.cq-ts {
+  color: var(--cyan);
+  font-weight: 600;
+  font-size: 10px;
+  background: var(--cyan-dim);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+.cq-speaker { color: var(--amber); }
+.cq-source {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cq-relevance {
+  font-size: 9px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* ── RIGHT WORKSPACE ── */
+#workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Video player area */
+#video-area {
+  flex-shrink: 0;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.player-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: #000;
+  overflow: hidden;
+}
+.player-container img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.play-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.15s;
+  z-index: 2;
+}
+.play-overlay:hover {
+  background: rgba(0,201,232,0.3);
+  border-color: var(--cyan);
+}
+#video-title-bar {
+  padding: 10px 14px;
+  background: var(--bg1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#video-title-bar .vt-title {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+  flex: 1;
+}
+#video-title-bar .vt-meta {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.empty-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ── Workspace tabs ── */
+#ws-tabs {
+  display: flex;
+  height: 36px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.wt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+  gap: 4px;
+}
+.wt:hover { color: var(--text); background: var(--bg2); }
+.wt.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+  background: var(--bg2);
+}
+.wt .wt-key {
+  font-size: 9px;
+  color: var(--muted);
+  background: var(--bg3);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* ── Workspace content ── */
+#ws-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+#ws-content::-webkit-scrollbar { width: 4px; }
+#ws-content::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.ws-quote-item {
+  padding: 8px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ws-quote-item:hover {
+  border-color: var(--cyan);
+  background: var(--bg3);
+}
+.ws-qi-ts {
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.ws-qi-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+}
+.ws-qi-speaker {
+  font-size: 10px;
+  color: var(--amber);
+  margin-top: 2px;
+}
+.ws-qi-context {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+  padding: 4px 6px;
+  background: var(--bg3);
+  border-left: 2px solid var(--amber);
+  border-radius: 0 3px 3px 0;
+}
+
+.transcript-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.8;
+  font-family: var(--serif);
+  white-space: pre-wrap;
+}
+
+.notes-area {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+  resize: vertical;
+  min-height: 200px;
+}
+.notes-area:focus { border-color: var(--cyan); }
+
+.ai-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-input-area textarea {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+}
+.ai-input-area textarea:focus { border-color: var(--cyan); }
+.ai-input-area textarea::placeholder { color: var(--muted); }
+
+.btn-row { display: flex; gap: 6px; }
+.btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-ai      { background: var(--purple-dim); color: var(--purple); }
+.btn-ai:hover{ background: #3d2a7a; }
+.btn-play      { background: var(--cyan-dim); color: var(--cyan); }
+.btn-play:hover{ background: #006677; }
+
+/* AI quick tools */
+.ai-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.ai-tool-btn {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ai-tool-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: var(--purple-dim);
+}
+
+.panel-section-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+/* ── Keyboard shortcuts bar ── */
+#shortcuts {
+  height: 28px;
+  background: var(--bg1);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+.sc {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sc kbd {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted2);
+  font-weight: 600;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- SHELL -->
+<div id="shell">
+
+<!-- THIN SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-item active" data-nav="clips" title="Clip Library">
+    <span class="sb-icon">&#128218;</span>
+    <span class="sb-label">Clips</span>
+  </div>
+  <div class="sb-item" data-nav="quotes" title="Quotes">
+    <span class="sb-icon">&#128172;</span>
+    <span class="sb-label">Quotes</span>
+  </div>
+  <div class="sb-item" data-nav="search" title="Search">
+    <span class="sb-icon">&#128269;</span>
+    <span class="sb-label">Search</span>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-item" data-nav="ai" title="Ask AI">
+    <span class="sb-icon">&#129302;</span>
+    <span class="sb-label">AI</span>
+  </div>
+  <div class="sb-item" data-nav="sources" title="Sources">
+    <span class="sb-icon">&#127760;</span>
+    <span class="sb-label">Sources</span>
+  </div>
+  <div class="sb-spacer"></div>
+  <div class="sb-item" title="Settings" style="margin-bottom:8px;">
+    <span class="sb-icon">&#9881;</span>
+    <span class="sb-label">Config</span>
+  </div>
+</nav>
+
+<!-- SPLIT -->
+<div id="split">
+
+  <!-- LEFT: BROWSER -->
+  <div id="browser">
+    <div class="browser-tabs">
+      <div class="bt active" data-tab="clips">Clips</div>
+      <div class="bt" data-tab="quotes">Quotes</div>
+      <div class="bt" data-tab="search">Search</div>
+    </div>
+    <div class="browser-search" id="browser-search">
+      <input type="text" id="search-input"
+             placeholder="Search clips, quotes, speakers..." />
+    </div>
+    <div id="browser-list"></div>
+  </div>
+
+  <!-- RIGHT: WORKSPACE -->
+  <div id="workspace">
+    <div id="video-area">
+      <div id="player-wrap">
+        <div class="empty-player" id="empty-player">
+          Select a clip or quote from the left panel to begin research
+        </div>
+        <div id="active-player" style="display:none;">
+          <div class="player-container" id="player-container">
+            <img id="player-img" src="" alt="">
+            <div class="play-overlay" id="play-btn">&#9654;</div>
+          </div>
+          <div id="video-title-bar">
+            <div class="vt-title" id="vt-title"></div>
+            <div class="vt-meta" id="vt-meta"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ws-tabs">
+      <div class="wt active" data-wt="quotes">
+        Quotes <span class="wt-key">1</span>
+      </div>
+      <div class="wt" data-wt="transcript">
+        Transcript <span class="wt-key">2</span>
+      </div>
+      <div class="wt" data-wt="notes">
+        Notes <span class="wt-key">3</span>
+      </div>
+      <div class="wt" data-wt="ai">
+        Ask AI <span class="wt-key">4</span>
+      </div>
+    </div>
+
+    <div id="ws-content"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- KEYBOARD SHORTCUTS -->
+<div id="shortcuts">
+  <div class="sc"><kbd>&#8593;&#8595;</kbd> Navigate</div>
+  <div class="sc"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> Tabs</div>
+  <div class="sc"><kbd>&#8984;K</kbd> Search</div>
+  <div class="sc"><kbd>Enter</kbd> Select</div>
+  <div class="sc"><kbd>Esc</kbd> Back</div>
+</div>
+
+<script>
+(function() {
+  /* ════════════════════════════════════════
+     DATA
+     ════════════════════════════════════════ */
+  var DATA = {
+    clips: [
+      { id:"c88f08ec", external_id:"efs3QRr8LWw", title:"Joe Rogan Experience #1368 - Edward Snowden",
+        channel_or_contributor:"PowerfulJRE", duration_ms:10172000, view_count:39842664, has_transcript:true, quote_count:5 },
+      { id:"8bf2ceb6", external_id:"T3FC7qIAGZk", title:"Andrew Bustamante: CIA Spy | Lex Fridman Podcast #310",
+        channel_or_contributor:"Lex Fridman", duration_ms:13989000, view_count:19751587, has_transcript:true, quote_count:5 },
+      { id:"ec51aceb", external_id:"GyE55eB9Afc", title:"Former CIA Agent Mike Baker on China\u2019s 2049 Plan",
+        channel_or_contributor:"PowerfulJRE", duration_ms:853000, view_count:14593235, has_transcript:true, quote_count:4 },
+      { id:"c3d0591f", external_id:"yUNoJ32eLBc", title:"CIA Whistleblower: They Can See All Your Messages!",
+        channel_or_contributor:"The Diary Of A CEO", duration_ms:6356000, view_count:9398345, has_transcript:true, quote_count:5 },
+      { id:"85ce751f", external_id:"xQEmYYpWt2g", title:"Former CIA Officer Mike Baker on Ukraine and Putin",
+        channel_or_contributor:"PowerfulJRE", duration_ms:906000, view_count:7488432, has_transcript:true, quote_count:5 },
+      { id:"351d537c", external_id:"Pcfwx50zl40", title:"How CIA Black Ops Actually Work | Authorized Account",
+        channel_or_contributor:"Insider", duration_ms:3462000, view_count:7446241, has_transcript:true, quote_count:5 },
+      { id:"626308c2", external_id:"TZqADzuu73g", title:"Joe Rogan Experience #2392 - John Kiriakou",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9066000, view_count:6803901, has_transcript:true, quote_count:5 },
+      { id:"63604621", external_id:"kA6eBKvph_Y", title:"The Secret History of MK Ultra w/Tom O\u2019Neill",
+        channel_or_contributor:"JRE Clips", duration_ms:1243000, view_count:6150701, has_transcript:true, quote_count:5 },
+      { id:"f8a48e63", external_id:"gcgC532OPhw", title:"Joe Rogan Experience #2207 - Shawn Ryan",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9730000, view_count:5638045, has_transcript:true, quote_count:5 },
+      { id:"de75dfda", external_id:"fu6bYPTp_kE", title:"Former CIA Spies (NEW): Leave the USA Before 2030!",
+        channel_or_contributor:"The Diary Of A CEO", duration_ms:9150000, view_count:5469475, has_transcript:true, quote_count:5 },
+      { id:"e345e203", external_id:"C81bFx8CSA8", title:"Joe Rogan Experience #2334 - Kash Patel",
+        channel_or_contributor:"PowerfulJRE", duration_ms:7096000, view_count:4568915, has_transcript:true, quote_count:5 },
+      { id:"a18c61fc", external_id:"-v55tpm11J8", title:"The CIA Officer Who Exposed America\u2019s Torture Programme",
+        channel_or_contributor:"LADbible Stories", duration_ms:2216000, view_count:4390126, has_transcript:true, quote_count:5 },
+      { id:"fd2179eb", external_id:"t3FxH39oYsA", title:"Mossad, Terrifying CIA Technology, Blackwater & Secret CIA Unit",
+        channel_or_contributor:"Dalton Fischer Podcast", duration_ms:15500000, view_count:4084194, has_transcript:true, quote_count:5 },
+      { id:"bc5d6f1b", external_id:"2z4i2yynAs4", title:"How CIA Whistleblower John Kiriakou Went to Prison",
+        channel_or_contributor:"JRE Clips", duration_ms:920000, view_count:3516868, has_transcript:true, quote_count:0 },
+      { id:"feda0279", external_id:"DJsOmYjsy88", title:"Joe Rogan Discusses JFK Assassination with Former CIA Officer",
+        channel_or_contributor:"JRE Clips", duration_ms:1115000, view_count:3457253, has_transcript:true, quote_count:0 },
+      { id:"e02d2038", external_id:"wQ0GD9SpH_o", title:"Joe Rogan Experience #1414 - Mike Baker",
+        channel_or_contributor:"PowerfulJRE", duration_ms:9039000, view_count:3159362, has_transcript:true, quote_count:0 },
+      { id:"3dd31c01", external_id:"K-Q4r37XgVw", title:"American CIA Spy: US scared of India & Russia, RAW vs ISI",
+        channel_or_contributor:"Raj Shamani", duration_ms:8984000, view_count:2120159, has_transcript:true, quote_count:5 },
+      { id:"ad8d229e", external_id:"eRlkH1OpXGI", title:"Former CIA Agent Mike Baker Bursts Iran WW3 Bubble",
+        channel_or_contributor:"JRE Clips", duration_ms:1198000, view_count:2084175, has_transcript:true, quote_count:0 },
+      { id:"aabce3c7", external_id:"cJp_0N8e7_U", title:"How the CIA recruits agents | Minutes With",
+        channel_or_contributor:"LADbible Stories", duration_ms:74000, view_count:2000150, has_transcript:true, quote_count:2 },
+      { id:"670687d8", external_id:"_R2JwJ0A1QE", title:"Joe Rogan Experience #2278 - Chase Hughes",
+        channel_or_contributor:"PowerfulJRE", duration_ms:10462000, view_count:1942816, has_transcript:true, quote_count:0 }
+    ],
+    quotes: [
+      { quote_text:"going to transform people\u2019s opinion about CIA in two big ways. First, they\u2019ll understand that CIA is not what the movies portray it to be.",
+        speaker:"Andrew Bustamante", start_ms:331120, relevance_score:100,
+        context:"Core themes of mole betrayal and morally ambivalent espionage.",
+        video_title:"Former CIA Spies (NEW): Leave the USA Before 2030!", external_id:"fu6bYPTp_kE", clip_id:"de75dfda" },
+      { quote_text:"why you and others called her bloody Gina we did call her bloody Gina. Gina was always very quick, very willing to use force.",
+        speaker:"John Kiriakou", start_ms:121829, relevance_score:100,
+        context:"Directly alleges the use of torture by Gina Haspel\u2019s group.",
+        video_title:"She Tortured Just for the Sake of Torture", external_id:"ZpDc1hscfeQ", clip_id:"ext-1" },
+      { quote_text:"I can\u2019t tell you. You don\u2019t have a need to know. And I said, No, that\u2019s cool.",
+        speaker:"John Kiriakou", start_ms:284080, relevance_score:100,
+        context:"Reveals the CIA\u2019s implementation of the torture program.",
+        video_title:"Joe Rogan Experience #2392 - John Kiriakou", external_id:"TZqADzuu73g", clip_id:"626308c2" },
+      { quote_text:"They\u2019re going to leave somebody out to dry to protect themselves. So I called Brian Ross.",
+        speaker:"John Kiriakou", start_ms:1950799, relevance_score:100,
+        context:"Evidences whistleblower retaliation.",
+        video_title:"Joe Rogan Experience #2392 - John Kiriakou", external_id:"TZqADzuu73g", clip_id:"626308c2" },
+      { quote_text:"Your problem is you think this is about justice and it\u2019s not about justice. It\u2019s about mitigating damage. Take the deal.",
+        speaker:"CIA Officer", start_ms:2017679, relevance_score:100,
+        context:"The moral imperative to expose the CIA\u2019s torture program.",
+        video_title:"The CIA Officer Who Exposed America\u2019s Torture Programme", external_id:"-v55tpm11J8", clip_id:"a18c61fc" },
+      { quote_text:"squeezed my hand and I said, Remember, you have to cooperate. And then he flew off.",
+        speaker:"CIA Officer", start_ms:1465200, relevance_score:98,
+        context:"Direct evidence of the CIA\u2019s sanctioned torture program.",
+        video_title:"The CIA Officer Who Exposed America\u2019s Torture Programme", external_id:"-v55tpm11J8", clip_id:"a18c61fc" },
+      { quote_text:"this torture program is so wrong and so illegal. Somebody\u2019s going to say something to the media, and nobody did.",
+        speaker:"John Kiriakou", start_ms:2410880, relevance_score:98,
+        context:"Official CIA endorsement of a torture program.",
+        video_title:"How CIA Black Ops Actually Work", external_id:"Pcfwx50zl40", clip_id:"351d537c" },
+      { quote_text:"smart TV and turn a speaker into a microphone, even though the TV is off and broadcast back to the CIA. Absolutely.",
+        speaker:"John Kiriakou", start_ms:16160, relevance_score:98,
+        context:"CIA\u2019s surveillance capabilities via consumer technology.",
+        video_title:"CIA Whistleblower: They Can See All Your Messages!", external_id:"yUNoJ32eLBc", clip_id:"c3d0591f" },
+      { quote_text:"Billions of dollars are spent spying on Americans, whether it\u2019s NSA or CIA or the FBI.",
+        speaker:"John Kiriakou", start_ms:320, relevance_score:95,
+        context:"Reveals the extent of CIA surveillance capabilities.",
+        video_title:"CIA Whistleblower: They Can See All Your Messages!", external_id:"yUNoJ32eLBc", clip_id:"c3d0591f" },
+      { quote_text:"When this story hits the airwaves, it\u2019s going to transform people\u2019s opinion about the CIA.",
+        speaker:"Andrew Bustamante", start_ms:80, relevance_score:95,
+        context:"Broad impact on public understanding of the CIA.",
+        video_title:"Former CIA Spies (NEW): Leave the USA Before 2030!", external_id:"fu6bYPTp_kE", clip_id:"de75dfda" },
+      { quote_text:"as long as there\u2019s conflict between India and Pakistan, there will always be an interest from both sides.",
+        speaker:"Andrew", start_ms:1598000, relevance_score:98,
+        context:"CIA\u2019s role in perpetuating geopolitical conflict.",
+        video_title:"American CIA Spy: US scared of India & Russia", external_id:"K-Q4r37XgVw", clip_id:"3dd31c01" },
+      { quote_text:"people died after this. But that was one of the things that led the CIA to become really interested in hallucinogens.",
+        speaker:"John Lisle", start_ms:1620159, relevance_score:98,
+        context:"CIA\u2019s exploitation tactics involving drugs.",
+        video_title:"Joe Rogan Experience #2419 - John Lisle", external_id:"ZrUQdGi0HF8", clip_id:"ext-2" },
+      { quote_text:"somebody in the White House is going to do the right thing. I hope that\u2019s the case.",
+        speaker:"John Kiriakou", start_ms:2501359, relevance_score:95,
+        context:"Whistleblower retaliation and espionage surveillance.",
+        video_title:"How CIA Black Ops Actually Work", external_id:"Pcfwx50zl40", clip_id:"351d537c" }
+    ]
+  };
+
+  /* ════════════════════════════════════════
+     UTILITIES
+     ════════════════════════════════════════ */
+  function fmtDuration(ms) {
+    var s = Math.floor(ms / 1000);
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    return h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+  }
+
+  function fmtViews(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+    return '' + n;
+  }
+
+  function fmtMs(ms) {
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function getQuotesForClip(cid) {
+    return DATA.quotes.filter(function(q) { return q.clip_id === cid; });
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  /* ════════════════════════════════════════
+     STATE
+     ════════════════════════════════════════ */
+  var currentBrowserTab = 'clips';
+  var currentWsTab = 'quotes';
+  var selectedClip = null;
+  var selectedIdx = 0;
+  var searchTerm = '';
+
+  /* ════════════════════════════════════════
+     BROWSER TABS
+     ════════════════════════════════════════ */
+  document.querySelectorAll('.bt').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      currentBrowserTab = tab.getAttribute('data-tab');
+      document.querySelectorAll('.bt').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var searchEl = document.getElementById('browser-search');
+      searchEl.classList.toggle('visible', currentBrowserTab === 'search');
+      if (currentBrowserTab === 'search') {
+        document.getElementById('search-input').focus();
+      }
+      renderBrowser();
+    });
+  });
+
+  /* ════════════════════════════════════════
+     SIDEBAR NAV
+     ════════════════════════════════════════ */
+  document.querySelectorAll('.sb-item[data-nav]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.sb-item').forEach(function(i) { i.classList.remove('active'); });
+      item.classList.add('active');
+      var nav = item.getAttribute('data-nav');
+      if (nav === 'clips' || nav === 'quotes' || nav === 'search') {
+        currentBrowserTab = nav;
+        document.querySelectorAll('.bt').forEach(function(t) {
+          t.classList.toggle('active', t.getAttribute('data-tab') === nav);
+        });
+        document.getElementById('browser-search').classList.toggle('visible', nav === 'search');
+        renderBrowser();
+      }
+    });
+  });
+
+  /* ════════════════════════════════════════
+     WORKSPACE TABS
+     ════════════════════════════════════════ */
+  document.querySelectorAll('.wt').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      currentWsTab = tab.getAttribute('data-wt');
+      document.querySelectorAll('.wt').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      renderWorkspace();
+    });
+  });
+
+  /* ════════════════════════════════════════
+     SEARCH
+     ════════════════════════════════════════ */
+  document.getElementById('search-input').addEventListener('input', function(e) {
+    searchTerm = e.target.value;
+    renderBrowser();
+  });
+
+  /* ════════════════════════════════════════
+     RENDER BROWSER
+     ════════════════════════════════════════ */
+  function renderBrowser() {
+    var list = document.getElementById('browser-list');
+    list.textContent = '';
+
+    if (currentBrowserTab === 'clips' || currentBrowserTab === 'search') {
+      var clips = DATA.clips.slice();
+
+      if (searchTerm && currentBrowserTab === 'search') {
+        var term = searchTerm.toLowerCase();
+
+        // Show matching quotes first
+        var matchingQuotes = DATA.quotes.filter(function(q) {
+          return q.quote_text.toLowerCase().indexOf(term) !== -1 ||
+            (q.speaker || '').toLowerCase().indexOf(term) !== -1 ||
+            q.video_title.toLowerCase().indexOf(term) !== -1;
+        });
+        matchingQuotes.forEach(function(q) {
+          var card = el('div', 'compact-quote');
+          card.addEventListener('click', function() {
+            selectQuote(q);
+            highlightBrowserItem(card);
+          });
+          card.appendChild(el('div', 'cq-text', '\u201c' + q.quote_text.substring(0, 100) + '\u2026\u201d'));
+          var meta = el('div', 'cq-meta');
+          meta.appendChild(el('span', 'cq-ts', '[' + fmtMs(q.start_ms) + ']'));
+          meta.appendChild(el('span', 'cq-speaker', q.speaker || 'Unknown'));
+          card.appendChild(meta);
+          card.appendChild(el('div', 'cq-source', q.video_title));
+          list.appendChild(card);
+        });
+
+        // Filter clips
+        clips = clips.filter(function(c) {
+          return c.title.toLowerCase().indexOf(term) !== -1 ||
+            c.channel_or_contributor.toLowerCase().indexOf(term) !== -1;
+        });
+      }
+
+      clips.sort(function(a, b) { return b.view_count - a.view_count; });
+
+      clips.forEach(function(c) {
+        var card = el('div', 'compact-clip' + (selectedClip && selectedClip.id === c.id ? ' active' : ''));
+        card.addEventListener('click', function() {
+          selectClipItem(c);
+          highlightBrowserItem(card);
+        });
+
+        var thumb = document.createElement('img');
+        thumb.className = 'cc-thumb';
+        thumb.src = 'https://i.ytimg.com/vi/' + c.external_id + '/default.jpg';
+        thumb.alt = c.title;
+
+        var info = el('div', 'cc-info');
+        info.appendChild(el('div', 'cc-title', c.title));
+
+        var meta = el('div', 'cc-meta');
+        meta.appendChild(el('span', '', c.channel_or_contributor));
+        meta.appendChild(el('span', '', fmtViews(c.view_count) + ' views'));
+        meta.appendChild(el('span', '', fmtDuration(c.duration_ms)));
+        info.appendChild(meta);
+
+        var badges = el('div', 'cc-badges');
+        if (c.has_transcript) badges.appendChild(el('span', 'cc-badge transcript', 'TRANSCRIPT'));
+        if (c.quote_count > 0) badges.appendChild(el('span', 'cc-badge quotes', c.quote_count + 'Q'));
+        if (c.view_count >= 5e6) badges.appendChild(el('span', 'cc-badge viral', 'VIRAL'));
+        if (c.duration_ms >= 3600000) badges.appendChild(el('span', 'cc-badge long-form', 'LONG'));
+        info.appendChild(badges);
+
+        card.appendChild(thumb);
+        card.appendChild(info);
+        list.appendChild(card);
+      });
+
+    } else if (currentBrowserTab === 'quotes') {
+      DATA.quotes.forEach(function(q) {
+        var card = el('div', 'compact-quote');
+        card.addEventListener('click', function() {
+          selectQuote(q);
+          highlightBrowserItem(card);
+        });
+        card.appendChild(el('div', 'cq-text', '\u201c' + q.quote_text.substring(0, 100) + '\u2026\u201d'));
+
+        var meta = el('div', 'cq-meta');
+        meta.appendChild(el('span', 'cq-ts', '[' + fmtMs(q.start_ms) + ']'));
+        meta.appendChild(el('span', 'cq-speaker', q.speaker || 'Unknown'));
+        meta.appendChild(el('span', 'cq-relevance', 'Rel: ' + q.relevance_score));
+        card.appendChild(meta);
+
+        card.appendChild(el('div', 'cq-source', q.video_title));
+        list.appendChild(card);
+      });
+    }
+  }
+
+  function highlightBrowserItem(card) {
+    document.querySelectorAll('.compact-clip, .compact-quote').forEach(function(c) {
+      c.classList.remove('active');
+    });
+    card.classList.add('active');
+  }
+
+  /* ════════════════════════════════════════
+     SELECT CLIP
+     ════════════════════════════════════════ */
+  function selectClipItem(clip) {
+    selectedClip = clip;
+    document.getElementById('empty-player').style.display = 'none';
+    var ap = document.getElementById('active-player');
+    ap.style.display = 'block';
+    document.getElementById('player-img').src = 'https://i.ytimg.com/vi/' + clip.external_id + '/hqdefault.jpg';
+    document.getElementById('player-img').alt = clip.title;
+    document.getElementById('vt-title').textContent = clip.title;
+    document.getElementById('vt-meta').textContent =
+      clip.channel_or_contributor + ' \u00b7 ' + fmtViews(clip.view_count) + ' views \u00b7 ' + fmtDuration(clip.duration_ms);
+    document.getElementById('play-btn').onclick = function() {
+      window.open('https://youtube.com/watch?v=' + clip.external_id, '_blank');
+    };
+    renderWorkspace();
+  }
+
+  function selectQuote(q) {
+    var clip = DATA.clips.find(function(c) { return c.id === q.clip_id; });
+    if (clip) {
+      selectClipItem(clip);
+    } else {
+      selectedClip = {
+        id: q.clip_id,
+        external_id: q.external_id,
+        title: q.video_title,
+        channel_or_contributor: q.speaker || '',
+        duration_ms: 0,
+        view_count: 0,
+        has_transcript: true,
+        quote_count: 0
+      };
+      document.getElementById('empty-player').style.display = 'none';
+      var ap = document.getElementById('active-player');
+      ap.style.display = 'block';
+      document.getElementById('player-img').src = 'https://i.ytimg.com/vi/' + q.external_id + '/hqdefault.jpg';
+      document.getElementById('vt-title').textContent = q.video_title;
+      document.getElementById('vt-meta').textContent = q.speaker || 'Unknown Speaker';
+      document.getElementById('play-btn').onclick = function() {
+        window.open('https://youtube.com/watch?v=' + q.external_id + '&t=' + Math.floor(q.start_ms / 1000), '_blank');
+      };
+      renderWorkspace();
+    }
+  }
+
+  /* ════════════════════════════════════════
+     RENDER WORKSPACE
+     ════════════════════════════════════════ */
+  function renderWorkspace() {
+    var ws = document.getElementById('ws-content');
+    ws.textContent = '';
+
+    if (!selectedClip) {
+      var msg = el('div', '');
+      msg.style.cssText = 'padding:40px;text-align:center;color:var(--muted);font-size:12px;';
+      msg.textContent = 'Select a clip or quote to see details here.';
+      ws.appendChild(msg);
+      return;
+    }
+
+    var quotes = getQuotesForClip(selectedClip.id);
+
+    if (currentWsTab === 'quotes') {
+      ws.appendChild(el('div', 'panel-section-title', 'Quotes (' + quotes.length + ')'));
+
+      if (quotes.length === 0) {
+        var noq = el('div', '');
+        noq.style.cssText = 'font-size:11px;color:var(--muted);padding:10px;';
+        noq.textContent = 'No quotes extracted for this clip.';
+        ws.appendChild(noq);
+      }
+
+      quotes.forEach(function(q) {
+        var item = el('div', 'ws-quote-item');
+        item.addEventListener('click', function() {
+          window.open('https://youtube.com/watch?v=' + selectedClip.external_id + '&t=' + Math.floor(q.start_ms / 1000), '_blank');
+        });
+        item.appendChild(el('div', 'ws-qi-ts', '[' + fmtMs(q.start_ms) + ']'));
+        item.appendChild(el('div', 'ws-qi-text', '\u201c' + q.quote_text + '\u201d'));
+        item.appendChild(el('div', 'ws-qi-speaker',
+          (q.speaker || 'Unknown') + ' \u00b7 Relevance: ' + q.relevance_score + '/100'));
+        item.appendChild(el('div', 'ws-qi-context', q.context));
+        ws.appendChild(item);
+      });
+
+    } else if (currentWsTab === 'transcript') {
+      ws.appendChild(el('div', 'panel-section-title', 'Transcript'));
+      var block = el('div', 'transcript-block');
+      block.textContent = '[Full transcript available for: ' + selectedClip.title + ']\n\n' +
+        'Transcript loaded from research database.\n\n' +
+        'Key topics covered: CIA operations, whistleblower programs, torture allegations, intelligence gathering methods, surveillance technology.\n\n' +
+        'Click on quote timestamps in the Quotes tab to jump to specific moments.';
+      ws.appendChild(block);
+
+    } else if (currentWsTab === 'notes') {
+      ws.appendChild(el('div', 'panel-section-title', 'Research Notes \u2014 ' + selectedClip.title));
+      var ta = document.createElement('textarea');
+      ta.className = 'notes-area';
+      ta.placeholder = 'Type your research notes for this clip here...\n\nKey observations:\n- \n\nQuestions to explore:\n- \n\nScript angles:\n- ';
+      ws.appendChild(ta);
+
+    } else if (currentWsTab === 'ai') {
+      ws.appendChild(el('div', 'panel-section-title', 'Ask AI about this clip'));
+      var wrap = el('div', 'ai-input-area');
+
+      var ta = document.createElement('textarea');
+      ta.placeholder = 'Ask anything about this clip, its quotes, or related topics...\n\n' +
+        'Examples:\n- Summarize the key claims in this video\n- What are the strongest quotes for the torture angle?\n- Compare this with the Lex Fridman interview';
+      wrap.appendChild(ta);
+
+      var btnRow = el('div', 'btn-row');
+      btnRow.appendChild(el('button', 'btn btn-ai', '\ud83e\udd16 Ask AI'));
+      wrap.appendChild(btnRow);
+
+      // Quick tools
+      var tools = el('div', 'ai-tools');
+      ['Summarize', 'Key Claims', 'Fact Check', 'Script Angle', 'Compare', 'Timeline'].forEach(function(label) {
+        tools.appendChild(el('button', 'ai-tool-btn', label));
+      });
+      wrap.appendChild(tools);
+
+      ws.appendChild(wrap);
+    }
+  }
+
+  /* ════════════════════════════════════════
+     KEYBOARD NAVIGATION
+     ════════════════════════════════════════ */
+  document.addEventListener('keydown', function(e) {
+    var isInput = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
+
+    // Number keys 1-4 for workspace tabs
+    if (e.key >= '1' && e.key <= '4' && !e.metaKey && !e.ctrlKey && !isInput) {
+      var tabs = ['quotes', 'transcript', 'notes', 'ai'];
+      var idx = parseInt(e.key) - 1;
+      currentWsTab = tabs[idx];
+      document.querySelectorAll('.wt').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-wt') === tabs[idx]);
+      });
+      renderWorkspace();
+      e.preventDefault();
+    }
+
+    // Cmd+K for search
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      currentBrowserTab = 'search';
+      document.querySelectorAll('.bt').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === 'search');
+      });
+      document.getElementById('browser-search').classList.add('visible');
+      document.getElementById('search-input').focus();
+      renderBrowser();
+      e.preventDefault();
+    }
+
+    // Arrow keys for browser navigation
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !isInput) {
+      var items = document.querySelectorAll('#browser-list > *');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        selectedIdx = Math.min(selectedIdx + 1, items.length - 1);
+      } else {
+        selectedIdx = Math.max(selectedIdx - 1, 0);
+      }
+      items.forEach(function(it, i) {
+        it.classList.toggle('active', i === selectedIdx);
+      });
+      items[selectedIdx].scrollIntoView({ block: 'nearest' });
+      e.preventDefault();
+    }
+
+    // Enter to select
+    if (e.key === 'Enter' && !isInput) {
+      var items = document.querySelectorAll('#browser-list > *');
+      if (items[selectedIdx]) items[selectedIdx].click();
+      e.preventDefault();
+    }
+
+    // Escape
+    if (e.key === 'Escape') {
+      document.getElementById('search-input').blur();
+      searchTerm = '';
+      document.getElementById('search-input').value = '';
+      renderBrowser();
+    }
+  });
+
+  /* ════════════════════════════════════════
+     INITIAL RENDER
+     ════════════════════════════════════════ */
+  renderBrowser();
+  renderWorkspace();
+
+})();
+</script>
+</body>
+</html>
