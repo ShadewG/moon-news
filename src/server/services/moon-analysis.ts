@@ -842,6 +842,106 @@ async function fetchIdeationJson<T>(
   return (await response.json()) as T;
 }
 
+/**
+ * Fetch a single video's metadata from the YouTube Data API.
+ * Used as fallback when the video isn't in local analytics.
+ */
+async function fetchYouTubeVideoMetadata(
+  videoId: string
+): Promise<IdeationLocalVideoRecord> {
+  const apiKey = getEnv().YOUTUBE_API_KEY;
+
+  const stub: IdeationLocalVideoRecord = {
+    youtube_video_id: videoId,
+    title: `Video ${videoId}`,
+    published_at: null,
+    duration_seconds: null,
+    views: null,
+    estimated_minutes_watched: null,
+    estimated_watch_hours: null,
+    average_view_duration_seconds: null,
+    average_view_percentage: null,
+    likes: null,
+    dislikes: null,
+    comments: null,
+    shares: null,
+    subscribers_gained: null,
+    subscribers_lost: null,
+    net_subscribers: null,
+    thumbnail_url: null,
+    source_url: `https://www.youtube.com/watch?v=${videoId}`,
+    imported_at: null,
+  };
+
+  if (!apiKey) {
+    console.warn("[moon-analysis] No YOUTUBE_API_KEY — using stub for", videoId);
+    return stub;
+  }
+
+  try {
+    const params = new URLSearchParams({
+      part: "snippet,contentDetails,statistics",
+      id: videoId,
+      key: apiKey,
+    });
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?${params}`
+    );
+    if (!res.ok) {
+      console.warn("[moon-analysis] YouTube API error:", res.status);
+      return stub;
+    }
+
+    const data = await res.json();
+    const item = data.items?.[0];
+    if (!item) {
+      console.warn("[moon-analysis] Video not found on YouTube:", videoId);
+      return stub;
+    }
+
+    // Parse ISO 8601 duration (PT1H2M3S) to seconds
+    const durationMatch = (item.contentDetails?.duration ?? "").match(
+      /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
+    );
+    const durationSeconds = durationMatch
+      ? (Number(durationMatch[1] ?? 0) * 3600 +
+         Number(durationMatch[2] ?? 0) * 60 +
+         Number(durationMatch[3] ?? 0))
+      : null;
+
+    const stats = item.statistics ?? {};
+    const views = stats.viewCount ? Number(stats.viewCount) : null;
+    const thumbs = item.snippet?.thumbnails ?? {};
+    const thumbnailUrl =
+      thumbs.maxres?.url ?? thumbs.high?.url ?? thumbs.medium?.url ?? null;
+
+    return {
+      youtube_video_id: videoId,
+      title: item.snippet?.title ?? stub.title,
+      published_at: item.snippet?.publishedAt ?? null,
+      duration_seconds: durationSeconds,
+      views,
+      estimated_minutes_watched: null,
+      estimated_watch_hours: null,
+      average_view_duration_seconds: null,
+      average_view_percentage: null,
+      likes: stats.likeCount ? Number(stats.likeCount) : null,
+      dislikes: null,
+      comments: stats.commentCount ? Number(stats.commentCount) : null,
+      shares: null,
+      subscribers_gained: null,
+      subscribers_lost: null,
+      net_subscribers: null,
+      thumbnail_url: thumbnailUrl,
+      source_url: `https://www.youtube.com/watch?v=${videoId}`,
+      imported_at: null,
+    };
+  } catch (err) {
+    console.error("[moon-analysis] Failed to fetch YouTube metadata:", err);
+    return stub;
+  }
+}
+
 async function fetchLocalVideos(args: {
   startDate: string;
   endDate: string;
@@ -1067,36 +1167,15 @@ async function assembleMoonAnalysisDataset(args: {
         ) ?? null
       : null;
 
-  // If the target video isn't in local analytics, create a stub so the
-  // analysis can still run.  The scope window will fall back to the
-  // last 30 days and the video simply won't appear in cohort stats,
-  // but synthesis and external-signal gathering will still proceed.
+  // If the target video isn't in local analytics, fetch its metadata
+  // from the YouTube Data API so the analysis can still run with real
+  // title, published date, duration, and view count.
   let resolvedTargetVideo = targetVideo;
   if (args.request.scopeType === "video" && !targetVideo && args.request.youtubeVideoId) {
     console.warn(
-      `[moon-analysis] Target video ${args.request.youtubeVideoId} not in local analytics — creating stub record`
+      `[moon-analysis] Target video ${args.request.youtubeVideoId} not in local analytics — fetching from YouTube API`
     );
-    resolvedTargetVideo = {
-      youtube_video_id: args.request.youtubeVideoId,
-      title: `Video ${args.request.youtubeVideoId}`,
-      published_at: null,
-      duration_seconds: null,
-      views: null,
-      estimated_minutes_watched: null,
-      estimated_watch_hours: null,
-      average_view_duration_seconds: null,
-      average_view_percentage: null,
-      likes: null,
-      dislikes: null,
-      comments: null,
-      shares: null,
-      subscribers_gained: null,
-      subscribers_lost: null,
-      net_subscribers: null,
-      thumbnail_url: null,
-      source_url: `https://www.youtube.com/watch?v=${args.request.youtubeVideoId}`,
-      imported_at: null,
-    };
+    resolvedTargetVideo = await fetchYouTubeVideoMetadata(args.request.youtubeVideoId);
   }
 
   const scope = buildScopeWindow(args.request, resolvedTargetVideo);
