@@ -383,7 +383,7 @@ export async function listAllStudioGenerations(): Promise<StudioGenerationSummar
       statusBucket: "complete",
       createdAt: report.generatedAt,
       updatedAt: report.generatedAt,
-      href: report.editorUrl || report.htmlUrl || `/ideation#generate`,
+      href: `/script-lab/assets/${report.slug}`,
       subtitle: `${report.segmentCount} sections · ${report.rawSegmentCount} raw beats`,
       links,
     });
@@ -417,9 +417,11 @@ export async function listAllStudioGenerations(): Promise<StudioGenerationSummar
         statusBucket: "complete",
         createdAt: brief.createdAt.toISOString(),
         updatedAt: brief.updatedAt.toISOString(),
-        href: `/board`,
+        href: `/script-lab/research/${brief.storyId}`,
         subtitle: "Deep research brief",
-        links: [],
+        links: [
+          { label: "View Research", href: `/script-lab/research/${brief.storyId}` },
+        ],
       });
     }
   } catch {

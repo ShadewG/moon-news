@@ -830,6 +830,14 @@ function AssetResolverResults({ data }: { data: Record<string, unknown> }) {
         {data.scriptTitle ? <span>{String(data.scriptTitle)} &mdash; </span> : null}
         {String(data.segmentCount ?? segments.length)} segments resolved
         {Number(data.resolvedTaskCount) > 0 && ` (${data.resolvedTaskCount} asset tasks)`}
+        {data.scriptTitle ? (
+          <Link
+            href={`/script-lab/assets/${String(data.scriptTitle).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80)}`}
+            className="sg-results-link"
+          >
+            View Full Page &rarr;
+          </Link>
+        ) : null}
       </div>
 
       {segments.map((seg) => {
@@ -958,6 +966,7 @@ function DeepResearchForm() {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ step: string; progress: number; message: string } | null>(null);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [storyId, setStoryId] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const canSubmit = topic.trim().length >= 3;
@@ -967,6 +976,7 @@ function DeepResearchForm() {
     setResearching(true);
     setError(null);
     setResult(null);
+    setStoryId(null);
     setProgress({ step: "pending", progress: 0, message: "Starting research..." });
 
     try {
@@ -984,7 +994,9 @@ function DeepResearchForm() {
         throw new Error(await readErrorMessage(res));
       }
 
-      const { progressId } = await res.json();
+      const data = await res.json();
+      const progressId = data.progressId;
+      setStoryId(data.storyId);
 
       const poll = async () => {
         try {
@@ -1101,14 +1113,14 @@ function DeepResearchForm() {
         </div>
       )}
 
-      {result && <DeepResearchResults data={result} />}
+      {result && <DeepResearchResults data={result} storyId={storyId} />}
     </>
   );
 }
 
 // ─── Deep Research Results ───
 
-function DeepResearchResults({ data }: { data: Record<string, unknown> }) {
+function DeepResearchResults({ data, storyId }: { data: Record<string, unknown>; storyId?: string | null }) {
   const summary = String(data.summary ?? "");
   const keyPlayers = (data.key_players ?? []) as Array<Record<string, string>>;
   const timeline = (data.timeline ?? []) as Array<Record<string, string>>;
@@ -1120,7 +1132,12 @@ function DeepResearchResults({ data }: { data: Record<string, unknown> }) {
 
   return (
     <div className="sg-results">
-      <div className="sg-results-header">Research Complete</div>
+      <div className="sg-results-header">
+        Research Complete
+        {storyId && (
+          <Link href={`/script-lab/research/${storyId}`} className="sg-results-link">View Full Page &rarr;</Link>
+        )}
+      </div>
 
       {summary && (
         <div className="sg-result-section">
@@ -1786,6 +1803,25 @@ const studioStyles = `
   margin-bottom: 16px;
   padding-bottom: 8px;
   border-bottom: 1px solid #151515;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sg-results-link {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 500;
+  color: #68a;
+  text-decoration: none;
+  padding: 3px 10px;
+  border: 1px solid #1a2a3a;
+  border-radius: 3px;
+  transition: all 0.12s;
+}
+.sg-results-link:hover {
+  background: #0f1a2a;
+  color: #8fb4ff;
 }
 .sg-result-section {
   margin-bottom: 16px;
