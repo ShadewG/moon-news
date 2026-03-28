@@ -1,0 +1,106 @@
+{
+  "version": "topic-agent/v1",
+  "meta": {
+    "slug": "iran-ai-videos",
+    "title": "Iran AI Videos",
+    "startedAt": "2026-03-26T19:57:44.478Z",
+    "finishedAt": "2026-03-26T20:15:04.953Z",
+    "includeTikTok": true,
+    "includeStaticWriterPack": true,
+    "briefPath": null
+  },
+  "steps": [
+    {
+      "label": "direct research packet",
+      "scriptPath": "scripts/build-direct-research-outline-report.ts",
+      "args": [
+        "iran-ai-videos",
+        "Iran AI Videos"
+      ],
+      "required": true,
+      "status": "completed",
+      "startedAt": "2026-03-26T19:57:44.479Z",
+      "finishedAt": "2026-03-26T20:12:57.168Z"
+    },
+    {
+      "label": "media collector",
+      "scriptPath": "scripts/build-media-collector.ts",
+      "args": [
+        "iran-ai-videos"
+      ],
+      "required": true,
+      "status": "completed",
+      "startedAt": "2026-03-26T20:12:57.168Z",
+      "finishedAt": "2026-03-26T20:13:26.504Z"
+    },
+    {
+      "label": "media mission scan",
+      "scriptPath": "scripts/build-media-mission-scan.ts",
+      "args": [
+        "iran-ai-videos"
+      ],
+      "required": true,
+      "status": "completed",
+      "startedAt": "2026-03-26T20:13:26.504Z",
+      "finishedAt": "2026-03-26T20:14:09.560Z"
+    },
+    {
+      "label": "writer pack",
+      "scriptPath": "scripts/build-writer-pack.ts",
+      "args": [
+        "iran-ai-videos"
+      ],
+      "required": true,
+      "status": "completed",
+      "startedAt": "2026-03-26T20:14:09.561Z",
+      "finishedAt": "2026-03-26T20:14:32.119Z"
+    },
+    {
+      "label": "tiktok collector",
+      "scriptPath": "scripts/collect-tiktok-sources.ts",
+      "args": [
+        "iran-ai-videos"
+      ],
+      "required": false,
+      "status": "completed",
+      "startedAt": "2026-03-26T20:14:32.119Z",
+      "finishedAt": "2026-03-26T20:15:03.318Z"
+    },
+    {
+      "label": "writer pack refresh",
+      "scriptPath": "scripts/build-writer-pack.ts",
+      "args": [
+        "iran-ai-videos"
+      ],
+      "required": false,
+      "status": "completed",
+      "startedAt": "2026-03-26T20:15:03.319Z",
+      "finishedAt": "2026-03-26T20:15:04.192Z"
+    },
+    {
+      "label": "static writer pack",
+      "scriptPath": "scripts/render-static-writer-pack.ts",
+      "args": [
+        "iran-ai-videos"
+      ],
+      "required": false,
+      "status": "completed",
+      "startedAt": "2026-03-26T20:15:04.193Z",
+      "finishedAt": "2026-03-26T20:15:04.952Z"
+    }
+  ],
+  "outputs": {
+    "packetPath": "/opt/apps/moon-news/research/research-packet-iran-ai-videos.json",
+    "collectorPath": "/opt/apps/moon-news/research/media-collector-iran-ai-videos.json",
+    "missionScanPath": "/opt/apps/moon-news/research/media-mission-scan-iran-ai-videos.json",
+    "writerPackPath": "/opt/apps/moon-news/research/writer-pack-iran-ai-videos.json",
+    "tiktokCollectorPath": "/opt/apps/moon-news/research/tiktok-collector-iran-ai-videos.json",
+    "staticWriterPackPath": "/opt/apps/moon-news/public/research/writer-packets/iran-ai-videos/index.html"
+  },
+  "urls": {
+    "packet": "https://moon-internal.xyz/research/packets/iran-ai-videos",
+    "mediaCollector": "https://moon-internal.xyz/research/media-collector/iran-ai-videos",
+    "missionScan": "https://moon-internal.xyz/research/media-mission-scan/iran-ai-videos",
+    "writerPack": "https://moon-internal.xyz/research/writer-packets/iran-ai-videos/"
+  }
+}

@@ -1,9 +1,19 @@
-import { listRecentScriptLabRuns } from "@/server/services/script-lab";
-import ScriptLabClient from "./script-lab-client";
+import { listAllStudioRuns } from "@/server/services/studio";
+import StudioClient from "../studio-client";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Generate — Moon News" };
 
 export default async function ScriptLabPage() {
-  const recentRuns = await listRecentScriptLabRuns(8);
-  return <ScriptLabClient recentRuns={recentRuns} />;
+  const runs = await listAllStudioRuns();
+  return (
+    <StudioClient
+      runs={runs}
+      initialView="generate"
+      initialGenerateMode="agent"
+      generateOnly
+      headerLabel="Moon News Generate"
+      generateTitle="Generate"
+    />
+  );
 }

@@ -1,0 +1,440 @@
+{
+  "clipId": "603b9cfb-1072-42be-bb06-2f0e476c22f7",
+  "title": "Why The CIA Failed To Assassinate Julian Assange",
+  "sourceUrl": "https://www.youtube.com/watch?v=KvewuoL2VcY",
+  "broadResearchProvider": "perplexity",
+  "broadResearchModel": "sonar-pro",
+  "broadResearch": {
+    "factualOverview": "In 2017, under CIA Director Mike Pompeo, the agency launched a multi-pronged operation against WikiLeaks founder Julian Assange following the Vault 7 leak of its hacking tools, considered the largest data loss in CIA history; plans included surveillance of Assange in the Ecuadorian Embassy, monitoring associates, abduction scenarios potentially involving a London shootout, and internal discussions of assassination never forwarded to the White House, amid fears of Russian extraction, ultimately prompting the Justice Department to fast-track espionage charges as a legal alternative.[1][2]",
+    "originPremise": "Julian Assange founded WikiLeaks in 2006 as a secure platform for whistleblowers to anonymously publish classified documents exposing government and corporate secrets, starting with early leaks but exploding in impact with 2010 Chelsea Manning publications (Collateral Murder video, Iraq/Afghan War Logs, diplomatic cables) that revealed U.S. war crimes and diplomacy, establishing him as a persona embodying radical transparency threatening state secrecy.[1][6]",
+    "keyFacts": [
+      {
+        "fact": "WikiLeaks' Vault 7 publication in 2017 exposed CIA hacking tools, deemed 'largest data loss in CIA history' by agency officials.",
+        "sourceLabel": "Democracy Now / Yahoo News report",
+        "url": "https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot",
+        "confidence": "high"
+      },
+      {
+        "fact": "CIA Director Mike Pompeo ordered a 'war on WikiLeaks' including abduction plans from Ecuadorian Embassy, surveillance inside embassy, and monitoring of associates' communications.",
+        "sourceLabel": "Yahoo News via multiple outlets",
+        "url": "https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot",
+        "confidence": "high"
+      },
+      {
+        "fact": "Internal CIA discussions of assassination occurred but were not presented to White House; abduction plans debated intensely in Trump administration.",
+        "sourceLabel": "Yahoo News investigation (30+ former officials)",
+        "url": "https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot",
+        "confidence": "high"
+      },
+      {
+        "fact": "U.S. intel feared Russian operatives would extract Assange to Moscow in 2017, prompting plans for shootout in London (with UK handling shooting) and aircraft interdiction.",
+        "sourceLabel": "Yahoo News report",
+        "url": "https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot",
+        "confidence": "high"
+      },
+      {
+        "fact": "Justice Department expedited Assange charges in late 2017 to counter CIA's risky abduction plans and secure legal prosecution path.",
+        "sourceLabel": "RSF / Yahoo News",
+        "url": "https://rsf.org/en/alarming-reported-cia-plot-against-julian-assange-exposed",
+        "confidence": "high"
+      }
+    ],
+    "tensions": [
+      "CIA's vengeful 'war' under Pompeo clashed with Trump White House lawyers and NSC concerns over illegality, risking derailment of legal case and diplomatic fallout with UK/Ecuador.[1][2]",
+      "Embarrassment from Vault 7 drove 'detached from reality' aggression, but institutional checks (DOJ fast-track, UK limits on violence) forced pivot from kinetic ops to lawfare, exposing intelligence overreach vs. rule-of-law facade.[1][3]"
+    ],
+    "broaderSystem": "U.S. national security state's institutional revenge mechanisms against transparency threats, where personal vendettas (Pompeo post-Vault 7) fuel illegal ops but collide with legal/diplomatic guardrails, defaulting to extradition and Espionage Act prosecutions to neutralize leakers without overt assassination.",
+    "runwayBeats": [
+      "Assange builds WikiLeaks as whistleblower platform; 2010 Manning leaks (war logs, cables) make him global symbol of exposing U.S. war crimes, drawing initial intel scrutiny.[1][6]",
+      "2016 DNC leaks tie Assange to election interference narrative; 2017 Vault 7 on Pompeo's watch escalates to personal CIA vendetta.[1]",
+      "Assange's 2012 Ecuadorian Embassy asylum creates pressure-cooker: trapped but protected diplomatically, heightening U.S. fears of Russian snatch amid embassy surveillance.[1]"
+    ],
+    "turningPoints": [
+      "Vault 7 leak (March 2017): Shifts Assange from election nuisance to direct CIA threat, igniting Pompeo's 'war on WikiLeaks'.[1]",
+      "Credible Russian extraction intel (late 2017): Ramps White House involvement, debates abduction vs. gun battle, forces DOJ charge acceleration.[1]"
+    ],
+    "stakeShifters": [
+      "Ecuadorian Embassy asylum (2012): Diplomatic shield deters direct action, forces surveillance and indirect pressure.[1]",
+      "UK cooperation limits: British authorities insist on handling any embassy shootout, constraining U.S. unilateral ops.[1]",
+      "DOJ espionage charges (sealed late 2017): Legal maneuver sidelines risky CIA plans, shifts to extradition path.[2]",
+      "WikiLeaks' prior leaks as deterrence: Implicit dead-man switches via global publication network raise blowback risks.[1]"
+    ],
+    "resolutionMechanism": "CIA assassination/abduction plots abandoned amid internal debates and legal risks; system secured leverage via expedited 2018 DOJ charges under Espionage Act, leading to Assange's 2019 embassy eviction, UK arrest, and 2024 U.S. extradition plea deal—achieving neutralization through lawfare without public scandal.[1][2]",
+    "openQuestions": [
+      "Did Pompeo's CIA actually implement undisclosed elements of the WikiLeaks disruption beyond confirmed surveillance?",
+      "How did Ecuador's 2019 embassy policy shift (Moreno presidency) align with U.S. pressure, beyond public reporting?"
+    ],
+    "sectionCandidates": [
+      {
+        "title": "WikiLeaks' Founding Threat: From Transparency Ideal to State Enemy",
+        "whyItMatters": "Establishes Assange's origin premise and pre-2017 leaks as runway, showing how radical openness evolved into existential CIA risk."
+      },
+      {
+        "title": "Vault 7: The Leak That Unleashed Pompeo's Vendetta",
+        "whyItMatters": "Key escalation beat; personal/institutional embarrassment as hidden incentive, turning scrutiny into assassination debates."
+      },
+      {
+        "title": "Embassy Pressure-Cooker: Surveillance, Russians, and Shootout Scenarios",
+        "whyItMatters": "Builds trap dynamics, stake-shifters like asylum/Russian intel, and contradictions in U.S.-UK ops limits."
+      },
+      {
+        "title": "Institutional Clash: Why Assassination Failed for Lawfare Win",
+        "whyItMatters": "Core system angle—power tensions, incentives for quieter DOJ pivot—explains 'failure' as strategic success."
+      },
+      {
+        "title": "Coda: The Real Neutralization and Lingering Fallout",
+        "whyItMatters": "Resolution mechanism without epilogue hijack; highlights hidden consequences like eroded press freedoms."
+      }
+    ],
+    "sourceGroups": [
+      {
+        "label": "Primary Yahoo News Exposé (via Democracy Now)",
+        "reason": "Most detailed, sourced to 30+ officials; core facts on CIA plans, debates, Vault 7 trigger.",
+        "urls": [
+          "https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot"
+        ]
+      },
+      {
+        "label": "RSF & NUJ Reactions",
+        "reason": "Confirms CIA influence on DOJ speedup; sharpens prosecution tension without speculation.",
+        "urls": [
+          "https://rsf.org/en/alarming-reported-cia-plot-against-julian-assange-exposed",
+          "https://www.nuj.org.uk/resource/cia-reportedly-plotted-to-kidnap-and-assassinate-julian-assange.html"
+        ]
+      },
+      {
+        "label": "CBS News Video Transcript",
+        "reason": "Corroborates Pompeo role, Vault 7 context, multi-pronged ops; visual commentary for social reaction.",
+        "urls": [
+          "https://www.youtube.com/watch?v=k8iNePq4d8w"
+        ]
+      },
+      {
+        "label": "Wikipedia Assange Timeline",
+        "reason": "Factual runway on early leaks, embassy asylum for prehistory beats.",
+        "urls": [
+          "https://en.wikipedia.org/wiki/Julian_Assange"
+        ]
+      }
+    ]
+  },
+  "broadResearchMemo": "Initial broad research memo\nOverview: In 2017, under CIA Director Mike Pompeo, the agency launched a multi-pronged operation against WikiLeaks founder Julian Assange following the Vault 7 leak of its hacking tools, considered the largest data loss in CIA history; plans included surveillance of Assange in the Ecuadorian Embassy, monitoring associates, abduction scenarios potentially involving a London shootout, and internal discussions of assassination never forwarded to the White House, amid fears of Russian extraction, ultimately prompting the Justice Department to fast-track espionage charges as a legal alternative.[1][2]\nOrigin premise: Julian Assange founded WikiLeaks in 2006 as a secure platform for whistleblowers to anonymously publish classified documents exposing government and corporate secrets, starting with early leaks but exploding in impact with 2010 Chelsea Manning publications (Collateral Murder video, Iraq/Afghan War Logs, diplomatic cables) that revealed U.S. war crimes and diplomacy, establishing him as a persona embodying radical transparency threatening state secrecy.[1][6]\nKey facts:\n- WikiLeaks' Vault 7 publication in 2017 exposed CIA hacking tools, deemed 'largest data loss in CIA history' by agency officials.\n  source: Democracy Now / Yahoo News report\n  url: https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot\n  confidence: high\n- CIA Director Mike Pompeo ordered a 'war on WikiLeaks' including abduction plans from Ecuadorian Embassy, surveillance inside embassy, and monitoring of associates' communications.\n  source: Yahoo News via multiple outlets\n  url: https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot\n  confidence: high\n- Internal CIA discussions of assassination occurred but were not presented to White House; abduction plans debated intensely in Trump administration.\n  source: Yahoo News investigation (30+ former officials)\n  url: https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot\n  confidence: high\n- U.S. intel feared Russian operatives would extract Assange to Moscow in 2017, prompting plans for shootout in London (with UK handling shooting) and aircraft interdiction.\n  source: Yahoo News report\n  url: https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot\n  confidence: high\n- Justice Department expedited Assange charges in late 2017 to counter CIA's risky abduction plans and secure legal prosecution path.\n  source: RSF / Yahoo News\n  url: https://rsf.org/en/alarming-reported-cia-plot-against-julian-assange-exposed\n  confidence: high\nTensions and contradictions:\n- CIA's vengeful 'war' under Pompeo clashed with Trump White House lawyers and NSC concerns over illegality, risking derailment of legal case and diplomatic fallout with UK/Ecuador.[1][2]\n- Embarrassment from Vault 7 drove 'detached from reality' aggression, but institutional checks (DOJ fast-track, UK limits on violence) forced pivot from kinetic ops to lawfare, exposing intelligence overreach vs. rule-of-law facade.[1][3]\nBroader system: U.S. national security state's institutional revenge mechanisms against transparency threats, where personal vendettas (Pompeo post-Vault 7) fuel illegal ops but collide with legal/diplomatic guardrails, defaulting to extradition and Espionage Act prosecutions to neutralize leakers without overt assassination.\nRunway beats that make the headline legible:\n- Assange builds WikiLeaks as whistleblower platform; 2010 Manning leaks (war logs, cables) make him global symbol of exposing U.S. war crimes, drawing initial intel scrutiny.[1][6]\n- 2016 DNC leaks tie Assange to election interference narrative; 2017 Vault 7 on Pompeo's watch escalates to personal CIA vendetta.[1]\n- Assange's 2012 Ecuadorian Embassy asylum creates pressure-cooker: trapped but protected diplomatically, heightening U.S. fears of Russian snatch amid embassy surveillance.[1]\nTurning points that changed the incentives or coalition:\n- Vault 7 leak (March 2017): Shifts Assange from election nuisance to direct CIA threat, igniting Pompeo's 'war on WikiLeaks'.[1]\n- Credible Russian extraction intel (late 2017): Ramps White House involvement, debates abduction vs. gun battle, forces DOJ charge acceleration.[1]\nStake-shifting moves and countermeasures:\n- Ecuadorian Embassy asylum (2012): Diplomatic shield deters direct action, forces surveillance and indirect pressure.[1]\n- UK cooperation limits: British authorities insist on handling any embassy shootout, constraining U.S. unilateral ops.[1]\n- DOJ espionage charges (sealed late 2017): Legal maneuver sidelines risky CIA plans, shifts to extradition path.[2]\n- WikiLeaks' prior leaks as deterrence: Implicit dead-man switches via global publication network raise blowback risks.[1]\nActual resolution mechanism: CIA assassination/abduction plots abandoned amid internal debates and legal risks; system secured leverage via expedited 2018 DOJ charges under Espionage Act, leading to Assange's 2019 embassy eviction, UK arrest, and 2024 U.S. extradition plea deal—achieving neutralization through lawfare without public scandal.[1][2]\nOpen questions:\n- Did Pompeo's CIA actually implement undisclosed elements of the WikiLeaks disruption beyond confirmed surveillance?\n- How did Ecuador's 2019 embassy policy shift (Moreno presidency) align with U.S. pressure, beyond public reporting?\nSection-worthy subtopics:\n- WikiLeaks' Founding Threat: From Transparency Ideal to State Enemy: Establishes Assange's origin premise and pre-2017 leaks as runway, showing how radical openness evolved into existential CIA risk.\n- Vault 7: The Leak That Unleashed Pompeo's Vendetta: Key escalation beat; personal/institutional embarrassment as hidden incentive, turning scrutiny into assassination debates.\n- Embassy Pressure-Cooker: Surveillance, Russians, and Shootout Scenarios: Builds trap dynamics, stake-shifters like asylum/Russian intel, and contradictions in U.S.-UK ops limits.\n- Institutional Clash: Why Assassination Failed for Lawfare Win: Core system angle—power tensions, incentives for quieter DOJ pivot—explains 'failure' as strategic success.\n- Coda: The Real Neutralization and Lingering Fallout: Resolution mechanism without epilogue hijack; highlights hidden consequences like eroded press freedoms.\nHigh-value source clusters:\n- Primary Yahoo News Exposé (via Democracy Now): Most detailed, sourced to 30+ officials; core facts on CIA plans, debates, Vault 7 trigger.\n  - https://www.democracynow.org/2021/9/28/cia_julian_assange_assassination_plot\n- RSF & NUJ Reactions: Confirms CIA influence on DOJ speedup; sharpens prosecution tension without speculation.\n  - https://rsf.org/en/alarming-reported-cia-plot-against-julian-assange-exposed\n  - https://www.nuj.org.uk/resource/cia-reportedly-plotted-to-kidnap-and-assassinate-julian-assange.html\n- CBS News Video Transcript: Corroborates Pompeo role, Vault 7 context, multi-pronged ops; visual commentary for social reaction.\n  - https://www.youtube.com/watch?v=k8iNePq4d8w\n- Wikipedia Assange Timeline: Factual runway on early leaks, embassy asylum for prehistory beats.\n  - https://en.wikipedia.org/wiki/Julian_Assange",
+  "researchStrategyModel": "claude-sonnet-4-6",
+  "researchStrategy": {
+    "primaryAngle": "The CIA didn't fail to kill Assange because it lacked the will — it failed because its own institutional rage made the plan too dangerous to execute, and the system quietly switched to a slower weapon: the law. The real story is how a personal vendetta by one CIA director, ignited by the most embarrassing leak in agency history, collided with British law, White House lawyers, and the fear of a London gun battle, forcing the most powerful intelligence agency on earth to outsource the job to a courtroom. The CIA got what it wanted. It just took seven years and a plea deal instead of a bullet.",
+    "backupAngles": [
+      "Vault 7 as the trigger that turned Assange from a political nuisance into a CIA target: how one leak changed the institutional calculus from surveillance to assassination planning inside 90 days, and why the embarrassment of losing your own hacking toolkit to a publisher is a different kind of threat than losing battlefield intelligence.",
+      "The Ecuadorian Embassy as a geopolitical pressure cooker: how a single room in London became the site of CIA surveillance operations, Russian extraction fears, and a near-shootout scenario that British authorities had to veto — and how that diplomatic stalemate is what made assassination planning feel necessary rather than extreme.",
+      "Lawfare as the CIA's backup weapon: how the DOJ's expedited Espionage Act charges in late 2017 were not a legal process but a strategic substitute for a kidnapping that kept going wrong — and why the precedent that case set is more dangerous to press freedom than a bullet would have been."
+    ],
+    "hookIdea": "Open on the concrete operational fact: in 2017, senior CIA officials sat in rooms and debated whether to shoot Julian Assange dead on a London street. Not metaphorically. Not as a fringe idea. More than thirty former U.S. officials confirmed it to Yahoo News. The plan included a potential gun battle outside the Ecuadorian Embassy, aircraft interdiction if he reached a runway, and surveillance assets already placed inside the building. Then land the destabilizing question the headline promises: so why is he alive? The answer is not that the CIA had a conscience. The answer is that the plan kept colliding with things the CIA could not control — British law, diplomatic protocol, White House lawyers, and the quiet calculation that a dead Assange was more dangerous than a jailed one. But to understand why the CIA wanted him dead badly enough to plan a London shootout, you have to go back to what he actually did to them — and that story starts not in 2017 but in 2010, with a video that showed the world what U.S. military helicopters do to Reuters journalists.",
+    "storyType": "Institutional failure arc with a procedural scaffold: origin threat established, escalation through Manning leaks, embassy trap set, Vault 7 trigger ignites vendetta, four-stage operational plot documented, institutional collision explains failure, resolution through lawfare reveals the system won anyway. Closest Moon analog is the direct-address opener from 'Why The CIA Failed To Assassinate Julian Assange' combined with the numbered-stages scaffold from 'The CIA's Plan To Kill 692 Americans.' The story widens from one man in one embassy room to a structural argument about how the national security state neutralizes threats when overt violence becomes too costly — and why the legal weapon it chose may be more dangerous to press freedom than the gun it put down.",
+    "videoStructure": [
+      {
+        "sectionId": "s1",
+        "title": "The Plan That Almost Happened",
+        "purpose": "Cold open. Establish the assassination plot as a confirmed operational reality — sourced to more than thirty former U.S. officials — before any backstory. Drop the viewer into the 2017 CIA debate rooms with hard numbers and named actors. Pompeo is named. The London gun battle scenario is named. The aircraft interdiction plan is named. The fact that assassination discussions were held but never forwarded to the White House is named. Then land the destabilizing question: why didn't it happen? Signal that the answer requires rewinding to understand what Assange actually did to make the CIA this angry.",
+        "whyItMatters": "Moon structure demands the anomaly first. The audience needs to feel the weight of 'the CIA debated killing a journalist on a London street' before they will sit through the origin story. If this beat lands with enough specificity, every subsequent section functions as explanation of motive rather than neutral context. The sourcing note — thirty-plus former officials, Yahoo News, September 2021 — should be embedded here so the claim feels documented rather than conspiratorial.",
+        "evidenceNeeded": [
+          "Yahoo News / Democracy Now confirmation of 30+ former officials sourcing the assassination debate",
+          "Specific operational details: London gun battle scenario, aircraft interdiction plan, surveillance assets inside embassy",
+          "Confirmation that assassination discussions were not forwarded to the White House for approval",
+          "Pompeo named as the director who ordered the 'war on WikiLeaks'",
+          "Any named or on-record official characterizing the severity or tone of the planning sessions"
+        ],
+        "searchPriorities": [
+          "Yahoo News September 2021 Assange CIA assassination plot full investigation text",
+          "Democracy Now September 28 2021 transcript CIA Assange 30 officials",
+          "Named CIA officials quoted in Yahoo News piece on assassination debate",
+          "White House NSC response to CIA Assange plans 2017",
+          "CIA aircraft interdiction London gun battle Assange operational details"
+        ],
+        "targetWordCount": 300
+      },
+      {
+        "sectionId": "s2",
+        "title": "What WikiLeaks Actually Did",
+        "purpose": "Minimum necessary origin story, kept compressed. Establish WikiLeaks not as a vague transparency project but as a specific institutional threat: a platform engineered to make secrets impossible to suppress. Cover the 2006 founding and stated mission, then move quickly to the 2010 Manning leaks — the Collateral Murder video, the Iraq and Afghan War Logs, 250,000 diplomatic cables — as the moment U.S. intelligence shifted from irritation to active hostility. Show that the Obama-era DOJ considered Espionage Act charges but pulled back, establishing the legal hesitation that will matter later. This section earns its place only by making the CIA's later rage feel inevitable rather than disproportionate.",
+        "whyItMatters": "Without understanding what WikiLeaks actually did to U.S. intelligence credibility in 2010, the Vault 7 escalation in 2017 looks like an overreaction. The Manning leaks are the first proof that Assange's platform could cause real institutional damage — war crimes footage on global television, battlefield intelligence exposed, diplomatic relationships strained across 250,000 cables. That is the threat model the CIA was working from. The Obama DOJ's decision not to charge Assange also plants the legal constraint that the Trump-era DOJ will later override, making the 2017 charge acceleration feel like a deliberate reversal rather than a routine prosecution.",
+        "evidenceNeeded": [
+          "WikiLeaks founding date (2006) and Assange's stated mission for the platform",
+          "Collateral Murder video: release date (April 2010), content summary, immediate U.S. military and government response",
+          "Scale of Manning leak: total document count, 250,000 diplomatic cables figure, War Logs scope",
+          "Obama-era DOJ consideration and rejection of Espionage Act charges against Assange — the 'New York Times problem' framing",
+          "First documented U.S. government designation of WikiLeaks as a hostile intelligence threat rather than a press outlet"
+        ],
+        "searchPriorities": [
+          "WikiLeaks founding 2006 Assange stated mission secure whistleblower platform",
+          "Chelsea Manning leak 2010 total documents diplomatic cables count",
+          "Collateral Murder video April 2010 U.S. military response Reuters journalists",
+          "Obama DOJ Espionage Act WikiLeaks Assange New York Times problem decision not to charge",
+          "Pentagon or CIA internal WikiLeaks threat designation pre-2017 hostile intelligence service"
+        ],
+        "targetWordCount": 340
+      },
+      {
+        "sectionId": "s3",
+        "title": "The Embassy Trap",
+        "purpose": "Establish the Ecuadorian Embassy asylum (June 2012) as the operational constraint that defined everything that followed. Assange is diplomatically protected but physically immobile — a target the CIA can surveil but cannot legally touch. Cover the circumstances of the asylum grant, the CIA surveillance operation placed inside and around the embassy, the monitoring of Assange's lawyers and doctors, and the deteriorating conditions inside the building. Close the section by planting the Russian extraction fear: U.S. intelligence believed in 2017 that Russian operatives were planning to move Assange to Moscow, and that fear is what converted a surveillance operation into a kinetic planning crisis.",
+        "whyItMatters": "The embassy is not backstory — it is the physical and diplomatic architecture that made assassination planning feel necessary in CIA eyes. If Assange could have been extradited through normal legal channels, none of the kinetic planning happens. The trap cuts both ways: it protects him and it radicalizes the CIA's options. The Russian extraction fear is the specific accelerant that pushed planning from abduction to potential assassination, so it needs to be introduced here as a pressure building toward the Vault 7 trigger rather than dropped cold into the operational section.",
+        "evidenceNeeded": [
+          "Date and circumstances of Ecuador's asylum grant to Assange (June 19, 2012) and Correa government's stated rationale",
+          "Confirmation of CIA surveillance assets placed inside or near the Ecuadorian Embassy in London",
+          "Details on CIA monitoring of Assange's lawyers, doctors, and associates — any named individuals or confirmed methods",
+          "Description of Assange's physical and psychological deterioration inside the embassy by 2017",
+          "First documented U.S. intelligence assessment of Russian extraction threat — timeline, what specifically was believed",
+          "Ecuador's political situation: Correa as protector versus Moreno's 2017 election as the beginning of the end of asylum"
+        ],
+        "searchPriorities": [
+          "Assange Ecuadorian Embassy asylum June 2012 Correa rationale circumstances",
+          "CIA surveillance inside Ecuadorian Embassy London confirmed Yahoo News reports",
+          "CIA monitored Assange lawyers doctors associates communications methods",
+          "Russian intelligence SVR GRU extraction plan Assange Moscow 2017 U.S. fears",
+          "Assange health deterioration embassy medical reports 2016 2017",
+          "Ecuador Lenin Moreno election 2017 shift U.S. relations Assange asylum"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s4",
+        "title": "Vault 7: The Leak That Made It Personal",
+        "purpose": "The trigger beat. March 7, 2017: WikiLeaks publishes Vault 7, exposing the CIA's entire hacking toolkit — 8,761 documents, the largest data loss in CIA history. Mike Pompeo, six weeks into the job as CIA Director, is publicly humiliated. His April 2017 speech at the Center for Strategic and International Studies is the hinge: he calls WikiLeaks a 'non-state hostile intelligence service' and Assange 'a fraud.' That speech is the moment the CIA formally reclassified Assange from a journalist-adjacent nuisance to an enemy combatant — and internally, it is the moment the 'war on WikiLeaks' directive goes out. Show what Vault 7 actually cost the CIA operationally: exposed hacking tools had to be burned, ongoing operations were compromised, foreign intelligence partners were alarmed. The embarrassment was not abstract.",
+        "whyItMatters": "Vault 7 is the hinge of the entire story. Before it, the CIA was hostile but constrained by the same legal hesitation that stopped the Obama DOJ. After it, senior officials were sitting in rooms debating whether to shoot someone on a London street. The section has to make that escalation feel logical — not random — by showing what Vault 7 actually cost the CIA operationally and why Pompeo's personal investment in the response made the planning more extreme than institutional norms would have produced under a different director.",
+        "evidenceNeeded": [
+          "Vault 7 publication date (March 7, 2017) and scope: 8,761 documents, what specific tools and capabilities were exposed",
+          "CIA internal designation of Vault 7 as 'largest data loss in CIA history' — who said it, in what context",
+          "Pompeo's April 2017 CSIS speech: exact quote calling WikiLeaks a 'non-state hostile intelligence service,' date, full context",
+          "Timeline from Vault 7 publication to Pompeo's 'war on WikiLeaks' directive — how quickly did internal planning escalate",
+          "Operational damage from Vault 7: how many tools burned, any confirmed compromised operations or foreign partner fallout"
+        ],
+        "searchPriorities": [
+          "Vault 7 WikiLeaks March 7 2017 CIA hacking tools 8761 documents scope",
+          "CIA largest data loss history Vault 7 official internal statement who said it",
+          "Mike Pompeo CSIS speech April 2017 WikiLeaks non-state hostile intelligence service exact quote",
+          "CIA war on WikiLeaks directive timeline post-Vault 7 Pompeo order",
+          "Vault 7 operational damage CIA hacking tools burned compromised operations"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s5",
+        "title": "Four Stages: How the Plot Escalated",
+        "purpose": "The procedural core of the video. Walk through the four documented stages of CIA planning against Assange using an explicit numbered scaffold: Stage 1 — surveillance assets placed inside the Ecuadorian Embassy. Stage 2 — monitoring and pressuring associates, including lawyers and doctors. Stage 3 — abduction scenarios, including a proposed extraction from the embassy and a contingency London gun battle if Russian operatives moved first. Stage 4 — assassination discussions that were held internally but never forwarded to the White House for authorization. The Russian extraction fear is the accelerant that pushed the planning from Stage 3 to Stage 4: U.S. intelligence believed Russia was planning to move Assange to Moscow, and the CIA's response to that scenario included aircraft interdiction and a potential shootout on UK soil that British authorities insisted they would have to handle themselves.",
+        "whyItMatters": "This is the section the headline promises. It has to be specific enough to feel real — not a vague 'the CIA considered bad things' summary but a procedural account of who proposed what, what the operational constraints were at each stage, and why each stage failed to resolve the problem. The British veto on unilateral U.S. action on UK soil is a critical constraint that needs to land here: it is one of the specific institutional guardrails that made the kinetic plan unworkable, and it sets up the next section's argument about why the system pivoted to lawfare.",
+        "evidenceNeeded": [
+          "Stage 1: specific confirmation of CIA surveillance assets inside Ecuadorian Embassy — methods, scale, duration",
+          "Stage 2: named or described individuals among Assange's associates who were monitored; any confirmed interception of lawyer-client communications",
+          "Stage 3: abduction plan specifics — proposed extraction route from embassy, what happened next in the plan, who was involved in planning",
+          "Stage 3: London gun battle scenario — who proposed it, what was the operational trigger (Russian move), why UK authorities pushed back and insisted on handling any shooting",
+          "Stage 3: aircraft interdiction plan — what airports, what scenario, what authority was claimed",
+          "Stage 4: assassination discussion specifics — who raised it, what form did it take, why was it not forwarded to the White House, what stopped it",
+          "Russian extraction intelligence: what specifically did U.S. intel believe Russia was planning, what was the assessed timeline"
+        ],
+        "searchPriorities": [
+          "Yahoo News CIA Assange kidnapping plan details London embassy four stages",
+          "CIA surveillance assets inside Ecuadorian Embassy London methods confirmed",
+          "CIA plan shoot Assange London street UK authorities response insist handle shooting",
+          "CIA aircraft interdiction Assange escape plan airports scenario",
+          "CIA assassination discussion Assange not forwarded White House reason who stopped it",
+          "Russian SVR GRU plan extract Assange Moscow 2017 U.S. intelligence assessment timeline",
+          "CIA monitored Assange lawyers client privilege interception confirmed"
+        ],
+        "targetWordCount": 460
+      },
+      {
+        "sectionId": "s6",
+        "title": "Why It Fell Apart: The Institutional Collision",
+        "purpose": "The turn. Explain why the CIA's plans kept colliding with things it could not control. Four specific blockers: (1) British authorities who insisted on handling any violence on UK soil, removing U.S. unilateral action as an option. (2) White House lawyers and NSC officials who flagged the illegality of abduction and assassination planning and refused to authorize it. (3) The diplomatic fallout risk with Ecuador and the UK, which would have exposed the operation and destroyed the legal extradition case being built in parallel. (4) The implicit deterrent of WikiLeaks' dead-man switch: an encrypted insurance file distributed globally, the release of which would have been triggered by Assange's death or disappearance. This section reframes the 'failure' — the CIA didn't lack capability, it lacked permission. And the institutions that blocked it were not acting out of principle but out of self-interest and risk calculation.",
+        "whyItMatters": "This is the structural argument the headline is really making. The CIA failed not because of moral restraint but because the system of overlapping institutional interests — legal, diplomatic, political, and informational — made the cost of overt action higher than the cost of letting Assange live. That is a more unsettling conclusion than 'the CIA had a conscience,' and it is the conclusion the Moon structure demands: the system is not broken, it is working exactly as designed, and the design protects institutions rather than people.",
+        "evidenceNeeded": [
+          "Specific White House or NSC objections to CIA abduction and assassination plans — who raised them, what was the legal argument, any named officials",
+          "UK government or British intelligence position on CIA unilateral operations on UK soil — any documented communication or constraint",
+          "WikiLeaks dead-man switch insurance file: when it was created, what it contained, how it functioned as a deterrent, any CIA internal acknowledgment of it as a constraint",
+          "Trump administration internal factions: who was pushing for kinetic action, who was blocking it, what the balance of power looked like",
+          "Confirmation that DOJ charge acceleration was explicitly framed internally as an alternative to CIA kinetic plans — any official or sourced statement to that effect"
+        ],
+        "searchPriorities": [
+          "White House NSC lawyers objection CIA Assange kidnapping assassination plan illegal who objected",
+          "UK MI5 MI6 British government position CIA operations London soil Assange constraint",
+          "WikiLeaks dead man switch insurance file 2010 2017 encrypted deterrent function CIA awareness",
+          "Trump White House Assange debate 2017 factions pro kinetic anti kinetic",
+          "DOJ Assange charges 2017 sealed indictment explicitly framed as CIA alternative Yahoo News sourcing"
+        ],
+        "targetWordCount": 340
+      },
+      {
+        "sectionId": "s7",
+        "title": "The Slower Weapon: Lawfare, Ecuador's Betrayal, and the Real Neutralization",
+        "purpose": "Resolution beat with a closing reframe. The DOJ seals espionage charges in late 2017 — the legal weapon the CIA's kinetic plans forced into existence. Ecuador's new president Moreno, elected in 2017 and facing U.S. economic pressure, strips Assange's asylum in April 2019. UK police drag him out of the embassy. He spends five years in Belmarsh Prison fighting extradition. In June 2024, he pleads guilty to a single Espionage Act count in a Saipan courtroom and flies home to Australia — not free in any meaningful press-freedom sense, but alive. WikiLeaks has not published since his 2019 arrest. The CIA got what it wanted. It just took seven years, a diplomatic betrayal, and a courtroom instead of a gun. Close on the unresolved consequence: the Espionage Act precedent the case established means the next publisher who does what Assange did faces the same legal weapon — and there will be no London gun battle to generate sympathy.",
+        "whyItMatters": "This is the closing reframe the Moon structure demands. The headline says the CIA 'failed' — the coda has to complicate that without tidy resolution. Assange was neutralized. WikiLeaks stopped publishing. The Espionage Act precedent for prosecuting publishers was established for the first time in U.S. history. Ecuador's betrayal achieved through diplomacy what the CIA could not achieve through force. The system won. It just used a weapon that left no blood on the street and no scandal in the headlines — which is precisely why it is more durable than a bullet would have been.",
+        "evidenceNeeded": [
+          "DOJ sealed indictment: confirmed date (2017 or early 2018), Espionage Act charges specifics, how it was kept sealed until 2019",
+          "Ecuador Moreno government decision to revoke asylum: date (April 2019), stated reason, any documented U.S. diplomatic or economic pressure on Moreno",
+          "UK arrest date (April 11, 2019) and Belmarsh Prison conditions during five-year detention",
+          "2024 plea deal specifics: single count of conspiracy to obtain and disclose national defense information, Saipan CNMI court, sentence of time served, return to Australia",
+          "WikiLeaks publication activity after April 2019 arrest — confirmation it effectively ceased publishing",
+          "Press freedom organizations' assessment of the Espionage Act precedent: CPJ, RSF, NUJ statements on what the case means for future publishers"
+        ],
+        "searchPriorities": [
+          "DOJ Assange sealed indictment 2017 2018 Espionage Act charges date confirmed",
+          "Ecuador Moreno revoke Assange asylum April 2019 U.S. pressure IMF loan evidence",
+          "Assange Belmarsh Prison conditions 2019 2024 UN special rapporteur reports",
+          "Assange 2024 plea deal Saipan CNMI single count time served Australia return",
+          "WikiLeaks publishing activity after April 2019 arrest ceased dormant",
+          "RSF CPJ NUJ press freedom Espionage Act Assange precedent publisher prosecution statement"
+        ],
+        "targetWordCount": 340
+      }
+    ],
+    "globalSearchThemes": [
+      "Yahoo News September 2021 full investigation text CIA Assange assassination kidnapping 30 former officials primary source",
+      "Mike Pompeo CIA director WikiLeaks war declaration April 2017 CSIS speech primary sources exact quotes",
+      "Vault 7 March 2017 scope 8761 documents CIA damage assessment operational consequences burned tools",
+      "Russian intelligence SVR GRU extraction plan Assange Moscow 2017 U.S. intelligence assessment sourcing",
+      "DOJ Espionage Act Assange charges timeline 2017 2018 sealed indictment CIA alternative framing",
+      "Ecuador political shift Correa to Moreno U.S. relations IMF pressure Assange asylum revocation 2019",
+      "UK government British intelligence position CIA unilateral operations London soil legal constraints",
+      "WikiLeaks dead man switch insurance file encrypted 2010 2017 deterrent function CIA internal awareness",
+      "Assange 2024 plea deal Saipan CNMI terms single count time served return Australia",
+      "Press freedom organizations CPJ RSF NUJ Espionage Act Assange publisher precedent statements"
+    ],
+    "risks": [
+      "The Yahoo News September 2021 investigation is the primary source for almost all kinetic planning details and is sourced to anonymous former officials — the script must embed this sourcing visibly rather than presenting the claims as independently confirmed fact, and should note that Pompeo has not confirmed the specific allegations.",
+      "The Russian extraction plan is the critical escalation beat that pushes the story from abduction to assassination planning, but its sourcing may rest on CIA internal assessments rather than confirmed Russian operational activity — verify whether this is corroborated intelligence or CIA speculation before treating it as established.",
+      "Pompeo has publicly denied or declined to confirm specific claims from the Yahoo News piece — his denials should be noted in the script rather than ignored, even if the weight of sourcing from thirty-plus officials goes against his position.",
+      "The 2024 plea deal requires careful framing: Assange pleaded guilty to one count and returned to Australia, which can be read as both a personal victory (alive, free, home) and a systemic victory for the CIA (neutralized, WikiLeaks dormant, precedent set) — the script needs to hold both readings without collapsing into either.",
+      "Ecuador's Moreno-era asylum revocation likely had multiple causes including domestic political pressures and Assange's own conduct inside the embassy — attributing it solely to U.S. diplomatic pressure without documented evidence of specific coercion risks overreach, though the IMF loan timing is a documented data point worth including.",
+      "WikiLeaks' publication status post-2019 needs verification before claiming it 'effectively stopped' — check whether the site continued publishing under other editors, went into maintenance mode, or formally ceased operations.",
+      "The Espionage Act precedent claim needs to be sourced to specific press freedom organization statements rather than asserted editorially — CPJ, RSF, and NUJ have all commented on this and provide citable authority."
+    ],
+    "skip": [
+      "Deep dive into Swedish sexual assault allegations against Assange — causally relevant only as the original reason for embassy asylum in 2012, not as a driver of CIA assassination planning; one sentence of context inside the embassy section is sufficient.",
+      "Detailed Chelsea Manning trial, sentencing, and commutation narrative — Manning's leak is the origin beat but her personal legal story is a separate arc that would derail momentum in the WikiLeaks section.",
+      "Edward Snowden's relationship with Assange as a standalone section — relevant only as a turning point marker showing CIA hostility predating Vault 7; keep as a single beat inside the escalation or embassy section rather than its own section.",
+      "Detailed history of the Espionage Act itself including its 1917 origins and prior uses — legally interesting but a think-piece detour; the script needs only the operational fact that it was used as a substitute weapon and what precedent that sets.",
+      "WikiLeaks' 2016 DNC and Podesta email releases as standalone analysis — the election interference narrative is worth one beat as a coalition-shifting moment that removed Assange's liberal defenders, but does not need its own section given the word count target.",
+      "Assange's personal biography, relationships, and personality as a standalone section — personal deterioration inside the embassy should be texture inside the embassy section, not a biographical detour.",
+      "Technical deep dive into the specific CIA hacking tools exposed in Vault 7 — the operational damage framing is sufficient; naming individual tools like Weeping Angel or Marble adds color but risks derailing the institutional argument."
+    ]
+  },
+  "sectionQueryPlanningModel": "claude-sonnet-4-6",
+  "sectionQueryPlanning": {
+    "globalQueries": [
+      {
+        "label": "Yahoo News primary investigation full text",
+        "objective": "Retrieve the core September 2021 Yahoo News investigation sourced to 30+ former officials — the primary evidentiary spine for all kinetic planning claims",
+        "searchMode": "news_web",
+        "query": "Yahoo News CIA plot kidnap assassinate Julian Assange 2021 Zach Dorfman Sean Naylor 30 former officials"
+      },
+      {
+        "label": "Pompeo CSIS speech April 2017 exact quotes",
+        "objective": "Confirm exact language Pompeo used to designate WikiLeaks a 'non-state hostile intelligence service' and Assange a 'fraud' — the institutional reclassification hinge",
+        "searchMode": "news_web",
+        "query": "Mike Pompeo CSIS speech April 2017 WikiLeaks non-state hostile intelligence service Assange fraud exact quote transcript"
+      },
+      {
+        "label": "DOJ sealed indictment timeline and CIA alternative framing",
+        "objective": "Confirm when DOJ charges were sealed, under what Espionage Act counts, and whether any sourced official framed the charges as an explicit substitute for CIA kinetic plans",
+        "searchMode": "news_web",
+        "query": "DOJ Assange sealed indictment 2017 2018 Espionage Act charges CIA alternative kidnapping plan Yahoo News sourcing"
+      },
+      {
+        "label": "Assange 2024 Saipan plea deal terms and WikiLeaks post-2019 status",
+        "objective": "Confirm plea deal specifics — single count, time served, CNMI court, return to Australia — and verify whether WikiLeaks effectively ceased publishing after April 2019 arrest",
+        "searchMode": "news_web",
+        "query": "Assange 2024 plea deal Saipan CNMI single count conspiracy time served Australia WikiLeaks publishing ceased after 2019 arrest"
+      }
+    ],
+    "sectionQueries": [
+      {
+        "sectionId": "s1",
+        "articleQueries": [
+          "CIA Assange assassination plan London gun battle aircraft interdiction not forwarded White House authorization 2017 Yahoo News officials",
+          "Pompeo war on WikiLeaks directive 2017 CIA named officials on record assassination kidnapping planning sessions severity"
+        ],
+        "videoQueries": [
+          "CIA plot assassinate kidnap Julian Assange 2021 Yahoo News revelation explained Pompeo"
+        ],
+        "socialQueries": [
+          "CIA assassination plot Assange Yahoo News 2021 reaction Pompeo denied officials confirmed"
+        ],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s2",
+        "articleQueries": [
+          "Obama DOJ Espionage Act WikiLeaks Assange New York Times problem decision not to charge 2010 2013 legal reasoning",
+          "WikiLeaks Collateral Murder video April 2010 Reuters journalists Baghdad helicopter U.S. military government response Manning"
+        ],
+        "videoQueries": [
+          "Chelsea Manning WikiLeaks 2010 leaks impact Collateral Murder war logs diplomatic cables U.S. government response documentary"
+        ],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s3",
+        "articleQueries": [
+          "CIA surveillance inside Ecuadorian Embassy London methods Assange lawyers doctors associates communications intercepted confirmed Yahoo News",
+          "Russian intelligence SVR GRU plan extract Assange Moscow 2017 U.S. intelligence assessment CIA fear credible sourcing",
+          "Ecuador Lenin Moreno 2017 election Assange asylum shift U.S. relations IMF loan pressure Correa WikiLeaks"
+        ],
+        "videoQueries": [],
+        "socialQueries": [],
+        "podcastQueries": [
+          "CIA Assange embassy surveillance Russian extraction plan 2017 intelligence assessment podcast investigative"
+        ]
+      },
+      {
+        "sectionId": "s4",
+        "articleQueries": [
+          "Vault 7 WikiLeaks March 7 2017 8761 documents CIA hacking tools largest data loss history internal damage assessment burned operations",
+          "Vault 7 March 2017 CIA internal response timeline Pompeo war WikiLeaks directive escalation planning weeks after publication"
+        ],
+        "videoQueries": [
+          "Mike Pompeo CSIS April 2017 speech WikiLeaks hostile intelligence service Assange fraud video"
+        ],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s5",
+        "articleQueries": [
+          "CIA Assange kidnapping plan four stages surveillance embassy abduction London gun battle aircraft interdiction assassination discussion Yahoo News 2021 details",
+          "UK British authorities CIA Assange London operation constraint insisted handle shooting unilateral U.S. action blocked MI5 MI6 Home Office"
+        ],
+        "videoQueries": [],
+        "socialQueries": [
+          "CIA Assange kidnap plan stages London gun battle aircraft interdiction details reaction experts former officials 2021"
+        ],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s6",
+        "articleQueries": [
+          "White House NSC lawyers objection CIA Assange kidnapping assassination plan illegal 2017 named officials Trump administration internal factions",
+          "WikiLeaks dead man switch insurance file encrypted 2010 2017 CIA deterrent internal awareness Assange death trigger release"
+        ],
+        "videoQueries": [],
+        "socialQueries": [],
+        "podcastQueries": [
+          "CIA Assange assassination kidnapping failed institutional checks White House NSC UK legal constraints why stopped podcast"
+        ]
+      },
+      {
+        "sectionId": "s7",
+        "articleQueries": [
+          "Ecuador Moreno revoke Assange asylum April 2019 U.S. diplomatic pressure IMF loan timing evidence documented WikiLeaks",
+          "RSF CPJ NUJ Assange Espionage Act precedent publisher prosecution press freedom statement 2024 plea deal implications"
+        ],
+        "videoQueries": [
+          "Julian Assange 2024 plea deal Saipan CNMI court guilty single count return Australia free video"
+        ],
+        "socialQueries": [
+          "Assange plea deal 2024 WikiLeaks stopped publishing Espionage Act precedent press freedom reaction"
+        ],
+        "podcastQueries": []
+      }
+    ]
+  }
+}

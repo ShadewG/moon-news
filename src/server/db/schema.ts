@@ -87,6 +87,8 @@ export const boardSourceKindEnum = pgEnum("board_source_kind", [
   "rss",
   "youtube_channel",
   "x_account",
+  "tiktok_query",
+  "tiktok_fyp_profile",
   "document_watch",
   "government_feed",
   "legal_watch",
@@ -141,11 +143,15 @@ export const boardAlertTypeEnum = pgEnum("board_alert_type", [
 ]);
 
 export const scriptAgentStageEnum = pgEnum("script_agent_stage", [
+  "plan_research",
   "discover_sources",
   "ingest_sources",
   "extract_evidence",
   "synthesize_research",
   "build_outline",
+  "followup_research",
+  "select_quotes",
+  "place_quotes",
   "build_storyboard",
   "plan_sections",
   "write_sections",
@@ -165,6 +171,12 @@ export const scriptAgentSourceKindEnum = pgEnum("script_agent_source_kind", [
   "social_post",
   "library_clip",
   "generated_note",
+]);
+
+export const moonAnalysisScopeEnum = pgEnum("moon_analysis_scope", [
+  "video",
+  "weekly",
+  "monthly",
 ]);
 
 export const projects = pgTable(
@@ -1102,6 +1114,39 @@ export const scriptLabRuns = pgTable(
   ]
 );
 
+export const moonAnalysisRuns = pgTable(
+  "moon_analysis_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    status: processingStatusEnum("status").notNull().default("pending"),
+    scopeType: moonAnalysisScopeEnum("scope_type").notNull(),
+    scopeStartDate: text("scope_start_date").notNull(),
+    scopeEndDate: text("scope_end_date").notNull(),
+    youtubeVideoId: text("youtube_video_id"),
+    youtubeVideoTitle: text("youtube_video_title"),
+    label: text("label"),
+    requestJson: jsonb("request_json").notNull(),
+    resultJson: jsonb("result_json"),
+    reportHtml: text("report_html"),
+    artifactDir: text("artifact_dir"),
+    errorText: text("error_text"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("moon_analysis_runs_status_index").on(table.status),
+    index("moon_analysis_runs_scope_type_index").on(table.scopeType),
+    index("moon_analysis_runs_created_at_index").on(table.createdAt),
+    index("moon_analysis_runs_youtube_video_id_index").on(table.youtubeVideoId),
+  ]
+);
+
 export const scriptAgentRuns = pgTable(
   "script_agent_runs",
   {
@@ -1252,6 +1297,60 @@ export const scriptAgentClaims = pgTable(
     index("script_agent_claims_run_id_index").on(table.runId),
     index("script_agent_claims_support_level_index").on(table.supportLevel),
     index("script_agent_claims_risk_level_index").on(table.riskLevel),
+  ]
+);
+
+// ─── Script Edits & Feedback ───
+
+export const scriptEditStatusEnum = pgEnum("script_edit_status", [
+  "draft",
+  "in_review",
+  "approved",
+  "needs_revision",
+  "final",
+]);
+
+export const scriptEdits = pgTable(
+  "script_edits",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    /** Can reference either a script_agent_runs or script_lab_runs id */
+    runId: uuid("run_id").notNull(),
+    runKind: text("run_kind").notNull().default("agent"), // "agent" | "lab"
+    editedTitle: text("edited_title"),
+    editedScript: text("edited_script"),
+    editedDeck: text("edited_deck"),
+    editStatus: scriptEditStatusEnum("edit_status").notNull().default("draft"),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_edits_run_id_index").on(table.runId),
+    index("script_edits_edit_status_index").on(table.editStatus),
+  ]
+);
+
+export const scriptFeedback = pgTable(
+  "script_feedback",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id").notNull(),
+    runKind: text("run_kind").notNull().default("agent"),
+    /** null = overall feedback, otherwise references a section/beat */
+    anchor: text("anchor"),
+    body: text("body").notNull(),
+    resolved: boolean("resolved").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("script_feedback_run_id_index").on(table.runId),
   ]
 );
 

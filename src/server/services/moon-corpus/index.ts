@@ -92,6 +92,16 @@ const ROUTINE_NEWS_PATTERNS = [
   "xdr",
 ];
 
+const ENTERTAINMENT_PROMO_DISQUALIFIERS = new Set([
+  "official trailer",
+  "cast in",
+]);
+
+const ENTERTAINMENT_PROMO_ROUTINE_PATTERNS = new Set([
+  "first look",
+  "official trailer",
+]);
+
 const GENERIC_CLUSTER_TERMS = new Set([
   "disturbing",
   "disgusting",
@@ -208,6 +218,24 @@ export interface MoonScriptAnalysis {
   archiveKeywords: string[];
   youtubeKeywords: string[];
   reasonCodes: string[];
+}
+
+export interface MoonEditorialStyleGuide {
+  sampleSize: number;
+  dominantCoverageModes: string[];
+  exemplarTitles: string[];
+  referenceTitles: string[];
+  storySpecificNotes: string[];
+  medianWordCount: number | null;
+  medianDurationMinutes: number | null;
+  medianWordsPerMinute: number | null;
+  openerPatterns: string[];
+  phrasingPatterns: string[];
+  pacingPatterns: string[];
+  quotePatterns: string[];
+  structurePatterns: string[];
+  transitionPatterns: string[];
+  antiPatterns: string[];
 }
 
 interface CorpusVideoRow {
@@ -356,6 +384,19 @@ function isNoiseTerm(term: string) {
   }
 
   return tokens.every((token) => STOPWORDS.has(token) || GENERIC_CORPUS_TERMS.has(token));
+}
+
+function hasEntertainmentPromoBacklash(text: string) {
+  const normalized = normalizeText(text);
+
+  return (
+    /\b(trailer|teaser|first look|casting|cast|remake|reboot|live action|cgi)\b/.test(
+      normalized
+    ) &&
+    /\b(backlash|hate|hating|mocked|mocking|roasted|dragged|ratioed|panned|review bomb|review bombing|clowned|ugly cgi|disaster|meltdown)\b/.test(
+      normalized
+    )
+  );
 }
 
 function isSpecificTerm(term: string) {
@@ -545,6 +586,14 @@ function titleCase(value: string) {
     .join(" ");
 }
 
+function formatCoverageModeLabel(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return titleCase(value.replace(/_/g, " "));
+}
+
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -561,6 +610,134 @@ function median(values: number[]) {
   }
 
   return Math.round((sorted[middle - 1] + sorted[middle]) / 2);
+}
+
+function medianDecimal(values: number[]) {
+  if (values.length === 0) {
+    return null;
+  }
+
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  const value = sorted.length % 2 === 1
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+
+  return Number(value.toFixed(1));
+}
+
+function cleanTranscriptText(value: string) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function splitTranscriptWords(value: string) {
+  return cleanTranscriptText(value).split(/\s+/).filter(Boolean);
+}
+
+function takeWordExcerpt(value: string, start: number, count: number) {
+  return splitTranscriptWords(value).slice(start, start + count).join(" ");
+}
+
+function openerStartsWithImagine(value: string) {
+  return /^imagine\b/i.test(cleanTranscriptText(value));
+}
+
+function openerStartsWithQuestion(value: string) {
+  const opener = takeWordExcerpt(value, 0, 90);
+  return /\?/.test(opener) || /^(how|why|what)\b/i.test(opener);
+}
+
+function openerUsesDirectAddress(value: string) {
+  const opener = takeWordExcerpt(value, 0, 120).toLowerCase();
+  return /\byou\b|\byour\b/.test(opener);
+}
+
+function openerFrontLoadsNumbers(value: string) {
+  const opener = takeWordExcerpt(value, 0, 120);
+  return /\b\d+\b/.test(opener);
+}
+
+function openerIntroducesContrast(value: string) {
+  const opener = takeWordExcerpt(value, 0, 160).toLowerCase();
+  return /\band yet\b|\bbut\b|\bhowever\b|\bwhile\b/.test(opener);
+}
+
+function describeOpenerMode(value: string) {
+  if (openerStartsWithImagine(value)) {
+    return "compressed hypothetical that makes the viewer inhabit the pressure immediately";
+  }
+
+  if (openerStartsWithQuestion(value)) {
+    return "question-led mystery that turns the opening into an investigation";
+  }
+
+  if (openerIntroducesContrast(value)) {
+    return "contradiction-led opening that stacks specifics before asking how this makes sense";
+  }
+
+  if (openerUsesDirectAddress(value)) {
+    return "direct-address opening that pulls the viewer into the stakes before expanding the system";
+  }
+
+  return "hard-claim opening that starts with a destabilizing fact instead of neutral setup";
+}
+
+function getQuoteMarkerProfile(value: string) {
+  const markers = (value.match(/>>|"/g) ?? []).length;
+  const tokens = splitTranscriptWords(value);
+  const quartiles = [0, 0, 0, 0];
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (token.includes(">>") || token.includes("\"")) {
+      const quartileIndex = Math.min(3, Math.floor((index / Math.max(1, tokens.length)) * 4));
+      quartiles[quartileIndex] += 1;
+    }
+  }
+
+  return { markers, quartiles };
+}
+
+function summarizeTransitionSignals(values: string[]) {
+  const totals = {
+    because: 0,
+    but: 0,
+    so: 0,
+    however: 0,
+    instead: 0,
+    meanwhile: 0,
+  };
+
+  for (const value of values) {
+    const lowered = cleanTranscriptText(value).toLowerCase();
+    totals.because += (lowered.match(/\bbecause\b/g) ?? []).length;
+    totals.but += (lowered.match(/\bbut\b/g) ?? []).length;
+    totals.so += (lowered.match(/\bso\b/g) ?? []).length;
+    totals.however += (lowered.match(/\bhowever\b/g) ?? []).length;
+    totals.instead += (lowered.match(/\binstead\b/g) ?? []).length;
+    totals.meanwhile += (lowered.match(/\bmeanwhile\b/g) ?? []).length;
+  }
+
+  return Object.entries(totals)
+    .sort((left, right) => right[1] - left[1])
+    .filter(([, value]) => value > 0)
+    .slice(0, 3)
+    .map(([key]) => key);
+}
+
+function dedupeByClipId<T extends { clipId: string }>(items: T[]) {
+  const seen = new Set<string>();
+  const deduped: T[] = [];
+
+  for (const item of items) {
+    if (seen.has(item.clipId)) {
+      continue;
+    }
+    seen.add(item.clipId);
+    deduped.push(item);
+  }
+
+  return deduped;
 }
 
 async function loadAllMoonVideoRows(): Promise<CorpusVideoRow[]> {
@@ -666,6 +843,207 @@ async function loadSnapshot(): Promise<CorpusSnapshot> {
   };
 
   return snapshotCache;
+}
+
+export async function getMoonEditorialStyleGuide(args?: {
+  analogClipIds?: string[];
+  coverageMode?: string | null;
+}): Promise<MoonEditorialStyleGuide> {
+  await ensureMoonCorpusAnalysis();
+  const snapshot = await loadSnapshot();
+  const rows = await loadAllMoonVideoRows();
+  const rowByClipId = new Map(rows.map((row) => [row.clipId, row]));
+
+  const coverageCounts = new Map<string, number>();
+  for (const profile of snapshot.profiles) {
+    if (!profile.coverageMode) {
+      continue;
+    }
+
+    coverageCounts.set(
+      profile.coverageMode,
+      (coverageCounts.get(profile.coverageMode) ?? 0) + 1
+    );
+  }
+
+  const dominantCoverageModes = Array.from(coverageCounts.entries())
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4)
+    .map(([coverageMode]) => formatCoverageModeLabel(coverageMode))
+    .filter((value): value is string => Boolean(value));
+
+  const exemplarTitles: string[] = [];
+  const seenTitles = new Set<string>();
+  const sortedProfiles = [...snapshot.profiles].sort(
+    (left, right) =>
+      (right.viewCount ?? 0) - (left.viewCount ?? 0) ||
+      right.recencyWeight - left.recencyWeight
+  );
+
+  for (const coverageMode of Array.from(coverageCounts.entries())
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4)
+    .map(([value]) => value)) {
+    const exemplar = sortedProfiles.find(
+      (profile) =>
+        profile.coverageMode === coverageMode &&
+        profile.title.length > 0 &&
+        !seenTitles.has(profile.title)
+    );
+
+    if (!exemplar) {
+      continue;
+    }
+
+    exemplarTitles.push(exemplar.title);
+    seenTitles.add(exemplar.title);
+  }
+
+  for (const profile of sortedProfiles) {
+    if (exemplarTitles.length >= 6) {
+      break;
+    }
+
+    if (!profile.title || seenTitles.has(profile.title)) {
+      continue;
+    }
+
+    exemplarTitles.push(profile.title);
+    seenTitles.add(profile.title);
+  }
+
+  const weightedProfiles = [...snapshot.profiles].sort(
+    (left, right) =>
+      right.recencyWeight - left.recencyWeight ||
+      (right.viewCount ?? 0) - (left.viewCount ?? 0)
+  );
+  const analogRows = (args?.analogClipIds ?? [])
+    .map((clipId) => rowByClipId.get(clipId))
+    .filter((row): row is CorpusVideoRow => row != null && row.wordCount > 1400);
+  const sameCoverageRows = weightedProfiles
+    .filter((profile) => profile.coverageMode && profile.coverageMode === args?.coverageMode)
+    .map((profile) => rowByClipId.get(profile.clipId))
+    .filter((row): row is CorpusVideoRow => row != null && row.wordCount > 1400)
+    .slice(0, 8);
+  const representativeRows = weightedProfiles
+    .map((profile) => rowByClipId.get(profile.clipId))
+    .filter((row): row is CorpusVideoRow => row != null && row.wordCount > 1400)
+    .slice(0, 16);
+  const sampleRows = dedupeByClipId([
+    ...analogRows,
+    ...sameCoverageRows,
+    ...representativeRows,
+  ]).slice(0, 20);
+  const sampleTexts = sampleRows.map((row) => cleanTranscriptText(row.transcript)).filter(Boolean);
+  const sampleSize = sampleRows.length;
+  const medianWordCount = median(sampleRows.map((row) => row.wordCount).filter((value) => value > 0));
+  const medianDurationMinutes = medianDecimal(
+    sampleRows.map((row) => (row.durationMs ?? 0) / 60000).filter((value) => value > 0)
+  );
+  const wordsPerMinuteValues = sampleRows
+    .map((row) => {
+      const minutes = (row.durationMs ?? 0) / 60000;
+      if (!minutes || row.wordCount <= 0) {
+        return null;
+      }
+      return row.wordCount / minutes;
+    })
+    .filter((value): value is number => value != null && value > 0);
+  const medianWordsPerMinute = medianDecimal(wordsPerMinuteValues);
+  const directAddressOpeners = sampleTexts.filter((text) => openerUsesDirectAddress(text)).length;
+  const numberOpeners = sampleTexts.filter((text) => openerFrontLoadsNumbers(text)).length;
+  const contrastOpeners = sampleTexts.filter((text) => openerIntroducesContrast(text)).length;
+  const questionOpeners = sampleTexts.filter((text) => openerStartsWithQuestion(text)).length;
+  const imagineOpeners = sampleTexts.filter((text) => openerStartsWithImagine(text)).length;
+  const quoteProfiles = sampleTexts.map((text) => getQuoteMarkerProfile(text));
+  const scriptsWithQuotes = quoteProfiles.filter((profile) => profile.markers > 0).length;
+  const quoteQuartiles = quoteProfiles.reduce(
+    (totals, profile) => {
+      profile.quartiles.forEach((value, index) => {
+        totals[index] += value;
+      });
+      return totals;
+    },
+    [0, 0, 0, 0]
+  );
+  const peakQuoteQuartile = quoteQuartiles.indexOf(Math.max(...quoteQuartiles));
+  const quoteQuartileLabels = [
+    "the first quarter, after the hook lands",
+    "the second quarter, once the mechanism is clear",
+    "the third quarter, around the main reveal or system turn",
+    "the final quarter, during consequence and landing beats",
+  ];
+  const dominantTransitions = summarizeTransitionSignals(sampleTexts);
+  const referenceTitles = sampleRows.slice(0, 8).map((row) => row.title);
+  const storySpecificNotes = analogRows
+    .slice(0, 4)
+    .map((row) => `${row.title}: ${describeOpenerMode(row.transcript)}`);
+
+  return {
+    sampleSize,
+    dominantCoverageModes,
+    exemplarTitles,
+    referenceTitles,
+    storySpecificNotes,
+    medianWordCount,
+    medianDurationMinutes,
+    medianWordsPerMinute,
+    openerPatterns: [
+      sampleSize > 0
+        ? `Open on a destabilizing claim, contradiction, or compressed scenario immediately. In the current Moon sample, ${contrastOpeners}/${sampleSize} openers introduce tension inside the first 160 words and ${numberOpeners}/${sampleSize} front-load a hard number, count, or concrete factual detail.`
+        : "Open on a destabilizing claim, contradiction, or compressed scenario immediately.",
+      sampleSize > 0
+        ? `Direct address is common when it sharpens stakes rather than selling hype: ${directAddressOpeners}/${sampleSize} openings use “you” or “your” in the first 120 words.`
+        : "Use direct address only when it sharpens the stakes for the viewer.",
+      questionOpeners > 0
+        ? `Question-led openings are used selectively, not constantly: ${questionOpeners}/${sampleSize} sample openings begin as a direct question, while ${imagineOpeners}/${sampleSize} begin with a compressed hypothetical.`
+        : "Question-led openings should be selective and only when the question itself creates the tension.",
+      "Reach the unsettling implication before backstory. Do not spend the opener on neutral setup, context dumping, or thesis throat-clearing.",
+    ],
+    phrasingPatterns: [
+      "Write in spoken, declarative sentence clusters rather than essay paragraphs. Concrete nouns, institutions, products, money, policies, and names come before abstraction.",
+      "Moon phrasing tends to compress claim plus proof into the same breath: state the anomaly, then immediately pin it to a number, behavior, or institution.",
+      "Escalate with precise specifics, not with melodramatic adjectives. If the material is strong, the line can stay calm.",
+    ],
+    pacingPatterns: [
+      medianWordCount && medianDurationMinutes && medianWordsPerMinute
+        ? `Representative Moon scripts are substantial: median sample length is about ${medianWordCount} words over ${medianDurationMinutes} minutes, or roughly ${medianWordsPerMinute} spoken words per minute. Do not hand in a thin summary draft.`
+        : "Representative Moon scripts are substantial. Do not hand in a thin summary draft.",
+      "Alternate pressure and explanation. Every context paragraph should cash out why the detail matters before the script moves on.",
+      "The script should widen in stages: anomaly first, mechanism second, system third, human cost or reveal fourth, consequence or warning last.",
+    ],
+    quotePatterns: [
+      sampleSize > 0
+        ? `Moon scripts do not depend on long quote walls. In the current sample, only ${scriptsWithQuotes}/${sampleSize} transcripts contain obvious clipped-dialogue markers, which means quote beats should puncture the narration rather than replace it.`
+        : "Use quotes as puncture beats, not as the main narration voice.",
+      quoteQuartiles.some((value) => value > 0)
+        ? `When transcript-style quote interruptions show up, they cluster most around ${quoteQuartileLabels[Math.max(0, peakQuoteQuartile)]}. That means the hook should usually work before the first heavy quote beat arrives.`
+        : "If transcript-backed quotes exist, use them after the hook has momentum instead of opening with a block of quoted material.",
+      "Prefer short, sayable receipts that verify or sharpen a beat. If a quote is long, break it or paraphrase around the strongest fragment instead of building a quote wall.",
+      "Attach visible inline sourcing whenever a factual claim or quote is carrying weight.",
+    ],
+    structurePatterns: [
+      "Beat 1: anomaly, contradiction, or unsettling scenario.",
+      "Beat 2: mechanism or origin story that explains how the anomaly became possible.",
+      "Beat 3: widen from the incident into incentives, institutions, markets, or culture.",
+      "Beat 4: deliver the turn, hidden layer, human cost, or proof that the problem is structural.",
+      "Beat 5: land on consequence, warning, or unresolved pressure rather than a clean moral recap.",
+    ],
+    transitionPatterns: [
+      dominantTransitions.length > 0
+        ? `Moon transitions are usually causal rather than theatrical. The strongest connective language in the sample is ${dominantTransitions.join(", ")}.`
+        : "Use causal transitions that feel like consequence or pressure, not theatrical signposts.",
+      "Let the next fact force the pivot. A section should turn because the evidence becomes harder to ignore, not because the script announces a turn.",
+      "Context paragraphs should not stall momentum; they should reveal why the previous fact is bigger, stranger, or more dangerous than it first looked.",
+    ],
+    antiPatterns: [
+      "Do not open with a bloggy summary of the topic.",
+      "Do not use canned AI contrast templates or stock signposts to fake momentum.",
+      "Do not front-load background before the contradiction is clear.",
+      "Do not scatter weak quotes through every section. Use fewer, stronger quote beats.",
+      "Do not end with a tidy recap if the stronger Moon move is to leave consequence, warning, or unresolved pressure hanging.",
+    ],
+  };
 }
 
 export async function rebuildMoonCorpusAnalysis() {
@@ -1065,8 +1443,27 @@ export async function scoreTextAgainstMoonCorpus(input: {
   const clusterLabel = rawClusterLabel && !isNoiseTerm(rawClusterLabel) ? rawClusterLabel : null;
   const coverageMode = Array.from(coverageVotes.entries()).sort((left, right) => right[1] - left[1])[0]?.[0] ?? null;
 
-  const disqualifierCodes = IRRELEVANT_PATTERNS.filter((pattern) => combinedText.includes(pattern)).map((pattern) => `irrelevant:${pattern}`);
-  const routineNewsCodes = ROUTINE_NEWS_PATTERNS.filter((pattern) => combinedText.includes(pattern)).map((pattern) => `routine:${pattern}`);
+  const entertainmentPromoBacklash = hasEntertainmentPromoBacklash(combinedText);
+  const disqualifierCodes = IRRELEVANT_PATTERNS
+    .filter(
+      (pattern) =>
+        combinedText.includes(pattern) &&
+        !(
+          entertainmentPromoBacklash &&
+          ENTERTAINMENT_PROMO_DISQUALIFIERS.has(pattern)
+        )
+    )
+    .map((pattern) => `irrelevant:${pattern}`);
+  const routineNewsCodes = ROUTINE_NEWS_PATTERNS
+    .filter(
+      (pattern) =>
+        combinedText.includes(pattern) &&
+        !(
+          entertainmentPromoBacklash &&
+          ENTERTAINMENT_PROMO_ROUTINE_PATTERNS.has(pattern)
+        )
+    )
+    .map((pattern) => `routine:${pattern}`);
 
   const baseScore = Math.min(
     100,

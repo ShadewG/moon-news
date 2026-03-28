@@ -1,0 +1,50 @@
+[direct-report] reusing existing parallel deep research memo
+[direct-report] parallel deep research complete: pro-fast / trun_dc31875708ad4bf5b27713164c9be644
+[direct-report] sonnet query plan stage complete
+[direct-report] starting: Gen Alpha Still Can't Read Anything
+[direct-report] article queries: NAEP 2024 reading scores fourth grade below basic historic low | NAEP 2024 eighth grade reading decline 2019 2022 2024 trend | chronic absenteeism 14 million students reading scores NCES correlation | Louisiana science of reading mandate fourth grade proficiency gains | Peggy Carr NCES commissioner 2024 reading results historic lows | Jonathan Haidt phone-based childhood attention fragmentation reading | Maryanne Wolf deep reading brain screens skimming cognitive science | teachers stop assigning full novels attention span COVID recovery | social promotion no-fail grading policy schools reading below grade level | equitable grading 50 percent no work pass fail literacy consequences | Common Sense Media 2025 early childhood screen time gaming surge report | science of reading curriculum adoption states 2023 2024 policy | reading for pleasure decline 13-year-olds 27 percent to 14 percent NAEP | workforce literacy crisis employers reading comprehension incoming workers
+[direct-report] media queries: Jonathan Haidt "Anxious Generation" interview reading attention phones children | Maryanne Wolf interview deep reading brain screens YouTube lecture | NAEP 2024 results press conference Peggy Carr NCES video | teacher testimony Congress phone distraction classroom reading hearing | Louisiana reading curriculum teacher training success story news segment | PBS NewsHour reading crisis elementary school classroom report | NPR Ed team chronic absenteeism reading decline audio report | teacher TikTok or YouTube "my students can't read" classroom reality | Jonathan Haidt congressional testimony social media children attention 2023 | Common Sense Media report launch video early childhood screen time 2025 | Sold a Story podcast Emily Hanford reading instruction phonics | Emily Hanford APM Reports "hard words" reading instruction documentary audio | science of reading explainer video phonics versus whole language debate | middle school reading intervention teacher interview local news | hiring manager workforce reading comprehension skills gap interview | pediatrician screen time toddler language development interview news clip | school board meeting testimony parent reading scores phone policy | "science of reading" state legislature hearing testimony 2023 2024
+[direct-report] social queries: Reddit r/Teachers students can't read grade level 2024 thread | Reddit r/Teachers "I stopped assigning novels" discussion | Reddit r/education chronic absenteeism reading skills collapse post-COVID | Reddit r/Parenting enforcing reading time against YouTube Roblox kids | teacher Twitter/X thread seventh graders reading at third grade level | TikTok teacher "my students have never read a full book" viral post | Twitter/X NAEP 2024 reading scores reaction teachers educators | Reddit r/Teachers no-fail grading social promotion literacy consequences | Reddit r/GenAlpha or r/teenagers reading books discussion thread | Twitter/X Jonathan Haidt phone-based childhood reading attention quotes | parent Reddit thread child won't read books only watches YouTube Shorts | Reddit r/Teachers phone ban classroom reading focus before after
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[direct-report] news results selected: 6
+[direct-report] extracting article: New data highlights 'achievement gap' for students in the US - ABC News
+[direct-report] extracting article: This Is Your Brain on 'Deep Reading.' It's Pretty Magnificent.
+[direct-report] extracting article: Kids Rarely Read Whole Books Anymore. Even in English Class. - The New York Times
+[direct-report] extracting article: Many schools don’t think students can read full novels any more. That’s a tragedy | Margaret Sullivan | The Guardian
+[direct-report] extracting article: Louisiana’s readers have improved since COVID. What’s the secret? : NPR
+[direct-report] extracting article: Reader, Come Home: The Reading Brain in a Digital World — Maryanne Wolf
+[direct-report] structured article cards: 6
+[direct-report] social posts discovered: 0
+[direct-report] expanded media queries: Jonathan Haidt "Anxious Generation" interview reading attention phones children | Maryanne Wolf interview deep reading brain screens YouTube lecture | NAEP 2024 results press conference Peggy Carr NCES video | teacher testimony Congress phone distraction classroom reading hearing | Louisiana reading curriculum teacher training success story news segment | PBS NewsHour reading crisis elementary school classroom report | NPR Ed team chronic absenteeism reading decline audio report | teacher TikTok or YouTube "my students can't read" classroom reality | Jonathan Haidt congressional testimony social media children attention 2023 | Common Sense Media report launch video early childhood screen time 2025 | Sold a Story podcast Emily Hanford reading instruction phonics | Emily Hanford APM Reports "hard words" reading instruction documentary audio | science of reading explainer video phonics versus whole language debate | middle school reading intervention teacher interview local news | hiring manager workforce reading comprehension skills gap interview | pediatrician screen time toddler language development interview news clip
+[direct-report] media clips selected: 16, youtube transcript targets: 30, quote extraction targets: 14, clean topic quotes: 12
+[direct-report] ingesting media: Model school trains teachers in ABCs of reading instruction
+[direct-report] Moon context prepared
+[direct-report] research stage complete
+[direct-report] draft outline stage complete
+[direct-report] section query plan stage complete
+[direct-report] section source discovery complete: 7 bundles
+[direct-report] final outline stage complete
+[direct-report] quote selection stage complete
+[direct-report] quote placement stage complete
+[direct-report] section plan stage complete
+[direct-report] why-it-matters stage complete
+[direct-report] report files written
+{
+  "jsonPath": "/opt/apps/moon-news/research/direct-outline-gen-alpha-still-cant-read-anything.json",
+  "packetJsonPath": "/opt/apps/moon-news/research/research-packet-gen-alpha-still-cant-read-anything.json",
+  "publicPacketJsonPath": "/opt/apps/moon-news/public/research/gen-alpha-still-cant-read-anything-research-packet.json",
+  "htmlPath": "/opt/apps/moon-news/public/research/gen-alpha-still-cant-read-anything-research-review.html"
+}

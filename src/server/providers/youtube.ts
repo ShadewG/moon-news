@@ -33,6 +33,14 @@ export interface YouTubeChannelSummary {
   subscriberCount: number | null;
 }
 
+export interface YouTubeChannelFeedSummary {
+  channelId: string;
+  feedUrl: string;
+  channelHandle: string | null;
+  channelUrl: string | null;
+  title: string | null;
+}
+
 export interface YouTubeChannelUpload {
   videoId: string;
   channelId: string;
@@ -46,8 +54,19 @@ export interface YouTubeChannelUpload {
   url: string;
 }
 
+export interface YouTubeCommentResult {
+  commentId: string;
+  authorDisplayName: string;
+  textDisplay: string;
+  likeCount: number;
+  publishedAt: string | null;
+  updatedAt: string | null;
+  url: string;
+}
+
 const DAILY_QUOTA_LIMIT = 100;
 const QUOTA_SAFETY_MARGIN = 0.9;
+let youtubeApiQuotaExhausted = false;
 
 async function getTodayYouTubeSearchCount(): Promise<number> {
   const db = getDb();
@@ -91,6 +110,96 @@ function pickThumbnailUrl(thumbnails?: YouTubeThumbnailSet): string {
   );
 }
 
+export function buildYouTubeChannelFeedUrl(channelId: string): string {
+  return `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+}
+
+function normalizeYouTubeHandle(handle: string | null | undefined): string | null {
+  const normalized = handle?.trim().replace(/^@+/, "");
+  return normalized ? `@${normalized}` : null;
+}
+
+function extractYouTubeHandleFromUrl(url: string | null | undefined): string | null {
+  if (!url) {
+    return null;
+  }
+
+  const match = url.match(/youtube\.com\/@([^/?#]+)/i);
+  return normalizeYouTubeHandle(match?.[1] ?? null);
+}
+
+function extractYouTubeChannelIdFromUrl(url: string | null | undefined): string | null {
+  if (!url) {
+    return null;
+  }
+
+  const match =
+    url.match(/feeds\/videos\.xml\?channel_id=([A-Za-z0-9_-]+)/i) ??
+    url.match(/youtube\.com\/channel\/([A-Za-z0-9_-]+)/i);
+
+  return match?.[1] ?? null;
+}
+
+function buildYouTubeHandleUrl(handle: string): string {
+  return `https://www.youtube.com/${normalizeYouTubeHandle(handle) ?? handle}`;
+}
+
+function extractHtmlAttribute(html: string, pattern: RegExp): string | null {
+  const match = html.match(pattern);
+  return match?.[1]?.trim() ?? null;
+}
+
+function extractYouTubeChannelFeedFromHtml(html: string): YouTubeChannelFeedSummary | null {
+  const feedChannelId =
+    extractHtmlAttribute(
+      html,
+      /https:\/\/www\.youtube\.com\/feeds\/videos\.xml\?channel_id=([A-Za-z0-9_-]+)/i
+    ) ??
+    extractHtmlAttribute(
+      html,
+      /feeds\/videos\.xml\?channel_id=([A-Za-z0-9_-]+)/i
+    );
+
+  const canonicalUrl =
+    extractHtmlAttribute(html, /<link[^>]+rel="canonical"[^>]+href="([^"]+)"/i) ??
+    extractHtmlAttribute(html, /<meta[^>]+property="og:url"[^>]+content="([^"]+)"/i);
+  const canonicalChannelId = extractYouTubeChannelIdFromUrl(canonicalUrl);
+  const channelId = feedChannelId ?? canonicalChannelId;
+
+  if (!channelId) {
+    return null;
+  }
+
+  const title =
+    extractHtmlAttribute(html, /<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i) ??
+    extractHtmlAttribute(html, /<title>([^<]+)<\/title>/i);
+
+  return {
+    channelId,
+    feedUrl: buildYouTubeChannelFeedUrl(channelId),
+    channelHandle: extractYouTubeHandleFromUrl(canonicalUrl),
+    channelUrl: canonicalUrl ?? `https://www.youtube.com/channel/${channelId}`,
+    title,
+  };
+}
+
+async function fetchYouTubeChannelPage(url: string): Promise<string> {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "User-Agent": "Mozilla/5.0 (MoonNews YouTube Resolver)",
+    },
+    cache: "no-store",
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`YouTube channel page failed: ${response.status} ${response.statusText}`);
+  }
+
+  return response.text();
+}
+
 async function fetchYouTubeJson<T>(
   path: string,
   params: Record<string, string>
@@ -102,6 +211,10 @@ async function fetchYouTubeJson<T>(
     throw new Error("YOUTUBE_API_KEY is not configured");
   }
 
+  if (youtubeApiQuotaExhausted) {
+    throw new Error("YouTube API quota exhausted for this process");
+  }
+
   const searchParams = new URLSearchParams({
     ...params,
     key: apiKey,
@@ -110,6 +223,9 @@ async function fetchYouTubeJson<T>(
 
   if (!response.ok) {
     const errorText = await response.text();
+    if (errorText.includes("quotaExceeded")) {
+      youtubeApiQuotaExhausted = true;
+    }
     throw new Error(`YouTube ${path} failed: ${response.status} ${errorText}`);
   }
 
@@ -249,6 +365,66 @@ async function resolveYouTubeChannel(input: {
   };
 }
 
+export async function resolveYouTubeChannelFeed(input: {
+  channelId?: string;
+  channelHandle?: string;
+  channelUrl?: string;
+  channelName?: string;
+  allowApiFallback?: boolean;
+}): Promise<YouTubeChannelFeedSummary | null> {
+  const directChannelId =
+    input.channelId ?? extractYouTubeChannelIdFromUrl(input.channelUrl);
+  const directHandle =
+    normalizeYouTubeHandle(input.channelHandle) ?? extractYouTubeHandleFromUrl(input.channelUrl);
+
+  if (directChannelId) {
+    return {
+      channelId: directChannelId,
+      feedUrl: buildYouTubeChannelFeedUrl(directChannelId),
+      channelHandle: directHandle,
+      channelUrl: input.channelUrl ?? `https://www.youtube.com/channel/${directChannelId}`,
+      title: null,
+    };
+  }
+
+  const publicPageUrl =
+    input.channelUrl ??
+    (directHandle ? buildYouTubeHandleUrl(directHandle) : null);
+
+  if (publicPageUrl) {
+    try {
+      const html = await fetchYouTubeChannelPage(publicPageUrl);
+      const resolved = extractYouTubeChannelFeedFromHtml(html);
+      if (resolved) {
+        return {
+          ...resolved,
+          channelHandle: directHandle ?? resolved.channelHandle,
+          channelUrl: resolved.channelUrl ?? publicPageUrl,
+        };
+      }
+    } catch {
+      // Fall back to the API only when the public page path fails.
+    }
+  }
+
+  if (!input.allowApiFallback) {
+    return null;
+  }
+
+  const channel = await resolveYouTubeChannel(input);
+  if (!channel) {
+    return null;
+  }
+
+  return {
+    channelId: channel.channelId,
+    feedUrl: buildYouTubeChannelFeedUrl(channel.channelId),
+    channelHandle: directHandle ?? normalizeYouTubeHandle(channel.customUrl),
+    channelUrl: channel.channelUrl,
+    title: channel.title,
+  };
+}
+
 export async function searchYouTube(input: {
   keywords: string[];
   temporalContext: string | null;
@@ -259,6 +435,10 @@ export async function searchYouTube(input: {
 
   if (!apiKey) {
     return { results: [], quotaUsed: 0, quotaRemaining: DAILY_QUOTA_LIMIT };
+  }
+
+  if (youtubeApiQuotaExhausted) {
+    return { results: [], quotaUsed: DAILY_QUOTA_LIMIT, quotaRemaining: 0 };
   }
 
   const currentCount = await getTodayYouTubeSearchCount();
@@ -296,6 +476,9 @@ export async function searchYouTube(input: {
 
   if (!searchResponse.ok) {
     const errorText = await searchResponse.text();
+    if (errorText.includes("quotaExceeded")) {
+      youtubeApiQuotaExhausted = true;
+    }
     throw new Error(`YouTube search failed: ${searchResponse.status} ${errorText}`);
   }
 
@@ -494,4 +677,68 @@ export async function fetchYouTubeChannelUploads(input: {
     .sort((left, right) => Date.parse(right.publishedAt) - Date.parse(left.publishedAt));
 
   return { channel, items };
+}
+
+export async function fetchYouTubeComments(input: {
+  videoId: string;
+  maxResults?: number;
+}): Promise<YouTubeCommentResult[]> {
+  const env = getEnv();
+  if (!env.YOUTUBE_API_KEY) {
+    return [];
+  }
+
+  try {
+    const response = await fetchYouTubeJson<{
+      items?: Array<{
+        id?: string;
+        snippet?: {
+          topLevelComment?: {
+            id?: string;
+            snippet?: {
+              authorDisplayName?: string;
+              textDisplay?: string;
+              likeCount?: number;
+              publishedAt?: string;
+              updatedAt?: string;
+            };
+          };
+        };
+      }>;
+    }>("commentThreads", {
+      part: "snippet",
+      videoId: input.videoId,
+      order: "relevance",
+      textFormat: "plainText",
+      maxResults: String(Math.max(1, Math.min(input.maxResults ?? 8, 20))),
+    });
+
+    return (response.items ?? [])
+      .map((item) => {
+        const commentId = item.snippet?.topLevelComment?.id ?? item.id ?? "";
+        const snippet = item.snippet?.topLevelComment?.snippet;
+        const textDisplay = snippet?.textDisplay?.replace(/\s+/g, " ").trim() ?? "";
+
+        if (!commentId || !textDisplay) {
+          return null;
+        }
+
+        return {
+          commentId,
+          authorDisplayName: snippet?.authorDisplayName?.trim() || "Unknown",
+          textDisplay,
+          likeCount: Number(snippet?.likeCount ?? 0),
+          publishedAt: snippet?.publishedAt ?? null,
+          updatedAt: snippet?.updatedAt ?? null,
+          url: `https://www.youtube.com/watch?v=${input.videoId}&lc=${commentId}`,
+        } satisfies YouTubeCommentResult;
+      })
+      .filter((comment): comment is YouTubeCommentResult => Boolean(comment));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/commentsDisabled|processingFailure|videoNotFound/i.test(message)) {
+      return [];
+    }
+    throw error;
+  }
 }

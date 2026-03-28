@@ -5,6 +5,7 @@ import { eq, desc } from "drizzle-orm";
 import { getDb } from "@/server/db/client";
 import { researchProgress } from "@/server/db/schema";
 import { deepResearchStory } from "@/server/services/board/story-research";
+import { runFullTopicAgentForBoardStory } from "@/server/services/board/full-topic-agent";
 
 type RouteContext = {
   params: Promise<{
@@ -32,7 +33,7 @@ export async function POST(request: Request, context: RouteContext) {
       .insert(researchProgress)
       .values({
         storyId,
-        taskType: "deep_research",
+        taskType: mode === "full" ? "full_topic_agent" : "deep_research",
         step: "pending",
         progress: 0,
         message: "Research queued...",
@@ -41,10 +42,15 @@ export async function POST(request: Request, context: RouteContext) {
 
     const progressId = rows[0].id;
 
-    // Fire and forget — pass the existing progress ID to avoid duplication
-    deepResearchStory(storyId, mode, progressId).catch((err) => {
-      console.error(`[research-api] Research failed for ${storyId}:`, err);
-    });
+    if (mode === "full") {
+      runFullTopicAgentForBoardStory({ storyId, progressId }).catch((err) => {
+        console.error(`[research-api] Full topic agent failed for ${storyId}:`, err);
+      });
+    } else {
+      deepResearchStory(storyId, mode, progressId).catch((err) => {
+        console.error(`[research-api] Research failed for ${storyId}:`, err);
+      });
+    }
 
     return NextResponse.json({ progressId, storyId, mode });
   } catch (err) {

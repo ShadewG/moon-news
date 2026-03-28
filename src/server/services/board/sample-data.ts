@@ -108,6 +108,7 @@ export interface BoardSourceConfigSeed {
   configJson:
     | {
         mode: "rss_feed";
+        signalOnly?: boolean;
         feedUrl: string;
         siteUrl?: string;
         sourceType?: "news" | "analysis" | "legal" | "gov";
@@ -118,6 +119,7 @@ export interface BoardSourceConfigSeed {
     | {
         mode: "youtube_channel";
         channelId?: string;
+        feedUrl?: string;
         uploadsPlaylistId?: string;
         channelHandle?: string;
         channelUrl?: string;
@@ -136,6 +138,26 @@ export interface BoardSourceConfigSeed {
         authorityScore?: number;
         tags?: string[];
         maxResults?: number;
+      }
+    | {
+        mode: "tiktok_query";
+        query: string;
+        queries?: string[];
+        hashtags?: string[];
+        sourceType?: "tiktok";
+        vertical?: string;
+        authorityScore?: number;
+        tags?: string[];
+        maxResults?: number;
+      }
+    | {
+        mode: "tiktok_fyp_profile";
+        profileKey: string;
+        sourceType?: "tiktok";
+        vertical?: string;
+        authorityScore?: number;
+        tags?: string[];
+        maxResults?: number;
       };
 }
 
@@ -144,10 +166,12 @@ function buildYtSeeds(
   channels: Array<{
     name: string;
     handle: string;
+    channelId?: string;
     vertical: string;
     authority: number;
     tags: string[];
     poll?: number;
+    maxResults?: number;
   }>
 ): BoardSourceConfigSeed[] {
   return channels.map((ch) => ({
@@ -157,13 +181,108 @@ function buildYtSeeds(
     pollIntervalMinutes: ch.poll ?? 45,
     configJson: {
       mode: "youtube_channel" as const,
+      channelId: ch.channelId,
+      feedUrl: ch.channelId
+        ? `https://www.youtube.com/feeds/videos.xml?channel_id=${ch.channelId}`
+        : undefined,
       channelHandle: ch.handle,
       channelUrl: `https://www.youtube.com/${ch.handle}`,
       sourceType: "yt" as const,
       vertical: ch.vertical,
       authorityScore: ch.authority,
       tags: ["youtube", ...ch.tags],
-      maxResults: 6,
+      maxResults: ch.maxResults ?? 6,
+    },
+  }));
+}
+
+/** Shorthand to generate X account source seeds from compact objects */
+function buildXSeeds(
+  accounts: Array<{
+    name: string;
+    handle: string;
+    vertical: string;
+    authority: number;
+    tags: string[];
+    queryTerms: string[];
+    poll?: number;
+    maxResults?: number;
+  }>
+): BoardSourceConfigSeed[] {
+  return accounts.map((account) => ({
+    name: account.name,
+    kind: "x_account" as const,
+    provider: "twitter" as const,
+    pollIntervalMinutes: account.poll ?? 30,
+    configJson: {
+      mode: "x_account" as const,
+      handle: account.handle.replace(/^@+/, ""),
+      queryTerms: account.queryTerms,
+      sourceType: "x" as const,
+      vertical: account.vertical,
+      authorityScore: account.authority,
+      tags: ["x", ...account.tags],
+      maxResults: account.maxResults ?? 6,
+    },
+  }));
+}
+
+function buildTikTokQuerySeeds(
+  queries: Array<{
+    name: string;
+    query: string;
+    queries?: string[];
+    hashtags?: string[];
+    vertical: string;
+    authority: number;
+    tags: string[];
+    poll?: number;
+    maxResults?: number;
+  }>
+): BoardSourceConfigSeed[] {
+  return queries.map((query) => ({
+    name: query.name,
+    kind: "tiktok_query" as const,
+    provider: "internal" as const,
+    pollIntervalMinutes: query.poll ?? 20,
+    configJson: {
+      mode: "tiktok_query" as const,
+      query: query.query,
+      queries: query.queries,
+      hashtags: query.hashtags,
+      sourceType: "tiktok" as const,
+      vertical: query.vertical,
+      authorityScore: query.authority,
+      tags: ["tiktok", ...query.tags],
+      maxResults: query.maxResults ?? 6,
+    },
+  }));
+}
+
+function buildTikTokFypSeeds(
+  profiles: Array<{
+    name: string;
+    profileKey: string;
+    vertical: string;
+    authority: number;
+    tags: string[];
+    poll?: number;
+    maxResults?: number;
+  }>
+): BoardSourceConfigSeed[] {
+  return profiles.map((profile) => ({
+    name: profile.name,
+    kind: "tiktok_fyp_profile" as const,
+    provider: "internal" as const,
+    pollIntervalMinutes: profile.poll ?? 25,
+    configJson: {
+      mode: "tiktok_fyp_profile" as const,
+      profileKey: profile.profileKey,
+      sourceType: "tiktok" as const,
+      vertical: profile.vertical,
+      authorityScore: profile.authority,
+      tags: ["tiktok", "fyp", ...profile.tags],
+      maxResults: profile.maxResults ?? 8,
     },
   }));
 }
@@ -1226,6 +1345,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 15,
     configJson: {
       mode: "rss_feed",
+      signalOnly: true,
       feedUrl: "https://hnrss.org/frontpage",
       siteUrl: "https://news.ycombinator.com/",
       sourceType: "news",
@@ -1290,6 +1410,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 15,
     configJson: {
       mode: "rss_feed",
+      signalOnly: true,
       feedUrl: "https://trends.google.com/trending/rss?geo=US",
       siteUrl: "https://trends.google.com/trending",
       sourceType: "news",
@@ -1305,6 +1426,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 30,
     configJson: {
       mode: "rss_feed",
+      signalOnly: true,
       feedUrl: "https://trends.google.com/trending/rss?geo=GB",
       siteUrl: "https://trends.google.com/trending",
       sourceType: "news",
@@ -1563,6 +1685,30 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     },
   },
   {
+    name: "Polymarket",
+    kind: "x_account",
+    provider: "twitter",
+    pollIntervalMinutes: 15,
+    configJson: {
+      mode: "x_account",
+      handle: "Polymarket",
+      queryTerms: [
+        "prediction market",
+        "odds",
+        "ceasefire",
+        "war",
+        "election",
+        "market",
+        "bet",
+      ],
+      sourceType: "x",
+      vertical: "Government / Corruption",
+      authorityScore: 80,
+      tags: ["x", "prediction-markets", "markets", "politics", "crypto"],
+      maxResults: 8,
+    },
+  },
+  {
     name: "Wall Street Silver",
     kind: "x_account",
     provider: "twitter",
@@ -1585,7 +1731,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 20,
     configJson: {
       mode: "x_account",
-      handle: "zaborhood",
+      handle: "zerohedge",
       queryTerms: ["crash", "collapse", "bailout", "fraud", "scandal"],
       sourceType: "x",
       vertical: "Big Tech / Billionaires",
@@ -1701,7 +1847,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 15,
     configJson: {
       mode: "x_account",
-      handle: "DABORHOOD",
+      handle: "DRUDGE",
       queryTerms: ["breaking", "scandal", "crisis"],
       sourceType: "x",
       vertical: "Government / Corruption",
@@ -1733,12 +1879,12 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 20,
     configJson: {
       mode: "x_account",
-      handle: "hasaborhood",
-      queryTerms: ["capitalism", "corruption", "scandal", "billionaire"],
+      handle: "hasanthehun",
+      queryTerms: ["banned", "twitch", "drama", "streamer", "controversy", "feud"],
       sourceType: "x",
-      vertical: "Government / Corruption",
-      authorityScore: 78,
-      tags: ["x", "politics", "progressive", "commentary"],
+      vertical: "Internet Drama",
+      authorityScore: 84,
+      tags: ["x", "streaming", "creator-economy", "drama", "commentary"],
       maxResults: 6,
     },
   },
@@ -1865,8 +2011,8 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 15,
     configJson: {
       mode: "x_account",
-      handle: "naborhood",
-      queryTerms: ["hip hop", "rap", "celebrity", "drama"],
+      handle: "NoJumper",
+      queryTerms: ["hip hop", "rap", "celebrity", "drama", "interview", "beef"],
       sourceType: "x",
       vertical: "Social Issues / Culture",
       authorityScore: 74,
@@ -1881,7 +2027,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 20,
     configJson: {
       mode: "x_account",
-      handle: "myaborhood",
+      handle: "mymixtapez",
       queryTerms: ["hip hop", "music", "viral", "trending"],
       sourceType: "x",
       vertical: "Social Issues / Culture",
@@ -1913,7 +2059,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     pollIntervalMinutes: 15,
     configJson: {
       mode: "x_account",
-      handle: "Kaborhood",
+      handle: "Kurrco",
       queryTerms: ["viral", "trending", "gen z", "tiktok"],
       sourceType: "x",
       vertical: "Social Issues / Culture",
@@ -1970,6 +2116,124 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
       maxResults: 6,
     },
   },
+
+  /* ──────────────────────────────────────────────────
+     EXPANDED TERMINALLY-ONLINE X ACCOUNTS
+     ────────────────────────────────────────────────── */
+  ...buildXSeeds([
+    { name: "Jake Sucky", handle: "@JakeSucky", vertical: "Internet Drama", authority: 86, tags: ["creator-economy", "gaming", "streamers", "drama"], queryTerms: ["drama", "streamer", "gaming", "banned", "controversy", "leaked"], poll: 20, maxResults: 8 },
+    { name: "penguinz0", handle: "@penguinz0", vertical: "Internet Drama", authority: 90, tags: ["commentary", "drama", "internet-culture", "gaming"], queryTerms: ["drama", "controversy", "reaction", "gaming", "internet"], poll: 30, maxResults: 6 },
+    { name: "Rowan Cheung", handle: "@rowancheung", vertical: "Tech / AI", authority: 88, tags: ["ai", "tools", "internet-culture", "viral"], queryTerms: ["ai", "tool", "launch", "demo", "deepfake", "slop", "viral"], poll: 20, maxResults: 8 },
+    { name: "Taylor Lorenz", handle: "@TaylorLorenz", vertical: "Internet Culture", authority: 90, tags: ["internet-culture", "creator-economy", "platforms", "reporting"], queryTerms: ["creator", "ai", "platform", "viral", "internet culture", "deepfake", "scam"], poll: 20, maxResults: 6 },
+    { name: "Pop Base", handle: "@PopBase", vertical: "Celebrity / Hollywood", authority: 88, tags: ["pop-culture", "celebrity", "fandom", "viral"], queryTerms: ["backlash", "viral", "controversy", "meltdown", "reaction", "discourse"], poll: 20, maxResults: 8 },
+    { name: "Film Updates", handle: "@FilmUpdates", vertical: "Celebrity / Hollywood", authority: 90, tags: ["film", "tv", "trailers", "fandom", "viral"], queryTerms: ["trailer", "backlash", "casting", "reaction", "cgi", "remake", "reboot"], poll: 20, maxResults: 8 },
+    { name: "LegacyKillaHD", handle: "@LegacyKillaHD", vertical: "Gaming / Culture", authority: 78, tags: ["gaming", "commentary", "backlash", "ai"], queryTerms: ["backlash", "controversy", "ai", "review bomb", "developer", "fans"], poll: 30, maxResults: 6 },
+    { name: "Slasher", handle: "@Slasher", vertical: "Gaming / Culture", authority: 84, tags: ["gaming", "esports", "insider", "reporting"], queryTerms: ["breaking", "gaming", "esports", "layoffs", "org", "streamer"], poll: 20, maxResults: 6 },
+    { name: "Pieter Levels", handle: "@levelsio", vertical: "Tech / AI", authority: 80, tags: ["ai", "builders", "platforms", "internet-culture"], queryTerms: ["ai", "bot", "platform", "tool", "launch", "viral"], poll: 30, maxResults: 6 },
+    { name: "Matt Binder", handle: "@MattBinder", vertical: "Tech / AI", authority: 78, tags: ["tech", "scams", "internet-culture", "platforms"], queryTerms: ["scam", "platform", "ai", "backlash", "failure", "exposed"], poll: 30, maxResults: 6 },
+    { name: "mattxiv", handle: "@mattxiv", vertical: "Internet Culture", authority: 74, tags: ["pop-culture", "memes", "commentary"], queryTerms: ["viral", "celebrity", "reaction", "ad", "photo", "commentary"], poll: 30, maxResults: 6 },
+    { name: "Casey Newton", handle: "@CaseyNewton", vertical: "Platform Culture", authority: 90, tags: ["platforms", "moderation", "creator-economy", "reporting"], queryTerms: ["platform", "moderation", "policy", "creator", "monetization", "algorithm", "ban"], poll: 20, maxResults: 6 },
+    { name: "Autism Capital", handle: "@AutismCapital", vertical: "Internet Culture", authority: 76, tags: ["memes", "internet-culture", "platforms", "commentary"], queryTerms: ["drama", "viral", "internet", "platform", "culture"], poll: 30, maxResults: 6 },
+    { name: "Jason Koebler", handle: "@jason_koebler", vertical: "Platform Culture", authority: 88, tags: ["platforms", "ai", "reporting", "moderation"], queryTerms: ["platform", "moderation", "ai", "policy", "investigation", "content"], poll: 20, maxResults: 6 },
+    { name: "ModernWarzone", handle: "@ModernWarzone", vertical: "Gaming / Culture", authority: 74, tags: ["gaming", "fps", "community", "viral"], queryTerms: ["leak", "controversy", "backlash", "community", "anti-cheat", "reveal"], poll: 30, maxResults: 6 },
+    { name: "CharlieIntel", handle: "@charlieINTEL", vertical: "Gaming / Culture", authority: 78, tags: ["gaming", "fps", "community", "news"], queryTerms: ["controversy", "backlash", "update", "community", "nerf", "broken"], poll: 20, maxResults: 6 },
+    { name: "YongYea", handle: "@YongYea", vertical: "Gaming / Culture", authority: 72, tags: ["gaming", "commentary", "consumer", "backlash"], queryTerms: ["controversy", "anti-consumer", "backlash", "layoffs", "developer", "microtransaction"], poll: 30, maxResults: 6 },
+    { name: "Benji-Sales", handle: "@Benji_Sales", vertical: "Gaming / Culture", authority: 72, tags: ["gaming", "analysis", "data", "platform-wars"], queryTerms: ["sales", "flop", "data", "platform", "record", "disappointing"], poll: 30, maxResults: 6 },
+    { name: "Eliezer Yudkowsky", handle: "@ESYudkowsky", vertical: "Tech / AI", authority: 74, tags: ["ai", "safety", "ethics", "viral"], queryTerms: ["ai", "deepfake", "safety", "risk", "regulation", "viral"], poll: 45, maxResults: 4 },
+    { name: "SAY CHEESE!", handle: "@SaycheeseDGTL", vertical: "Hip-Hop / Culture", authority: 72, tags: ["hip-hop", "viral", "pop-culture"], queryTerms: ["viral", "drama", "beef", "concert", "bizarre", "controversy"], poll: 20, maxResults: 8 },
+    { name: "Exhibitor Relations Co.", handle: "@ERCboxoffice", vertical: "Celebrity / Hollywood", authority: 76, tags: ["box-office", "film", "analysis", "fandom"], queryTerms: ["box office", "flop", "bomb", "opening", "surprise", "disappointing"], poll: 30, maxResults: 6 },
+    { name: "Heavy Spoilers", handle: "@heavyspoilers", vertical: "Celebrity / Hollywood", authority: 72, tags: ["film", "trailers", "analysis", "fandom"], queryTerms: ["trailer", "breakdown", "backlash", "cgi", "reveal", "reaction"], poll: 30, maxResults: 6 },
+    { name: "Matt Navarra", handle: "@MattNavarra", vertical: "Platform Culture", authority: 84, tags: ["platforms", "product", "rollouts", "creator-economy"], queryTerms: ["feature", "update", "change", "redesign", "algorithm", "monetization", "bug"], poll: 20, maxResults: 6 },
+    { name: "internet hall of fame", handle: "@InternetH0F", vertical: "Internet Culture", authority: 70, tags: ["viral", "memes", "internet-culture", "clips"], queryTerms: ["viral", "internet", "clip", "reaction", "moment"], poll: 30, maxResults: 4 },
+    { name: "MrBeast", handle: "@MrBeast", vertical: "Internet Drama", authority: 88, tags: ["creator-economy", "youtube", "viral", "spectacle"], queryTerms: ["challenge", "creator", "youtube", "viral", "drama", "controversy"], poll: 30, maxResults: 4 },
+    { name: "Kai Cenat", handle: "@KaiCenat", vertical: "Internet Drama", authority: 86, tags: ["streaming", "viral", "creator-economy", "gen-z"], queryTerms: ["stream", "collab", "viral", "marathon", "drama", "event"], poll: 20, maxResults: 6 },
+    { name: "SomeOrdinaryGamers", handle: "@SomeOrdinaryGmrs", vertical: "Internet Drama", authority: 78, tags: ["tech", "drama", "investigations", "internet-culture"], queryTerms: ["drama", "scam", "investigation", "tech", "controversy"], poll: 30, maxResults: 6 },
+    { name: "MKBHD", handle: "@MKBHD", vertical: "Tech / AI", authority: 88, tags: ["tech", "reviews", "consumer-tech", "ai"], queryTerms: ["review", "product", "ai", "backlash", "bad", "disappointing"], poll: 30, maxResults: 6 },
+    { name: "Wario64", handle: "@Wario64", vertical: "Gaming / Culture", authority: 70, tags: ["gaming", "news", "deals", "platforms"], queryTerms: ["controversy", "reveal", "backlash", "exclusive", "price", "cancelled"], poll: 30, maxResults: 4 },
+    { name: "CWellion", handle: "@CWellion", vertical: "Gaming / Culture", authority: 64, tags: ["gaming", "commentary", "ai", "media"], queryTerms: ["hypocrisy", "ai", "journalism", "double standard", "controversy"], poll: 45, maxResults: 4 },
+    { name: "RapTV", handle: "@Rap", vertical: "Hip-Hop / Culture", authority: 74, tags: ["hip-hop", "viral", "music", "pop-culture"], queryTerms: ["beef", "drama", "viral", "new music", "controversy", "clip"], poll: 20, maxResults: 8 },
+    { name: "Screen Times", handle: "@ScreenTimes", vertical: "Celebrity / Hollywood", authority: 68, tags: ["film", "tv", "trailers", "fandom"], queryTerms: ["trailer", "casting", "backlash", "reaction", "cgi"], poll: 30, maxResults: 6 },
+    { name: "IShowSpeed", handle: "@IShowSpeed", vertical: "Internet Drama", authority: 84, tags: ["streaming", "viral", "gen-z", "creator-economy"], queryTerms: ["stream", "viral", "challenge", "reaction", "event"], poll: 20, maxResults: 6 },
+    { name: "Peter Steinberger", handle: "@steipete", vertical: "Tech / AI", authority: 70, tags: ["ai", "builders", "developer-culture", "tools"], queryTerms: ["ai", "agent", "build", "tool", "code", "open source"], poll: 45, maxResults: 4 },
+    { name: "Turkey Tom", handle: "@TurkeyTom", vertical: "Internet Drama", authority: 76, tags: ["drama", "commentary", "youtube", "internet-culture"], queryTerms: ["drama", "allegations", "response", "controversy", "exposed"], poll: 30, maxResults: 6 },
+    { name: "AI Breaking News", handle: "@AiBreakingNews", vertical: "Tech / AI", authority: 66, tags: ["ai", "news", "tools", "viral"], queryTerms: ["ai", "launch", "deepfake", "tool", "controversy", "generate"], poll: 30, maxResults: 6 },
+    { name: "Historic Vids", handle: "@historyinmemes", vertical: "Internet Culture", authority: 58, tags: ["viral", "nostalgia", "internet-culture", "history"], queryTerms: ["viral", "iconic", "internet", "clip", "moment", "anniversary"], poll: 45, maxResults: 4 },
+    { name: "DramaAlert", handle: "@DramaAlert", vertical: "Internet Drama", authority: 78, tags: ["drama", "youtube", "creator-economy", "streamers"], queryTerms: ["drama", "allegations", "exposed", "response", "controversy", "streamer"], poll: 20, maxResults: 6 },
+    { name: "Nin10doland", handle: "@nin10doland", vertical: "Gaming / Culture", authority: 60, tags: ["gaming", "nintendo", "community", "fandom"], queryTerms: ["Nintendo", "reveal", "backlash", "Direct", "community"], poll: 45, maxResults: 4 },
+    { name: "FanAkko", handle: "@FanAkko", vertical: "Film / Fandom", authority: 58, tags: ["fandom", "commentary", "film", "backlash"], queryTerms: ["fandom", "toxic", "discourse", "fans", "backlash"], poll: 45, maxResults: 4 },
+    { name: "Logan Kilpatrick", handle: "@OfficialLoganK", vertical: "Tech / AI", authority: 66, tags: ["ai", "developer-culture", "products", "insider"], queryTerms: ["ai", "model", "gemini", "api", "developer", "launch"], poll: 45, maxResults: 4 },
+    { name: "Keeoh", handle: "@Keeoh", vertical: "Gaming / Culture", authority: 58, tags: ["gaming", "streamers", "commentary"], queryTerms: ["game", "streamer", "controversy", "reaction"], poll: 45, maxResults: 4 },
+    { name: "Gamers Prey", handle: "@GamersPrey", vertical: "Gaming / Culture", authority: 56, tags: ["gaming", "leaks", "clips", "controversy"], queryTerms: ["leak", "reveal", "controversy", "gameplay", "backlash"], poll: 45, maxResults: 4 },
+    { name: "The Figen", handle: "@TheFigen_", vertical: "Internet Culture", authority: 50, tags: ["viral", "memes", "internet-culture", "clips"], queryTerms: ["viral", "funny", "internet", "reaction", "clip"], poll: 45, maxResults: 4 },
+    { name: "Marzbar", handle: "@Marzbar_YT", vertical: "Gaming / Culture", authority: 54, tags: ["gaming", "horror", "streamers"], queryTerms: ["game", "horror", "streamer", "viral"], poll: 45, maxResults: 4 },
+
+    { name: "404 Media", handle: "@404mediaco", vertical: "Tech / AI", authority: 86, tags: ["ai", "platforms", "reporting", "internet-culture"], queryTerms: ["ai", "deepfake", "youtube", "tiktok", "slop", "removed", "ban"], poll: 20, maxResults: 6 },
+    { name: "Sam Cole", handle: "@samleecole", vertical: "Tech / AI", authority: 80, tags: ["ai", "deepfakes", "creator-economy", "reporting"], queryTerms: ["deepfake", "onlyfans", "ai", "creator", "platform", "viral"], poll: 20, maxResults: 6 },
+    { name: "Joseph Cox", handle: "@josephfcox", vertical: "Platform Culture", authority: 82, tags: ["platforms", "privacy", "reporting", "internet-culture"], queryTerms: ["hack", "privacy", "discord", "telegram", "deepfake", "leak", "platform"], poll: 20, maxResults: 6 },
+    { name: "Zoe Schiffer", handle: "@ZoeSchiffer", vertical: "Platform Culture", authority: 78, tags: ["platforms", "x", "reporting", "ai"], queryTerms: ["x", "twitter", "verification", "moderation", "grok", "policy", "backlash"], poll: 20, maxResults: 6 },
+    { name: "TeamYouTube", handle: "@TeamYouTube", vertical: "Platform Culture", authority: 80, tags: ["youtube", "platforms", "creator-economy", "support"], queryTerms: ["youtube", "bug", "outage", "monetization", "captcha", "verification", "ads", "creator"], poll: 15, maxResults: 8 },
+    { name: "TubeFilter", handle: "@tubefilter", vertical: "Creator Economy", authority: 74, tags: ["creator-economy", "youtube", "platforms", "reporting"], queryTerms: ["youtube", "creator", "monetization", "adsense", "shorts", "platform"], poll: 30, maxResults: 6 },
+    { name: "Brandy Zadrozny", handle: "@BrandyZadrozny", vertical: "Internet Culture", authority: 76, tags: ["ai", "internet-culture", "reporting", "scams"], queryTerms: ["deepfake", "ai", "hoax", "viral", "misinformation", "scam"], poll: 30, maxResults: 6 },
+
+    { name: "One Take News", handle: "@OneTakeNews", vertical: "Celebrity / Hollywood", authority: 82, tags: ["film", "fandom", "reaction", "viral"], queryTerms: ["trailer", "backlash", "marvel", "dc", "casting", "viral"], poll: 20, maxResults: 6 },
+    { name: "ViewerAnon", handle: "@ViewerAnon", vertical: "Celebrity / Hollywood", authority: 80, tags: ["film", "fandom", "insider", "reaction"], queryTerms: ["test screening", "trailer", "franchise", "reaction", "harry potter", "scream"], poll: 30, maxResults: 6 },
+    { name: "The InSneider", handle: "@TheInSneider", vertical: "Celebrity / Hollywood", authority: 80, tags: ["film", "casting", "insider", "scoops"], queryTerms: ["casting", "sequel", "reboot", "franchise", "trailer", "controversy"], poll: 30, maxResults: 6 },
+    { name: "Grace Randolph", handle: "@GraceRandolph", vertical: "Celebrity / Hollywood", authority: 78, tags: ["film", "fandom", "commentary", "trailers"], queryTerms: ["trailer", "marvel", "dc", "casting", "backlash", "review"], poll: 30, maxResults: 6 },
+    { name: "The DisInsider", handle: "@TheDisInsider", vertical: "Celebrity / Hollywood", authority: 74, tags: ["film", "disney", "remakes", "fandom"], queryTerms: ["disney", "remake", "live action", "backlash", "sequel"], poll: 30, maxResults: 6 },
+    { name: "FandomWire", handle: "@FandomWire", vertical: "Celebrity / Hollywood", authority: 72, tags: ["film", "fandom", "backlash", "viral"], queryTerms: ["marvel", "dc", "trailer", "casting", "backlash"], poll: 30, maxResults: 6 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     SECOND-WAVE X EXPANSION
+     ────────────────────────────────────────────────── */
+  ...buildXSeeds([
+    { name: "Asmongold", handle: "@Asmongold", vertical: "Internet Drama", authority: 90, tags: ["gaming", "streamers", "culture-war", "controversy"], queryTerms: ["gaming", "controversy", "banned", "streamer", "reaction", "culture war"], poll: 20, maxResults: 8 },
+    { name: "Rahll", handle: "@Rahll", vertical: "Tech / AI", authority: 82, tags: ["ai", "art", "copyright", "activism"], queryTerms: ["ai", "art", "copyright", "training", "artists", "grift"], poll: 30, maxResults: 6 },
+    { name: "Destiny", handle: "@TheOmniLiberal", vertical: "Internet Drama", authority: 84, tags: ["streamers", "debates", "drama", "creator-economy"], queryTerms: ["debate", "drama", "controversy", "streamer", "lawsuit", "leaked"], poll: 20, maxResults: 6 },
+    { name: "Karla Ortiz", handle: "@kortizart", vertical: "Tech / AI", authority: 80, tags: ["ai", "art", "copyright", "activism"], queryTerms: ["ai", "art", "copyright", "lawsuit", "artist rights", "training data"], poll: 30, maxResults: 6 },
+    { name: "StreamerBans", handle: "@StreamerBans", vertical: "Internet Drama", authority: 82, tags: ["streamers", "twitch", "moderation", "automation"], queryTerms: ["banned", "twitch", "partner", "suspended", "unbanned"], poll: 15, maxResults: 8 },
+    { name: "FearBuck", handle: "@FearedBuck", vertical: "Internet Culture", authority: 78, tags: ["viral", "memes", "gaming", "internet-culture"], queryTerms: ["viral", "gaming", "internet", "streamer", "meme", "trending"], poll: 20, maxResults: 8 },
+    { name: "Anthony Fantano", handle: "@theneedledrop", vertical: "Hip-Hop / Culture", authority: 80, tags: ["music", "reviews", "fandom", "viral"], queryTerms: ["album", "review", "music", "artist", "rating", "discourse"], poll: 30, maxResults: 6 },
+    { name: "DJ Akademiks", handle: "@iamakademiks", vertical: "Hip-Hop / Culture", authority: 82, tags: ["hip-hop", "beef", "viral", "commentary"], queryTerms: ["hip-hop", "rapper", "beef", "industry", "drama", "diddy"], poll: 20, maxResults: 8 },
+    { name: "VTuber NewsDrop", handle: "@VTuberNewsDrop", vertical: "Internet Culture", authority: 76, tags: ["vtubers", "fandom", "streamers", "digital-culture"], queryTerms: ["vtuber", "hololive", "nijisanji", "agency", "drama", "censorship"], poll: 30, maxResults: 6 },
+    { name: "EmpireCity Box Office", handle: "@EmpireCityBO", vertical: "Celebrity / Hollywood", authority: 74, tags: ["box-office", "film", "analysis"], queryTerms: ["box office", "opening weekend", "prediction", "tracking", "million"], poll: 30, maxResults: 6 },
+    { name: "Cinema Tweets", handle: "@CinemaTweets1", vertical: "Celebrity / Hollywood", authority: 68, tags: ["film", "commentary", "trailers", "box-office"], queryTerms: ["film", "cinema", "trailer", "box office", "opening"], poll: 30, maxResults: 6 },
+    { name: "BoxOfficeReport.com", handle: "@BORReport", vertical: "Celebrity / Hollywood", authority: 72, tags: ["box-office", "film", "data"], queryTerms: ["box office", "weekend", "tracking", "domestic", "million"], poll: 30, maxResults: 6 },
+    { name: "hawksheaux", handle: "@hawksheaux", vertical: "Film / Fandom", authority: 68, tags: ["anime", "security", "fandom", "platforms"], queryTerms: ["anime", "breach", "crunchyroll", "data", "security", "fandom"], poll: 30, maxResults: 6 },
+    { name: "D'Angelo Wallace", handle: "@dangelno", vertical: "Internet Drama", authority: 78, tags: ["commentary", "investigations", "youtube", "internet-culture"], queryTerms: ["commentary", "investigation", "drama", "youtube", "controversy"], poll: 30, maxResults: 4 },
+    { name: "DarkViperAU", handle: "@DarkViperAU", vertical: "Gaming / Culture", authority: 70, tags: ["gaming", "commentary", "youtube", "controversy"], queryTerms: ["gta", "reaction", "drama", "speedrun", "controversy"], poll: 30, maxResults: 6 },
+    { name: "Ethan Klein", handle: "@h3h3productions", vertical: "Internet Drama", authority: 76, tags: ["podcast", "creator-economy", "feuds", "viral"], queryTerms: ["podcast", "drama", "feud", "hasan", "ethan"], poll: 45, maxResults: 4 },
+    { name: "DJ Vlad", handle: "@djvlad", vertical: "Hip-Hop / Culture", authority: 74, tags: ["hip-hop", "media", "viral", "commentary"], queryTerms: ["hip-hop", "interview", "viral", "rapper", "industry"], poll: 30, maxResults: 6 },
+    { name: "Pinely", handle: "@Pinely", vertical: "Internet Drama", authority: 72, tags: ["youtube", "investigations", "fraud", "creator-economy"], queryTerms: ["fake", "engagement", "youtube", "manipulation", "bait", "fraud"], poll: 30, maxResults: 6 },
+    { name: "BowBlax", handle: "@BowBlax", vertical: "Internet Drama", authority: 68, tags: ["youtube", "commentary", "drama"], queryTerms: ["drama", "youtube", "commentary", "controversy", "beef"], poll: 30, maxResults: 6 },
+    { name: "Letterboxd", handle: "@Letterboxd", vertical: "Celebrity / Hollywood", authority: 74, tags: ["film", "reviews", "fandom", "platforms"], queryTerms: ["review", "film", "rating", "bombing", "discourse"], poll: 30, maxResults: 6 },
+    { name: "Insane AI Slop", handle: "@InsaneAISlop", vertical: "Tech / AI", authority: 78, tags: ["ai", "slop", "platforms", "activism"], queryTerms: ["ai", "slop", "generated", "fake", "platform", "youtube"], poll: 20, maxResults: 6 },
+    { name: "Evan You", handle: "@youyuxi", vertical: "Tech / AI", authority: 72, tags: ["ai", "developer-culture", "commentary"], queryTerms: ["ai", "developer", "code", "slop", "tech"], poll: 45, maxResults: 4 },
+    { name: "MCU Direct", handle: "@MCU_Direct", vertical: "Celebrity / Hollywood", authority: 70, tags: ["marvel", "fandom", "casting", "trailers"], queryTerms: ["marvel", "mcu", "casting", "trailer", "backlash", "fandom"], poll: 30, maxResults: 6 },
+    { name: "Emiru", handle: "@Emiru", vertical: "Internet Drama", authority: 70, tags: ["streamers", "twitch", "cosplay", "viral"], queryTerms: ["twitch", "cosplay", "safety", "parasocial", "drama"], poll: 30, maxResults: 6 },
+    { name: "Anime News And Facts", handle: "@AniNewsAndFacts", vertical: "Film / Fandom", authority: 68, tags: ["anime", "fandom", "industry"], queryTerms: ["anime", "season", "fandom", "controversy", "manga"], poll: 30, maxResults: 6 },
+    { name: "Kinda Funny", handle: "@KindaFunnyVids", vertical: "Gaming / Culture", authority: 70, tags: ["gaming", "podcasts", "trailers", "commentary"], queryTerms: ["gaming", "trailer", "reaction", "podcast", "pop culture"], poll: 30, maxResults: 6 },
+    { name: "Nikita Bier", handle: "@NikitaBier", vertical: "Platform Culture", authority: 82, tags: ["platforms", "policy", "products", "creator-economy"], queryTerms: ["x", "policy", "creator", "revenue", "ai", "deepfake"], poll: 30, maxResults: 4 },
+    { name: "Insider Gaming", handle: "@InsiderGaming", vertical: "Gaming / Culture", authority: 74, tags: ["gaming", "leaks", "industry", "reporting"], queryTerms: ["gaming", "leak", "cancelled", "studio", "xbox", "layoff"], poll: 30, maxResults: 6 },
+    { name: "The Art Gun", handle: "@TheArtGun", vertical: "Tech / AI", authority: 70, tags: ["ai", "fraud", "art", "streaming"], queryTerms: ["ai", "fraud", "streaming", "art", "music", "fake"], poll: 30, maxResults: 6 },
+    { name: "Paul Tassi", handle: "@paulytassi", vertical: "Gaming / Culture", authority: 72, tags: ["gaming", "journalism", "streamers", "analysis"], queryTerms: ["gaming", "twitch", "industry", "streamer", "forbes"], poll: 30, maxResults: 6 },
+    { name: "Kotaku", handle: "@Kotaku", vertical: "Gaming / Culture", authority: 76, tags: ["gaming", "internet-culture", "journalism"], queryTerms: ["gaming", "controversy", "industry", "internet culture"], poll: 20, maxResults: 6 },
+    { name: "Disrupt the Human", handle: "@disrupthehuman", vertical: "Film / Fandom", authority: 64, tags: ["anime", "fandom", "commentary"], queryTerms: ["anime", "fandom", "discourse", "consent"], poll: 45, maxResults: 4 },
+    { name: "MCU Film News", handle: "@MCUFilmNews", vertical: "Celebrity / Hollywood", authority: 66, tags: ["marvel", "fandom", "film", "trailers"], queryTerms: ["marvel", "mcu", "dc", "casting", "trailer", "fandom"], poll: 30, maxResults: 6 },
+    { name: "Dogysamich", handle: "@Dogysamich", vertical: "Film / Fandom", authority: 58, tags: ["anime", "fandom", "commentary"], queryTerms: ["anime", "season", "spring", "thread"], poll: 45, maxResults: 4 },
+    { name: "PChal", handle: "@pchaltv", vertical: "Gaming / Culture", authority: 60, tags: ["gaming", "pokemon", "streamers"], queryTerms: ["pokemon", "drama", "community", "twitch"], poll: 45, maxResults: 4 },
+    { name: "Auronplay", handle: "@Auronplay", vertical: "Internet Drama", authority: 64, tags: ["streamers", "viral", "international"], queryTerms: ["streamer", "viral", "spanish", "reaction"], poll: 45, maxResults: 4 },
+    { name: "Greg Isenberg", handle: "@gregisenberg", vertical: "Platform Culture", authority: 64, tags: ["ai", "business", "platforms", "internet-culture"], queryTerms: ["ai", "social media", "trend", "internet", "platform"], poll: 45, maxResults: 4 },
+    { name: "Red Nation Blogga", handle: "@RedNationBlogga", vertical: "Hip-Hop / Culture", authority: 62, tags: ["hip-hop", "internet-culture", "commentary"], queryTerms: ["hip-hop", "twitter", "culture", "viral", "personality"], poll: 45, maxResults: 4 },
+    { name: "Engadget", handle: "@Engadget", vertical: "Platform Culture", authority: 72, tags: ["tech", "ai", "platforms", "journalism"], queryTerms: ["tech", "ai", "platform", "policy", "launch"], poll: 30, maxResults: 6 },
+    { name: "Wired", handle: "@Wired", vertical: "Platform Culture", authority: 82, tags: ["tech", "ai", "platforms", "journalism"], queryTerms: ["tech", "ai", "platform", "investigation", "policy"], poll: 30, maxResults: 6 },
+    { name: "Optimus", handle: "@Optimus", vertical: "Internet Drama", authority: 64, tags: ["youtube", "commentary", "drama"], queryTerms: ["commentary", "youtube", "drama", "controversy"], poll: 45, maxResults: 4 },
+    { name: "Funny Or Die", handle: "@funnyordie", vertical: "Internet Culture", authority: 58, tags: ["comedy", "satire", "pop-culture"], queryTerms: ["comedy", "satire", "pop culture", "viral"], poll: 45, maxResults: 4 },
+    { name: "Eli McCann", handle: "@eliwmccann", vertical: "Internet Culture", authority: 58, tags: ["meta-discourse", "internet-culture", "commentary"], queryTerms: ["discourse", "tweet", "internet", "culture"], poll: 45, maxResults: 4 },
+    { name: "Matt Bernstein", handle: "@mattbernstein", vertical: "Internet Culture", authority: 62, tags: ["commentary", "culture", "discourse"], queryTerms: ["social", "commentary", "culture", "discourse"], poll: 45, maxResults: 4 },
+    { name: "WestJett", handle: "@WestJett", vertical: "Internet Drama", authority: 56, tags: ["youtube", "commentary", "drama"], queryTerms: ["commentary", "youtube", "drama"], poll: 45, maxResults: 4 },
+    { name: "xQc", handle: "@xQc", vertical: "Internet Drama", authority: 82, tags: ["streamers", "gaming", "viral", "react"], queryTerms: ["streamer", "twitch", "drama", "banned", "gaming"], poll: 30, maxResults: 6 },
+  ]),
 
   /* ──────────────────────────────────────────────────
      POP CULTURE / COMMENTARY YOUTUBE CHANNELS
@@ -2106,7 +2370,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
      ────────────────────────────────────────────────── */
   ...buildYtSeeds([
     { name: "Upper Echelon", handle: "@UpperEchelonGamers", vertical: "Internet Drama", authority: 78, tags: ["investigations", "internet-culture", "gaming"], poll: 60 },
-    { name: "Slidebean", handle: "@slidebean", vertical: "Scams & Fraud", authority: 76, tags: ["business", "startups", "scams"], poll: 60 },
+    { name: "Slidebean", handle: "@slidebean", channelId: "UC4bq21IPPbpu0Qrsl7LW0sw", vertical: "Scams & Fraud", authority: 76, tags: ["business", "startups", "scams"], poll: 60, maxResults: 15 },
     { name: "Company Man", handle: "@CompanyMan", vertical: "Big Tech / Billionaires", authority: 74, tags: ["business", "documentary", "rise-fall"], poll: 60 },
     { name: "Barely Sociable", handle: "@BarelySociable", vertical: "Internet Drama", authority: 80, tags: ["investigations", "mystery", "internet-culture"], poll: 60 },
     { name: "Nexpo", handle: "@Nexpo", vertical: "Internet Drama", authority: 78, tags: ["mystery", "internet-culture", "creepy"], poll: 60 },
@@ -2116,9 +2380,9 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     { name: "EmpLemon", handle: "@EmperorLemon", vertical: "Internet Drama", authority: 80, tags: ["documentary", "internet-culture", "essays"], poll: 60 },
     { name: "Internet Historian", handle: "@InternetHistorian", vertical: "Internet Drama", authority: 90, tags: ["documentary", "internet-culture", "viral"], poll: 60 },
     { name: "Wavywebsurf", handle: "@wavywebsurf", vertical: "Internet Drama", authority: 74, tags: ["internet-culture", "viral", "where-are-they-now"], poll: 60 },
-    { name: "JCS - Criminal Psychology", handle: "@JCSCriminalPsychology", vertical: "Government / Corruption", authority: 88, tags: ["true-crime", "psychology", "documentary"], poll: 60 },
+    { name: "JCS - Criminal Psychology", handle: "@JCS", channelId: "UCYwVxWpjeKFWwu8TML-Te9A", vertical: "Government / Corruption", authority: 88, tags: ["true-crime", "psychology", "documentary"], poll: 60, maxResults: 15 },
     { name: "Johnny Harris", handle: "@johnnyharris", vertical: "Government / Corruption", authority: 82, tags: ["documentary", "geopolitics", "investigative"], poll: 45 },
-    { name: "Wendover Productions", handle: "@Wendoverproductions", vertical: "Social Issues / Culture", authority: 80, tags: ["documentary", "logistics", "business"], poll: 60 },
+    { name: "Wendover Productions", handle: "@Wendoverproductions", channelId: "UC9RM-iSvTu1uPJb8X5yp3EQ", vertical: "Social Issues / Culture", authority: 80, tags: ["documentary", "logistics", "business"], poll: 60, maxResults: 15 },
     { name: "VICE", handle: "@VICE", vertical: "Social Issues / Culture", authority: 85, tags: ["documentary", "investigative", "culture"], poll: 30 },
     { name: "Vox", handle: "@Vox", vertical: "Social Issues / Culture", authority: 84, tags: ["explainer", "culture", "politics"], poll: 30 },
   ]),
@@ -2154,7 +2418,7 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     { name: "IShowSpeed", handle: "@IShowSpeed", vertical: "Internet Drama", authority: 82, tags: ["streaming", "viral", "gen-z"], poll: 30 },
     { name: "MrBeast", handle: "@MrBeast", vertical: "Internet Drama", authority: 92, tags: ["viral", "philanthropy", "youtube"], poll: 30 },
     { name: "Logan Paul", handle: "@loganpaul", vertical: "Internet Drama", authority: 78, tags: ["podcast", "boxing", "creator-economy"], poll: 30 },
-    { name: "KSI", handle: "@kaborhood", vertical: "Internet Drama", authority: 80, tags: ["boxing", "creator-economy", "music"], poll: 30 },
+    { name: "KSI", handle: "@KSI", vertical: "Internet Drama", authority: 80, tags: ["boxing", "creator-economy", "music"], poll: 30 },
     { name: "Flagrant", handle: "@FlagrantPodcast", vertical: "Podcast Reactions", authority: 78, tags: ["podcast", "comedy", "commentary"], poll: 30 },
     { name: "Theo Von", handle: "@TheoVon", vertical: "Podcast Reactions", authority: 80, tags: ["podcast", "comedy", "culture"], poll: 30 },
     { name: "Joe Rogan Clips", handle: "@joeroganclips", vertical: "Podcast Reactions", authority: 88, tags: ["podcast", "interviews", "culture"], poll: 30 },
@@ -2175,9 +2439,9 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     { name: "SomeOrdinaryGamers", handle: "@SomeOrdinaryGamers", vertical: "Internet Drama", authority: 80, tags: ["tech", "internet-culture", "investigations"], poll: 30 },
     { name: "Louis Rossmann", handle: "@rossmanngroup", vertical: "Digital Rights / Piracy", authority: 82, tags: ["right-to-repair", "tech", "consumer-rights"], poll: 30 },
     { name: "ThioJoe", handle: "@ThioJoe", vertical: "Tech Failures", authority: 72, tags: ["tech", "ai", "consumer-tech"], poll: 60 },
-    { name: "ColdFusion", handle: "@ColdFusion", vertical: "AI & Automation", authority: 82, tags: ["tech", "ai", "documentary", "business"], poll: 45 },
+    { name: "ColdFusion", handle: "@ColdFusion", channelId: "UC4QZ_LsYcvcq7qOsOhpAX4A", vertical: "AI & Automation", authority: 82, tags: ["tech", "ai", "documentary", "business"], poll: 45, maxResults: 15 },
     { name: "Two Minute Papers", handle: "@TwoMinutePapers", vertical: "AI & Automation", authority: 78, tags: ["ai", "research", "tech"], poll: 60 },
-    { name: "Fireship", handle: "@Fireship", vertical: "Tech Failures", authority: 82, tags: ["coding", "tech", "humor", "ai"], poll: 30 },
+    { name: "Fireship", handle: "@Fireship", channelId: "UCsBjURrPoezykLs9EqgamOA", vertical: "Tech Failures", authority: 82, tags: ["coding", "tech", "humor", "ai"], poll: 30, maxResults: 15 },
   ]),
 
   /* ──────────────────────────────────────────────────
@@ -2212,17 +2476,17 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
   ...buildYtSeeds([
     { name: "Breaking Points", handle: "@BreakingPoints", vertical: "Government / Corruption", authority: 80, tags: ["politics", "news", "commentary"], poll: 30 },
     { name: "The Young Turks", handle: "@TheYoungTurks", vertical: "Government / Corruption", authority: 76, tags: ["politics", "news", "progressive"], poll: 30 },
-    { name: "Second Thought", handle: "@SecondThought", vertical: "Social Issues / Culture", authority: 76, tags: ["politics", "economics", "essays"], poll: 60 },
+    { name: "Second Thought", handle: "@SecondThought", channelId: "UCJm2TgUqtK1_NLBrjNQ1P-w", vertical: "Social Issues / Culture", authority: 76, tags: ["politics", "economics", "essays"], poll: 60, maxResults: 15 },
     { name: "LegalEagle", handle: "@LegalEagle", vertical: "Internet Drama", authority: 84, tags: ["law", "commentary", "internet-culture", "politics"], poll: 30 },
     { name: "Some More News", handle: "@SomeMoreNews", vertical: "Government / Corruption", authority: 74, tags: ["politics", "comedy", "news"], poll: 45 },
-    { name: "Knowing Better", handle: "@KnowingBetter", vertical: "Social Issues / Culture", authority: 76, tags: ["history", "society", "essays"], poll: 60 },
+    { name: "Knowing Better", handle: "@KnowingBetter", channelId: "UC8XjmAEDVZSCQjI150cb4QA", vertical: "Social Issues / Culture", authority: 76, tags: ["history", "society", "essays"], poll: 60, maxResults: 15 },
   ]),
 
   /* ──────────────────────────────────────────────────
      SMALLER / NICHE COMMENTARY (emerging voices)
      ────────────────────────────────────────────────── */
   ...buildYtSeeds([
-    { name: "mamamax", handle: "@maborhood", vertical: "Internet Drama", authority: 76, tags: ["investigations", "predators", "activism"], poll: 60 },
+    { name: "mamamax", handle: "@MamaMax", vertical: "Internet Drama", authority: 76, tags: ["investigations", "predators", "activism"], poll: 60 },
     { name: "Cr1TiKaL Clips", handle: "@cr1tikalclips", vertical: "Internet Drama", authority: 72, tags: ["clips", "commentary", "react"], poll: 30 },
     { name: "The Create Unknown", handle: "@TheCreateUnknown", vertical: "Internet Drama", authority: 68, tags: ["podcast", "youtube", "creator-economy"], poll: 60 },
     { name: "Coffeezilla Clips", handle: "@CoffeezillaClips", vertical: "Scams & Fraud", authority: 72, tags: ["clips", "scams", "investigations"], poll: 45 },
@@ -2276,6 +2540,138 @@ export const boardSourceConfigSeeds: BoardSourceConfigSeed[] = [
     { name: "Hero Hei", handle: "@HeroHei", vertical: "Internet Drama", authority: 68, tags: ["anime", "manga", "pop-culture", "commentary"], poll: 30 },
     { name: "MauLer", handle: "@MauLer", vertical: "Celebrity / Hollywood", authority: 70, tags: ["film-critique", "essays", "commentary"], poll: 60 },
     { name: "SmokeyGlow", handle: "@SmokeyGlow", vertical: "Social Issues / Culture", authority: 68, tags: ["beauty", "pop-culture", "commentary", "react"], poll: 45 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     THIRD-WAVE SIGNAL X EXPANSION
+     ────────────────────────────────────────────────── */
+  ...buildXSeeds([
+    { name: "BBC Breaking News", handle: "@BBCBreaking", vertical: "Government / Corruption", authority: 92, tags: ["breaking", "news", "world", "live"], queryTerms: ["breaking", "world", "war", "crisis", "explosion", "sanctions"], poll: 15, maxResults: 8 },
+    { name: "BNO News", handle: "@BNODesk", vertical: "Government / Corruption", authority: 90, tags: ["breaking", "news", "alerts", "world"], queryTerms: ["breaking", "developing", "alert", "world", "earthquake", "airstrike"], poll: 15, maxResults: 8 },
+    { name: "Breaking911", handle: "@Breaking911", vertical: "Government / Corruption", authority: 84, tags: ["breaking", "news", "alerts", "politics"], queryTerms: ["breaking", "developing", "viral", "statement", "video", "report"], poll: 15, maxResults: 8 },
+    { name: "Raws Alerts", handle: "@rawsalerts", vertical: "Government / Corruption", authority: 82, tags: ["breaking", "alerts", "viral", "news"], queryTerms: ["breaking", "developing", "video", "explosion", "police", "fire"], poll: 15, maxResults: 8 },
+    { name: "NBC News", handle: "@NBCNews", vertical: "Government / Corruption", authority: 90, tags: ["news", "breaking", "us", "politics"], queryTerms: ["breaking", "investigation", "scandal", "court", "policy", "viral"], poll: 20, maxResults: 8 },
+    { name: "ABC News", handle: "@ABC", vertical: "Government / Corruption", authority: 88, tags: ["news", "breaking", "us", "politics"], queryTerms: ["breaking", "investigation", "court", "scandal", "video"], poll: 20, maxResults: 8 },
+    { name: "CBS News", handle: "@CBSNews", vertical: "Government / Corruption", authority: 88, tags: ["news", "breaking", "us", "politics"], queryTerms: ["breaking", "investigation", "policy", "scandal", "video"], poll: 20, maxResults: 8 },
+    { name: "NPR", handle: "@NPR", vertical: "Government / Corruption", authority: 88, tags: ["news", "radio", "politics", "culture"], queryTerms: ["breaking", "analysis", "policy", "court", "interview"], poll: 20, maxResults: 6 },
+    { name: "Axios", handle: "@axios", vertical: "Government / Corruption", authority: 86, tags: ["news", "politics", "business", "media"], queryTerms: ["scoop", "exclusive", "breaking", "white house", "congress", "media"], poll: 20, maxResults: 6 },
+    { name: "Semafor", handle: "@semafor", vertical: "Government / Corruption", authority: 84, tags: ["news", "politics", "media", "business"], queryTerms: ["scoop", "exclusive", "media", "politics", "global"], poll: 20, maxResults: 6 },
+    { name: "The New York Times", handle: "@nytimes", vertical: "Government / Corruption", authority: 92, tags: ["news", "investigations", "politics", "world"], queryTerms: ["breaking", "investigation", "exclusive", "court", "policy"], poll: 20, maxResults: 8 },
+    { name: "The Washington Post", handle: "@washingtonpost", vertical: "Government / Corruption", authority: 90, tags: ["news", "politics", "investigations", "media"], queryTerms: ["breaking", "investigation", "white house", "campaign", "policy"], poll: 20, maxResults: 8 },
+    { name: "The Wall Street Journal", handle: "@WSJ", vertical: "Government / Corruption", authority: 90, tags: ["news", "business", "politics", "markets"], queryTerms: ["breaking", "exclusive", "market", "policy", "investigation"], poll: 20, maxResults: 8 },
+    { name: "Bloomberg Business", handle: "@business", vertical: "Big Tech / Billionaires", authority: 90, tags: ["markets", "business", "news", "tech"], queryTerms: ["breaking", "market", "stocks", "business", "exclusive"], poll: 20, maxResults: 8 },
+    { name: "POLITICO", handle: "@politico", vertical: "Government / Corruption", authority: 88, tags: ["politics", "news", "policy", "campaigns"], queryTerms: ["exclusive", "congress", "white house", "campaign", "hearing"], poll: 20, maxResults: 6 },
+    { name: "Bellingcat", handle: "@bellingcat", vertical: "Government / Corruption", authority: 90, tags: ["osint", "investigations", "world", "war"], queryTerms: ["investigation", "osint", "war", "satellite", "evidence", "attack"], poll: 20, maxResults: 6 },
+    { name: "Eliot Higgins", handle: "@EliotHiggins", vertical: "Government / Corruption", authority: 84, tags: ["osint", "investigations", "world", "war"], queryTerms: ["osint", "investigation", "evidence", "war", "thread"], poll: 20, maxResults: 6 },
+    { name: "Aric Toler", handle: "@AricToler", vertical: "Government / Corruption", authority: 84, tags: ["osint", "investigations", "journalism", "world"], queryTerms: ["osint", "thread", "evidence", "war", "investigation"], poll: 20, maxResults: 6 },
+    { name: "SENTDEFENDER", handle: "@sentdefender", vertical: "Government / Corruption", authority: 82, tags: ["osint", "breaking", "war", "alerts"], queryTerms: ["breaking", "war", "alert", "strike", "missile", "geopolitics"], poll: 15, maxResults: 8 },
+    { name: "OSINTdefender", handle: "@OSINTdefender", vertical: "Government / Corruption", authority: 82, tags: ["osint", "breaking", "war", "alerts"], queryTerms: ["breaking", "osint", "war", "attack", "satellite", "alert"], poll: 15, maxResults: 8 },
+    { name: "Faytuks News", handle: "@Faytuks", vertical: "Government / Corruption", authority: 80, tags: ["breaking", "world", "war", "alerts"], queryTerms: ["breaking", "war", "iran", "israel", "alert", "video"], poll: 15, maxResults: 8 },
+    { name: "Clash Report", handle: "@clashreport", vertical: "Government / Corruption", authority: 80, tags: ["breaking", "world", "war", "viral"], queryTerms: ["breaking", "war", "video", "strike", "geopolitics"], poll: 15, maxResults: 8 },
+    { name: "GeoConfirmed", handle: "@GeoConfirmed", vertical: "Government / Corruption", authority: 78, tags: ["osint", "geolocation", "investigations", "world"], queryTerms: ["geolocation", "osint", "video", "war", "evidence"], poll: 20, maxResults: 6 },
+    { name: "ELINT News", handle: "@ELINTNews", vertical: "Government / Corruption", authority: 76, tags: ["osint", "breaking", "world", "war"], queryTerms: ["breaking", "war", "air defense", "missile", "intel"], poll: 20, maxResults: 6 },
+    { name: "OSINTtechnical", handle: "@Osinttechnical", vertical: "Government / Corruption", authority: 76, tags: ["osint", "military", "video", "analysis"], queryTerms: ["osint", "video", "weapons", "war", "analysis"], poll: 20, maxResults: 6 },
+    { name: "WarTranslated", handle: "@wartranslated", vertical: "Government / Corruption", authority: 74, tags: ["war", "translations", "clips", "world"], queryTerms: ["translation", "clip", "war", "statement", "video"], poll: 30, maxResults: 4 },
+    { name: "Intel Crab", handle: "@IntelCrab", vertical: "Government / Corruption", authority: 72, tags: ["osint", "geopolitics", "world", "alerts"], queryTerms: ["breaking", "war", "osint", "geopolitics"], poll: 30, maxResults: 4 },
+    { name: "Kalshi", handle: "@Kalshi", vertical: "Big Tech / Billionaires", authority: 84, tags: ["prediction-markets", "markets", "politics", "finance"], queryTerms: ["market", "odds", "prediction", "ceasefire", "election", "fed"], poll: 15, maxResults: 8 },
+    { name: "The Kobeissi Letter", handle: "@KobeissiLetter", vertical: "Big Tech / Billionaires", authority: 82, tags: ["markets", "macro", "finance", "economy"], queryTerms: ["market", "macro", "stocks", "inflation", "breaking", "economy"], poll: 20, maxResults: 6 },
+    { name: "DeItaone", handle: "@DeItaone", vertical: "Big Tech / Billionaires", authority: 80, tags: ["markets", "alerts", "macro", "finance"], queryTerms: ["breaking", "stocks", "fed", "market", "headline"], poll: 15, maxResults: 8 },
+    { name: "FinancialJuice", handle: "@financialjuice", vertical: "Big Tech / Billionaires", authority: 78, tags: ["markets", "alerts", "macro", "finance"], queryTerms: ["market", "fed", "stocks", "breaking", "oil", "rate"], poll: 15, maxResults: 8 },
+    { name: "First Squawk", handle: "@FirstSquawk", vertical: "Big Tech / Billionaires", authority: 76, tags: ["markets", "alerts", "macro", "finance"], queryTerms: ["breaking", "stocks", "market", "fed", "earnings"], poll: 15, maxResults: 8 },
+    { name: "Watcher.Guru", handle: "@WatcherGuru", vertical: "Big Tech / Billionaires", authority: 74, tags: ["markets", "crypto", "macro", "viral"], queryTerms: ["breaking", "crypto", "market", "fed", "tesla", "elon"], poll: 20, maxResults: 6 },
+    { name: "Barchart", handle: "@Barchart", vertical: "Big Tech / Billionaires", authority: 76, tags: ["markets", "stocks", "commodities", "data"], queryTerms: ["market", "stock", "commodities", "earnings", "data"], poll: 20, maxResults: 6 },
+    { name: "Stocktwits", handle: "@Stocktwits", vertical: "Big Tech / Billionaires", authority: 72, tags: ["markets", "stocks", "retail", "viral"], queryTerms: ["stock", "options", "retail", "trend", "short squeeze"], poll: 20, maxResults: 6 },
+    { name: "Earnings Whispers", handle: "@eWhispers", vertical: "Big Tech / Billionaires", authority: 72, tags: ["markets", "earnings", "stocks", "business"], queryTerms: ["earnings", "guidance", "stock", "after hours"], poll: 20, maxResults: 6 },
+    { name: "The Spectator Index", handle: "@spectatorindex", vertical: "Big Tech / Billionaires", authority: 70, tags: ["macro", "world", "markets", "data"], queryTerms: ["breaking", "data", "market", "economy", "world"], poll: 20, maxResults: 6 },
+    { name: "OpenAI", handle: "@OpenAI", vertical: "Tech / AI", authority: 92, tags: ["ai", "models", "platforms", "launches"], queryTerms: ["launch", "model", "api", "safety", "demo", "voice"], poll: 20, maxResults: 8 },
+    { name: "OpenAI Developers", handle: "@OpenAIDevs", vertical: "Tech / AI", authority: 86, tags: ["ai", "developers", "api", "launches"], queryTerms: ["api", "developer", "release", "sdk", "model", "tool"], poll: 20, maxResults: 8 },
+    { name: "Anthropic", handle: "@AnthropicAI", vertical: "Tech / AI", authority: 90, tags: ["ai", "models", "safety", "launches"], queryTerms: ["launch", "model", "api", "safety", "agents", "research"], poll: 20, maxResults: 8 },
+    { name: "Google DeepMind", handle: "@GoogleDeepMind", vertical: "Tech / AI", authority: 90, tags: ["ai", "research", "models", "products"], queryTerms: ["launch", "model", "research", "demo", "video", "breakthrough"], poll: 20, maxResults: 8 },
+    { name: "Demis Hassabis", handle: "@demishassabis", vertical: "Tech / AI", authority: 84, tags: ["ai", "research", "leadership", "commentary"], queryTerms: ["model", "research", "agi", "video", "interview"], poll: 30, maxResults: 6 },
+    { name: "Sam Altman", handle: "@sama", vertical: "Tech / AI", authority: 86, tags: ["ai", "leadership", "products", "commentary"], queryTerms: ["launch", "model", "policy", "interview", "statement"], poll: 20, maxResults: 6 },
+    { name: "Greg Brockman", handle: "@gdb", vertical: "Tech / AI", authority: 78, tags: ["ai", "products", "engineering", "commentary"], queryTerms: ["launch", "model", "build", "tool", "engineer"], poll: 30, maxResults: 4 },
+    { name: "Ethan Mollick", handle: "@emollick", vertical: "Tech / AI", authority: 84, tags: ["ai", "education", "analysis", "commentary"], queryTerms: ["ai", "education", "model", "study", "adoption"], poll: 30, maxResults: 6 },
+    { name: "Andrew Ng", handle: "@AndrewYNg", vertical: "Tech / AI", authority: 84, tags: ["ai", "education", "developers", "analysis"], queryTerms: ["ai", "agent", "developer", "course", "business"], poll: 30, maxResults: 6 },
+    { name: "Techmeme", handle: "@Techmeme", vertical: "Platform Culture", authority: 88, tags: ["tech", "media", "news", "aggregator"], queryTerms: ["launch", "acquisition", "policy", "platform", "viral"], poll: 20, maxResults: 8 },
+    { name: "Kara Swisher", handle: "@karaswisher", vertical: "Platform Culture", authority: 84, tags: ["media", "tech", "commentary", "interviews"], queryTerms: ["interview", "media", "tech", "policy", "platform"], poll: 30, maxResults: 6 },
+    { name: "Oliver Darcy", handle: "@oliverdarcy", vertical: "Platform Culture", authority: 82, tags: ["media", "platforms", "journalism", "commentary"], queryTerms: ["media", "network", "platform", "host", "shakeup"], poll: 20, maxResults: 6 },
+    { name: "Maxwell Tani", handle: "@maxwelltani", vertical: "Platform Culture", authority: 78, tags: ["media", "journalism", "scoops", "platforms"], queryTerms: ["scoop", "media", "host", "network", "platform"], poll: 30, maxResults: 6 },
+    { name: "Kat Tenbarge", handle: "@kattenbarge", vertical: "Platform Culture", authority: 80, tags: ["internet-culture", "journalism", "platforms", "scams"], queryTerms: ["creator", "platform", "viral", "scam", "internet culture"], poll: 20, maxResults: 6 },
+    { name: "Yashar Ali", handle: "@yashar", vertical: "Government / Corruption", authority: 80, tags: ["breaking", "media", "politics", "viral"], queryTerms: ["breaking", "scoop", "video", "statement", "controversy"], poll: 20, maxResults: 6 },
+    { name: "Acyn", handle: "@Acyn", vertical: "Government / Corruption", authority: 80, tags: ["politics", "clips", "viral", "media"], queryTerms: ["clip", "interview", "hearing", "viral", "campaign"], poll: 15, maxResults: 8 },
+    { name: "Aaron Rupar", handle: "@atrupar", vertical: "Government / Corruption", authority: 80, tags: ["politics", "clips", "viral", "media"], queryTerms: ["clip", "interview", "viral", "speech", "campaign"], poll: 15, maxResults: 8 },
+    { name: "Ron Filipkowski", handle: "@RonFilipkowski", vertical: "Government / Corruption", authority: 78, tags: ["politics", "clips", "viral", "commentary"], queryTerms: ["clip", "campaign", "statement", "hearing", "viral"], poll: 20, maxResults: 6 },
+    { name: "PatriotTakes", handle: "@patriottakes", vertical: "Government / Corruption", authority: 76, tags: ["politics", "clips", "viral", "opposition-research"], queryTerms: ["clip", "speech", "campaign", "viral", "statement"], poll: 20, maxResults: 6 },
+  ]),
+
+  /* ──────────────────────────────────────────────────
+     USER-ADDED IDEATION CHANNELS
+     ────────────────────────────────────────────────── */
+  ...buildYtSeeds([
+    { name: "Aperture", handle: "@ApertureThinking", channelId: "UCO5QSoES5yn2Dw7YixDYT5Q", vertical: "Social Issues / Culture", authority: 84, tags: ["philosophy", "psychology", "society"], poll: 60, maxResults: 15 },
+    { name: "Kraut", handle: "@Kraut_the_Parrot", channelId: "UCr_Q-bPpcw5fJ-Oow1BW1NQ", vertical: "Government / Corruption", authority: 84, tags: ["history", "geopolitics", "anthropology"], poll: 60, maxResults: 15 },
+    { name: "Ryan Chapman", handle: "@realryanchapman", channelId: "UC6FO-Up1-oLj5nNivCNHL-Q", vertical: "Social Issues / Culture", authority: 82, tags: ["politics", "culture", "essays"], poll: 60, maxResults: 15 },
+    { name: "What I've Learned", handle: "@WhatIveLearned", channelId: "UCqYPhGiB9tkShZorfgcL2lA", vertical: "Social Issues / Culture", authority: 80, tags: ["health", "productivity", "society"], poll: 60, maxResults: 15 },
+    { name: "Pursuit of Wonder", handle: "@PursuitOfWonder", channelId: "UC-tLyAaPbRZiYrOJxAGB7dQ", vertical: "Social Issues / Culture", authority: 80, tags: ["philosophy", "psychology", "existential"], poll: 60, maxResults: 15 },
+    { name: "Whatifalthist", handle: "@WhatifAltHist", channelId: "UC5Dw9TFdbPJoTDMSiJdIQTA", vertical: "Social Issues / Culture", authority: 78, tags: ["history", "civilization", "society"], poll: 60, maxResults: 15 },
+    { name: "Tom Nicholas", handle: "@Tom_Nicholas", channelId: "UCxt2r57cLastdmrReiQJkEg", vertical: "Social Issues / Culture", authority: 76, tags: ["politics", "religion", "media-commentary"], poll: 60, maxResults: 15 },
+    { name: "Nick Crowley", handle: "@NickCrowley", channelId: "UCMX31RavkfUHJvw03RbUZnA", vertical: "Internet Drama", authority: 76, tags: ["mystery", "internet-culture", "documentary"], poll: 60, maxResults: 15 },
+    { name: "Bright Sun Films", handle: "@BrightSunFilms", channelId: "UC5k3Kc0avyDJ2nG9Kxm9JmQ", vertical: "Social Issues / Culture", authority: 76, tags: ["documentary", "business", "failures"], poll: 60, maxResults: 15 },
+    { name: "Coffeehouse Crime", handle: "@CoffeehouseCrime", channelId: "UCcUf33cEPky2GiWBgOP-jQA", vertical: "Social Issues / Culture", authority: 78, tags: ["true-crime", "crime", "documentary"], poll: 60, maxResults: 15 },
+    { name: "Ryan Pictures", handle: "@ryan_pictures", channelId: "UCXg2L_c6fFI-hH3lzsGOQkg", vertical: "Internet Drama", authority: 78, tags: ["documentary", "internet-culture", "essays"], poll: 60, maxResults: 15 },
+    { name: "captainmidnight", handle: "@captainmidnight", channelId: "UCROQqK3_z79JuTetNP3pIXQ", vertical: "Celebrity / Hollywood", authority: 74, tags: ["pop-culture", "film", "media-commentary"], poll: 60, maxResults: 15 },
+    { name: "Cash Jordan", handle: "@CashJordan", channelId: "UCrwbBzP11NhxRUCRKx_BgoQ", vertical: "Social Issues / Culture", authority: 68, tags: ["nyc", "politics", "urban-policy"], poll: 45, maxResults: 15 },
+    { name: "Phat Memer", handle: "@phatmemer69", channelId: "UCwPy85bZrLGYDRU3AOSK8Ow", vertical: "Internet Drama", authority: 70, tags: ["documentary", "internet-culture", "commentary"], poll: 45, maxResults: 15 },
+    { name: "TrappUniversity", handle: "@trappuniversity", channelId: "UCJJ1DrDsAW1emEwDwFJjRCA", vertical: "Social Issues / Culture", authority: 72, tags: ["true-crime", "crime", "commentary"], poll: 45, maxResults: 15 },
+    { name: "Coolea", handle: "@coolea", channelId: "UCj5l6GNdcpnT2sEsJjBfz7w", vertical: "Celebrity / Hollywood", authority: 68, tags: ["music", "culture", "documentary"], poll: 60, maxResults: 15 },
+    { name: "TheGamerFromMars", handle: "@thegamerfrommars", channelId: "UCJ6z_yj_dDNrhn-c8ZyKV4g", vertical: "Internet Drama", authority: 76, tags: ["commentary", "internet-culture", "rise-fall"], poll: 45, maxResults: 15 },
+    { name: "decoy", handle: "@decoy", channelId: "UCqN2iOW580CFSohYzruos2A", vertical: "Internet Drama", authority: 70, tags: ["commentary", "trending", "internet-culture"], poll: 30, maxResults: 15 },
+    { name: "Nerdstalgic", handle: "@nerdstalgic", channelId: "UCXjmz8dFzRJZrZY8eFiXNUQ", vertical: "Celebrity / Hollywood", authority: 72, tags: ["film", "tv", "video-essays"], poll: 45, maxResults: 15 },
+    { name: "Lessons in Meme Culture", handle: "@limc", channelId: "UCaHT88aobpcvRFEuy4v5Clg", vertical: "Internet Drama", authority: 78, tags: ["memes", "internet-culture", "commentary"], poll: 30, maxResults: 15 },
+    { name: "Cole Hastings", handle: "@colehastings", channelId: "UCwQnoax3HWID1WOzZ4mqLPQ", vertical: "Social Issues / Culture", authority: 72, tags: ["self-improvement", "society", "culture"], poll: 60, maxResults: 15 },
+    { name: "American Redact", handle: "@americanredact", channelId: "UCsLGW4mXzWqvtityp1T6CKQ", vertical: "Internet Drama", authority: 68, tags: ["commentary", "internet-culture", "cringe"], poll: 45, maxResults: 15 },
+    { name: "JAMARI", handle: "@jamarispeaks", channelId: "UCr0XW6TU9XVWlWPpEwEyf3g", vertical: "Internet Drama", authority: 74, tags: ["commentary", "creator-economy", "internet-culture"], poll: 45, maxResults: 15 },
+    { name: "Solar Sands", handle: "@SolarSands", channelId: "UCR6LasBpceuYUhuLToKBzvQ", vertical: "Social Issues / Culture", authority: 74, tags: ["consciousness", "reality", "essays"], poll: 60, maxResults: 15 },
+    { name: "Boy Boy", handle: "@Boy_Boy", channelId: "UC_S45UpAYVuc0fYEcHN9BVQ", vertical: "Social Issues / Culture", authority: 74, tags: ["investigations", "culture", "documentary"], poll: 60, maxResults: 15 },
+    { name: "Oki's Weird Stories", handle: "@okisweirdstories", channelId: "UCjDQKxiTVpXutZc2Ra9wCAg", vertical: "Internet Drama", authority: 76, tags: ["documentary", "internet-culture", "weird"], poll: 60, maxResults: 15 },
+    { name: "Jack Saint", handle: "@LackingSaint", channelId: "UCdQKvqmHKe_8fv4Rwe7ag9Q", vertical: "Social Issues / Culture", authority: 72, tags: ["culture", "masculinity", "media-commentary"], poll: 60, maxResults: 15 },
+  ]),
+  ...buildTikTokQuerySeeds([
+    { name: "TikTok AI Slop", query: "ai slop", queries: ["ai slop", "ai generated video", "weird ai tiktok"], hashtags: ["aislop", "aigeneratedvideo", "weirdai", "aivideo"], vertical: "TikTok / FYP", authority: 82, tags: ["ai", "slop", "viral", "internet-culture"], poll: 15, maxResults: 8 },
+    { name: "TikTok AI Video", query: "ai video", queries: ["ai video", "veo 3", "runway ai video", "sora style video"], hashtags: ["aivideo", "veo3", "runway", "sora"], vertical: "TikTok / FYP", authority: 84, tags: ["ai", "video", "viral", "internet-culture"], poll: 15, maxResults: 8 },
+    { name: "TikTok Streamer Drama", query: "streamer drama", queries: ["streamer drama", "kick drama", "streamer arrested", "adin ross clip"], hashtags: ["streamerdrama", "kickdrama", "adinross", "streamerclips"], vertical: "TikTok / FYP", authority: 84, tags: ["streamers", "creator-economy", "drama"], poll: 15, maxResults: 8 },
+    { name: "TikTok Creator Backlash", query: "creator backlash", queries: ["creator backlash", "influencer exposed", "creator apology", "creator cancelled"], hashtags: ["creatorbacklash", "influencerexposed", "creatorapology", "cancelled"], vertical: "TikTok / FYP", authority: 80, tags: ["creators", "backlash", "internet-culture"], poll: 20, maxResults: 6 },
+    { name: "TikTok Movie Trailer Backlash", query: "movie trailer backlash", queries: ["movie trailer backlash", "bad cgi trailer", "trailer reaction", "movie hate train"], hashtags: ["trailerreaction", "badcgi", "movietrailer", "trailerbacklash"], vertical: "TikTok / FYP", authority: 78, tags: ["trailers", "hollywood", "backlash", "fandom"], poll: 20, maxResults: 6 },
+    { name: "TikTok Casting Backlash", query: "casting backlash", queries: ["casting backlash", "remake backlash", "live action backlash", "fandom meltdown"], hashtags: ["castingbacklash", "liveaction", "remake", "fandommeltdown"], vertical: "TikTok / FYP", authority: 74, tags: ["hollywood", "casting", "fandom"], poll: 25, maxResults: 6 },
+    { name: "TikTok Meme Culture", query: "viral meme", queries: ["viral meme", "internet discourse", "tiktok meme drama", "meme reaction"], hashtags: ["viralmeme", "internetdiscourse", "memereaction", "tikTokmeme"], vertical: "TikTok / FYP", authority: 72, tags: ["memes", "viral", "internet-culture"], poll: 20, maxResults: 8 },
+    { name: "TikTok Platform Complaints", query: "tiktok app update backlash", queries: ["tiktok app update backlash", "instagram update bad", "youtube captcha", "app glitch rant"], hashtags: ["appupdate", "instagrambacklash", "youtubecaptcha", "appglitch"], vertical: "TikTok / FYP", authority: 72, tags: ["platforms", "backlash", "bugs"], poll: 25, maxResults: 6 },
+    { name: "TikTok Deepfake Panic", query: "deepfake viral", queries: ["deepfake viral", "ai clone scam", "fake celebrity ai", "deepfake tiktok"], hashtags: ["deepfake", "aiclone", "fakecelebrity", "deepfaketiktok"], vertical: "TikTok / FYP", authority: 80, tags: ["ai", "deepfake", "scams", "viral"], poll: 20, maxResults: 6 },
+    { name: "TikTok Gaming Backlash", query: "gaming backlash", queries: ["gaming backlash", "review bomb", "game drama", "gaming controversy"], hashtags: ["gamingbacklash", "reviewbomb", "gamedrama", "gamingcontroversy"], vertical: "TikTok / FYP", authority: 76, tags: ["gaming", "backlash", "streamers"], poll: 20, maxResults: 6 },
+    { name: "TikTok Creator Scam Drama", query: "influencer scam", queries: ["influencer scam", "creator fraud", "dropshipping exposed", "coach scam"], hashtags: ["influencerscam", "creatorfraud", "dropshipping", "scamexposed"], vertical: "TikTok / FYP", authority: 76, tags: ["creators", "scams", "drama"], poll: 25, maxResults: 6 },
+    { name: "TikTok AI Tool Blowups", query: "chatgpt trend", queries: ["chatgpt trend", "ai tool viral", "ai app everyone using", "ai filter viral"], hashtags: ["chatgpt", "aitool", "aifilter", "aitrend"], vertical: "TikTok / FYP", authority: 78, tags: ["ai", "tools", "viral"], poll: 20, maxResults: 6 },
+  ]),
+  ...buildTikTokFypSeeds([
+    { name: "Moon TikTok FYP", profileKey: "moon-core", vertical: "TikTok / FYP", authority: 88, tags: ["fyp", "internet-culture", "ai", "creators"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok AI FYP", profileKey: "moon-ai", vertical: "TikTok / FYP", authority: 84, tags: ["fyp", "ai", "slop", "tools"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Creator FYP", profileKey: "moon-creators", vertical: "TikTok / FYP", authority: 84, tags: ["fyp", "creators", "drama", "streamers"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Fandom FYP", profileKey: "moon-fandom", vertical: "TikTok / FYP", authority: 82, tags: ["fyp", "hollywood", "trailers", "fandom"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Meme FYP", profileKey: "moon-memes", vertical: "TikTok / FYP", authority: 80, tags: ["fyp", "memes", "internet-culture", "viral"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Deepfake FYP", profileKey: "moon-deepfake", vertical: "TikTok / FYP", authority: 82, tags: ["fyp", "ai", "deepfake", "scams"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok AI Tools FYP", profileKey: "moon-ai-tools", vertical: "TikTok / FYP", authority: 82, tags: ["fyp", "ai", "tools", "apps"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok AI Music FYP", profileKey: "moon-ai-music", vertical: "TikTok / FYP", authority: 78, tags: ["fyp", "ai", "music", "fraud"], poll: 25, maxResults: 8 },
+    { name: "Moon TikTok AI Cinema FYP", profileKey: "moon-ai-cinema", vertical: "TikTok / FYP", authority: 80, tags: ["fyp", "ai", "brainrot", "memes"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Kick FYP", profileKey: "moon-kick", vertical: "TikTok / FYP", authority: 84, tags: ["fyp", "kick", "streamers", "drama"], poll: 15, maxResults: 10 },
+    { name: "Moon TikTok Streamer Drama FYP", profileKey: "moon-streamer-drama", vertical: "TikTok / FYP", authority: 84, tags: ["fyp", "streamers", "twitch", "drama"], poll: 15, maxResults: 10 },
+    { name: "Moon TikTok YouTube Drama FYP", profileKey: "moon-youtube-drama", vertical: "TikTok / FYP", authority: 80, tags: ["fyp", "youtube", "creators", "drama"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Adin FYP", profileKey: "moon-adin", vertical: "TikTok / FYP", authority: 84, tags: ["fyp", "adin", "kick", "streamers"], poll: 15, maxResults: 10 },
+    { name: "Moon TikTok Druski FYP", profileKey: "moon-druski", vertical: "TikTok / FYP", authority: 78, tags: ["fyp", "druski", "internet-culture", "clips"], poll: 20, maxResults: 8 },
+    { name: "Moon TikTok Trailer Backlash FYP", profileKey: "moon-trailer-backlash", vertical: "TikTok / FYP", authority: 82, tags: ["fyp", "trailers", "backlash", "hollywood"], poll: 20, maxResults: 10 },
+    { name: "Moon TikTok Harry Potter FYP", profileKey: "moon-harry-potter", vertical: "TikTok / FYP", authority: 80, tags: ["fyp", "harry-potter", "fandom", "backlash"], poll: 20, maxResults: 8 },
+    { name: "Moon TikTok Disney Live-Action FYP", profileKey: "moon-disney-liveaction", vertical: "TikTok / FYP", authority: 80, tags: ["fyp", "disney", "live-action", "backlash"], poll: 20, maxResults: 8 },
+    { name: "Moon TikTok Marvel/DC FYP", profileKey: "moon-marvel-dc", vertical: "TikTok / FYP", authority: 78, tags: ["fyp", "marvel", "dc", "trailers"], poll: 20, maxResults: 8 },
+    { name: "Moon TikTok Anime FYP", profileKey: "moon-anime", vertical: "TikTok / FYP", authority: 74, tags: ["fyp", "anime", "fandom", "internet-culture"], poll: 25, maxResults: 8 },
+    { name: "Moon TikTok Platform Backlash FYP", profileKey: "moon-platform-backlash", vertical: "TikTok / FYP", authority: 76, tags: ["fyp", "platforms", "backlash", "apps"], poll: 20, maxResults: 8 },
+    { name: "Moon TikTok Brainrot FYP", profileKey: "moon-brainrot", vertical: "TikTok / FYP", authority: 76, tags: ["fyp", "brainrot", "memes", "ai"], poll: 20, maxResults: 8 },
   ]),
 ];
 
@@ -2431,14 +2827,17 @@ export const boardCompetitorChannelSeeds: BoardCompetitorChannelSeed[] = [
     platform: "youtube",
     tier: "tier1",
     handle: "@ColdFusion",
-    channelUrl: null,
-    subscribersLabel: "5.3M",
-    latestTitle: "556 videos total · 4.4M views last 30 days · uploading regularly",
-    latestPublishedAt: offsetTime({ hours: 20 }),
-    topicMatchScore: 57,
+    channelUrl: "https://www.youtube.com/@ColdFusion",
+    subscribersLabel: "5.18M",
+    latestTitle: "Whoops. Another Forbes 30u30 Facing Prison",
+    latestPublishedAt: new Date("2026-03-24T14:59:51+00:00"),
+    topicMatchScore: 60,
     alertLevel: "none",
     metadataJson: {
-      latestTimeLabel: "active",
+      channelId: "UC4QZ_LsYcvcq7qOsOhpAX4A",
+      channelHandle: "@ColdFusion",
+      channelUrl: "https://www.youtube.com/@ColdFusion",
+      latestTimeLabel: "Mar 24, 2026",
     },
   },
   {
@@ -2499,6 +2898,135 @@ export const boardCompetitorChannelSeeds: BoardCompetitorChannelSeed[] = [
     alertLevel: "none",
     metadataJson: {
       latestTimeLabel: "active",
+    },
+  },
+  {
+    name: "Aperture",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@ApertureThinking",
+    channelUrl: "https://www.youtube.com/@ApertureThinking",
+    subscribersLabel: "2.52M",
+    latestTitle:
+      "Recent uploads — philosophy, psychology, and society essays",
+    latestPublishedAt: new Date("2026-03-24T16:01:37+00:00"),
+    topicMatchScore: 88,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCO5QSoES5yn2Dw7YixDYT5Q",
+      channelHandle: "@ApertureThinking",
+      channelUrl: "https://www.youtube.com/@ApertureThinking",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Kraut",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@Kraut_the_Parrot",
+    channelUrl: "https://www.youtube.com/@Kraut_the_Parrot",
+    subscribersLabel: "604K",
+    latestTitle:
+      "Infrequent long-form essays on history, culture, and geopolitics",
+    latestPublishedAt: new Date("2026-01-06T06:12:16+00:00"),
+    topicMatchScore: 84,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCr_Q-bPpcw5fJ-Oow1BW1NQ",
+      channelHandle: "@Kraut_the_Parrot",
+      channelUrl: "https://www.youtube.com/@Kraut_the_Parrot",
+      latestTimeLabel: "Jan 6, 2026",
+    },
+  },
+  {
+    name: "Second Thought",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@SecondThought",
+    channelUrl: "https://www.youtube.com/@SecondThought",
+    subscribersLabel: "1.89M",
+    latestTitle: "The White House Won't Stop Posting Nazi Propaganda. Here's Why.",
+    latestPublishedAt: new Date("2026-03-13T14:01:31+00:00"),
+    topicMatchScore: 80,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCJm2TgUqtK1_NLBrjNQ1P-w",
+      channelHandle: "@SecondThought",
+      channelUrl: "https://www.youtube.com/@SecondThought",
+      latestTimeLabel: "Mar 13, 2026",
+    },
+  },
+  {
+    name: "Ryan Chapman",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@realryanchapman",
+    channelUrl: "https://www.youtube.com/@realryanchapman",
+    subscribersLabel: "541K",
+    latestTitle:
+      "Political and cultural analysis essays with strong Moon overlap",
+    latestPublishedAt: new Date("2026-02-27T18:30:34+00:00"),
+    topicMatchScore: 90,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UC6FO-Up1-oLj5nNivCNHL-Q",
+      channelHandle: "@realryanchapman",
+      channelUrl: "https://www.youtube.com/@realryanchapman",
+      latestTimeLabel: "Feb 27, 2026",
+    },
+  },
+  {
+    name: "What I've Learned",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@WhatIveLearned",
+    channelUrl: "https://www.youtube.com/@WhatIveLearned",
+    subscribersLabel: "2.38M",
+    latestTitle: "Hidden Data: How the Top Longevity Doctor tricked us all",
+    latestPublishedAt: new Date("2026-02-14T02:27:24+00:00"),
+    topicMatchScore: 76,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCqYPhGiB9tkShZorfgcL2lA",
+      channelHandle: "@WhatIveLearned",
+      channelUrl: "https://www.youtube.com/@WhatIveLearned",
+      latestTimeLabel: "Feb 14, 2026",
+    },
+  },
+  {
+    name: "Ryan Pictures",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@ryan_pictures",
+    channelUrl: "https://www.youtube.com/@ryan_pictures",
+    subscribersLabel: "464K",
+    latestTitle: "Which YouTube Animator Has The Worst Reputation?",
+    latestPublishedAt: new Date("2026-03-23T16:46:28+00:00"),
+    topicMatchScore: 82,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCXg2L_c6fFI-hH3lzsGOQkg",
+      channelHandle: "@ryan_pictures",
+      channelUrl: "https://www.youtube.com/@ryan_pictures",
+      latestTimeLabel: "Mar 23, 2026",
+    },
+  },
+  {
+    name: "captainmidnight",
+    platform: "youtube",
+    tier: "tier1",
+    handle: "@captainmidnight",
+    channelUrl: "https://www.youtube.com/@captainmidnight",
+    subscribersLabel: "740K",
+    latestTitle: "Spider-Man: Brand New Day Looks Great, BUT...",
+    latestPublishedAt: new Date("2026-03-24T19:57:38+00:00"),
+    topicMatchScore: 68,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCROQqK3_z79JuTetNP3pIXQ",
+      channelHandle: "@captainmidnight",
+      channelUrl: "https://www.youtube.com/@captainmidnight",
+      latestTimeLabel: "Mar 24, 2026",
     },
   },
   {
@@ -2590,6 +3118,475 @@ export const boardCompetitorChannelSeeds: BoardCompetitorChannelSeed[] = [
     alertLevel: "none",
     metadataJson: {
       latestTimeLabel: "active",
+    },
+  },
+  {
+    name: "Pursuit of Wonder",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@PursuitOfWonder",
+    channelUrl: "https://www.youtube.com/@PursuitOfWonder",
+    subscribersLabel: "3.41M",
+    latestTitle: "Synchronicity: Carl Jung’s Most Disturbing Theory About Reality",
+    latestPublishedAt: new Date("2026-03-18T16:04:02+00:00"),
+    topicMatchScore: 71,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      channelHandle: "@PursuitOfWonder",
+      channelUrl: "https://www.youtube.com/@PursuitOfWonder",
+      latestTimeLabel: "Mar 18, 2026",
+    },
+  },
+  {
+    name: "Whatifalthist",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@WhatifAltHist",
+    channelUrl: "https://www.youtube.com/@WhatifAltHist",
+    subscribersLabel: "736K",
+    latestTitle: "Is the Woke Right Real?",
+    latestPublishedAt: new Date("2026-03-10T03:23:32+00:00"),
+    topicMatchScore: 74,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UC5Dw9TFdbPJoTDMSiJdIQTA",
+      channelHandle: "@WhatifAltHist",
+      channelUrl: "https://www.youtube.com/@WhatifAltHist",
+      latestTimeLabel: "Mar 10, 2026",
+    },
+  },
+  {
+    name: "Tom Nicholas",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@Tom_Nicholas",
+    channelUrl: "https://www.youtube.com/@Tom_Nicholas",
+    subscribersLabel: "645K",
+    latestTitle: "How 18 Year Olds Got the Vote",
+    latestPublishedAt: new Date("2026-03-10T14:57:26+00:00"),
+    topicMatchScore: 68,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCxt2r57cLastdmrReiQJkEg",
+      channelHandle: "@Tom_Nicholas",
+      channelUrl: "https://www.youtube.com/@Tom_Nicholas",
+      latestTimeLabel: "Mar 10, 2026",
+    },
+  },
+  {
+    name: "Nick Crowley",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@NickCrowley",
+    channelUrl: "https://www.youtube.com/@NickCrowley",
+    subscribersLabel: "3.12M",
+    latestTitle: "The Internet's Darkest Corners 7",
+    latestPublishedAt: new Date("2025-12-05T21:07:35+00:00"),
+    topicMatchScore: 66,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCMX31RavkfUHJvw03RbUZnA",
+      channelHandle: "@NickCrowley",
+      channelUrl: "https://www.youtube.com/@NickCrowley",
+      latestTimeLabel: "Dec 5, 2025",
+    },
+  },
+  {
+    name: "Bright Sun Films",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@BrightSunFilms",
+    channelUrl: "https://www.youtube.com/@BrightSunFilms",
+    subscribersLabel: "1.63M",
+    latestTitle: "Cancelled - American Heartland Theme Park",
+    latestPublishedAt: new Date("2026-03-20T21:00:36+00:00"),
+    topicMatchScore: 61,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UC5k3Kc0avyDJ2nG9Kxm9JmQ",
+      channelHandle: "@BrightSunFilms",
+      channelUrl: "https://www.youtube.com/@BrightSunFilms",
+      latestTimeLabel: "Mar 20, 2026",
+    },
+  },
+  {
+    name: "Coffeehouse Crime",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@CoffeehouseCrime",
+    channelUrl: "https://www.youtube.com/@CoffeehouseCrime",
+    subscribersLabel: "2.18M",
+    latestTitle: "Arrogant Teen Thinks She Can Get Away With Murder",
+    latestPublishedAt: new Date("2026-03-19T20:10:00+00:00"),
+    topicMatchScore: 73,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCcUf33cEPky2GiWBgOP-jQA",
+      channelHandle: "@CoffeehouseCrime",
+      channelUrl: "https://www.youtube.com/@CoffeehouseCrime",
+      latestTimeLabel: "Mar 19, 2026",
+    },
+  },
+  {
+    name: "JCS - Criminal Psychology",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@JCS",
+    channelUrl: "https://www.youtube.com/@JCS",
+    subscribersLabel: "5.63M",
+    latestTitle: "How To Interrogate a Narcissist",
+    latestPublishedAt: new Date("2025-12-17T21:01:20+00:00"),
+    topicMatchScore: 78,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCYwVxWpjeKFWwu8TML-Te9A",
+      channelHandle: "@JCS",
+      channelUrl: "https://www.youtube.com/@JCS",
+      latestTimeLabel: "Dec 17, 2025",
+    },
+  },
+  {
+    name: "Slidebean",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@slidebean",
+    channelUrl: "https://www.youtube.com/@slidebean",
+    subscribersLabel: "654K",
+    latestTitle: "Recent uploads — startup and tech documentaries",
+    latestPublishedAt: new Date("2026-03-24T17:39:40+00:00"),
+    topicMatchScore: 58,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UC4bq21IPPbpu0Qrsl7LW0sw",
+      channelHandle: "@slidebean",
+      channelUrl: "https://www.youtube.com/@slidebean",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Knowing Better",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@KnowingBetter",
+    channelUrl: "https://www.youtube.com/@KnowingBetter",
+    subscribersLabel: "952K",
+    latestTitle: "Long-form documentary essays on history and social topics",
+    latestPublishedAt: new Date("2024-09-11T12:39:14+00:00"),
+    topicMatchScore: 57,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UC8XjmAEDVZSCQjI150cb4QA",
+      channelHandle: "@KnowingBetter",
+      channelUrl: "https://www.youtube.com/@KnowingBetter",
+      latestTimeLabel: "Sep 11, 2024",
+    },
+  },
+  {
+    name: "Solar Sands",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@SolarSands",
+    channelUrl: "https://www.youtube.com/@SolarSands",
+    subscribersLabel: "1.44M",
+    latestTitle:
+      "Recent uploads — liminal spaces, consciousness, and reality essays",
+    latestPublishedAt: new Date("2025-12-23T20:00:24+00:00"),
+    topicMatchScore: 55,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCR6LasBpceuYUhuLToKBzvQ",
+      channelHandle: "@SolarSands",
+      channelUrl: "https://www.youtube.com/@SolarSands",
+      latestTimeLabel: "Dec 23, 2025",
+    },
+  },
+  {
+    name: "Boy Boy",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@Boy_Boy",
+    channelUrl: "https://www.youtube.com/@Boy_Boy",
+    subscribersLabel: "1.26M",
+    latestTitle: "We Snuck Controversial Art Into A Famous Art Show",
+    latestPublishedAt: new Date("2025-12-11T12:44:27+00:00"),
+    topicMatchScore: 52,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UC_S45UpAYVuc0fYEcHN9BVQ",
+      channelHandle: "@Boy_Boy",
+      channelUrl: "https://www.youtube.com/@Boy_Boy",
+      latestTimeLabel: "Dec 11, 2025",
+    },
+  },
+  {
+    name: "Oki's Weird Stories",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@okisweirdstories",
+    channelUrl: "https://www.youtube.com/@okisweirdstories",
+    subscribersLabel: "630K",
+    latestTitle: "The Worst Military School in Canada - Robert Land Academy",
+    latestPublishedAt: new Date("2026-03-04T23:59:11+00:00"),
+    topicMatchScore: 63,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCjDQKxiTVpXutZc2Ra9wCAg",
+      channelHandle: "@okisweirdstories",
+      channelUrl: "https://www.youtube.com/@okisweirdstories",
+      latestTimeLabel: "Mar 4, 2026",
+    },
+  },
+  {
+    name: "Jack Saint",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@LackingSaint",
+    channelUrl: "https://www.youtube.com/@LackingSaint",
+    subscribersLabel: "321K",
+    latestTitle: "The White Supremacists Are Fighting",
+    latestPublishedAt: new Date("2025-12-18T13:07:42+00:00"),
+    topicMatchScore: 54,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCdQKvqmHKe_8fv4Rwe7ag9Q",
+      channelHandle: "@LackingSaint",
+      channelUrl: "https://www.youtube.com/@LackingSaint",
+      latestTimeLabel: "Dec 18, 2025",
+    },
+  },
+  {
+    name: "Wendover Productions",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@Wendoverproductions",
+    channelUrl: "https://www.youtube.com/@Wendoverproductions",
+    subscribersLabel: "4.89M",
+    latestTitle: "How ICE's Surveillance System Works",
+    latestPublishedAt: new Date("2026-03-24T19:50:03+00:00"),
+    topicMatchScore: 72,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UC9RM-iSvTu1uPJb8X5yp3EQ",
+      channelHandle: "@Wendoverproductions",
+      channelUrl: "https://www.youtube.com/@Wendoverproductions",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Cash Jordan",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@CashJordan",
+    channelUrl: "https://www.youtube.com/@CashJordan",
+    subscribersLabel: "1.66M",
+    latestTitle: "NYC’s Subway Just IMPLODED… as Mayor Mamdani BLAMES TRUMP",
+    latestPublishedAt: new Date("2026-03-24T19:46:00+00:00"),
+    topicMatchScore: 61,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCrwbBzP11NhxRUCRKx_BgoQ",
+      channelHandle: "@CashJordan",
+      channelUrl: "https://www.youtube.com/@CashJordan",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Fireship",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@fireship",
+    channelUrl: "https://www.youtube.com/@fireship",
+    subscribersLabel: "4.13M",
+    latestTitle: "Tech bros optimized war… and it’s working",
+    latestPublishedAt: new Date("2026-03-24T18:22:27+00:00"),
+    topicMatchScore: 66,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCsBjURrPoezykLs9EqgamOA",
+      channelHandle: "@fireship",
+      channelUrl: "https://www.youtube.com/@fireship",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Phat Memer",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@phatmemer69",
+    channelUrl: "https://www.youtube.com/@phatmemer69",
+    subscribersLabel: "190K",
+    latestTitle: "The Inevitable Downfall Of Prince Andrew & Sarah Ferguson",
+    latestPublishedAt: new Date("2026-03-24T17:02:45+00:00"),
+    topicMatchScore: 62,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCwPy85bZrLGYDRU3AOSK8Ow",
+      channelHandle: "@phatmemer69",
+      channelUrl: "https://www.youtube.com/@phatmemer69",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "TrappUniversity",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@trappuniversity",
+    channelUrl: "https://www.youtube.com/@trappuniversity",
+    subscribersLabel: "216K",
+    latestTitle: "Do People Disappear For Knowing Too Much",
+    latestPublishedAt: new Date("2026-03-23T23:33:37+00:00"),
+    topicMatchScore: 67,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCJJ1DrDsAW1emEwDwFJjRCA",
+      channelHandle: "@trappuniversity",
+      channelUrl: "https://www.youtube.com/@trappuniversity",
+      latestTimeLabel: "Mar 23, 2026",
+    },
+  },
+  {
+    name: "Coolea",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@coolea",
+    channelUrl: "https://www.youtube.com/@coolea",
+    subscribersLabel: "182K",
+    latestTitle: "Why We Can't Escape the Mullet",
+    latestPublishedAt: new Date("2026-03-23T20:00:15+00:00"),
+    topicMatchScore: 54,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCj5l6GNdcpnT2sEsJjBfz7w",
+      channelHandle: "@coolea",
+      channelUrl: "https://www.youtube.com/@coolea",
+      latestTimeLabel: "Mar 23, 2026",
+    },
+  },
+  {
+    name: "TheGamerFromMars",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@thegamerfrommars",
+    channelUrl: "https://www.youtube.com/@thegamerfrommars",
+    subscribersLabel: "1.18M",
+    latestTitle: "ProJared: The YouTuber Who Lost Everything in 24 Hours",
+    latestPublishedAt: new Date("2026-03-23T17:39:12+00:00"),
+    topicMatchScore: 74,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCJ6z_yj_dDNrhn-c8ZyKV4g",
+      channelHandle: "@thegamerfrommars",
+      channelUrl: "https://www.youtube.com/@thegamerfrommars",
+      latestTimeLabel: "Mar 23, 2026",
+    },
+  },
+  {
+    name: "decoy",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@decoy",
+    channelUrl: "https://www.youtube.com/@decoy",
+    subscribersLabel: "1.06M",
+    latestTitle: "He Had It Coming..",
+    latestPublishedAt: new Date("2026-03-25T00:04:07+00:00"),
+    topicMatchScore: 46,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCqN2iOW580CFSohYzruos2A",
+      channelHandle: "@decoy",
+      channelUrl: "https://www.youtube.com/@decoy",
+      latestTimeLabel: "Mar 25, 2026",
+    },
+  },
+  {
+    name: "Nerdstalgic",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@nerdstalgic",
+    channelUrl: "https://www.youtube.com/@nerdstalgic",
+    subscribersLabel: "1.52M",
+    latestTitle: "Robert Pattinson Pulled Off A Hollywood Miracle",
+    latestPublishedAt: new Date("2026-03-24T15:01:20+00:00"),
+    topicMatchScore: 59,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCXjmz8dFzRJZrZY8eFiXNUQ",
+      channelHandle: "@nerdstalgic",
+      channelUrl: "https://www.youtube.com/@nerdstalgic",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Lessons in Meme Culture",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@limc",
+    channelUrl: "https://www.youtube.com/@limc",
+    subscribersLabel: "2.18M",
+    latestTitle: "Why Is Everyone Larping?",
+    latestPublishedAt: new Date("2026-03-24T12:00:00+00:00"),
+    topicMatchScore: 77,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCaHT88aobpcvRFEuy4v5Clg",
+      channelHandle: "@limc",
+      channelUrl: "https://www.youtube.com/@limc",
+      latestTimeLabel: "Mar 24, 2026",
+    },
+  },
+  {
+    name: "Cole Hastings",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@colehastings",
+    channelUrl: "https://www.youtube.com/@colehastings",
+    subscribersLabel: "849K",
+    latestTitle: "Gen Alpha's Childhood Crisis",
+    latestPublishedAt: new Date("2026-03-22T16:01:00+00:00"),
+    topicMatchScore: 64,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCwQnoax3HWID1WOzZ4mqLPQ",
+      channelHandle: "@colehastings",
+      channelUrl: "https://www.youtube.com/@colehastings",
+      latestTimeLabel: "Mar 22, 2026",
+    },
+  },
+  {
+    name: "American Redact",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@americanredact",
+    channelUrl: "https://www.youtube.com/@americanredact",
+    subscribersLabel: "142K",
+    latestTitle: "Brendan Schaub Embarrasses Himself While Glazing Joe Rogan",
+    latestPublishedAt: new Date("2026-03-22T21:33:56+00:00"),
+    topicMatchScore: 56,
+    alertLevel: "none",
+    metadataJson: {
+      channelId: "UCsLGW4mXzWqvtityp1T6CKQ",
+      channelHandle: "@americanredact",
+      channelUrl: "https://www.youtube.com/@americanredact",
+      latestTimeLabel: "Mar 22, 2026",
+    },
+  },
+  {
+    name: "JAMARI",
+    platform: "youtube",
+    tier: "tier2",
+    handle: "@jamarispeaks",
+    channelUrl: "https://www.youtube.com/@jamarispeaks",
+    subscribersLabel: "1.4M",
+    latestTitle: "The Dirty Business of the NELK Empire",
+    latestPublishedAt: new Date("2026-03-22T20:33:14+00:00"),
+    topicMatchScore: 71,
+    alertLevel: "watch",
+    metadataJson: {
+      channelId: "UCr0XW6TU9XVWlWPpEwEyf3g",
+      channelHandle: "@jamarispeaks",
+      channelUrl: "https://www.youtube.com/@jamarispeaks",
+      latestTimeLabel: "Mar 22, 2026",
     },
   },
 ];

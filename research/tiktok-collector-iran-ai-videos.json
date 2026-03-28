@@ -1,0 +1,916 @@
+{
+  "version": "v1",
+  "meta": {
+    "slug": "iran-ai-videos",
+    "title": "Iran AI Videos",
+    "generatedAt": "2026-03-26T20:15:03.274Z"
+  },
+  "queryPlan": {
+    "model": "fallback",
+    "queries": [
+      "Iran AI Videos",
+      "Iran AI Videos tiktok",
+      "Iran AI Videos fake video",
+      "Iran AI Videos ai video",
+      "Iran AI Videos viral video",
+      "Iran AI Videos misinformation"
+    ]
+  },
+  "discovery": {
+    "attempts": [
+      {
+        "query": "Iran AI Videos",
+        "method": "parallel_search",
+        "resultCount": 4,
+        "note": "TikTok served a blank/blocked search shell, so discovery fell back to Parallel web search."
+      },
+      {
+        "query": "Iran AI Videos tiktok",
+        "method": "parallel_search",
+        "resultCount": 5,
+        "note": "TikTok served a blank/blocked search shell, so discovery fell back to Parallel web search."
+      },
+      {
+        "query": "Iran AI Videos fake video",
+        "method": "parallel_search",
+        "resultCount": 2,
+        "note": "TikTok served a blank/blocked search shell, so discovery fell back to Parallel web search."
+      },
+      {
+        "query": "Iran AI Videos ai video",
+        "method": "parallel_search",
+        "resultCount": 3,
+        "note": "TikTok served a blank/blocked search shell, so discovery fell back to Parallel web search."
+      },
+      {
+        "query": "Iran AI Videos viral video",
+        "method": "parallel_search",
+        "resultCount": 0,
+        "note": "No direct TikTok video URLs surfaced for this query."
+      },
+      {
+        "query": "Iran AI Videos misinformation",
+        "method": "parallel_search",
+        "resultCount": 2,
+        "note": "TikTok served a blank/blocked search shell, so discovery fell back to Parallel web search."
+      }
+    ],
+    "totalUniqueUrls": 8
+  },
+  "summary": {
+    "discoveredUrls": 8,
+    "ingestedClips": 7,
+    "transcriptedClips": 7,
+    "clipsWithTalkingPoints": 6,
+    "totalTalkingPoints": 33
+  },
+  "clips": [
+    {
+      "title": "Iran State TV Relases AI Slop #news #iran #aviation",
+      "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190",
+      "pageUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast8-p-0068-tx2/oI8jBIolBAXozZplAfCXAf9aAEXeITAVO5MqEQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4ObYuwXwFXkoccxrIyT1vUfWktM%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "provider": "tiktok",
+      "channelOrContributor": "aaronrheins",
+      "durationMs": 26000,
+      "viewCount": 1400000,
+      "uploadDate": "20260223",
+      "discoveryQuery": "Iran AI Videos",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 7,
+      "missionSummary": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+      "maxTalkingPointScore": 85,
+      "talkingPoints": [
+        {
+          "endMs": 15000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 0,
+          "quoteText": "Iranian state TV aired some AI slop showing their military destroying a US aircraft carrier, and it's pretty funny.",
+          "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=0",
+          "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 18000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 3000,
+          "quoteText": "It starts by showing an F-35 shooting down one of their drones, but then shows some type of torpedo headed for an aircraft carrier.",
+          "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=3",
+          "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 22000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 7000,
+          "quoteText": "The funny part though, the aircraft carrier is completely submerged at this point.",
+          "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=7",
+          "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 25000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 10000,
+          "quoteText": "And then finally, of course, shows the aircraft carrier sinking as well, with more drama and and explosions.",
+          "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=10",
+          "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        }
+      ]
+    },
+    {
+      "title": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261",
+      "pageUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "provider": "tiktok",
+      "channelOrContributor": "cnn",
+      "durationMs": 86000,
+      "viewCount": 505500,
+      "uploadDate": "20260311",
+      "discoveryQuery": "Iran AI Videos",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 20,
+      "missionSummary": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "maxTalkingPointScore": 85,
+      "talkingPoints": [
+        {
+          "endMs": 15001,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 1,
+          "quoteText": "See these Iranian missiles ranting down on Tel Aviv. They're fake. This video is a fabrication very likely created with AI Artificial intelligence tools are better than ever. They're widely available often free and so social media is a cesspool of fakery right now",
+          "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+          "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15018,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 18,
+          "quoteText": "There is this fake video supposedly showing a group of US troops captured in Iran And this fake video supposedly showing an Iranian military facility being blown up and this fake video supposedly showing people fleeing an Iranian attack on an Israeli airport",
+          "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+          "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15027,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 27,
+          "quoteText": "In that last one, there are people in suitcases moving in weird ways, a telltale sign of an AI creation",
+          "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+          "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15033,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 33,
+          "quoteText": "But other fakes of the Iran war are not so easy to spot, and there are dozens of them going around. The trickery isn't all AI either. There's footage of incidents from other countries being presented as being from Iran or Israel, footage of old incidents being shared as new, even clips from war video games being depicted as real flips",
+          "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+          "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15052,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 52,
+          "quoteText": "My top tip is, just take an extra second of thinking or reading before you share one of these war videos. Ask yourself, does anything just seem off about it? Out of sync, audio and video, oddly shaped objects, material that doesn't match what we know about the war. Ask yourself, has any credible media outlet or subject matter expert confirmed or debunked this clip? What about people in the comments or replies? Have they raised skeptical questions? And AI detection tools? Nope, they're not perfect, but they can help",
+          "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+          "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15092,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 92,
+          "quoteText": "Look, this stuff is hard, it has never been easier to get tricked by stuff online, but there are things you can do to protect yourself",
+          "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+          "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        }
+      ]
+    },
+    {
+      "title": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101",
+      "pageUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "provider": "tiktok",
+      "channelOrContributor": "cbcnews",
+      "durationMs": 71000,
+      "viewCount": 82200,
+      "uploadDate": "20260309",
+      "discoveryQuery": "Iran AI Videos misinformation",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 19,
+      "missionSummary": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "maxTalkingPointScore": 85,
+      "talkingPoints": [
+        {
+          "endMs": 15000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 0,
+          "quoteText": "This video posted on Saturday shows a street on fire after U.S. Israeli strikes hit Iranian oil depots.",
+          "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+          "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15006,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 6,
+          "quoteText": "Elon Musk's AI chatbot Brock told ex-users the video is manipulated footage of a 2017 fire in Los Angeles that was overlaid with Persian road signs and audio. That's false information.",
+          "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+          "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15020,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 20,
+          "quoteText": "The video is real and shows Kusar Boulevard in Tehran. Multiple videos have been posted of these fires from different angles.",
+          "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+          "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15023,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 23,
+          "quoteText": "We geo-located this one by matching this intersection to a video uploaded to YouTube of a driver traveling down Cusar Boulevard.",
+          "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+          "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15032,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 32,
+          "quoteText": "A few seconds earlier in the video, you can see a store sign that also matches this hardware store shown on Google Maps.",
+          "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+          "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15037,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 37,
+          "quoteText": "A reverse image search of screenshots from the videos show it hasn't been posted before March 7th.",
+          "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+          "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        }
+      ]
+    },
+    {
+      "title": "From AI-generated visuals to video game footage dressed up as war, Cl...",
+      "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286",
+      "pageUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-no1a-p-0037-no/ogBTpEVfRpEDSkFEB9DnjMFzy6hpgAeIKxMIIE~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=LeOBLIqIBKtpptldmkNak1HOa74%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "provider": "tiktok",
+      "channelOrContributor": "rtenews",
+      "durationMs": 80000,
+      "viewCount": 15100,
+      "uploadDate": "20260303",
+      "discoveryQuery": "Iran AI Videos misinformation",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 15,
+      "missionSummary": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+      "maxTalkingPointScore": 85,
+      "talkingPoints": [
+        {
+          "endMs": 15000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 0,
+          "quoteText": "When news broke this morning of a drone strike at the US Embassy in Riyadh, images like this started circulating across social media. They were posted by verified accounts with large followings. We checked them using Google's AI detection tools and found that they were made using AI.",
+          "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286?t=0",
+          "whyRelevant": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 46000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 31000,
+          "quoteText": "This video shows a mix of AI generated video and older footage from the last Iranian conflict.",
+          "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286?t=31",
+          "whyRelevant": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 49000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 34000,
+          "quoteText": "This one claims to show the downing of a US fighter jet but it's actually a video game.",
+          "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286?t=34",
+          "whyRelevant": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 52000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 37000,
+          "quoteText": "And this one claims to show strikes in Tel Aviv but it's actually showing Algerian football celebrations from 2020.",
+          "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286?t=37",
+          "whyRelevant": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 55000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 40000,
+          "quoteText": "During breaking news events people turn to social media for updates and some users post dramatic content, whether it's real or not, to maximise attention.",
+          "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286?t=40",
+          "whyRelevant": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 61000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 46000,
+          "quoteText": "The AI images from Riyadh came from verified accounts on X, meaning those users can earn money from engagement and views.",
+          "sourceUrl": "https://www.tiktok.com/@rtenews/video/7613109859147435286?t=46",
+          "whyRelevant": "The TikTok highlights that during the Middle East conflict, social media was flooded with fake content including AI-generated images and repurposed footage, such as video game clips and unrelated celebrations, often posted by verified accounts to gain attention and monetize views. It explains why these fake videos spread and points out the difficulty in covering the conflict due to rampant misinformation.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        }
+      ]
+    },
+    {
+      "title": "An AI-generated plane video tied to Iran can look real enough to beco...",
+      "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020",
+      "pageUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/osGypIdCWQFWJLFIOoeeVegdV2aKCjA0bTQxAD~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=bE5MutI%2Fj0EFXl2%2BQ3VZZQ0tYFE%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "provider": "tiktok",
+      "channelOrContributor": "heysirio",
+      "durationMs": 72000,
+      "viewCount": 11800,
+      "uploadDate": "20260308",
+      "discoveryQuery": "Iran AI Videos tiktok",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 32,
+      "missionSummary": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+      "maxTalkingPointScore": 85,
+      "talkingPoints": [
+        {
+          "endMs": 15000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 0,
+          "quoteText": "This image that's gone viral on social media is AI-generated. It's basically a Google Maps screenshot brought into Nano Banana and edited with a simple prompt to create a fake news story about how the US is losing to Iran. I recreated it myself with this prompt.",
+          "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020?t=0",
+          "whyRelevant": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15007,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 7,
+          "quoteText": "This video, too, got over 80 million views online. I recreated that one in five minutes. This one, too, and this one as well.",
+          "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020?t=0",
+          "whyRelevant": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15022,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 22,
+          "quoteText": "So the question is who should actually be held accountable for that? The person creating it? Maybe, but they're creating it because they know that they can distribute it.",
+          "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020?t=0",
+          "whyRelevant": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15031,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 31,
+          "quoteText": "The platform's distributing it. Maybe, but they'll say they didn't make it. The company's building the tools. Maybe, but they'll say they're just enabling creativity. And that's a loop.",
+          "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020?t=0",
+          "whyRelevant": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15040,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 40,
+          "quoteText": "The creators can do it because the tools exist. And the tools matter because the platforms let the output spread. And the platforms benefit because the content keeps people engaged. And if people are on the platform, there's more ad revenue.",
+          "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020?t=0",
+          "whyRelevant": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 15052,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 52,
+          "quoteText": "All these AI tools are advertising on these platforms. Crazy. So the responsibility gets blurred through the entire chain. and even though every part of that chain makes it work.",
+          "sourceUrl": "https://www.tiktok.com/@heysirio/video/7614895144147488020?t=0",
+          "whyRelevant": "The TikTok highlights how AI-generated videos tied to Iran spread widely due to a chain of responsibility blurred across creators, platforms, and tool builders. It shows the fake videos themselves, recreated with simple prompts, explains that creators make them knowing distribution platforms will spread them, and details how platforms benefit from increased engagement and ad revenue. The key insight is that no single part of the chain wants full accountability, though all profit from the outcome.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        }
+      ]
+    },
+    {
+      "title": "AI-generated videos like these are spreading online during the Iran war.",
+      "sourceUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638",
+      "pageUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638",
+      "previewUrl": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/os1fOi7EAtuK7B04IC3Bu1mamCiB10IpwAApIw~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=HCpuSu532GLEogxbnoZTr5Z6zfc%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "provider": "tiktok",
+      "channelOrContributor": "apnews",
+      "durationMs": 84000,
+      "viewCount": 7632,
+      "uploadDate": "20260305",
+      "discoveryQuery": "Iran AI Videos",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 18,
+      "missionSummary": "The TikTok provides a useful debunking of AI-generated videos related to the Iran war by highlighting specific examples of fabricated content and explaining why they are false, urging viewers to verify information before sharing.",
+      "maxTalkingPointScore": 85,
+      "talkingPoints": [
+        {
+          "endMs": 15000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 0,
+          "quoteText": "Several AI-generated images and videos have gone viral. None of this actually happened. Officials from the UAE Ministry of Defense have confirmed that they have intercepted hundreds of attacks since the war began.",
+          "sourceUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638?t=0",
+          "whyRelevant": "The TikTok provides a useful debunking of AI-generated videos related to the Iran war by highlighting specific examples of fabricated content and explaining why they are false, urging viewers to verify information before sharing.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 45000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 30000,
+          "quoteText": "But the Burj Khalifa was never hit and did not catch on fire.",
+          "sourceUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638?t=30",
+          "whyRelevant": "The TikTok provides a useful debunking of AI-generated videos related to the Iran war by highlighting specific examples of fabricated content and explaining why they are false, urging viewers to verify information before sharing.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 45000,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 30000,
+          "quoteText": "A viral daytime footage shows classic AI hallucinations, like these two cars blending into one another. A reverse image search also reveals no credible news reports matching this footage. It is a complete fabrication.",
+          "sourceUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638?t=30",
+          "whyRelevant": "The TikTok provides a useful debunking of AI-generated videos related to the Iran war by highlighting specific examples of fabricated content and explaining why they are false, urging viewers to verify information before sharing.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 75300,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 60300,
+          "quoteText": "Videos claiming to show the Iranian Revolutionary Guard deploying doomsday missiles have racked up thousands of views. Again, if you look closely at the details, the errors become obvious.",
+          "sourceUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638?t=60",
+          "whyRelevant": "The TikTok provides a useful debunking of AI-generated videos related to the Iran war by highlighting specific examples of fabricated content and explaining why they are false, urging viewers to verify information before sharing.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        },
+        {
+          "endMs": 75300,
+          "label": "TikTok moment",
+          "topics": [
+            "tiktok",
+            "viral clip",
+            "ai video"
+          ],
+          "speaker": null,
+          "startMs": 60300,
+          "quoteText": "In a fast-moving conflict, seeing isn't always believing. Before you share dramatic footage, look for visual inconsistencies and check verified news sources.",
+          "sourceUrl": "https://www.tiktok.com/@apnews/video/7613861321255226638?t=60",
+          "whyRelevant": "The TikTok provides a useful debunking of AI-generated videos related to the Iran war by highlighting specific examples of fabricated content and explaining why they are false, urging viewers to verify information before sharing.",
+          "relevanceScore": 85,
+          "matchedSectionHeadings": []
+        }
+      ]
+    },
+    {
+      "title": "Are you going to miss it? OpenAI's hyper-realistic AI video generatio...",
+      "sourceUrl": "https://www.tiktok.com/@metrouk/video/7621136572917812482",
+      "pageUrl": "https://www.tiktok.com/@metrouk/video/7621136572917812482",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-no1a-p-0037-no/oc2EehBvQL7uADIRVT51rnAfyIQDeLSGQDt2GA~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=kmisidZgqk2zbMOSh%2Bj3DkqPdzw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "provider": "tiktok",
+      "channelOrContributor": "metrouk",
+      "durationMs": 23000,
+      "viewCount": 77700,
+      "uploadDate": "20260325",
+      "discoveryQuery": "Iran AI Videos ai video",
+      "discoveryMethod": "parallel_search",
+      "transcriptSegments": 9,
+      "missionSummary": "The TikTok mentions the shutdown of Zora 2, an AI video generator, shortly after its launch and despite Disney's investment. It also highlights OpenAI's efforts to tighten harmful content controls on the platform, which included attempts to curb material and propaganda. However, the TikTok does not specifically discuss fake or AI-generated videos related to Iran, nor does it explain why such videos spread, debunk them, or capture public reactions to them.",
+      "maxTalkingPointScore": 0,
+      "talkingPoints": []
+    }
+  ],
+  "topQuotes": [
+    {
+      "sourceTitle": "Iran State TV Relases AI Slop #news #iran #aviation",
+      "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast8-p-0068-tx2/oI8jBIolBAXozZplAfCXAf9aAEXeITAVO5MqEQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4ObYuwXwFXkoccxrIyT1vUfWktM%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "Iranian state TV aired some AI slop showing their military destroying a US aircraft carrier, and it's pretty funny.",
+      "speaker": null,
+      "startMs": 0,
+      "endMs": 15000,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+      "channelOrContributor": "aaronrheins"
+    },
+    {
+      "sourceTitle": "Iran State TV Relases AI Slop #news #iran #aviation",
+      "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=3",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast8-p-0068-tx2/oI8jBIolBAXozZplAfCXAf9aAEXeITAVO5MqEQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4ObYuwXwFXkoccxrIyT1vUfWktM%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "It starts by showing an F-35 shooting down one of their drones, but then shows some type of torpedo headed for an aircraft carrier.",
+      "speaker": null,
+      "startMs": 3000,
+      "endMs": 18000,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+      "channelOrContributor": "aaronrheins"
+    },
+    {
+      "sourceTitle": "Iran State TV Relases AI Slop #news #iran #aviation",
+      "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=7",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast8-p-0068-tx2/oI8jBIolBAXozZplAfCXAf9aAEXeITAVO5MqEQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4ObYuwXwFXkoccxrIyT1vUfWktM%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "The funny part though, the aircraft carrier is completely submerged at this point.",
+      "speaker": null,
+      "startMs": 7000,
+      "endMs": 22000,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+      "channelOrContributor": "aaronrheins"
+    },
+    {
+      "sourceTitle": "Iran State TV Relases AI Slop #news #iran #aviation",
+      "sourceUrl": "https://www.tiktok.com/@aaronrheins/video/7610148012614012190?t=10",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast8-p-0068-tx2/oI8jBIolBAXozZplAfCXAf9aAEXeITAVO5MqEQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4ObYuwXwFXkoccxrIyT1vUfWktM%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "And then finally, of course, shows the aircraft carrier sinking as well, with more drama and and explosions.",
+      "speaker": null,
+      "startMs": 10000,
+      "endMs": 25000,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides a clear example of Iranian state TV airing AI-generated videos depicting their military destroying a US aircraft carrier, highlighting the unrealistic and exaggerated nature of these videos—like the aircraft carrier being completely submerged before sinking. This clip shows the fake AI-generated videos themselves and implicitly critiques their quality and believability by calling it \"pretty funny\" and describing the errors in the imagery.",
+      "channelOrContributor": "aaronrheins"
+    },
+    {
+      "sourceTitle": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "See these Iranian missiles ranting down on Tel Aviv. They're fake. This video is a fabrication very likely created with AI Artificial intelligence tools are better than ever. They're widely available often free and so social media is a cesspool of fakery right now",
+      "speaker": null,
+      "startMs": 1,
+      "endMs": 15001,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "channelOrContributor": "cnn"
+    },
+    {
+      "sourceTitle": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "There is this fake video supposedly showing a group of US troops captured in Iran And this fake video supposedly showing an Iranian military facility being blown up and this fake video supposedly showing people fleeing an Iranian attack on an Israeli airport",
+      "speaker": null,
+      "startMs": 18,
+      "endMs": 15018,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "channelOrContributor": "cnn"
+    },
+    {
+      "sourceTitle": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "In that last one, there are people in suitcases moving in weird ways, a telltale sign of an AI creation",
+      "speaker": null,
+      "startMs": 27,
+      "endMs": 15027,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "channelOrContributor": "cnn"
+    },
+    {
+      "sourceTitle": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "But other fakes of the Iran war are not so easy to spot, and there are dozens of them going around. The trickery isn't all AI either. There's footage of incidents from other countries being presented as being from Iran or Israel, footage of old incidents being shared as new, even clips from war video games being depicted as real flips",
+      "speaker": null,
+      "startMs": 33,
+      "endMs": 15033,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "channelOrContributor": "cnn"
+    },
+    {
+      "sourceTitle": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "My top tip is, just take an extra second of thinking or reading before you share one of these war videos. Ask yourself, does anything just seem off about it? Out of sync, audio and video, oddly shaped objects, material that doesn't match what we know about the war. Ask yourself, has any credible media outlet or subject matter expert confirmed or debunked this clip? What about people in the comments or replies? Have they raised skeptical questions? And AI detection tools? Nope, they're not perfect, but they can help",
+      "speaker": null,
+      "startMs": 52,
+      "endMs": 15052,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "channelOrContributor": "cnn"
+    },
+    {
+      "sourceTitle": "Fake videos and images depicting fake attacks and fake troops have ra...",
+      "sourceUrl": "https://www.tiktok.com/@cnn/video/7615959302494293261?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-85c255-tx/oEWwAfVi0goBDUDQCm7EEqBSpDsFQfTapVKJ3d~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=4MteBlf1IZ9T2w2gmg2jzKjyRu0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+      "quoteText": "Look, this stuff is hard, it has never been easier to get tricked by stuff online, but there are things you can do to protect yourself",
+      "speaker": null,
+      "startMs": 92,
+      "endMs": 15092,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok provides specific examples of fake videos related to Iran, detailing various types of fakery including AI-generated footage and reused clips from other contexts. It explains signs of AI fakery, like unnatural movement in people and objects, and advises viewers to critically assess videos before sharing. The key advice includes checking for inconsistencies, looking for confirmations or debunks by credible sources, reading skeptical comments, and cautiously using AI detection tools.",
+      "channelOrContributor": "cnn"
+    },
+    {
+      "sourceTitle": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "quoteText": "This video posted on Saturday shows a street on fire after U.S. Israeli strikes hit Iranian oil depots.",
+      "speaker": null,
+      "startMs": 0,
+      "endMs": 15000,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "channelOrContributor": "cbcnews"
+    },
+    {
+      "sourceTitle": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "quoteText": "Elon Musk's AI chatbot Brock told ex-users the video is manipulated footage of a 2017 fire in Los Angeles that was overlaid with Persian road signs and audio. That's false information.",
+      "speaker": null,
+      "startMs": 6,
+      "endMs": 15006,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "channelOrContributor": "cbcnews"
+    },
+    {
+      "sourceTitle": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "quoteText": "The video is real and shows Kusar Boulevard in Tehran. Multiple videos have been posted of these fires from different angles.",
+      "speaker": null,
+      "startMs": 20,
+      "endMs": 15020,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "channelOrContributor": "cbcnews"
+    },
+    {
+      "sourceTitle": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "quoteText": "We geo-located this one by matching this intersection to a video uploaded to YouTube of a driver traveling down Cusar Boulevard.",
+      "speaker": null,
+      "startMs": 23,
+      "endMs": 15023,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "channelOrContributor": "cbcnews"
+    },
+    {
+      "sourceTitle": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "quoteText": "A few seconds earlier in the video, you can see a store sign that also matches this hardware store shown on Google Maps.",
+      "speaker": null,
+      "startMs": 32,
+      "endMs": 15032,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "channelOrContributor": "cbcnews"
+    },
+    {
+      "sourceTitle": "CBC's fact check team geolocated this video to Tehran, but Elon Musk'...",
+      "sourceUrl": "https://www.tiktok.com/@cbcnews/video/7615344725477838101?t=0",
+      "previewUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-alisg-p-0037/oQwrdi500A7rIwhxABAqWGi1iAGIqIfK7BtavB~tplv-tiktokx-origin.image?dr=9636&x-expires=1774728000&x-signature=OMeAl1EuScW8DodVQKkH7kkBQWk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+      "quoteText": "A reverse image search of screenshots from the videos show it hasn't been posted before March 7th.",
+      "speaker": null,
+      "startMs": 37,
+      "endMs": 15037,
+      "relevanceScore": 85,
+      "whyRelevant": "The TikTok video confirms that the footage showing a street on fire is real and from Tehran, not manipulated from a 2017 Los Angeles fire as claimed by Elon Musk's AI chatbot Brock. It explains that multiple videos from different angles corroborate the event, and they geo-located the location by matching street intersections and store signs despite the lack of Google Street View. This debunks the false claim that the video was manipulated and highlights how AI chatbot misinformation can spread, which is useful for understanding the credibility and verification challenges of Iran AI videos.",
+      "channelOrContributor": "cbcnews"
+    }
+  ]
+}

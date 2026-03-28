@@ -1,0 +1,51 @@
+[direct-report] parallel deep research complete: pro-fast / trun_dc31875708ad4bf5a58a64a04dc2b20a
+[direct-report] sonnet query plan stage complete
+[direct-report] starting: The White House Robot Wasn't Even Tesla
+[direct-report] article queries: Figure AI Figure 03 White House East Room March 2026 | Fostering the Future Together summit Melania Trump humanoid robot | Figure AI funding investors valuation 2025 2026 | Figure AI Brett Adcock CEO background robotics startup | humanoid robot White House American-made framing AI nationalism | Tesla Optimus vs Figure AI humanoid robot comparison commercial race | humanoid robotics companies race 2025 2026 Figure Boston Dynamics Agility | White House AI policy council Zuckerberg Ellison Jensen Huang March 2026 | Melania Trump Plato AI humanoid educator classroom vision speech | humanoid robots China US geopolitical competition manufacturing | Figure AI BMW factory pilot deployment industrial robots | humanoid robot labor substitution manufacturing jobs displacement | AI nationalism domestic manufacturing branding tech companies White House | robotics trade show spectacle vs real-world deployment gap
+[direct-report] media queries: Melania Trump Figure 03 robot walk Cross Hall White House video | Figure 03 robot speech 11 languages East Room C-SPAN footage | Melania Trump first American-made humanoid guest exact quote clip | Figure AI Figure 03 White House summit official livestream | Brett Adcock Figure AI interview 2025 2026 humanoid robot vision | Tesla Optimus demo video Elon Musk presentation comparison | humanoid robot expert interview labor displacement podcast 2025 | CNN Melania Trump very robotic White House guest segment | ABC News Melania Trump robot summit walking video | Reuters robot joins Melania Trump White House AI teachers video | humanoid robotics hype vs reality expert interview MIT Stanford | Boston Dynamics Atlas robot demo failure compilation vs polished PR | Figure AI robot factory deployment BMW video footage | White House AI policy announcement March 25 2026 press briefing | humanoid robot China showcase CCTV state media 2025 2026 | tech product political theater history examples documentary | robotics researcher interview robots not ready deployment skeptic | Melania Trump full speech Fostering the Future Together summit video
+[direct-report] social queries: Twitter X users mistaking Figure 03 for Tesla Optimus White House | Reddit r/robotics Figure AI White House reaction thread March 2026 | that's not Optimus White House robot tweet reactions | Figure AI LinkedIn post first humanoid robot to visit the White House | Reddit r/Futurology humanoid robot White House political theater discussion | Twitter reactions Melania Trump robot East Room March 25 2026 | TikTok creators reacting to White House humanoid robot Figure 03 | YouTube comments Figure 03 White House I thought it was Tesla | Reddit r/technology Figure AI vs Tesla Optimus confusion thread | Twitter robotics engineers reacting to Figure 03 White House demo scripted | Facebook viral clip Figure 03 walking White House Cross Hall comments | Reddit r/politics humanoid robot White House normalization debate
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[news-search] Reddit returned 403
+[direct-report] news results selected: 6
+[direct-report] extracting article: Melania Trump’s very robotic White House guest | CNN Politics
+[direct-report] extracting article: Robot joins Melania Trump at White House event to tout AI teachers | Reuters
+[direct-report] extracting article: Trump names Nvidia, Meta CEOs to science and tech council | Reuters
+[direct-report] extracting article: First lady Melania Trump enters White House summit with walking, talking humanoid robot - ABC News
+[direct-report] extracting article: Melania Trump pitches robots as potential educators for ...
+[direct-report] extracting article: The White House just laid out how it wants to regulate AI | CNN Business
+[direct-report] structured article cards: 6
+[direct-report] social posts discovered: 2
+[direct-report] expanded media queries: Melania Trump Figure 03 robot walk Cross Hall White House video | Figure 03 robot speech 11 languages East Room C-SPAN footage | Melania Trump first American-made humanoid guest exact quote clip | Figure AI Figure 03 White House summit official livestream | Brett Adcock Figure AI interview 2025 2026 humanoid robot vision | Tesla Optimus demo video Elon Musk presentation comparison | humanoid robot expert interview labor displacement podcast 2025 | CNN Melania Trump very robotic White House guest segment | ABC News Melania Trump robot summit walking video | Reuters robot joins Melania Trump White House AI teachers video | humanoid robotics hype vs reality expert interview MIT Stanford | Boston Dynamics Atlas robot demo failure compilation vs polished PR | Figure AI robot factory deployment BMW video footage | White House AI policy announcement March 25 2026 press briefing | humanoid robot China showcase CCTV state media 2025 2026 | tech product political theater history examples documentary
+[direct-report] media clips selected: 16, youtube transcript targets: 23, quote extraction targets: 14, clean topic quotes: 12
+[direct-report] ingesting media: Kung Fu Robots Deliver 'Knockout' Performance at Spring Festival Gala
+[direct-report] ingesting media: AI robot steals spotlight at White House
+[direct-report] transcript complete: Melania Trump arrives with AI-powered robot to education summit (2 segments, 2 quotes)
+[direct-report] Moon context prepared
+[direct-report] research stage complete
+[direct-report] draft outline stage complete
+[direct-report] section query plan stage complete
+[direct-report] section source discovery complete: 6 bundles
+[direct-report] final outline stage complete
+[direct-report] quote selection stage complete
+[direct-report] quote placement stage complete
+[direct-report] section plan stage complete
+[direct-report] why-it-matters stage complete
+[direct-report] report files written
+{
+  "jsonPath": "/opt/apps/moon-news/research/direct-outline-the-white-house-robot-wasnt-even-tesla.json",
+  "packetJsonPath": "/opt/apps/moon-news/research/research-packet-the-white-house-robot-wasnt-even-tesla.json",
+  "publicPacketJsonPath": "/opt/apps/moon-news/public/research/the-white-house-robot-wasnt-even-tesla-research-packet.json",
+  "htmlPath": "/opt/apps/moon-news/public/research/the-white-house-robot-wasnt-even-tesla-research-review.html"
+}

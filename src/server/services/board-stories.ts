@@ -328,7 +328,7 @@ async function storeAiOutput(
     });
 }
 
-async function getStoryContext(storyId: string): Promise<{
+export async function getStoryContext(storyId: string): Promise<{
   title: string;
   items: Array<{ title: string; summary: string | null; source: string; url: string }>;
 }> {

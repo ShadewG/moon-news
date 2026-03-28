@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
+
+import { buildLibraryQuotesHref } from "@/lib/library-quotes";
 import CopyLinksButton from "./copy-links";
 import { YouTubeEmbed } from "./video-embed";
 
@@ -220,13 +222,37 @@ export default function ReportClient({ data }: {
                       <span>{q.relevanceScore}/100</span>
                     </div>
                     {asset && (
-                      <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 mt-2 text-[11px] text-[#3f3f46] hover:text-[#52525b]">
-                        <span className={asset.provider === "twitter" ? "text-sky-400/60" : "text-red-400/60"}>
-                          {asset.provider === "twitter" ? "X" : "YT"}
-                        </span>
-                        <span className="underline underline-offset-2">{decode(asset.title).slice(0, 60)}</span>
-                        {ts && <span className="text-amber-400/50">at {ts}</span>}
-                      </a>
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px]">
+                        <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[#3f3f46] hover:text-[#52525b]">
+                          <span className={asset.provider === "twitter" ? "text-sky-400/60" : "text-red-400/60"}>
+                            {asset.provider === "twitter" ? "X" : "YT"}
+                          </span>
+                          <span className="underline underline-offset-2">{decode(asset.title).slice(0, 60)}</span>
+                          {ts && <span className="text-amber-400/50">at {ts}</span>}
+                        </a>
+                        {asset.provider === "youtube" && (
+                          <a
+                            href={
+                              buildLibraryQuotesHref({
+                                clipId: asset.clipLibraryId,
+                                provider: asset.provider,
+                                externalId: asset.externalAssetId,
+                                sourceUrl: asset.sourceUrl,
+                                title: asset.title,
+                                channelOrContributor: asset.channelOrContributor,
+                                durationMs: asset.durationMs,
+                                uploadDate: asset.uploadDate,
+                              }) ??
+                              (asset.clipLibraryId
+                                ? `/clips/${asset.clipLibraryId}?tab=quotes`
+                                : link)
+                            }
+                            className="text-amber-300 hover:text-amber-200 underline underline-offset-2"
+                          >
+                            See quotes
+                          </a>
+                        )}
+                      </div>
                     )}
                     {q.context && <p className="text-[11px] text-[#3f3f46] mt-1.5">{q.context}</p>}
                   </div>
@@ -261,6 +287,18 @@ function YTCard({ asset }: { asset: Asset }) {
     ? `${Math.floor(asset.durationMs / 60000)}:${String(Math.floor((asset.durationMs % 60000) / 1000)).padStart(2, "0")}`
     : "";
   const clipLink = asset.clipLibraryId ? `/clips/${asset.clipLibraryId}` : asset.sourceUrl;
+  const quotesLink =
+    buildLibraryQuotesHref({
+      clipId: asset.clipLibraryId,
+      provider: asset.provider,
+      externalId: asset.externalAssetId,
+      sourceUrl: asset.sourceUrl,
+      title: asset.title,
+      channelOrContributor: asset.channelOrContributor,
+      durationMs: asset.durationMs,
+      viewCount: typeof views === "number" ? views : null,
+      uploadDate: asset.uploadDate,
+    }) ?? clipLink;
   return (
     <div className="rounded-lg border border-[#18181b] bg-[#111114] overflow-hidden">
       <a href={clipLink}><YouTubeEmbed videoId={asset.externalAssetId} title={asset.title} /></a>
@@ -272,6 +310,11 @@ function YTCard({ asset }: { asset: Asset }) {
           <span className="text-[#52525b]">{asset.channelOrContributor}</span>
           {dur && <span>{dur}</span>}
           {views != null && <span>{Number(views as number).toLocaleString()} views</span>}
+        </div>
+        <div className="mt-3 flex items-center gap-3 text-[11px]">
+          <a href={quotesLink} className="text-amber-300 hover:text-amber-200 underline underline-offset-2">
+            See quotes
+          </a>
         </div>
       </div>
     </div>

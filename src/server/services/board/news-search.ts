@@ -1,6 +1,8 @@
 import "server-only";
 
 import { getEnv } from "@/server/config/env";
+import { searchResearchSources } from "@/server/providers/parallel";
+import { filterOutMoonVideoCandidates } from "@/server/services/moon-video-exclusion";
 
 // ─── Types ───
 
@@ -52,6 +54,60 @@ function deduplicateResults(
   return deduped;
 }
 
+function extractJsonArrayText(content: string): string | null {
+  const trimmed = content.trim();
+  const withoutCodeFence = trimmed
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+  const start = withoutCodeFence.indexOf("[");
+
+  if (start === -1) {
+    return null;
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < withoutCodeFence.length; index += 1) {
+    const char = withoutCodeFence[index];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) {
+      continue;
+    }
+
+    if (char === "[") {
+      depth += 1;
+      continue;
+    }
+
+    if (char === "]") {
+      depth -= 1;
+      if (depth === 0) {
+        return withoutCodeFence.slice(start, index + 1);
+      }
+    }
+  }
+
+  return null;
+}
+
 // ─── Serper (Google Search API) ───
 
 async function searchSerper(query: string): Promise<NewsSearchResult[]> {
@@ -100,7 +156,8 @@ async function searchSerper(query: string): Promise<NewsSearchResult[]> {
 async function searchPerplexity(
   query: string
 ): Promise<NewsSearchResult[]> {
-  const apiKey = getEnv().PERPLEXITY_API_KEY;
+  const env = getEnv();
+  const apiKey = env.PERPLEXITY_API_KEY;
   if (!apiKey) return [];
 
   try {
@@ -111,7 +168,7 @@ async function searchPerplexity(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "sonar",
+        model: env.PERPLEXITY_FALLBACK_MODEL,
         messages: [
           {
             role: "user",
@@ -134,11 +191,10 @@ async function searchPerplexity(
 
     const content = data.choices?.[0]?.message?.content ?? "";
 
-    // Extract JSON from the response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) return [];
+    const jsonText = extractJsonArrayText(content);
+    if (!jsonText) return [];
 
-    const articles = JSON.parse(jsonMatch[0]) as Array<{
+    const articles = JSON.parse(jsonText) as Array<{
       title?: string;
       url?: string;
       snippet?: string;
@@ -306,6 +362,33 @@ async function searchReddit(query: string): Promise<NewsSearchResult[]> {
   }
 }
 
+async function searchParallel(query: string): Promise<NewsSearchResult[]> {
+  try {
+    const results = await searchResearchSources({
+      query,
+      limit: 6,
+      mode: "fast",
+      objective: [
+        `Find high-signal reporting and direct-source pages for: ${query}.`,
+        "Prefer authoritative journalism, official posts, direct statements, and media pages that materially help documentary research.",
+        "Include YouTube videos, podcast pages, and interview pages when they look genuinely relevant.",
+      ].join(" "),
+      maxCharsPerResult: 900,
+      maxCharsTotal: 4200,
+    });
+    return results.map((item) => ({
+      title: item.title,
+      url: item.url,
+      source: item.source,
+      snippet: item.snippet,
+      publishedAt: item.publishedAt,
+    }));
+  } catch (err) {
+    console.error("[news-search] Parallel error:", err);
+    return [];
+  }
+}
+
 // ─── Main search orchestrator ───
 
 export async function searchNewsStory(
@@ -318,6 +401,7 @@ export async function searchNewsStory(
       : [
           searchSerper(query),
           searchPerplexity(query),
+          searchParallel(query),
           searchGoogleNewsRSS(query),
           searchHackerNews(query),
           searchReddit(query),
@@ -334,5 +418,7 @@ export async function searchNewsStory(
     }
   }
 
-  return deduplicateResults(allResults);
+  return filterOutMoonVideoCandidates(deduplicateResults(allResults), (result) => ({
+    sourceUrl: result.url,
+  }));
 }

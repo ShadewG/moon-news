@@ -15,6 +15,16 @@ const libraryQuerySchema = z.object({
     .optional()
     .default("false")
     .transform((value) => value === "true"),
+  quoteOnly: z
+    .enum(["true", "false"])
+    .optional()
+    .default("false")
+    .transform((value) => value === "true"),
+  moonOnly: z
+    .enum(["true", "false"])
+    .optional()
+    .default("false")
+    .transform((value) => value === "true"),
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(96).optional().default(48),
 });
@@ -26,6 +36,8 @@ export async function GET(request: Request) {
     provider: url.searchParams.get("provider") ?? undefined,
     sort: url.searchParams.get("sort") ?? undefined,
     transcriptOnly: url.searchParams.get("transcriptOnly") ?? undefined,
+    quoteOnly: url.searchParams.get("quoteOnly") ?? undefined,
+    moonOnly: url.searchParams.get("moonOnly") ?? undefined,
     page: url.searchParams.get("page") ?? undefined,
     limit: url.searchParams.get("limit") ?? undefined,
   });

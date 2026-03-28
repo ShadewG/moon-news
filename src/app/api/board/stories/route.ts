@@ -4,10 +4,14 @@ import { z } from "zod";
 import { boardStoryStatusEnum, boardStoryTypeEnum } from "@/server/db/schema";
 import { listBoardStories } from "@/server/services/board";
 
+export const dynamic = "force-dynamic";
+
 const boardStoriesQuerySchema = z.object({
   view: z.enum(["board", "controversy"]).optional().default("board"),
+  timeWindow: z.enum(["today", "week", "month", "all"]).optional().default("week"),
   status: z.enum(boardStoryStatusEnum.enumValues).optional(),
   storyType: z.enum(boardStoryTypeEnum.enumValues).optional(),
+  platform: z.enum(["tiktok"]).optional(),
   search: z.string().trim().max(200).optional().default(""),
   moonFitBand: z.enum(["high", "medium", "low"]).optional(),
   moonCluster: z.string().trim().max(120).optional(),
@@ -18,17 +22,19 @@ const boardStoriesQuerySchema = z.object({
     .transform((value) => value === "true")
     .optional(),
   minMoonFitScore: z.coerce.number().int().min(0).max(100).optional(),
-  sort: z.enum(["moonFit", "storyScore", "controversy", "recency", "analogs", "views"]).optional(),
+  sort: z.enum(["live", "moonFit", "storyScore", "controversy", "recency", "analogs", "views"]).optional(),
   page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).max(60).optional().default(24),
+  limit: z.coerce.number().int().min(1).max(200).optional().default(24),
 });
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const query = boardStoriesQuerySchema.parse({
     view: url.searchParams.get("view") ?? undefined,
+    timeWindow: url.searchParams.get("timeWindow") ?? undefined,
     status: url.searchParams.get("status") ?? undefined,
     storyType: url.searchParams.get("storyType") ?? undefined,
+    platform: url.searchParams.get("platform") ?? undefined,
     search: url.searchParams.get("search") ?? undefined,
     moonFitBand: url.searchParams.get("moonFitBand") ?? undefined,
     moonCluster: url.searchParams.get("moonCluster") ?? undefined,

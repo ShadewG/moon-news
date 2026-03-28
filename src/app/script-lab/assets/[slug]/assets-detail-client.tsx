@@ -25,7 +25,132 @@ function S(v: unknown): string {
   return v == null ? "" : String(v);
 }
 
+function isRetentionReport(d: AnyRecord): boolean {
+  const report = d.report as AnyRecord | undefined;
+  return Boolean(report && Array.isArray(report.line_reviews));
+}
+
+function RetentionReportView({ data, slug }: Props) {
+  const report = data.report as AnyRecord;
+  const lineReviews = (report.line_reviews ?? []) as AnyRecord[];
+  const [openLines, setOpenLines] = useState<Set<number>>(new Set());
+  const toggle = (i: number) => setOpenLines((p) => { const n = new Set(p); n.has(i) ? n.delete(i) : n.add(i); return n; });
+
+  const verdict = S(report.overall_verdict);
+  const vc = verdict === "strong" ? "#5b9" : verdict === "weak" ? "#a44" : "#c93";
+
+  return (
+    <>
+      <style>{retentionStyles}</style>
+      <div className="sa-root">
+        <header className="sa-header">
+          <Link href="/script-lab" className="sa-back">&larr; Generate</Link>
+          <div className="sa-header-main">
+            <div className="sa-header-left">
+              <h1 className="sa-title">{S(data.scriptTitle) || slug.replace(/-/g, " ")}</h1>
+              <div className="sa-header-meta">
+                <span className="sa-badge" style={{ background: vc + "22", color: vc, borderColor: vc + "44" }}>retention: {verdict}</span>
+                <span className="sa-meta-text">{lineReviews.length} lines reviewed</span>
+                <span className="sa-meta-sep">|</span>
+                <span className="sa-meta-text">{S(data.model)}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div className="rt-body">
+          <div className="rt-coverage">{S(report.coverage_note)}</div>
+          <div className="rt-intro">
+            <div className="rt-label">Intro Assessment</div>
+            <div className="rt-intro-text">{S(report.intro_verdict)}</div>
+            {S(report.suggested_intro_rewrite) && (
+              <div className="rt-rewrite">{S(report.suggested_intro_rewrite)}</div>
+            )}
+          </div>
+          <div className="rt-grid">
+            {((report.strengths_to_keep ?? []) as string[]).length > 0 && (
+              <div className="rt-card">
+                <div className="rt-label" style={{ color: "#5b9" }}>Strengths</div>
+                {((report.strengths_to_keep ?? []) as string[]).map((s, i) => <div key={i} className="rt-item rt-item-green">{s}</div>)}
+              </div>
+            )}
+            {((report.global_risks ?? []) as string[]).length > 0 && (
+              <div className="rt-card">
+                <div className="rt-label" style={{ color: "#a44" }}>Risks</div>
+                {((report.global_risks ?? []) as string[]).map((s, i) => <div key={i} className="rt-item rt-item-red">{s}</div>)}
+              </div>
+            )}
+            {((report.rewrite_priorities ?? []) as string[]).length > 0 && (
+              <div className="rt-card">
+                <div className="rt-label" style={{ color: "#c93" }}>Rewrite Priorities</div>
+                {((report.rewrite_priorities ?? []) as string[]).map((s, i) => <div key={i} className="rt-item rt-item-amber">{s}</div>)}
+              </div>
+            )}
+          </div>
+          <div className="rt-lines">
+            <div className="rt-label" style={{ padding: "10px 14px", borderBottom: "1px solid #181818" }}>Line Reviews</div>
+            {lineReviews.map((r, i) => {
+              const open = openLines.has(i);
+              const action = S(r.action);
+              const ac = action === "keep" ? "#5b9" : action === "cut" ? "#a44" : action === "tighten" ? "#c93" : action === "rewrite" ? "#c87a4a" : "#68a";
+              return (
+                <div key={i} className={`rt-line ${open ? "rt-line-open" : ""}`} onClick={() => toggle(i)}>
+                  <div className="rt-line-head">
+                    <span className="rt-line-num">{S(r.line_number)}</span>
+                    <span className="rt-badge" style={{ borderColor: "#333", color: "#666" }}>{S(r.phase)}</span>
+                    <span className="rt-badge" style={{ background: ac + "22", color: ac }}>{action}</span>
+                    <span className="rt-line-text">{S(r.line_text)}</span>
+                    <span style={{ color: "#444", fontSize: 10, flexShrink: 0 }}>{open ? "▾" : "▸"}</span>
+                  </div>
+                  {open && (
+                    <div className="rt-line-detail">
+                      {S(r.rationale) && <><div className="rt-sublabel">Why</div><div className="rt-detail-text">{S(r.rationale)}</div></>}
+                      {S(r.recommended_revision) && <><div className="rt-sublabel">Revision</div><div className="rt-rewrite" style={{ marginTop: 4 }}>{S(r.recommended_revision)}</div></>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const retentionStyles = `
+  .rt-body { padding: 16px 20px; max-width: 960px; }
+  .rt-coverage { font-size: 11px; color: #666; margin-bottom: 12px; font-family: var(--font-geist-mono), monospace; }
+  .rt-intro { background: #0c0c0c; border: 1px solid #181818; padding: 12px 14px; margin-bottom: 14px; }
+  .rt-intro-text { font-size: 12px; color: #999; line-height: 1.6; }
+  .rt-rewrite { margin-top: 8px; padding: 8px 10px; border-left: 2px solid #5b9; background: #0a1a0e; font-size: 11px; color: #aaa; font-style: italic; line-height: 1.6; white-space: pre-wrap; }
+  .rt-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #444; margin-bottom: 6px; font-family: var(--font-geist-mono), monospace; }
+  .rt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .rt-card { background: #0c0c0c; border: 1px solid #181818; padding: 12px 14px; }
+  .rt-item { font-size: 11px; color: #999; line-height: 1.5; padding: 3px 0; border-bottom: 1px solid #141414; }
+  .rt-item:last-child { border-bottom: none; }
+  .rt-item-green { color: #7a9; }
+  .rt-item-red { color: #a77; }
+  .rt-item-amber { color: #b96; }
+  .rt-lines { background: #0c0c0c; border: 1px solid #181818; }
+  .rt-line { border-bottom: 1px solid #141414; cursor: pointer; }
+  .rt-line:hover { background: rgba(255,255,255,0.01); }
+  .rt-line-head { display: flex; align-items: flex-start; gap: 8px; padding: 8px 14px; font-size: 11px; }
+  .rt-line-num { font-family: var(--font-geist-mono), monospace; font-size: 10px; color: #444; min-width: 22px; text-align: right; flex-shrink: 0; }
+  .rt-badge { font-family: var(--font-geist-mono), monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border: 1px solid transparent; border-radius: 2px; flex-shrink: 0; }
+  .rt-line-text { flex: 1; color: #999; line-height: 1.5; min-width: 0; }
+  .rt-line-detail { padding: 0 14px 10px 50px; font-size: 11px; line-height: 1.6; }
+  .rt-sublabel { font-family: var(--font-geist-mono), monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #444; margin-top: 6px; margin-bottom: 2px; }
+  .rt-detail-text { color: #888; }
+`;
+
 export default function AssetsDetailClient({ data, slug }: Props) {
+  if (isRetentionReport(data)) {
+    return <RetentionReportView data={data} slug={slug} />;
+  }
+  return <AssetReportView data={data} slug={slug} />;
+}
+
+function AssetReportView({ data, slug }: Props) {
   const segments = (data.segments ?? []) as AnyRecord[];
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 

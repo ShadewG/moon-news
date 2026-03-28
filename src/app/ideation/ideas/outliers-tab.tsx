@@ -23,12 +23,24 @@ export default function OutliersTab({ channels }: { channels: WatchlistChannelRe
   const [hasMore, setHasMore] = useState(true);
   const [videoUrl, setVideoUrl] = useState("");
   const [addStatus, setAddStatus] = useState("");
+  const [textSearch, setTextSearch] = useState("");
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const filteredChannels = useMemo(() => {
     const q = channelSearch.toLowerCase();
     return (q ? channels.filter((c) => c.title.toLowerCase().includes(q)) : channels).slice(0, 20);
   }, [channels, channelSearch]);
+
+  const displayOutliers = useMemo(() => {
+    if (!textSearch.trim()) return outliers;
+    const q = textSearch.toLowerCase().trim();
+    return outliers.filter((o) =>
+      o.title.toLowerCase().includes(q) ||
+      o.channel_title.toLowerCase().includes(q) ||
+      o.video_category_label.toLowerCase().includes(q) ||
+      o.channel_category_label.toLowerCase().includes(q)
+    );
+  }, [outliers, textSearch]);
 
   const buildUrl = useCallback((off: number) => {
     let url = `/outliers?window=${window}&limit=50&offset=${off}&positive_only=true&exclude_categories=news,politics,geopolitics&exclude_news_sources=true`;
@@ -88,19 +100,20 @@ export default function OutliersTab({ channels }: { channels: WatchlistChannelRe
             </div>
           )}
         </div>
-        <input className="ib-input" style={{ width: 220 }} placeholder="Add video URL..." value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
+        <input className="ib-input" style={{ width: 200 }} placeholder="Search titles..." value={textSearch} onChange={(e) => setTextSearch(e.target.value)} />
+        <input className="ib-input" style={{ width: 200 }} placeholder="Add video URL..." value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
         <button className="ib-btn" onClick={quickAdd}>ADD</button>
         {addStatus && <span className="ib-meta">{addStatus}</span>}
       </div>
 
       <table className="ib-table">
         <thead>
-          <tr><th style={{ width: 48 }}></th><th>Video</th><th>Channel</th><th>Category</th><th>Length</th><th>Views</th><th>Score</th><th>Age</th></tr>
+          <tr><th style={{ width: 120 }}></th><th>Video</th><th>Channel</th><th>Category</th><th>Length</th><th>Views</th><th>Score</th><th>Age</th></tr>
         </thead>
         <tbody>
-          {outliers.map((o) => (
+          {displayOutliers.map((o) => (
             <tr key={o.video_id}>
-              <td style={{ padding: "4px 8px" }}><img src={ytThumb(o.youtube_video_id)} alt="" width={48} height={27} style={{ display: "block", objectFit: "cover" }} loading="lazy" /></td>
+              <td style={{ padding: "4px 8px" }}><img src={ytThumb(o.youtube_video_id)} alt="" width={120} height={68} style={{ display: "block", objectFit: "cover", borderRadius: 2 }} loading="lazy" /></td>
               <td><a href={`https://www.youtube.com/watch?v=${o.youtube_video_id}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--ib-text)", textDecoration: "none", fontSize: 12 }}>{o.title}</a></td>
               <td style={{ color: "var(--ib-text-dim)", fontSize: 11 }}>{o.channel_title}</td>
               <td><span className="ib-tag">{o.video_category_label || o.channel_category_label}</span></td>
@@ -110,7 +123,7 @@ export default function OutliersTab({ channels }: { channels: WatchlistChannelRe
               <td style={{ fontFamily: "var(--ib-mono)", fontSize: 10, color: "var(--ib-text-dim)" }}>{timeAgo(o.published_at)}</td>
             </tr>
           ))}
-          {outliers.length === 0 && !loading && <tr><td colSpan={8} style={{ textAlign: "center", padding: 30, color: "var(--ib-text-dim)" }}>No outliers found</td></tr>}
+          {displayOutliers.length === 0 && !loading && <tr><td colSpan={8} style={{ textAlign: "center", padding: 30, color: "var(--ib-text-dim)" }}>No outliers found</td></tr>}
         </tbody>
       </table>
       {loading && <div className="ib-meta" style={{ padding: 12, textAlign: "center" }}>Loading...</div>}

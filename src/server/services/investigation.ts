@@ -16,6 +16,7 @@ import {
   scriptLines,
   visualRecommendations,
 } from "@/server/db/schema";
+import { upsertClipInLibrary } from "./clip-library";
 import { classifyLine, type LineClassification } from "@/server/providers/openai";
 import { searchLineResearch } from "@/server/providers/parallel";
 import { analyzeScriptLineWithMoonCorpus } from "@/server/services/moon-corpus";
@@ -345,10 +346,43 @@ export async function getVisualsForLine(
     .where(eq(footageAssets.scriptLineId, lineId))
     .orderBy(desc(footageAssets.matchScore));
 
-  const assets = rawAssets.map((r) => ({
-    ...r.asset,
-    clipLibraryId: r.clipLibraryId,
-  }));
+  const assets = await Promise.all(
+    rawAssets.map(async (row) => {
+      if (row.clipLibraryId) {
+        return {
+          ...row.asset,
+          clipLibraryId: row.clipLibraryId,
+        };
+      }
+
+      const metadata = (row.asset.metadataJson ?? null) as Record<string, unknown> | null;
+      const rawViewCount = metadata?.viewCount;
+      const viewCount =
+        typeof rawViewCount === "number" && Number.isFinite(rawViewCount)
+          ? rawViewCount
+          : typeof rawViewCount === "string" && Number.isFinite(Number(rawViewCount))
+            ? Number(rawViewCount)
+            : null;
+
+      const clipLibraryId = await upsertClipInLibrary({
+        provider: row.asset.provider,
+        externalId: row.asset.externalAssetId,
+        title: row.asset.title,
+        sourceUrl: row.asset.sourceUrl,
+        previewUrl: row.asset.previewUrl,
+        channelOrContributor: row.asset.channelOrContributor,
+        durationMs: row.asset.durationMs,
+        viewCount,
+        uploadDate: row.asset.uploadDate,
+        metadataJson: metadata,
+      });
+
+      return {
+        ...row.asset,
+        clipLibraryId,
+      };
+    })
+  );
 
   const quotes = await db
     .select()

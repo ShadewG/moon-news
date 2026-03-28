@@ -4,12 +4,29 @@ import { useState, useRef, useCallback } from "react";
 
 type Clip = { id: string; provider: string; externalId: string; title: string; sourceUrl: string; channelOrContributor: string | null; durationMs: number | null; viewCount: number | null; uploadDate: string | null };
 type Segment = { text: string; startMs: number; durationMs: number };
-type Quote = { id: string; quoteText: string; speaker: string | null; startMs: number; relevanceScore: number; context: string | null };
+type Quote = {
+  id: string;
+  quoteText: string;
+  speaker: string | null;
+  startMs: number;
+  relevanceScore: number;
+  context: string | null;
+  provenance: "topic-search" | "script-agent";
+  sourceLabel: string;
+};
 type Note = { id: string; text: string; timestampMs: number | null; color: string | null; createdAt: string };
 
 type AiMoment = { text: string; startMs: number; timestamp: string };
 type AiResponse = { answer: string; moments: AiMoment[] };
 type AiHistoryEntry = { id: string; question: string; response: AiResponse; createdAt: string };
+type FreshQuote = {
+  quoteText: string;
+  speaker: string | null;
+  startMs: number;
+  endMs: number;
+  relevanceScore: number;
+  context: string;
+};
 type Tab = "quotes" | "transcript" | "notes" | "ask";
 
 export default function ClipDetailClient({ data }: {
@@ -19,16 +36,24 @@ export default function ClipDetailClient({ data }: {
     quotes: Quote[];
     notes: Note[];
     aiHistory: AiHistoryEntry[];
+    initialTab: Tab | null;
   };
 }) {
   const { clip, transcript, quotes } = data;
-  const [tab, setTab] = useState<Tab>(quotes.length > 0 ? "quotes" : transcript ? "transcript" : "notes");
+  const [tab, setTab] = useState<Tab>(
+    data.initialTab ?? (quotes.length > 0 ? "quotes" : transcript ? "transcript" : "notes")
+  );
   const [notes, setNotes] = useState(data.notes);
   const [noteText, setNoteText] = useState("");
   const [noteTs, setNoteTs] = useState("");
   const [playerTime, setPlayerTime] = useState(0);
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [quoteQuery, setQuoteQuery] = useState("");
+  const [quoteSearchLoading, setQuoteSearchLoading] = useState(false);
+  const [freshQuotes, setFreshQuotes] = useState<FreshQuote[]>([]);
+  const [freshQuoteQuery, setFreshQuoteQuery] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
   const [aiHistory, setAiHistory] = useState<Array<{ question: string; response: AiResponse }>>(
     data.aiHistory.map((entry) => ({
       question: entry.question,
@@ -93,6 +118,53 @@ export default function ClipDetailClient({ data }: {
     setNotes((current) => current.filter((note) => note.id !== noteId));
   };
 
+  const copyLibraryLink = async () => {
+    if (typeof window === "undefined" || !navigator.clipboard) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(`${window.location.origin}/clips/${clip.id}`);
+    setCopyStatus("copied");
+    window.setTimeout(() => setCopyStatus("idle"), 1200);
+  };
+
+  const runQuoteSearch = async (mode: "query" | "strongest") => {
+    if (!transcript || quoteSearchLoading) {
+      return;
+    }
+
+    const resolvedQuery =
+      mode === "query"
+        ? quoteQuery.trim()
+        : "";
+
+    setQuoteSearchLoading(true);
+    try {
+      const res = await fetch(`/api/clips/${clip.id}/quote-search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: resolvedQuery }),
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const payload = (await res.json()) as {
+        query: string;
+        quotes: FreshQuote[];
+      };
+
+      setFreshQuotes(payload.quotes);
+      setFreshQuoteQuery(payload.query);
+      if (mode === "query") {
+        setQuoteQuery("");
+      }
+    } finally {
+      setQuoteSearchLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col bg-[#09090b] text-[#d4d4d8]" style={{ height: "calc(100vh - 32px)" }}>
       {/* Top bar */}
@@ -110,6 +182,12 @@ export default function ClipDetailClient({ data }: {
         <a href={clip.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3f3f46] hover:text-[#71717a] flex-shrink-0">
           Open original &rarr;
         </a>
+        <button
+          onClick={copyLibraryLink}
+          className="text-xs text-[#3f3f46] hover:text-[#d4d4d8] flex-shrink-0"
+        >
+          {copyStatus === "copied" ? "Copied link" : "Copy library link"}
+        </button>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
@@ -154,6 +232,73 @@ export default function ClipDetailClient({ data }: {
           <div className="flex-1 overflow-y-auto">
             {tab === "quotes" && (
               <div className="max-w-4xl mx-auto px-5 py-5 space-y-3">
+                {transcript && (
+                  <div className="rounded-xl border border-[#18181b] bg-[#111114] p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="text"
+                        value={quoteQuery}
+                        onChange={(e) => setQuoteQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && quoteQuery.trim()) {
+                            runQuoteSearch("query");
+                          }
+                        }}
+                        placeholder="Find more quotes from this clip..."
+                        className="min-w-[220px] flex-1 rounded-lg border border-[#18181b] bg-[#0f0f12] px-3 py-2 text-sm text-[#e4e4e7] placeholder-[#3f3f46] outline-none focus:border-[#27272a]"
+                      />
+                      <button
+                        onClick={() => runQuoteSearch("query")}
+                        disabled={!quoteQuery.trim() || quoteSearchLoading}
+                        className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-[11px] text-cyan-200 disabled:opacity-40"
+                      >
+                        Find quotes
+                      </button>
+                      <button
+                        onClick={() => runQuoteSearch("strongest")}
+                        disabled={quoteSearchLoading}
+                        className="rounded-lg border border-violet-500/20 bg-violet-500/10 px-3 py-2 text-[11px] text-violet-200 disabled:opacity-40"
+                      >
+                        Strongest quotes
+                      </button>
+                    </div>
+                    <p className="mt-2 text-[11px] text-[#52525b]">
+                      Pull fresh transcript-backed quotes from this specific video without leaving the Library.
+                    </p>
+                  </div>
+                )}
+
+                {freshQuotes.length > 0 && (
+                  <div className="rounded-xl border border-cyan-500/15 bg-cyan-500/5 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-cyan-200">Fresh Pull</p>
+                        {freshQuoteQuery && (
+                          <p className="mt-1 text-[11px] text-[#7dd3fc] line-clamp-2">{freshQuoteQuery}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {freshQuotes.map((q, index) => (
+                        <div
+                          key={`${q.startMs}-${index}`}
+                          className="rounded-lg border border-cyan-500/10 bg-[#0f0f12] p-4 cursor-pointer"
+                          onClick={() => q.startMs > 0 && seekTo(q.startMs)}
+                        >
+                          <p className="text-[15px] text-[#e4e4e7] italic leading-relaxed">&ldquo;{q.quoteText}&rdquo;</p>
+                          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[#52525b]">
+                            {q.speaker && <span className="text-[#a1a1aa] font-medium">— {q.speaker}</span>}
+                            {q.startMs > 0 && <span className="font-mono text-cyan-300">[{fmtTs(q.startMs)}]</span>}
+                            <span className="rounded bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-200">Fresh pull</span>
+                            <span className="rounded bg-[#18181b] px-2 py-0.5 text-[10px]">{q.relevanceScore}/100</span>
+                          </div>
+                          {q.context && <p className="mt-2 text-[11px] text-[#3f3f46]">{q.context}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {quotes.length === 0 && <p className="text-xs text-[#3f3f46] py-8 text-center">No quotes extracted from this video yet</p>}
                 {quotes.map((q) => (
                   <div
@@ -170,7 +315,15 @@ export default function ClipDetailClient({ data }: {
                         </span>
                       )}
                       <span className="px-2 py-0.5 rounded bg-[#18181b] text-[10px]">{q.relevanceScore}/100</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] ${
+                        q.provenance === "script-agent"
+                          ? "bg-cyan-500/10 text-cyan-300"
+                          : "bg-violet-500/10 text-violet-300"
+                      }`}>
+                        {q.provenance === "script-agent" ? "Script run" : "Topic search"}
+                      </span>
                     </div>
+                    <p className="text-[10px] text-[#52525b] mt-2">{q.sourceLabel}</p>
                     {q.context && <p className="text-[11px] text-[#3f3f46] mt-2">{q.context}</p>}
                   </div>
                 ))}

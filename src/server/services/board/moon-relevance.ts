@@ -304,6 +304,28 @@ const IRRELEVANT_SIGNALS = [
   "patent filed", "patent granted",
 ];
 
+const ENTERTAINMENT_PROMO_SIGNALS = new Set([
+  "first look:",
+  "first trailer",
+  "teaser trailer",
+  "official trailer",
+  "cast in",
+  "has been cast",
+  "joins cast",
+  "casting news",
+]);
+
+function hasEntertainmentPromoBacklash(text: string) {
+  return (
+    /\b(trailer|teaser|first look|casting|cast|remake|reboot|live action|cgi)\b/.test(
+      text
+    ) &&
+    /\b(backlash|hate|hating|mocked|mocking|roasted|dragged|ratioed|panned|review bomb|review bombing|clowned|ugly cgi|disaster|meltdown)\b/.test(
+      text
+    )
+  );
+}
+
 export interface PlatformSignals {
   sourceCount: number;
   controversyScore: number;
@@ -335,10 +357,18 @@ export function scoreMoonRelevance(
   platforms?: PlatformSignals | null
 ): MoonRelevanceResult {
   const text = `${title} ${summary ?? ""}`.toLowerCase();
+  const entertainmentPromoBacklash = hasEntertainmentPromoBacklash(text);
 
   // ─── Irrelevant Content Check (run FIRST, penalize hard) ───
   let irrelevantPenalty = 0;
   for (const signal of IRRELEVANT_SIGNALS) {
+    if (
+      entertainmentPromoBacklash &&
+      ENTERTAINMENT_PROMO_SIGNALS.has(signal)
+    ) {
+      continue;
+    }
+
     if (text.includes(signal)) {
       irrelevantPenalty += 20; // Heavier penalty per match
     }

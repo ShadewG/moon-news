@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moon Monthly Analysis · 2026-03-26</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #081018;
+        --panel: rgba(12, 23, 35, 0.86);
+        --panel-strong: rgba(18, 31, 46, 0.98);
+        --border: rgba(122, 170, 207, 0.18);
+        --text: #eef4fa;
+        --muted: #9fb0bf;
+        --accent: #7ad6ff;
+        --accent-2: #acffc3;
+        --warn: #ffd483;
+        --danger: #ff9a9a;
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+        background:
+          radial-gradient(circle at top left, rgba(122, 214, 255, 0.14), transparent 28%),
+          radial-gradient(circle at top right, rgba(172, 255, 195, 0.08), transparent 20%),
+          linear-gradient(180deg, #09131f 0%, #081018 42%, #050b11 100%);
+      }
+      a { color: var(--accent); }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.92em;
+      }
+      .page {
+        width: min(1280px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 28px 0 56px;
+      }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 30px 30px 26px;
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        background:
+          linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)),
+          linear-gradient(180deg, rgba(122, 214, 255, 0.08), rgba(172, 255, 195, 0.02));
+        box-shadow: var(--shadow);
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -10% -30% 58%;
+        height: 320px;
+        background: radial-gradient(circle, rgba(122, 214, 255, 0.18), transparent 62%);
+        pointer-events: none;
+      }
+      .eyebrow {
+        margin-bottom: 10px;
+        color: var(--accent-2);
+        font: 600 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      h1, h2, h3 {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        letter-spacing: -0.03em;
+      }
+      h1 {
+        max-width: 960px;
+        margin-bottom: 14px;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 0.98;
+      }
+      .dek {
+        max-width: 820px;
+        margin: 0 0 18px;
+        color: #d5e4ef;
+        font-size: 18px;
+        line-height: 1.58;
+      }
+      .meta, .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .meta {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        color: var(--muted);
+        font: 500 13px/1.35 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .meta li, .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.035);
+      }
+      .pill {
+        font: 600 12px/1.15 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .pill.warn { color: var(--warn); }
+      .layout {
+        display: grid;
+        grid-template-columns: 290px minmax(0, 1fr);
+        gap: 18px;
+        margin-top: 18px;
+        align-items: start;
+      }
+      .panel {
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+      .toc {
+        position: sticky;
+        top: 16px;
+        padding: 20px 20px 22px;
+      }
+      .toc h2 {
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .toc ol {
+        margin: 0;
+        padding-left: 18px;
+        display: grid;
+        gap: 10px;
+        font: 500 14px/1.4 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .toc p {
+        margin: 16px 0 0;
+        color: var(--muted);
+        font: 500 12px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .doc {
+        padding: 18px;
+      }
+      .section {
+        scroll-margin-top: 20px;
+        margin-bottom: 18px;
+        padding: 22px 22px 24px;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 22px;
+        background: rgba(255,255,255,0.018);
+      }
+      .section h2 {
+        margin-bottom: 14px;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+      .section h3 {
+        margin: 18px 0 10px;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+      .section p {
+        margin: 0 0 14px;
+        color: #d8e4ef;
+        font-size: 17px;
+        line-height: 1.72;
+      }
+      .section ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+        color: #d8e4ef;
+        font-size: 16px;
+        line-height: 1.68;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+      }
+      .card {
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        background: var(--panel-strong);
+      }
+      .card h3 {
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--accent-2);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .metric {
+        margin: 0 0 8px;
+        font: 700 clamp(28px, 3vw, 40px)/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .small {
+        color: var(--muted);
+        font: 500 13px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        border-radius: 18px;
+        overflow: hidden;
+        font: 500 14px/1.48 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      th, td {
+        padding: 12px 14px;
+        vertical-align: top;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      th {
+        text-align: left;
+        color: var(--accent-2);
+        background: rgba(255,255,255,0.04);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      tr:last-child td { border-bottom: none; }
+      .callout {
+        margin-top: 14px;
+        padding: 16px 18px;
+        border-left: 3px solid var(--accent);
+        border-radius: 14px;
+        background: rgba(122, 214, 255, 0.08);
+      }
+      .callout.warn {
+        border-left-color: var(--warn);
+        background: rgba(255, 212, 131, 0.08);
+      }
+      .callout.danger {
+        border-left-color: var(--danger);
+        background: rgba(255, 154, 154, 0.08);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 6px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .quote-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .quote {
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.028);
+      }
+      .quote h3 {
+        margin-bottom: 8px;
+        font-size: 15px;
+        color: var(--accent-2);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .quote p {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.64;
+      }
+      .footer {
+        margin-top: 18px;
+        padding: 22px;
+        color: var(--muted);
+        font: 500 13px/1.6 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .top-link {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        padding: 11px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(8, 16, 24, 0.92);
+        box-shadow: var(--shadow);
+        font: 600 13px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      @media (max-width: 1080px) {
+        .layout { grid-template-columns: 1fr; }
+        .toc { position: static; }
+        .grid, .quote-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 760px) {
+        .page { width: min(100vw - 20px, 1280px); padding-top: 18px; }
+        .hero, .section, .doc, .toc, .footer { padding-left: 16px; padding-right: 16px; }
+        th:nth-child(4), td:nth-child(4),
+        th:nth-child(5), td:nth-child(5) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="hero">
+        <div class="eyebrow">Moon Internal</div>
+        <h1>Moon Monthly Analysis</h1>
+        <p class="dek">
+          Second-pass report for Moon's last 30 days of long-form uploads. This version is transcript-backed across the full cohort,
+          digs into the retention middle rather than just the cold open, and turns those patterns into concrete next-video ideas.
+        </p>
+        <ul class="meta">
+          <li>Date: 2026-03-26</li>
+          <li>Window: 2026-02-25 to 2026-03-25</li>
+          <li>Cohort: 7 long-form videos</li>
+          <li>Transcript coverage: 6 caption pulls + 1 local Whisper fallback</li>
+        </ul>
+      </header>
+
+      <div class="layout">
+        <aside class="panel toc">
+          <h2>Sections</h2>
+          <ol>
+            <li><a href="#summary">What Actually Matters</a></li>
+            <li><a href="#numbers">The Numbers That Matter</a></li>
+            <li><a href="#transcript">Transcript-Backed Findings</a></li>
+            <li><a href="#archetypes">What Kind Of Winners These Were</a></li>
+            <li><a href="#shia">Why Shia Underperformed</a></li>
+            <li><a href="#shane">Why Shane Retained But Converted Weakly</a></li>
+            <li><a href="#outliers">Moon's Historical Outlier Map</a></li>
+            <li><a href="#ideas">Idea Directions</a></li>
+          </ol>
+          <p>
+            This report intentionally focuses on the parts that are actually decision-useful: idea strength, transcript structure,
+            retention shape, conversion quality, and next-step editorial implications.
+          </p>
+        </aside>
+
+        <main class="panel doc">
+          <section class="section" id="summary">
+            <h2>What Actually Matters</h2>
+            <p>
+              Moon did not win this month because of cold opens alone. The openings were already strong across the cohort. The real
+              difference was what happened after the setup: the better videos kept introducing new receipts, widened from one person
+              to one system, and left the viewer with a stronger model of how the world works.
+            </p>
+            <div class="grid">
+              <div class="card">
+                <h3>Best Click Magnet</h3>
+                <p class="metric">OnlyFans</p>
+                <p class="small">
+                  Biggest raw reach at <strong>642k</strong> views. It won on curiosity packaging more than on best-in-class completion.
+                </p>
+              </div>
+              <div class="card">
+                <h3>Best Converter</h3>
+                <p class="metric">Theo / Ricky</p>
+                <p class="small">
+                  Highest subscriber efficiency. Theo added <strong>257</strong> net subs per 100k views and Ricky added <strong>252</strong>.
+                </p>
+              </div>
+              <div class="card">
+                <h3>Best Retainer</h3>
+                <p class="metric">Shane</p>
+                <p class="small">
+                  Best completion shape in the cohort, but much weaker conversion into subscribers than the worldview-heavy winners.
+                </p>
+              </div>
+            </div>
+            <div class="callout">
+              <strong>Main takeaway</strong>
+              Moon's strongest recent videos are not merely scandal videos. They are <em>surface-plus-mechanism</em> videos:
+              a familiar person or public event on top, a hidden operating system underneath.
+            </div>
+            <div class="pill-row">
+              <span class="pill">Transcript-backed</span>
+              <span class="pill">Retention-backed</span>
+              <span class="pill">Idea-generation included</span>
+            </div>
+          </section>
+
+          <section class="section" id="numbers">
+            <h2>The Numbers That Matter</h2>
+            <p>
+              Raw views alone flatten the picture too much. The more useful split is between <strong>click strength</strong>,
+              <strong>completion strength</strong>, and <strong>subscription strength</strong>.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Video</th>
+                  <th>Views</th>
+                  <th>Avg View %</th>
+                  <th>Watch Hours</th>
+                  <th>Net Subs / 100k Views</th>
+                  <th>25%</th>
+                  <th>50%</th>
+                  <th>Read</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Where Are OnlyFans Millionaires Today?</td>
+                  <td>641,834</td>
+                  <td>39.58%</td>
+                  <td>120,879</td>
+                  <td>186.2</td>
+                  <td>54.2</td>
+                  <td>40.8</td>
+                  <td>Best click magnet, not the best finisher</td>
+                </tr>
+                <tr>
+                  <td>Replacing Humans With AI Is Catastrophically Backfiring</td>
+                  <td>545,441</td>
+                  <td>44.31%</td>
+                  <td>85,907</td>
+                  <td>164.1</td>
+                  <td>58.9</td>
+                  <td>44.3</td>
+                  <td>Best scalable anti-system pattern</td>
+                </tr>
+                <tr>
+                  <td>The Moment Theo Von Finds Out His Guest Is Compromised</td>
+                  <td>504,490</td>
+                  <td>45.64%</td>
+                  <td>102,580</td>
+                  <td>256.9</td>
+                  <td>52.7</td>
+                  <td>46.1</td>
+                  <td>Best mix of retention and conversion</td>
+                </tr>
+                <tr>
+                  <td>Ricky Gervais Tried to Warn You</td>
+                  <td>473,912</td>
+                  <td>42.74%</td>
+                  <td>73,193</td>
+                  <td>252.4</td>
+                  <td>35.0*</td>
+                  <td>42.8</td>
+                  <td>Very strong converter; 25% point likely distorted by sponsor read</td>
+                </tr>
+                <tr>
+                  <td>Shane Gillis vs Hypocrite Elites</td>
+                  <td>439,158</td>
+                  <td>47.67%</td>
+                  <td>78,683</td>
+                  <td>90.9</td>
+                  <td>58.0</td>
+                  <td>47.2</td>
+                  <td>Best completion, weak channel conversion</td>
+                </tr>
+                <tr>
+                  <td>What Bill Gates Doesn't Want You To Know</td>
+                  <td>437,755</td>
+                  <td>44.53%</td>
+                  <td>86,700</td>
+                  <td>199.2</td>
+                  <td>53.1</td>
+                  <td>44.9</td>
+                  <td>Strong system-thesis video with good conversion</td>
+                </tr>
+                <tr>
+                  <td>Shia Sold His Soul And Is Paying The Price</td>
+                  <td>253,925</td>
+                  <td>40.61%</td>
+                  <td>46,059</td>
+                  <td>101.6</td>
+                  <td>47.4</td>
+                  <td>39.1</td>
+                  <td>Clear underperformer in both reach and conversion</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="callout warn">
+              <strong>*Important note on Ricky</strong>
+              The transcript at the 25% point is a sponsor integration, which likely explains the anomalous dip more than the core thesis of the video itself.
+            </div>
+          </section>
+
+          <section class="section" id="transcript">
+            <h2>Transcript-Backed Findings</h2>
+            <h3>1. The best openers are thesis-plus-scene, not thesis alone</h3>
+            <p>
+              The winning intros do not open with detached commentary. They open with a vivid scene or direct quote and then immediately
+              attach a bigger accusation to it. Theo starts with paranoia and a quote from a high government official. AI starts with
+              a direct threat to the viewer's livelihood. OnlyFans starts with a one-minute origin scene built around an 18th birthday
+              and instant money. Shane starts with a revenge frame and a dead-career premise.
+            </p>
+            <div class="quote-grid">
+              <div class="quote">
+                <h3>Theo</h3>
+                <p>
+                  Opens on a text message from a government official and a target-on-your-back feeling. That immediately creates tension,
+                  hierarchy, and hidden access.
+                </p>
+              </div>
+              <div class="quote">
+                <h3>AI</h3>
+                <p>
+                  Opens by telling the viewer their job is not maybe at risk, but certainly at risk. It is direct, personal, and impossible to ignore.
+                </p>
+              </div>
+              <div class="quote">
+                <h3>OnlyFans</h3>
+                <p>
+                  Opens on a timestamped scene of instant money, then widens quickly into loneliness, sex-trade economics, and societal cost.
+                </p>
+              </div>
+              <div class="quote">
+                <h3>Shia</h3>
+                <p>
+                  Opens with judgment already delivered: spiral, chaos, washed-up behavior. The case arrives after the verdict, which weakens discovery.
+                </p>
+              </div>
+            </div>
+
+            <h3>2. The month was won at 25%, not 5%</h3>
+            <p>
+              By the quarter mark, the stronger videos are already producing receipts. Theo is naming insiders and connecting to Cat Williams
+              and Diddy. AI is citing MIT, company failures, and hard numbers. Bill Gates has pivoted from image to monopoly and philanthropy as
+              strategy. Shane has turned cancellation into a class story. By contrast, weaker sections spend more time restating mood, scandal,
+              or spectacle.
+            </p>
+
+            <h3>3. The best videos widen from person to machine around the midpoint</h3>
+            <p>
+              The midpoint in the winners is where the video stops being about one person and becomes about one operating system. Theo becomes
+              Hollywood power and money. AI becomes labor discipline and elite scaremongering. Bill Gates becomes influence through philanthropy,
+              land, and elite networks. Ricky becomes the algorithmic voice of the mob and the mechanics of cultural decline.
+            </p>
+            <p>
+              That midpoint widening is crucial. It is why some videos feel like a worldview and others feel like a profile.
+            </p>
+
+            <h3>4. Sponsor placement is probably hurting some mid-video hold</h3>
+            <p>
+              Two of the weaker 25% moments are clearly contaminated by sponsor material in the transcript itself. Ricky's 25% checkpoint aligns
+              with a VPN integration, which almost certainly explains the odd drop there. OnlyFans also hits sponsor copy around the quarter mark
+              before returning to a stronger underage-content twist. The signal is not broad enough to overclaim, but it is strong enough to matter:
+              if the major reveal has not landed yet, the sponsor read is likely interrupting the momentum.
+            </p>
+
+            <h3>5. Subscription conversion follows worldview density, not just completion</h3>
+            <p>
+              Shane is the clearest proof. It retains better than almost everything here, but it converts far worse. Theo and Ricky convert best
+              because viewers do not just leave with a resolved story. They leave with a stronger explanatory model: how Hollywood works, how media
+              manipulation works, how society turns rotten. That makes them feel more like <em>Moon</em> videos instead of just satisfying one-offs.
+            </p>
+          </section>
+
+          <section class="section" id="archetypes">
+            <h2>What Kind Of Winners These Were</h2>
+            <h3>OnlyFans: the curiosity-maximizer</h3>
+            <p>
+              This was the month's best click thesis. It carried the biggest reach and the most watch hours. But it behaved more like a
+              fascination engine than a clean exposé. It starts incredibly well, then spends a lot of the body bouncing through spectacle,
+              case studies, and platform consequences. That still worked, but it did not compound as cleanly as the sharper system-thesis videos.
+            </p>
+
+            <h3>Theo and Ricky: the converter-maximizers</h3>
+            <p>
+              These are the best examples of Moon turning a familiar figure into a worldview-delivery mechanism. Theo converts because the viewer
+              is watching a public personality brush up against darker forces. Ricky converts because the viewer gets a decade-long prophecy frame
+              about social decline and algorithmic culture. Both make the viewer feel like they now understand something bigger than the subject.
+            </p>
+
+            <h3>AI Backfiring and Bill Gates: the scalable system-thesis lane</h3>
+            <p>
+              These are the most repeatable ideas in the set. They do not rely on a uniquely juicy celebrity clip. They rely on a simple structure:
+              the institution says one thing, the evidence says another, and the cost is now landing on normal people. That is a durable Moon lane.
+            </p>
+          </section>
+
+          <section class="section" id="shia">
+            <h2>Why Shia Underperformed</h2>
+            <p>
+              <strong>Shia Sold His Soul And Is Paying The Price</strong> did not fail because it lacked drama. It failed because it delivered
+              the emotional conclusion too early and kept circling humiliation instead of opening new explanatory layers.
+            </p>
+            <ul>
+              <li>The intro already tells the viewer the verdict: spiral, chaos, waste, meaninglessness.</li>
+              <li>The body keeps returning to implosion, scandal, and spectacle, but not enough new mechanism appears to deepen the thesis.</li>
+              <li>The viewer gets a lot of proof that Shia is unstable, but less proof of a hidden system that made this story worth understanding.</li>
+              <li>That makes the video feel punitive and repetitive instead of revelatory.</li>
+            </ul>
+            <div class="callout danger">
+              <strong>Editorial diagnosis</strong>
+              This is a strong caution against vague tragedy framing. If the title delivers a moral sentence before the body delivers a mechanism,
+              the viewer has less reason to keep discovering.
+            </div>
+          </section>
+
+          <section class="section" id="shane">
+            <h2>Why Shane Retained But Converted Weakly</h2>
+            <p>
+              Shane is the retention winner because it has the cleanest story engine in the cohort: cancellation, humiliation, family pain,
+              comeback, vindication. The transcript makes that obvious. At 25% it reframes the story as class takedown. At 50% it adds family
+              letters and social punishment. At 75% it cashes out with YouTube and Netflix validation.
+            </p>
+            <p>
+              But it converts weakly because the payoff is mostly emotional and person-specific. The viewer leaves satisfied that Shane got revenge.
+              They do not leave with as much new machinery in their head as they do after Theo, Ricky, Bill Gates, or AI. In other words, it feels
+              like a very strong profile and only a medium-strength Moon thesis.
+            </p>
+          </section>
+
+          <section class="section" id="outliers">
+            <h2>Moon's Historical Outlier Map</h2>
+            <p>
+              Moon's own strongest historical outliers make the pattern even clearer. The channel repeatedly breaks out when a familiar public
+              surface hides a darker mechanism underneath.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Historical Outlier</th>
+                  <th>Lane</th>
+                  <th>Why It Matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>When Creepy Celebrities Exposed Themselves on Conan</td>
+                  <td>Celebrity self-exposure</td>
+                  <td>Public clip plus hidden truth plus retroactive re-interpretation</td>
+                </tr>
+                <tr>
+                  <td>Mel Gibson Tried To Warn You</td>
+                  <td>Prophetic warning</td>
+                  <td>The <em>tried to warn you</em> frame is one of Moon's clearest proven winners</td>
+                </tr>
+                <tr>
+                  <td>The Windows 11 Disaster Microsoft Didn't See Coming</td>
+                  <td>Tech backlash</td>
+                  <td>Big institution, obvious failure, mass user consequence</td>
+                </tr>
+                <tr>
+                  <td>LinkedIn Is Everything Wrong With Society</td>
+                  <td>Social pathology</td>
+                  <td>Platform critique works when it becomes a diagnosis of modern life</td>
+                </tr>
+                <tr>
+                  <td>Why Disney Adults Are Going Bankrupt For Disney</td>
+                  <td>Status / fandom extraction</td>
+                  <td>Identity plus debt plus manipulated desire is a durable lane</td>
+                </tr>
+                <tr>
+                  <td>If Buying Isn't Owning, Piracy Isn't Stealing</td>
+                  <td>Ownership hypocrisy</td>
+                  <td>Moral slogan versus corrupt economic reality is a high-fit Moon structure</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="callout">
+              <strong>Outlier conclusion</strong>
+              Moon's best ideas are not random cultural commentary. They consistently turn a public object into evidence that a broader system is broken.
+            </div>
+          </section>
+
+          <section class="section" id="ideas">
+            <h2>Idea Directions</h2>
+            <p>
+              These are the ideas I would pull next if the goal is to stay close to the strongest recent and historical patterns rather than
+              chasing novelty for its own sake.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Working Idea</th>
+                  <th>Why It Fits</th>
+                  <th>Evidence Base</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Vince Vaughn Just Confirmed What Happened To Hollywood</td>
+                  <td>Comedy-circle insider plus culture decline plus system explanation</td>
+                  <td>Theo winner, Ricky winner, Theo Von Clips outlier</td>
+                </tr>
+                <tr>
+                  <td>The Fake Empowerment Economy</td>
+                  <td>Turns OnlyFans-style curiosity into a broader mechanism about extraction and loneliness</td>
+                  <td>OnlyFans winner, Disney debt pattern, social pathology lane</td>
+                </tr>
+                <tr>
+                  <td>Joe Rogan Is Finally Saying The Quiet Part Out Loud</td>
+                  <td>Host-as-reveal format can drive retention if it quickly widens into institutional critique</td>
+                  <td>Theo winner, Shane structure, JRE outlier</td>
+                </tr>
+                <tr>
+                  <td>Why Bill Gates Is Building The New Rockefeller Empire</td>
+                  <td>Clean elite-power thesis with philanthropy, land, and access as the mechanism</td>
+                  <td>Bill Gates winner, Rockefeller-style ideation outlier</td>
+                </tr>
+                <tr>
+                  <td>The Oscars Were Dead Before Anyone Admitted It</td>
+                  <td>Prophecy plus public collapse plus hypocrisy inside Hollywood institutions</td>
+                  <td>Ricky winner, Film Cult outlier, Hollywood lane</td>
+                </tr>
+                <tr>
+                  <td>They Live Predicted The Internet We Live In</td>
+                  <td>Moon's warning/prophecy format applied to a cultural artifact with present-day relevance</td>
+                  <td>Mel Gibson winner, They Live outlier, tried-to-warn-you lane</td>
+                </tr>
+                <tr>
+                  <td>AI Didn't Replace Your Job. It Gave Your Boss A Weapon</td>
+                  <td>Sharper labor angle than generic AI doom and clearly tied to audience anxiety</td>
+                  <td>AI winner, school spyware / literacy outliers</td>
+                </tr>
+                <tr>
+                  <td>Why Celebrities Keep Exposing Themselves On Camera</td>
+                  <td>Public clip plus social mechanism plus repeatable celebrity lane</td>
+                  <td>Moon's biggest outlier, Conan exposure lane, humiliation outliers</td>
+                </tr>
+              </tbody>
+            </table>
+            <h3>What to repeat</h3>
+            <ul>
+              <li>Scene-first intros with an instant accusation or contradiction</li>
+              <li>Quarter-point receipts: stats, clips, named people, documents, or contradictions</li>
+              <li>Midpoint widening from one subject into one machine</li>
+              <li>Ideas that leave the viewer with a new worldview, not just a finished story</li>
+            </ul>
+            <h3>What to avoid</h3>
+            <ul>
+              <li>Vague tragedy framing where the moral verdict arrives before the mechanism</li>
+              <li>Long stretches of spectacle without a new explanatory layer</li>
+              <li>Sponsor reads before the first major reveal has landed</li>
+              <li>Topics that belong more to the subject than to Moon's worldview</li>
+            </ul>
+          </section>
+
+          <div class="footer">
+            Built from Moon analytics data, live retention checkpoints, transcript pulls, and a local transcription fallback for the no-caption case.
+            This version replaces the first-pass summary with a transcript-backed editorial read.
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <a class="top-link" href="#top">Back to top</a>
+  </body>
+</html>

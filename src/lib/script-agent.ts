@@ -9,11 +9,15 @@ export const scriptAgentRequestSchema = scriptLabRequestSchema.extend({
 });
 
 export const scriptAgentStageKeySchema = z.enum([
+  "plan_research",
   "discover_sources",
   "ingest_sources",
   "extract_evidence",
   "synthesize_research",
   "build_outline",
+  "followup_research",
+  "select_quotes",
+  "place_quotes",
   "build_storyboard",
   "plan_sections",
   "write_sections",

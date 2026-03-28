@@ -6,8 +6,7 @@ import { eq } from "drizzle-orm";
 
 import { getDb } from "@/server/db/client";
 import { extractedContentCache } from "@/server/db/schema";
-import { scrapeResearchSource } from "@/server/providers/firecrawl";
-import { getEnv } from "@/server/config/env";
+import { extractResearchSource } from "@/server/providers/parallel";
 
 // ─── Types ───
 
@@ -98,28 +97,25 @@ async function extractWithFetch(
   }
 }
 
-// ─── Firecrawl extraction ───
+// ─── Parallel extraction ───
 
-async function extractWithFirecrawl(
+async function extractWithParallel(
   url: string
 ): Promise<ExtractedContent | null> {
-  const firecrawlKey = getEnv().FIRECRAWL_API_KEY;
-  if (!firecrawlKey) return null;
-
   try {
-    const result = await scrapeResearchSource(url);
+    const result = await extractResearchSource(url);
     const content = result.markdown || "";
 
     return {
       title: result.title,
       content,
       author: null,
-      publishedAt: null,
+      publishedAt: result.publishedAt,
       siteName: result.sourceName,
       wordCount: countWords(content),
     };
   } catch (err) {
-    console.error("[content-extractor] Firecrawl failed:", err);
+    console.error("[content-extractor] Parallel extract failed:", err);
     return null;
   }
 }
@@ -151,8 +147,8 @@ export async function extractContent(
     };
   }
 
-  // Try Firecrawl first, then fallback
-  let extracted = await extractWithFirecrawl(url);
+  // Try Parallel extract first, then fallback
+  let extracted = await extractWithParallel(url);
   if (!extracted || !extracted.content) {
     extracted = await extractWithFetch(url);
   }

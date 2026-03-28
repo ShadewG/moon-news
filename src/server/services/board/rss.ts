@@ -49,6 +49,14 @@ function stripHtml(value: string): string {
     .replace(/&amp;/gi, "&")
     .replace(/&quot;/gi, "\"")
     .replace(/&#39;/gi, "'")
+    .replace(/&#(\d+);/g, (_, code) => {
+      const parsed = Number(code);
+      return Number.isFinite(parsed) ? String.fromCodePoint(parsed) : " ";
+    })
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => {
+      const parsed = Number.parseInt(code, 16);
+      return Number.isFinite(parsed) ? String.fromCodePoint(parsed) : " ";
+    })
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -198,8 +206,15 @@ function normalizeAtomEntry(entry: Record<string, unknown>): BoardRssFeedItem | 
     return null;
   }
 
+  const mediaGroup =
+    entry.group && typeof entry.group === "object"
+      ? (entry.group as Record<string, unknown>)
+      : null;
   const summary =
-    readText(entry.summary) ?? readText(entry.content) ?? readText(entry.subtitle);
+    readText(entry.summary) ??
+    readText(entry.content) ??
+    readText(entry.subtitle) ??
+    readText(mediaGroup?.description);
   const publishedAt = readPublishedAt(entry);
   const guid = readText(entry.id);
   const authorValue = entry.author;

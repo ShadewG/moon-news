@@ -10,6 +10,7 @@ import {
   scriptLines,
   visualRecommendations,
 } from "@/server/db/schema";
+import { upsertClipInLibrary } from "@/server/services/clip-library";
 import ReportClient from "./report-client";
 
 type Props = { params: Promise<{ projectId: string }> };
@@ -44,6 +45,43 @@ export default async function ReportPage({ params }: Props) {
     db.select().from(visualRecommendations).where(eq(visualRecommendations.projectId, projectId)),
   ]);
 
+  const hydratedAssets = await Promise.all(
+    allAssets.map(async (assetRow) => {
+      if (assetRow.clipLibraryId) {
+        return assetRow;
+      }
+
+      const metadata = (assetRow.footage_assets.metadataJson ?? null) as
+        | Record<string, unknown>
+        | null;
+      const rawViewCount = metadata?.viewCount;
+      const viewCount =
+        typeof rawViewCount === "number" && Number.isFinite(rawViewCount)
+          ? rawViewCount
+          : typeof rawViewCount === "string" && Number.isFinite(Number(rawViewCount))
+            ? Number(rawViewCount)
+            : null;
+
+      const clipLibraryId = await upsertClipInLibrary({
+        provider: assetRow.footage_assets.provider,
+        externalId: assetRow.footage_assets.externalAssetId,
+        title: assetRow.footage_assets.title,
+        sourceUrl: assetRow.footage_assets.sourceUrl,
+        previewUrl: assetRow.footage_assets.previewUrl,
+        channelOrContributor: assetRow.footage_assets.channelOrContributor,
+        durationMs: assetRow.footage_assets.durationMs,
+        viewCount,
+        uploadDate: assetRow.footage_assets.uploadDate,
+        metadataJson: metadata,
+      });
+
+      return {
+        ...assetRow,
+        clipLibraryId,
+      };
+    })
+  );
+
   // Serialize data for the client component
   const data = {
     project: { id: project.id, title: project.title },
@@ -55,7 +93,7 @@ export default async function ReportPage({ params }: Props) {
       lineType: l.lineType,
       category: l.lineContentCategory,
     })),
-    assets: allAssets.map((a) => ({
+    assets: hydratedAssets.map((a) => ({
       ...a.footage_assets,
       lineKey: a.script_lines.lineKey,
       clipLibraryId: a.clipLibraryId,

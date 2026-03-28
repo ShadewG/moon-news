@@ -44,6 +44,24 @@ export const scriptResearchStageSchema = z.object({
   quoteEvidence: z.array(scriptEvidenceQuoteSchema).max(12).default([]),
 });
 
+export const scriptSelectedQuoteSchema = scriptEvidenceQuoteSchema.extend({
+  quoteId: z.string().trim().min(1),
+  usePriority: z.enum(["must_use", "strong_optional", "context_only"]),
+  usageRole: z.string().trim().min(1),
+  sectionHint: z.string().trim().nullable().optional(),
+  qualityNotes: z.string().trim().nullable().optional(),
+});
+
+export const scriptRejectedQuoteSchema = z.object({
+  quoteText: z.string().trim().min(1),
+  reason: z.string().trim().min(1),
+});
+
+export const scriptQuoteSelectionStageSchema = z.object({
+  selectedQuotes: z.array(scriptSelectedQuoteSchema).max(10).default([]),
+  rejectedQuotes: z.array(scriptRejectedQuoteSchema).max(20).default([]),
+});
+
 export const scriptOutlineSectionSchema = z.object({
   heading: z.string().trim().min(1),
   purpose: z.string().trim().min(1),
@@ -54,6 +72,17 @@ export const scriptOutlineSectionSchema = z.object({
 
 export const scriptOutlineStageSchema = z.object({
   sections: z.array(scriptOutlineSectionSchema).min(4).max(10),
+});
+
+export const scriptQuotePlacementItemSchema = z.object({
+  sectionHeading: z.string().trim().min(1),
+  placementGoal: z.string().trim().min(1),
+  requiredQuoteIds: z.array(z.string().trim().min(1)).max(3).default([]),
+  optionalQuoteIds: z.array(z.string().trim().min(1)).max(4).default([]),
+});
+
+export const scriptQuotePlacementStageSchema = z.object({
+  placements: z.array(scriptQuotePlacementItemSchema).min(1).max(10),
 });
 
 export const scriptStoryboardBeatSchema = z.object({
@@ -145,7 +174,9 @@ export const scriptLabResponseSchema = z.object({
   }),
   stages: z.object({
     research: scriptResearchStageSchema,
+    quoteSelection: scriptQuoteSelectionStageSchema.optional(),
     outline: scriptOutlineStageSchema,
+    quotePlacement: scriptQuotePlacementStageSchema.optional(),
     storyboard: scriptStoryboardStageSchema,
     sectionPlan: scriptSectionPlanStageSchema.optional(),
     sectionDrafts: scriptSectionDraftsStageSchema.optional(),
@@ -173,7 +204,10 @@ export type ScriptDraft = z.infer<typeof scriptDraftSchema>;
 export type ScriptCritique = z.infer<typeof scriptCritiqueSchema>;
 export type ScriptEvidenceQuote = z.infer<typeof scriptEvidenceQuoteSchema>;
 export type ScriptResearchStage = z.infer<typeof scriptResearchStageSchema>;
+export type ScriptSelectedQuote = z.infer<typeof scriptSelectedQuoteSchema>;
+export type ScriptQuoteSelectionStage = z.infer<typeof scriptQuoteSelectionStageSchema>;
 export type ScriptOutlineStage = z.infer<typeof scriptOutlineStageSchema>;
+export type ScriptQuotePlacementStage = z.infer<typeof scriptQuotePlacementStageSchema>;
 export type ScriptStoryboardStage = z.infer<typeof scriptStoryboardStageSchema>;
 export type ScriptSectionPlanStage = z.infer<typeof scriptSectionPlanStageSchema>;
 export type ScriptSectionDraftsStage = z.infer<typeof scriptSectionDraftsStageSchema>;

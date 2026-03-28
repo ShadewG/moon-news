@@ -12,9 +12,8 @@ import {
   researchSummaries,
   scriptLines,
 } from "@/server/db/schema";
-import { scrapeResearchSource } from "@/server/providers/firecrawl";
 import { summarizeResearch } from "@/server/providers/openai";
-import { searchLineResearch } from "@/server/providers/parallel";
+import { extractResearchSource, searchLineResearch } from "@/server/providers/parallel";
 
 export const RESEARCH_LINE_TASK_ID = "research-line";
 
@@ -133,7 +132,7 @@ export async function runResearchLineTask(input: { researchRunId: string }) {
         let sourceName = new URL(result.url).hostname;
 
         try {
-          const scrapeResult = await scrapeResearchSource(result.url);
+          const scrapeResult = await extractResearchSource(result.url);
           extractedMarkdown = scrapeResult.markdown;
           sourceName = scrapeResult.sourceName ?? sourceName;
         } catch {

@@ -1,5 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 
+import { buildLibraryQuotesHref } from "@/lib/library-quotes";
 import { getDb } from "@/server/db/client";
 import {
   clipLibrary,
@@ -90,13 +91,35 @@ export default async function SearchResultPage({ params }: Props) {
                       )}
                       <span className="px-2 py-0.5 rounded bg-[#18181b] text-[10px]">{q.quote.relevanceScore}/100</span>
                     </div>
-                    <a href={`/clips/${q.clip.id}`} className="flex items-center gap-1.5 mt-3 text-[11px] text-[#3f3f46] hover:text-[#52525b]">
-                      <span className={q.clip.provider === "youtube" ? "text-red-400/60" : "text-sky-400/60"}>
-                        {q.clip.provider === "youtube" ? "▶" : "𝕏"}
-                      </span>
-                      <span className="underline underline-offset-2">{decode(q.clip.title).slice(0, 60)}</span>
-                      {ts && <span className="text-amber-400/40">at {ts}</span>}
-                    </a>
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px]">
+                      <a href={`/clips/${q.clip.id}`} className="flex items-center gap-1.5 text-[#3f3f46] hover:text-[#52525b]">
+                        <span className={q.clip.provider === "youtube" ? "text-red-400/60" : "text-sky-400/60"}>
+                          {q.clip.provider === "youtube" ? "▶" : "𝕏"}
+                        </span>
+                        <span className="underline underline-offset-2">{decode(q.clip.title).slice(0, 60)}</span>
+                        {ts && <span className="text-amber-400/40">at {ts}</span>}
+                      </a>
+                      {q.clip.provider === "youtube" && (
+                        <a
+                          href={
+                            buildLibraryQuotesHref({
+                              clipId: q.clip.id,
+                              provider: q.clip.provider,
+                              externalId: q.clip.externalId,
+                              sourceUrl: q.clip.sourceUrl,
+                              title: q.clip.title,
+                              channelOrContributor: q.clip.channelOrContributor,
+                              durationMs: q.clip.durationMs,
+                              viewCount: q.clip.viewCount,
+                              uploadDate: q.clip.uploadDate,
+                            }) ?? "/clips/" + q.clip.id + "?tab=quotes"
+                          }
+                          className="text-amber-300 hover:text-amber-200 underline underline-offset-2"
+                        >
+                          See quotes
+                        </a>
+                      )}
+                    </div>
                     {q.quote.context && <p className="text-[11px] text-[#3f3f46] mt-2 leading-relaxed">{q.quote.context}</p>}
                   </div>
                 );
@@ -111,30 +134,52 @@ export default async function SearchResultPage({ params }: Props) {
             <h2 className="text-[10px] text-[#3f3f46] uppercase tracking-widest font-semibold mb-4">YouTube ({yt.length})</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {yt.map((r) => (
-                <a key={r.clip.id} href={`/clips/${r.clip.id}`} className="rounded-lg border border-[#18181b] bg-[#0f0f12] overflow-hidden hover:border-[#27272a] transition-colors">
-                  <div className="relative aspect-video">
-                    <img src={`https://i.ytimg.com/vi/${r.clip.externalId}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" className="w-4 h-4 text-white ml-0.5" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                <div key={r.clip.id} className="rounded-lg border border-[#18181b] bg-[#0f0f12] overflow-hidden hover:border-[#27272a] transition-colors">
+                  <a href={`/clips/${r.clip.id}`} className="block">
+                    <div className="relative aspect-video">
+                      <img src={`https://i.ytimg.com/vi/${r.clip.externalId}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 text-white ml-0.5" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                        </div>
                       </div>
+                      <div className="absolute top-2 right-2 text-[9px] font-mono bg-black/70 text-white px-1.5 py-0.5 rounded">{r.relevanceScore}/50</div>
+                      {r.clip.durationMs && (
+                        <div className="absolute bottom-2 right-2 text-[9px] font-mono bg-black/70 text-white px-1.5 py-0.5 rounded">
+                          {Math.floor(r.clip.durationMs / 60000)}:{String(Math.floor((r.clip.durationMs % 60000) / 1000)).padStart(2, "0")}
+                        </div>
+                      )}
                     </div>
-                    <div className="absolute top-2 right-2 text-[9px] font-mono bg-black/70 text-white px-1.5 py-0.5 rounded">{r.relevanceScore}/50</div>
-                    {r.clip.durationMs && (
-                      <div className="absolute bottom-2 right-2 text-[9px] font-mono bg-black/70 text-white px-1.5 py-0.5 rounded">
-                        {Math.floor(r.clip.durationMs / 60000)}:{String(Math.floor((r.clip.durationMs % 60000) / 1000)).padStart(2, "0")}
-                      </div>
-                    )}
-                  </div>
+                  </a>
                   <div className="px-3 py-2.5">
-                    <p className="text-xs text-[#d4d4d8] leading-snug line-clamp-2">{decode(r.clip.title)}</p>
+                    <a href={`/clips/${r.clip.id}`} className="text-xs text-[#d4d4d8] hover:text-white leading-snug line-clamp-2 block">{decode(r.clip.title)}</a>
                     <div className="flex items-center gap-2 mt-1 text-[10px] text-[#3f3f46]">
                       <span className="text-[#52525b]">{r.clip.channelOrContributor}</span>
                       {r.clip.viewCount && <span>{r.clip.viewCount.toLocaleString()} views</span>}
                       {r.clip.hasTranscript && <span className="text-amber-500/50">transcript</span>}
                     </div>
+                    <div className="mt-3 flex items-center gap-3 text-[11px]">
+                      <a
+                        href={
+                          buildLibraryQuotesHref({
+                            clipId: r.clip.id,
+                            provider: r.clip.provider,
+                            externalId: r.clip.externalId,
+                            sourceUrl: r.clip.sourceUrl,
+                            title: r.clip.title,
+                            channelOrContributor: r.clip.channelOrContributor,
+                            durationMs: r.clip.durationMs,
+                            viewCount: r.clip.viewCount,
+                            uploadDate: r.clip.uploadDate,
+                          }) ?? `/clips/${r.clip.id}?tab=quotes`
+                        }
+                        className="text-amber-300 hover:text-amber-200 underline underline-offset-2"
+                      >
+                        See quotes
+                      </a>
+                    </div>
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           </section>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getEnv } from "@/server/config/env";
 import { mergeBoardStories } from "@/server/services/board";
 
 const mergeStoriesSchema = z.object({
@@ -9,6 +10,16 @@ const mergeStoriesSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!getEnv().ENABLE_BOARD_HEAVY_WEB_ROUTES) {
+    return NextResponse.json(
+      {
+        status: "disabled",
+        reason: "ENABLE_BOARD_HEAVY_WEB_ROUTES is false",
+      },
+      { status: 503 }
+    );
+  }
+
   const parsed = mergeStoriesSchema.safeParse(await request.json());
 
   if (!parsed.success) {

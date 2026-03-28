@@ -1,0 +1,509 @@
+{
+  "version": "1",
+  "meta": {
+    "slug": "iran-ai-videos",
+    "title": "Iran AI Videos",
+    "generatedAt": "2026-03-26T20:13:18.388Z"
+  },
+  "summary": {
+    "totalQueries": 27,
+    "totalCollected": 25,
+    "totalWithTranscript": 12,
+    "providerCounts": {
+      "parallel": 3,
+      "youtube": 20,
+      "internal": 2
+    }
+  },
+  "globalMediaQueries": [
+    "Iran AI Videos teacher",
+    "Iran AI Videos classroom",
+    "Iran AI Videos interview",
+    "Iran AI Videos panel discussion",
+    "Iran AI Videos news segment",
+    "Iran AI Videos podcast",
+    "Iran AI Videos speech",
+    "Iran AI Videos hearing"
+  ],
+  "sectionMediaQueries": [
+    {
+      "heading": "The Joke Everyone Else Avoided",
+      "mediaQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\"",
+        "The Joke Everyone Else Avoided joke",
+        "The Joke Everyone Else Avoided everyone",
+        "The Joke Everyone Else Avoided else"
+      ]
+    },
+    {
+      "heading": "The the clearest example Campaign",
+      "mediaQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\"",
+        "The the clearest example Campaign clearest",
+        "The the clearest example Campaign example",
+        "The the clearest example Campaign campaign"
+      ]
+    },
+    {
+      "heading": "The Pattern Of Going After The Untouchables",
+      "mediaQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\"",
+        "The Pattern Of Going After The Untouchables pattern",
+        "The Pattern Of Going After The Untouchables going",
+        "The Pattern Of Going After The Untouchables after"
+      ]
+    },
+    {
+      "heading": "Why The Entertainment World Stayed Softer",
+      "mediaQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\"",
+        "Why The Entertainment World Stayed Softer why",
+        "Why The Entertainment World Stayed Softer entertainment",
+        "Why The Entertainment World Stayed Softer world"
+      ]
+    },
+    {
+      "heading": "The Cost Of Refusing To Play Along",
+      "mediaQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\"",
+        "The Cost Of Refusing To Play Along cost",
+        "The Cost Of Refusing To Play Along refusing",
+        "The Cost Of Refusing To Play Along play"
+      ]
+    },
+    {
+      "heading": "Why It Matters Now",
+      "mediaQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\"",
+        "Why It Matters Now why",
+        "Why It Matters Now matters",
+        "Why It Matters Now now"
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "title": "AI-generated Iran war videos surge as creators use new tech to cash in",
+      "provider": "parallel",
+      "sourceUrl": "https://www.bbc.com/news/articles/ckg8wvz427vo",
+      "channelOrContributor": "bbc",
+      "relevanceScore": 112,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Joke Everyone Else Avoided",
+        "The the clearest example Campaign",
+        "The Pattern Of Going After The Untouchables",
+        "Why The Entertainment World Stayed Softer",
+        "The Cost Of Refusing To Play Along",
+        "Why It Matters Now"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "AI and Iran - what I shared with the BBC - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/shorts/ljqQeNttpuM",
+      "channelOrContributor": null,
+      "relevanceScore": 102,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Pattern Of Going After The Untouchables"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Fake, AI-generated images and videos of the Iran war are spreading on social media | CNN Politics",
+      "provider": "parallel",
+      "sourceUrl": "https://www.cnn.com/2026/03/11/politics/fake-ai-images-videos-iran-war",
+      "channelOrContributor": "cnn",
+      "relevanceScore": 98,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Joke Everyone Else Avoided",
+        "The the clearest example Campaign",
+        "The Pattern Of Going After The Untouchables",
+        "Why The Entertainment World Stayed Softer",
+        "The Cost Of Refusing To Play Along",
+        "Why It Matters Now"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Fact File: As Iran war escalates, fake videos and images proliferate online | Science News | thecanadianpressnews.ca",
+      "provider": "parallel",
+      "sourceUrl": "https://www.thecanadianpressnews.ca/science/fact-file-as-iran-war-escalates-fake-videos-and-images-proliferate-online/article_ee6cadb5-9e1f-5a99-a37d-3552e1580a9e.html",
+      "channelOrContributor": "thecanadianpressnews ca",
+      "relevanceScore": 95,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Joke Everyone Else Avoided"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "WATCH: Trump says Iran is talking to U.S., criticizes Iranian use of AI deepfake disinformation",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=fu-saDxZm-c",
+      "channelOrContributor": "PBS NewsHour",
+      "relevanceScore": 71,
+      "matchedQueries": [
+        "Iran AI Videos hearing"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 42,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Latest news on Iran war as regime's military mocks Trump negotiations claim",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=eZjjvihzmes",
+      "channelOrContributor": "CBS News",
+      "relevanceScore": 63,
+      "matchedQueries": [],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 213,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Iran State TV Posts AI Video Targeting US, Calls For 'One ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=yPDViJZZi4s",
+      "channelOrContributor": null,
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "Iran AI Videos speech"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 127,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Iran and AI on the battlefield - Front Burner",
+      "provider": "internal",
+      "sourceUrl": "https://podcasts.apple.com/us/podcast/iran-and-ai-on-the-battlefield/id1439621628?i=1000753531404",
+      "channelOrContributor": null,
+      "relevanceScore": 61,
+      "matchedQueries": [
+        "Iran AI Videos podcast"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Iran protests: Fact-checking claims of AI manipulation, low turnout • FRANCE 24 English",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=fsVywQLFS-k",
+      "channelOrContributor": "FRANCE 24 English",
+      "relevanceScore": 58,
+      "matchedQueries": [
+        "Iran AI Videos news segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 154,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "AI SPOTLIGHT: Palantir exec reveals how tech is shaping Iran conflict",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=0TA5hNSfGLE",
+      "channelOrContributor": "Fox News Clips",
+      "relevanceScore": 56,
+      "matchedQueries": [
+        "Iran AI Videos interview"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL PANEL DISCUSSION: Reza Pahlavi Speaks on Iran's Post-Regime Transition, Israel, Protests | AC1N",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=NN2yOY4oSZg",
+      "channelOrContributor": "DRM News",
+      "relevanceScore": 56,
+      "matchedQueries": [
+        "Iran AI Videos panel discussion"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 646,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "An AI‑generated video has been released by the Iranian ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/WIONews/posts/an-aigenerated-video-has-been-released-by-the-iranian-state-media-on-social-medi/1298858115686693/",
+      "channelOrContributor": null,
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "Iran AI Videos speech"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "LIVE: ABC News Live - Sunday, March 22",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=tdJm7mVBrhU",
+      "channelOrContributor": "ABC News",
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "iran videos \"A.I. fake videos often show exaggerated war scenes\""
+      ],
+      "matchedSections": [
+        "The Joke Everyone Else Avoided",
+        "The the clearest example Campaign",
+        "The Pattern Of Going After The Untouchables",
+        "Why The Entertainment World Stayed Softer",
+        "The Cost Of Refusing To Play Along",
+        "Why It Matters Now"
+      ],
+      "transcriptRecovered": true,
+      "transcriptSegments": 14485,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "America’s AI crushed Iran’s intelligence, drone expert says",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=Tdr-1zyAvnI",
+      "channelOrContributor": "Fox News Clips",
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "Iran AI Videos interview"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "US military touts use of ‘ADVANCED AI’ in fight against Iran",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=IbDB-oMYmy4",
+      "channelOrContributor": "Fox News",
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "Iran AI Videos news segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 128,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Trump Iran Israel: Is this the first AI war?",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=zOEDB3Grw78",
+      "channelOrContributor": "Channel 4 News",
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "Iran AI Videos podcast"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 875,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "'I AM ALIVE': Netanyahu Slams Death Rumors, AI Claims In First Explosive LIVE Presser Amid IRAN WAR",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=_i80VJcjikk",
+      "channelOrContributor": "MIRROR NOW",
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "Iran AI Videos speech"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 826,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "'Iran is not interested in negotiating with Trump' - Iranian professor Mohammad Marandi",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=skcPc9HDLBU",
+      "channelOrContributor": "Channel 4 News",
+      "relevanceScore": 46,
+      "matchedQueries": [
+        "Iran AI Videos teacher"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 349,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Retired generals break down Iran war strategy after week 2",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=62lQhjpz3LI",
+      "channelOrContributor": "CNN",
+      "relevanceScore": 41,
+      "matchedQueries": [
+        "Iran AI Videos teacher"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 279,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "President Trump speaks to reporters on Iran",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=FHr_dDi0aFo",
+      "channelOrContributor": "LiveNOW from FOX",
+      "relevanceScore": 41,
+      "matchedQueries": [
+        "Iran AI Videos interview"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 601,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Top Story with Tom Llamas - March 25  | NBC News NOW",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=KdkhAYO26YM",
+      "channelOrContributor": "NBC News",
+      "relevanceScore": 31,
+      "matchedQueries": [
+        "Iran AI Videos teacher"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "The Untouchables (full documentary) | FRONTLINE",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=B4TWN54KqfQ",
+      "channelOrContributor": null,
+      "relevanceScore": 31,
+      "matchedQueries": [
+        "The Pattern Of Going After The Untouchables pattern",
+        "The Pattern Of Going After The Untouchables going",
+        "The Pattern Of Going After The Untouchables after"
+      ],
+      "matchedSections": [
+        "The Pattern Of Going After The Untouchables"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "War with Iran + Pentagon vs Anthropic with Under Secretary of ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=gzwRflcLPAA",
+      "channelOrContributor": null,
+      "relevanceScore": 23,
+      "matchedQueries": [
+        "Iran AI Videos podcast"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Viral video shows contractor destroy bathroom after he says homeowner refused to pay",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=svQ4Kt4gp-E",
+      "channelOrContributor": "KSAT 12",
+      "relevanceScore": 20,
+      "matchedQueries": [
+        "The Cost Of Refusing To Play Along refusing"
+      ],
+      "matchedSections": [
+        "The Cost Of Refusing To Play Along"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Now Matters Now",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=JV81fmuvqoI",
+      "channelOrContributor": "National Institutes of Health (NIH)",
+      "relevanceScore": 20,
+      "matchedQueries": [
+        "Why It Matters Now matters"
+      ],
+      "matchedSections": [
+        "Why It Matters Now"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    }
+  ]
+}

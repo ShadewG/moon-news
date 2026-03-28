@@ -1,0 +1,1764 @@
+{
+  "version": "1",
+  "meta": {
+    "slug": "the-white-house-robot-wasnt-even-tesla",
+    "title": "The White House Robot Wasn't Even Tesla",
+    "generatedAt": "2026-03-25T21:05:46.934Z"
+  },
+  "summary": {
+    "totalQueries": 54,
+    "totalCollected": 95,
+    "totalWithTranscript": 12,
+    "providerCounts": {
+      "parallel": 6,
+      "youtube": 64,
+      "internal": 25
+    }
+  },
+  "globalMediaQueries": [
+    "Melania Trump Figure 03 robot walk Cross Hall White House video",
+    "Figure 03 robot speech 11 languages East Room C-SPAN footage",
+    "Melania Trump first American-made humanoid guest exact quote clip",
+    "Figure AI Figure 03 White House summit official livestream",
+    "Brett Adcock Figure AI interview 2025 2026 humanoid robot vision",
+    "Tesla Optimus demo video Elon Musk presentation comparison",
+    "humanoid robot expert interview labor displacement podcast 2025",
+    "CNN Melania Trump very robotic White House guest segment",
+    "ABC News Melania Trump robot summit walking video",
+    "Reuters robot joins Melania Trump White House AI teachers video",
+    "humanoid robotics hype vs reality expert interview MIT Stanford",
+    "Boston Dynamics Atlas robot demo failure compilation vs polished PR",
+    "Figure AI robot factory deployment BMW video footage",
+    "White House AI policy announcement March 25 2026 press briefing",
+    "humanoid robot China showcase CCTV state media 2025 2026",
+    "tech product political theater history examples documentary",
+    "robotics researcher interview robots not ready deployment skeptic",
+    "Melania Trump full speech Fostering the Future Together summit video"
+  ],
+  "sectionMediaQueries": [
+    {
+      "heading": "The Wrong Robot",
+      "mediaQueries": [
+        "Figure 03 robot walking Cross Hall White House original footage March 25 2026",
+        "Melania Trump \"first American-made humanoid guest\" exact quote clip C-SPAN",
+        "Figure 03 speech East Room full audio video \"I am Figure 3 a humanoid built in the United States\"",
+        "Tesla Optimus reveal event Elon Musk original presentation comparison clip",
+        "news anchor or reporter mistakenly calling White House robot Tesla Optimus on air",
+        "youtube.com/watch?v=7sHSBgU5p4Y Figure 03 White House speech timestamp 61 seconds"
+      ]
+    },
+    {
+      "heading": "What Actually Happened in That Room",
+      "mediaQueries": [
+        "Figure 03 walking tentatively East Room Cross Hall full unedited clip",
+        "Figure 03 eleven language greeting demonstration White House video",
+        "CNN segment \"Melania Trump very robotic White House guest\" broadcast clip",
+        "Russian humanoid robot falling stumbling Moscow summit footage 2025 2026",
+        "ABC News Melania Trump robot summit walking original broadcast March 2026",
+        "Reuters video robot joins Melania Trump White House AI teachers event"
+      ]
+    },
+    {
+      "heading": "The American-Made Frame",
+      "mediaQueries": [
+        "Trump AI policy council announcement press briefing March 25 2026 C-SPAN clip",
+        "Melania Trump full speech Fostering the Future Together summit AI education video",
+        "David Sacks AI czar White House press briefing interview March 2026",
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip",
+        "White House AI framework release announcement official video March 2026",
+        "news segment connecting robot appearance to same-day AI council announcement"
+      ]
+    },
+    {
+      "heading": "The Race Nobody Is Covering",
+      "mediaQueries": [
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY",
+        "NBC News China humanoid robots state showcase video youtube.com/watch?v=stNO7V8xJHk",
+        "Figure AI BMW factory robot deployment official footage",
+        "Boston Dynamics Agility Robotics Figure AI comparison demo reel 2025",
+        "Brett Adcock Figure AI interview investor pitch vision humanoid robotics",
+        "documentary or news segment humanoid robotics race US China geopolitical framing"
+      ]
+    },
+    {
+      "heading": "The Turn: Inevitability Is the Product",
+      "mediaQueries": [
+        "Melania Trump describing \"Plato\" humanoid educator personalized learning speech clip",
+        "Melania Trump \"since our environment is designed for people humanoid systems fit well\" exact quote video",
+        "CNN White House AI framework critical segment March 20 2026 broadcast",
+        "expert interview technology hype cycle normalization political legitimacy podcast 2025 2026",
+        "historical footage government technology demonstrations NASA space race political theater comparison",
+        "media critic or journalist segment analyzing White House robot as political stagecraft"
+      ]
+    },
+    {
+      "heading": "What Hasn't Been Asked",
+      "mediaQueries": [
+        "Boston Dynamics CEO Robert Playter 60 Minutes interview labor displacement robots quote clip facebook.com/60minutes",
+        "congressional hearing or expert testimony humanoid robots labor impact 2025 2026",
+        "union leader or labor economist responding to humanoid robot White House appearance interview",
+        "journalist or academic interview AI policy council industry capture conflict of interest",
+        "Figure AI LinkedIn post \"first humanoid robot White House\" used as marketing claim within hours of event",
+        "investigative segment Figure AI investors financial stakes White House normalization"
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "title": "\"I'm Figure 03, a humanoid built in the United States of ...",
+      "provider": "parallel",
+      "sourceUrl": "https://www.facebook.com/ABC7NY/posts/im-figure-03-a-humanoid-built-in-the-united-states-of-america-the-robot-said-nex/1581813926644394/",
+      "channelOrContributor": "facebook",
+      "relevanceScore": 106,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Wrong Robot",
+        "The American-Made Frame",
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Trump's AI framework is a joke and it's clearly written by his Big Tech ...",
+      "provider": "parallel",
+      "sourceUrl": "https://www.facebook.com/RepSaraJacobs/posts/trumps-ai-framework-is-a-joke-and-its-clearly-written-by-his-big-tech-donors-we-/1421876946618461/",
+      "channelOrContributor": "facebook",
+      "relevanceScore": 102,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Will humanoid robots take human jobs? As fears grow that AI ...",
+      "provider": "parallel",
+      "sourceUrl": "https://www.facebook.com/60minutes/videos/will-humanoid-robots-take-human-jobsas-fears-grow-that-ai-will-displace-workers-/2713309945689759/",
+      "channelOrContributor": "facebook",
+      "relevanceScore": 98,
+      "matchedQueries": [
+        "Boston Dynamics CEO Robert Playter 60 Minutes interview labor displacement robots quote clip facebook.com/60minutes"
+      ],
+      "matchedSections": [
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Seth takes a closer look at President Trump reposting a far-right conspiracy theory that former President Biden was executed five years ago and is a robotically engineered clone, The New York Times reporting that Elon Musk was engaged in increasingly intense drug use during the Trump campaign and more. | Late Night with Seth Meyers | Facebook",
+      "provider": "parallel",
+      "sourceUrl": "https://www.facebook.com/LateNightSeth/videos/musk-backs-away-from-trump-after-doge-failure-trump-shares-insane-biden-clone-th/1264689508406421/",
+      "channelOrContributor": "facebook",
+      "relevanceScore": 95,
+      "matchedQueries": [],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Introducing Figure 03 - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=Eu5mYMavctM",
+      "channelOrContributor": null,
+      "relevanceScore": 93,
+      "matchedQueries": [
+        "Figure 03 speech East Room full audio video \"I am Figure 3 a humanoid built in the United States\""
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room",
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "powered robot capable of walking, speaking, and thinking ...",
+      "provider": "parallel",
+      "sourceUrl": "https://www.facebook.com/joshrinconofficial/posts/surreal-and-unprecedented-moment-just-happened-at-the-white-house-melania-trump-/903201092478283/",
+      "channelOrContributor": "facebook",
+      "relevanceScore": 90,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The Wrong Robot",
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "China's humanoid robots take center stage at Lunar New Year show",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=stNO7V8xJHk",
+      "channelOrContributor": "NBC News",
+      "relevanceScore": 89,
+      "matchedQueries": [
+        "humanoid robot China showcase CCTV state media 2025 2026",
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY",
+        "NBC News China humanoid robots state showcase video youtube.com/watch?v=stNO7V8xJHk"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": true,
+      "transcriptSegments": 66,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL SPEECH: Melania Trump Launches Global AI & ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=R-L-hXEc3Is",
+      "channelOrContributor": null,
+      "relevanceScore": 88,
+      "matchedQueries": [
+        "Reuters video robot joins Melania Trump White House AI teachers event",
+        "Melania Trump full speech Fostering the Future Together summit AI education video"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room",
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Kung Fu Robots Deliver 'Knockout' Performance at Spring Festival Gala",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=NVX6vq0RSnY",
+      "channelOrContributor": "CCTV Video News Agency",
+      "relevanceScore": 86,
+      "matchedQueries": [
+        "humanoid robot China showcase CCTV state media 2025 2026",
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "White House AI Summit LIVE: 'Robots Are Here'",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM",
+      "channelOrContributor": null,
+      "relevanceScore": 84,
+      "matchedQueries": [
+        "Figure AI Figure 03 White House summit official livestream",
+        "Reuters robot joins Melania Trump White House AI teachers video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 7612,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Russia's first AI humanoid robot falls on stage",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=s8hABHmA_NE",
+      "channelOrContributor": "NBC News",
+      "relevanceScore": 83,
+      "matchedQueries": [
+        "Russian humanoid robot falling stumbling Moscow summit footage 2025 2026"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump addresses global leaders on 'Fostering the Future Together'",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=47HST6lrPeQ",
+      "channelOrContributor": "Fox News",
+      "relevanceScore": 81,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "WATCH: Melania Trump Delivers Opening Remarks at Fostering the Future Summit - 03/24/26",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA",
+      "channelOrContributor": "Right Side Broadcasting Network",
+      "relevanceScore": 81,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "WATCH LIVE: First lady Melania Trump speaks at Fostering ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=O4vngtPlT4M",
+      "channelOrContributor": null,
+      "relevanceScore": 81,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL SPEECH: U.S. First Lady Melania Trump Hosts ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=3arIrgp1CSw",
+      "channelOrContributor": null,
+      "relevanceScore": 81,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit AI education video"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "User Clip: Trump on AI use | Video | C-SPAN.org",
+      "provider": "parallel",
+      "sourceUrl": "https://www.c-span.org/clip/white-house-event/user-clip-trump-on-ai-use/5196624",
+      "channelOrContributor": "c-span",
+      "relevanceScore": 74,
+      "matchedQueries": [],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "First lady Melania Trump walks with robot during White ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/shorts/SbPi9mVFZzs",
+      "channelOrContributor": null,
+      "relevanceScore": 73,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking video",
+        "CNN segment \"Melania Trump very robotic White House guest\" broadcast clip"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": true,
+      "transcriptSegments": 9,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "WATCH LIVE: First lady Melania Trump speaks at ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/newshour/videos/watch-live-first-lady-melania-trump-speaks-at-fostering-the-future-together-summ/3379227082234230/",
+      "channelOrContributor": null,
+      "relevanceScore": 71,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump walks with robot to White House ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=7sHSBgU5p4Y",
+      "channelOrContributor": null,
+      "relevanceScore": 70,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking video"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": true,
+      "transcriptSegments": 36,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Elon Musk REVEALS Tesla Bot (full presentation) - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=HUP6Z5voiS8",
+      "channelOrContributor": null,
+      "relevanceScore": 68,
+      "matchedQueries": [
+        "Tesla Optimus demo video Elon Musk presentation comparison",
+        "Tesla Optimus reveal event Elon Musk original presentation comparison clip"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Figure 02 had an 11-month deployment at BMW Group's ... - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=-ggg4VQJxXc",
+      "channelOrContributor": null,
+      "relevanceScore": 68,
+      "matchedQueries": [
+        "Figure AI robot factory deployment BMW video footage",
+        "Figure AI BMW factory robot deployment official footage"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Fostering the Future Together Global Coalition Summit: First ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=SSrtDkVeTKI",
+      "channelOrContributor": null,
+      "relevanceScore": 68,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video",
+        "Melania Trump full speech Fostering the Future Together summit AI education video"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump on Children's Digital Future at Historic ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=d1ThhDWZOWA",
+      "channelOrContributor": null,
+      "relevanceScore": 67,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit AI education video",
+        "Melania Trump \"since our environment is designed for people humanoid systems fit well\" exact quote video"
+      ],
+      "matchedSections": [
+        "The American-Made Frame",
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump unveils a talking robot at a children's ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w",
+      "channelOrContributor": null,
+      "relevanceScore": 65,
+      "matchedQueries": [],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 5,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "China's humanoid robots dance, fight in Lunar New Year ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=W7kqiLFIgzU",
+      "channelOrContributor": null,
+      "relevanceScore": 65,
+      "matchedQueries": [
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "An unfiltered conversation with Brett Adcock, CEO of Figure AI - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=_Xct1BCLylc",
+      "channelOrContributor": null,
+      "relevanceScore": 65,
+      "matchedQueries": [
+        "Brett Adcock Figure AI interview investor pitch vision humanoid robotics"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Will humanoid robots take human jobs?\n\nAs fears grow that AI will displace workers, Robert Playter, CEO of Boston Dynamics, says robots will change the kind of work people do.\n\nâThe really repetitive, really back-breaking labor is really, is going to end up being done by robots. But these robots are not so autonomous that they donât need to be managed. They need to be built. They need to be trained. They need to be serviced,â he says. | 60 Minutes | Facebook",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/60minutes/posts/will-humanoid-robots-take-human-jobsas-fears-grow-that-ai-will-displace-workers-/1233203245341723/",
+      "channelOrContributor": null,
+      "relevanceScore": 64,
+      "matchedQueries": [
+        "humanoid robot expert interview labor displacement podcast 2025"
+      ],
+      "matchedSections": [
+        "The Wrong Robot",
+        "The American-Made Frame",
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": true,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump addresses the Fostering ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=zUw1PBL_K10",
+      "channelOrContributor": null,
+      "relevanceScore": 64,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video",
+        "Melania Trump full speech Fostering the Future Together summit AI education video"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Is the Figure 03 Robot Ready to Clean Your House?",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=4ZP943-gARQ",
+      "channelOrContributor": "TIME",
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "Brett Adcock Figure AI interview 2025 2026 humanoid robot vision"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 184,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Humanoid Robot Walks With Melania Trump at White ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=upQCCdIt0QQ",
+      "channelOrContributor": null,
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 26,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "U.S. first lady Melania Trump walks next to a humanoid ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/reuterspictures/posts/us-first-lady-melania-trump-walks-next-to-a-humanoid-robot-as-she-hosts-a-roundt/1298976198760249/",
+      "channelOrContributor": null,
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "Melania Trump Figure 03 robot walk Cross Hall White House video",
+        "Reuters video robot joins Melania Trump White House AI teachers event"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Remarks: Melania Trump Addresses the Fostering the Future ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=XF6-_1e7NrA",
+      "channelOrContributor": null,
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Figure AI CEO on Building General Purpose Robots - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=zObe3aOz5fw",
+      "channelOrContributor": null,
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "Brett Adcock Figure AI interview investor pitch vision humanoid robotics"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Rethinking The Hype Cycle Podcast",
+      "provider": "internal",
+      "sourceUrl": "https://open.spotify.com/show/5ltu9Oei08OKhg2ooCc6Fx",
+      "channelOrContributor": null,
+      "relevanceScore": 63,
+      "matchedQueries": [
+        "expert interview technology hype cycle normalization political legitimacy podcast 2025 2026"
+      ],
+      "matchedSections": [
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "EP-3: Brett Adcock, Figure - Visionary Leadership in AI Robotics - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=h3ySuHld8nk",
+      "channelOrContributor": null,
+      "relevanceScore": 62,
+      "matchedQueries": [
+        "Brett Adcock Figure AI interview investor pitch vision humanoid robotics"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "AI robot steals spotlight at White House",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=Ke2nrNLTTC0",
+      "channelOrContributor": null,
+      "relevanceScore": 60,
+      "matchedQueries": [],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 2,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "Optimus - Gen 2 | Tesla",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=cpraXaw7dyc",
+      "channelOrContributor": "Tesla",
+      "relevanceScore": 60,
+      "matchedQueries": [
+        "Tesla Optimus reveal event Elon Musk original presentation comparison clip"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First lady Melania Trump walks with robot at White House event",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/ABCNews/videos/first-lady-melania-trump-walks-with-robot-at-white-house-event/1504356031212413/",
+      "channelOrContributor": null,
+      "relevanceScore": 60,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking original broadcast March 2026"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL: Melania Trump showcases humanoid robot guest at ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=sJRjwzPK_y8",
+      "channelOrContributor": null,
+      "relevanceScore": 58,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "The 1-year robotic evolution:\n2025: Basic rhythm and waving.\n2026: Full-speed Kung Fu, including insane aerial backflips.\nNo surprise the world is stunned. | China Xinhua News | Facebook",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/XinhuaNewsAgency/videos/chinas-kung-fu-humanoids-dazzle-global-audience/4126726614211300/",
+      "channelOrContributor": null,
+      "relevanceScore": 58,
+      "matchedQueries": [
+        "humanoid robot China showcase CCTV state media 2025 2026"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "The 1-year robotic evolution: 2025: Basic rhythm and waving. 2026 ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/XinhuaSciTech/videos/chinas-kung-fu-humanoids-dazzle-global-audience/1422609966073491/",
+      "channelOrContributor": null,
+      "relevanceScore": 58,
+      "matchedQueries": [
+        "humanoid robot China showcase CCTV state media 2025 2026"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "A sleek black-and-white humanoid robot appeared ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/Reuters/posts/a-sleek-black-and-white-humanoid-robot-appeared-alongside-us-first-lady-melania-/1502339575090103/",
+      "channelOrContributor": null,
+      "relevanceScore": 58,
+      "matchedQueries": [
+        "Reuters video robot joins Melania Trump White House AI teachers event"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "LIVE Melania Trump hosts meeting on Artificial Intelligence ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=EIgGYmACLN4",
+      "channelOrContributor": null,
+      "relevanceScore": 58,
+      "matchedQueries": [
+        "Reuters video robot joins Melania Trump White House AI teachers event"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Speaking at the Artificial Intelligence ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/UNIGlobalUnion/posts/speaking-at-the-artificial-intelligence-action-summit-today-uni-global-union-gen/1032584562238710/",
+      "channelOrContributor": null,
+      "relevanceScore": 57,
+      "matchedQueries": [
+        "union leader or labor economist responding to humanoid robot White House appearance interview"
+      ],
+      "matchedSections": [
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "A walking, talking humanoid robot strolled side-by - Facebook",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/ABCNewsPolitics/videos/a-walking-talking-humanoid-robot-strolled-side-by-side-first-lady-melania-trump-/4262715980648609/",
+      "channelOrContributor": null,
+      "relevanceScore": 55,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking original broadcast March 2026"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Viral: China's Humanoid Robots Take Center Stage For Lunar ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=CfoOuK_Xroo",
+      "channelOrContributor": null,
+      "relevanceScore": 55,
+      "matchedQueries": [
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Humanoid Robots Steal the Show During China's 2026 Spring ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=iUQghacHB4I",
+      "channelOrContributor": null,
+      "relevanceScore": 55,
+      "matchedQueries": [
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "China’s humanoid robots took center stage at the annual ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/MoshehNews/videos/chinas-humanoid-robots-took-center-stage-at-the-annual-cctv-spring-festival-gala/4392196271014497/",
+      "channelOrContributor": null,
+      "relevanceScore": 55,
+      "matchedQueries": [
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Chinese humanoid robots perform in Lunar New Year show",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/CBSEveningNews/videos/chinese-humanoid-robots-perform-in-lunar-new-year-show/1270566704950877/",
+      "channelOrContributor": null,
+      "relevanceScore": 55,
+      "matchedQueries": [
+        "China humanoid robots CCTV Lunar New Year state broadcast performance footage youtube.com/watch?v=NVX6vq0RSnY"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Robert Playter, CEO of Boston Dynamics, says the company is ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/60minutes/videos/robert-playter-ceo-of-boston-dynamics-says-the-company-is-building-robots-capabl/1529348408177484/",
+      "channelOrContributor": null,
+      "relevanceScore": 55,
+      "matchedQueries": [
+        "Boston Dynamics CEO Robert Playter 60 Minutes interview labor displacement robots quote clip facebook.com/60minutes"
+      ],
+      "matchedSections": [
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Full HD: Martial arts robots dazzle at 2026 Spring Festival Gala #coolchina  #springfestival2026",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=Sl6YUJKssG8",
+      "channelOrContributor": "CGTN and 4 more",
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "humanoid robot China showcase CCTV state media 2025 2026"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Sam #Altman says the world isn't ready ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/marcocamisanicalzolari/posts/sam-altman-says-the-world-isnt-ready-for-humanoidrobots-not-because-they-wont-be/1245866503574392/",
+      "channelOrContributor": null,
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "robotics researcher interview robots not ready deployment skeptic"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump Delivers Remarks At The 'Fostering ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=OC8mr8VZmNk",
+      "channelOrContributor": null,
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "Melania Trump full speech Fostering the Future Together summit video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Watch CNBC's full interview with White House AI czar ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/live/7NBYmLahS5c?pp=0gcJCWYD5mK_OTUh",
+      "channelOrContributor": null,
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "David Sacks AI czar White House press briefing interview March 2026"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Mastering the Hype Cycle: How Cybersecurity Leaders Win ...",
+      "provider": "internal",
+      "sourceUrl": "https://podcasts.apple.com/de/podcast/mastering-the-hype-cycle-how-cybersecurity-leaders/id1144653856?i=1000752840358",
+      "channelOrContributor": null,
+      "relevanceScore": 53,
+      "matchedQueries": [
+        "expert interview technology hype cycle normalization political legitimacy podcast 2025 2026"
+      ],
+      "matchedSections": [
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First lady Melania Trump entered the East Room of the White House ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/CSPAN/videos/first-lady-melania-trump-entered-the-east-room-of-the-white-house-on-wednesday-a/1600746220980541/",
+      "channelOrContributor": null,
+      "relevanceScore": 52,
+      "matchedQueries": [],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": false
+    },
+    {
+      "title": "A 7-hour marathon interview with Saining Xie: World Models, AMI Labs, Yann LeCun, Fei-Fei Li, and 42",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=rIwgZWzUKm8",
+      "channelOrContributor": "Zhang Xiaojun Podcast",
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "humanoid robotics hype vs reality expert interview MIT Stanford"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 13171,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Humanoid robotics: A deep dive…–Making Sense – Apple Podcasts",
+      "provider": "internal",
+      "sourceUrl": "https://podcasts.apple.com/ba/podcast/humanoid-robotics-a-deep-dive-into-automations-next/id1456184829?i=1000708687283",
+      "channelOrContributor": null,
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "humanoid robot expert interview labor displacement podcast 2025"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "My interview just got to 9 Million... - Roman V. Yampolskiy | Facebook",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/roman.yampolskiy/posts/my-interview-just-got-to-9-million-views-the-only-one-to-do-better-in-the-last-1/10236571518000236/",
+      "channelOrContributor": null,
+      "relevanceScore": 51,
+      "matchedQueries": [
+        "robotics researcher interview robots not ready deployment skeptic"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "WATCH: Melania Trump Delivers Opening Remarks at ... - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA",
+      "channelOrContributor": null,
+      "relevanceScore": 50,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump Delivers Opening Remarks At ... - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=sp2AbBIzARY",
+      "channelOrContributor": null,
+      "relevanceScore": 50,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "OpenAI exec on AI political impact, “elitist approach” of ... - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=lVSFozkFGXA",
+      "channelOrContributor": null,
+      "relevanceScore": 50,
+      "matchedQueries": [
+        "expert interview technology hype cycle normalization political legitimacy podcast 2025 2026"
+      ],
+      "matchedSections": [
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Figure AI unveils humanoid robot for home chores - LinkedIn",
+      "provider": "internal",
+      "sourceUrl": "https://www.linkedin.com/posts/evolving-ai_wow-figure-ai-just-revealed-figure-03-activity-7382055444820676608-LacA",
+      "channelOrContributor": null,
+      "relevanceScore": 50,
+      "matchedQueries": [
+        "Figure AI LinkedIn post \"first humanoid robot White House\" used as marketing claim within hours of event"
+      ],
+      "matchedSections": [
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "The AI chatbot coming for your job, 'Swifties' take on Ticketmaster & Apple sued for AirTag stalking",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=ragfKMWfS_8",
+      "channelOrContributor": "CNN",
+      "relevanceScore": 48,
+      "matchedQueries": [
+        "news segment connecting robot appearance to same-day AI council announcement"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump addresses global leaders on 'Fostering the Future ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=47HST6lrPeQ",
+      "channelOrContributor": null,
+      "relevanceScore": 45,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "The White House's New AI Framework",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=emEJf6uCYKA",
+      "channelOrContributor": null,
+      "relevanceScore": 45,
+      "matchedQueries": [
+        "investigative segment Figure AI investors financial stakes White House normalization"
+      ],
+      "matchedSections": [
+        "What Hasn't Been Asked"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Humanoid Robot Fails in Real-World Test, Raises ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.linkedin.com/posts/jeremyprasetyo_break-the-robot-reveal-the-truth-about-ai-activity-7438197517629968384-Fd1R",
+      "channelOrContributor": null,
+      "relevanceScore": 43,
+      "matchedQueries": [
+        "robotics researcher interview robots not ready deployment skeptic"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "WATCH LIVE: Melania Trump Leads White House Task ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=vz8Hc81MxCI",
+      "channelOrContributor": null,
+      "relevanceScore": 41,
+      "matchedQueries": [
+        "CNN Melania Trump very robotic White House guest segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 981,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "LIVE| Melania Trump Leads White House AI Education ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=6N1x_Ypa_yg",
+      "channelOrContributor": null,
+      "relevanceScore": 41,
+      "matchedQueries": [
+        "CNN Melania Trump very robotic White House guest segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 9832,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "LIVE: Melania Trump at White House AI Task Force",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=FFb1CsJ0KXs",
+      "channelOrContributor": null,
+      "relevanceScore": 41,
+      "matchedQueries": [
+        "CNN Melania Trump very robotic White House guest segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": true,
+      "transcriptSegments": 996,
+      "fromPacket": true,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Morning News NOW Full Episode – March 25",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=hXdSvWroD6o",
+      "channelOrContributor": "NBC News",
+      "relevanceScore": 41,
+      "matchedQueries": [
+        "White House AI policy announcement March 25 2026 press briefing",
+        "White House AI framework release announcement official video March 2026"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump Launches Global AI & Education Alliance - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=apHdf6ftUOQ",
+      "channelOrContributor": null,
+      "relevanceScore": 40,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Chinese humanoid robots are having a moment ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/cnbcinternational/videos/chinese-humanoid-robots-are-having-a-moment-in-the-spotlight-after-a-standout-pe/1272128091499101/",
+      "channelOrContributor": null,
+      "relevanceScore": 40,
+      "matchedQueries": [
+        "NBC News China humanoid robots state showcase video youtube.com/watch?v=stNO7V8xJHk"
+      ],
+      "matchedSections": [
+        "The Race Nobody Is Covering"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "LIVE Melania Trump hosts meeting on Artificial Intelligence education",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=EIgGYmACLN4",
+      "channelOrContributor": null,
+      "relevanceScore": 38,
+      "matchedQueries": [
+        "Melania Trump \"first American-made humanoid guest\" exact quote clip C-SPAN"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Senate hosts Elon Musk and other tech leaders for AI regulation talks",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=oeJZ1U1atIU",
+      "channelOrContributor": "CBS News",
+      "relevanceScore": 38,
+      "matchedQueries": [
+        "news anchor or reporter mistakenly calling White House robot Tesla Optimus on air"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "ABC World News Tonight with David Muir Full Broadcast - Jan. 14, 2026",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=LwD0WOrgepo",
+      "channelOrContributor": "ABC News",
+      "relevanceScore": 38,
+      "matchedQueries": [
+        "ABC News Melania Trump robot summit walking original broadcast March 2026"
+      ],
+      "matchedSections": [
+        "What Actually Happened in That Room"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL SPEECH: Melania Trump Addresses Guests at Premiere of ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=RIlnClB82xQ",
+      "channelOrContributor": null,
+      "relevanceScore": 36,
+      "matchedQueries": [
+        "Melania Trump first American-made humanoid guest exact quote clip"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "LIVE: First lady Melania Trump hosts Task Force on ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=qxdifKZrSjw",
+      "channelOrContributor": null,
+      "relevanceScore": 36,
+      "matchedQueries": [
+        "CNN Melania Trump very robotic White House guest segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump joined by Google CEO, tech leaders for AI ... - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=mKM-opgw40Q",
+      "channelOrContributor": null,
+      "relevanceScore": 35,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "(CNN) — The White House on Friday released its long",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/ActionNewsNow/posts/cnn-the-white-house-on-friday-released-its-long-awaited-national-artificial-inte/1351524737006156/",
+      "channelOrContributor": null,
+      "relevanceScore": 35,
+      "matchedQueries": [
+        "CNN White House AI framework critical segment March 20 2026 broadcast"
+      ],
+      "matchedSections": [
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Morning News NOW Full Episode – March 20",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=ENs0ap9U5rg",
+      "channelOrContributor": "NBC News",
+      "relevanceScore": 33,
+      "matchedQueries": [
+        "White House AI framework release announcement official video March 2026"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First lady Melania Trump meets with White House AI task force",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=8O59bEPFNnc",
+      "channelOrContributor": null,
+      "relevanceScore": 31,
+      "matchedQueries": [
+        "Melania Trump first American-made humanoid guest exact quote clip",
+        "CNN Melania Trump very robotic White House guest segment",
+        "Melania Trump \"first American-made humanoid guest\" exact quote clip C-SPAN"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump - Facebook",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/flotus/posts/america-tonight-lets-make-a-personal-pledge-to-celebrate-ambition-and-scale-imag/122159205374729065/",
+      "channelOrContributor": null,
+      "relevanceScore": 30,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "The White House",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/whitehouse",
+      "channelOrContributor": null,
+      "relevanceScore": 25,
+      "matchedQueries": [
+        "youtube.com/watch?v=7sHSBgU5p4Y Figure 03 White House speech timestamp 61 seconds"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First lady Melania Trump entered the East Room of the White House ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.tiktok.com/@cspanofficial/video/7621228475147357454",
+      "channelOrContributor": null,
+      "relevanceScore": 25,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL REMARKS: First Lady Melania Trump Speaks At White ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=wvzSEfDh_FE",
+      "channelOrContributor": null,
+      "relevanceScore": 25,
+      "matchedQueries": [
+        "Melania Trump describing \"Plato\" humanoid educator personalized learning speech clip"
+      ],
+      "matchedSections": [
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "FULL SUMMIT: Melania Trump Hosts First Spouses & ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=IqXmZ7FdGAU",
+      "channelOrContributor": null,
+      "relevanceScore": 25,
+      "matchedQueries": [
+        "Melania Trump describing \"Plato\" humanoid educator personalized learning speech clip"
+      ],
+      "matchedSections": [
+        "The Turn: Inevitability Is the Product"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Melania Trump launches nationwide presidential AI challenge",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=cvbxcwzKWc0",
+      "channelOrContributor": null,
+      "relevanceScore": 23,
+      "matchedQueries": [
+        "Melania Trump first American-made humanoid guest exact quote clip"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump Speaks At White House AI ... - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=wvzSEfDh_FE",
+      "channelOrContributor": null,
+      "relevanceScore": 23,
+      "matchedQueries": [
+        "Melania Trump first American-made humanoid guest exact quote clip",
+        "Melania Trump \"first American-made humanoid guest\" exact quote clip C-SPAN"
+      ],
+      "matchedSections": [
+        "The Wrong Robot"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Full Remarks: Melania Trump on Artificial Intelligence & ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=dH2vwe0OweE",
+      "channelOrContributor": null,
+      "relevanceScore": 23,
+      "matchedQueries": [
+        "Reuters robot joins Melania Trump White House AI teachers video"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "What Is an AI Anyway? | Mustafa Suleyman | TED",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=KKNCiRWd_j0",
+      "channelOrContributor": "TED",
+      "relevanceScore": 23,
+      "matchedQueries": [
+        "humanoid robotics hype vs reality expert interview MIT Stanford"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "Demis Hassabis On The Future of Work in the Age of AI",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=CRraHg4Ks_g",
+      "channelOrContributor": "WIRED",
+      "relevanceScore": 23,
+      "matchedQueries": [
+        "humanoid robotics hype vs reality expert interview MIT Stanford"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "C-SPAN - YouTube",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/user/CSPAN",
+      "channelOrContributor": null,
+      "relevanceScore": 20,
+      "matchedQueries": [
+        "Trump AI policy council announcement press briefing March 25 2026 C-SPAN clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "First Lady Melania Trump hosts the White House Task ...",
+      "provider": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=O0Ooq9g9vkU",
+      "channelOrContributor": null,
+      "relevanceScore": 18,
+      "matchedQueries": [
+        "CNN Melania Trump very robotic White House guest segment"
+      ],
+      "matchedSections": [],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    },
+    {
+      "title": "MAKING WORLD HISTORY Presiding over the U.N. Security ...",
+      "provider": "internal",
+      "sourceUrl": "https://www.facebook.com/MelaniaTrump/posts/making-world-history-presiding-over-the-un-security-council-as-our-nation-assume/1504913527657876/",
+      "channelOrContributor": null,
+      "relevanceScore": 15,
+      "matchedQueries": [
+        "Melania Trump \"enterprise delivers innovation government creates scale\" quote clip"
+      ],
+      "matchedSections": [
+        "The American-Made Frame"
+      ],
+      "transcriptRecovered": false,
+      "transcriptSegments": 0,
+      "fromPacket": false,
+      "fromSectionPacket": false,
+      "fromQuerySearch": true
+    }
+  ]
+}

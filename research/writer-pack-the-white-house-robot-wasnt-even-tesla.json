@@ -1,0 +1,1661 @@
+{
+  "version": "1",
+  "meta": {
+    "slug": "the-white-house-robot-wasnt-even-tesla",
+    "title": "The White House Robot Wasn't Even Tesla",
+    "generatedAt": "2026-03-26T14:07:22.080Z"
+  },
+  "summary": {
+    "totalSections": 6,
+    "clipsWithTranscript": 54,
+    "clipsWithTalkingPoints": 44,
+    "totalTalkingPoints": 416,
+    "missingTranscriptCount": 8,
+    "unsupportedSourceCount": 33
+  },
+  "pipeline": {
+    "packetPath": "/opt/apps/moon-news/research/research-packet-the-white-house-robot-wasnt-even-tesla.json",
+    "missionScanPath": "/opt/apps/moon-news/research/media-mission-scan-the-white-house-robot-wasnt-even-tesla.json"
+  },
+  "queues": {
+    "missingTranscriptQueue": [
+      {
+        "title": "Introducing Figure 03 - YouTube",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=Eu5mYMavctM",
+        "channelOrContributor": null,
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "Kung Fu Robots Deliver 'Knockout' Performance at Spring Festival Gala",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=NVX6vq0RSnY",
+        "channelOrContributor": "CCTV Video News Agency",
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "WATCH LIVE: First lady Melania Trump speaks at Fostering ...",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=O4vngtPlT4M",
+        "channelOrContributor": null,
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "Figure 02 had an 11-month deployment at BMW Group's ... - YouTube",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=-ggg4VQJxXc",
+        "channelOrContributor": null,
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "China's humanoid robots dance, fight in Lunar New Year ...",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=W7kqiLFIgzU",
+        "channelOrContributor": null,
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "Humanoid Robots Steal the Show During China's 2026 Spring ...",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=iUQghacHB4I",
+        "channelOrContributor": null,
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "Full HD: Martial arts robots dazzle at 2026 Spring Festival Gala #coolchina  #springfestival2026",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=Sl6YUJKssG8",
+        "channelOrContributor": "CGTN and 4 more",
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      },
+      {
+        "title": "The AI chatbot coming for your job, 'Swifties' take on Ticketmaster & Apple sued for AirTag stalking",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=ragfKMWfS_8",
+        "channelOrContributor": "CNN",
+        "reason": "Valid YouTube video, but transcript recovery did not succeed yet."
+      }
+    ],
+    "unsupportedSourceQueue": [
+      {
+        "title": "\"I'm Figure 03, a humanoid built in the United States of ...",
+        "provider": "parallel",
+        "sourceUrl": "https://www.facebook.com/ABC7NY/posts/im-figure-03-a-humanoid-built-in-the-united-states-of-america-the-robot-said-nex/1581813926644394/",
+        "channelOrContributor": "facebook",
+        "reason": "Discovered via Parallel/inventory source with no transcript adapter in this pass."
+      },
+      {
+        "title": "Trump's AI framework is a joke and it's clearly written by his Big Tech ...",
+        "provider": "parallel",
+        "sourceUrl": "https://www.facebook.com/RepSaraJacobs/posts/trumps-ai-framework-is-a-joke-and-its-clearly-written-by-his-big-tech-donors-we-/1421876946618461/",
+        "channelOrContributor": "facebook",
+        "reason": "Discovered via Parallel/inventory source with no transcript adapter in this pass."
+      },
+      {
+        "title": "Will humanoid robots take human jobs? As fears grow that AI ...",
+        "provider": "parallel",
+        "sourceUrl": "https://www.facebook.com/60minutes/videos/will-humanoid-robots-take-human-jobsas-fears-grow-that-ai-will-displace-workers-/2713309945689759/",
+        "channelOrContributor": "facebook",
+        "reason": "Discovered via Parallel/inventory source with no transcript adapter in this pass."
+      },
+      {
+        "title": "Seth takes a closer look at President Trump reposting a far-right conspiracy theory that former President Biden was executed five years ago and is a robotically engineered clone, The New York Times reporting that Elon Musk was engaged in increasingly intense drug use during the Trump campaign and more. | Late Night with Seth Meyers | Facebook",
+        "provider": "parallel",
+        "sourceUrl": "https://www.facebook.com/LateNightSeth/videos/musk-backs-away-from-trump-after-doge-failure-trump-shares-insane-biden-clone-th/1264689508406421/",
+        "channelOrContributor": "facebook",
+        "reason": "Discovered via Parallel/inventory source with no transcript adapter in this pass."
+      },
+      {
+        "title": "powered robot capable of walking, speaking, and thinking ...",
+        "provider": "parallel",
+        "sourceUrl": "https://www.facebook.com/joshrinconofficial/posts/surreal-and-unprecedented-moment-just-happened-at-the-white-house-melania-trump-/903201092478283/",
+        "channelOrContributor": "facebook",
+        "reason": "Discovered via Parallel/inventory source with no transcript adapter in this pass."
+      },
+      {
+        "title": "User Clip: Trump on AI use | Video | C-SPAN.org",
+        "provider": "parallel",
+        "sourceUrl": "https://www.c-span.org/clip/white-house-event/user-clip-trump-on-ai-use/5196624",
+        "channelOrContributor": "c-span",
+        "reason": "Discovered via Parallel/inventory source with no transcript adapter in this pass."
+      },
+      {
+        "title": "WATCH LIVE: First lady Melania Trump speaks at ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/newshour/videos/watch-live-first-lady-melania-trump-speaks-at-fostering-the-future-together-summ/3379227082234230/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Will humanoid robots take human jobs?\n\nAs fears grow that AI will displace workers, Robert Playter, CEO of Boston Dynamics, says robots will change the kind of work people do.\n\nâThe really repetitive, really back-breaking labor is really, is going to end up being done by robots. But these robots are not so autonomous that they donât need to be managed. They need to be built. They need to be trained. They need to be serviced,â he says. | 60 Minutes | Facebook",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/60minutes/posts/will-humanoid-robots-take-human-jobsas-fears-grow-that-ai-will-displace-workers-/1233203245341723/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "U.S. first lady Melania Trump walks next to a humanoid ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/reuterspictures/posts/us-first-lady-melania-trump-walks-next-to-a-humanoid-robot-as-she-hosts-a-roundt/1298976198760249/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Rethinking The Hype Cycle Podcast",
+        "provider": "internal",
+        "sourceUrl": "https://open.spotify.com/show/5ltu9Oei08OKhg2ooCc6Fx",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "First lady Melania Trump walks with robot at White House event",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/ABCNews/videos/first-lady-melania-trump-walks-with-robot-at-white-house-event/1504356031212413/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "The 1-year robotic evolution:\n2025: Basic rhythm and waving.\n2026: Full-speed Kung Fu, including insane aerial backflips.\nNo surprise the world is stunned. | China Xinhua News | Facebook",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/XinhuaNewsAgency/videos/chinas-kung-fu-humanoids-dazzle-global-audience/4126726614211300/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "The 1-year robotic evolution: 2025: Basic rhythm and waving. 2026 ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/XinhuaSciTech/videos/chinas-kung-fu-humanoids-dazzle-global-audience/1422609966073491/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "A sleek black-and-white humanoid robot appeared ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/Reuters/posts/a-sleek-black-and-white-humanoid-robot-appeared-alongside-us-first-lady-melania-/1502339575090103/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Speaking at the Artificial Intelligence ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/UNIGlobalUnion/posts/speaking-at-the-artificial-intelligence-action-summit-today-uni-global-union-gen/1032584562238710/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "A walking, talking humanoid robot strolled side-by - Facebook",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/ABCNewsPolitics/videos/a-walking-talking-humanoid-robot-strolled-side-by-side-first-lady-melania-trump-/4262715980648609/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "China’s humanoid robots took center stage at the annual ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/MoshehNews/videos/chinas-humanoid-robots-took-center-stage-at-the-annual-cctv-spring-festival-gala/4392196271014497/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Chinese humanoid robots perform in Lunar New Year show",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/CBSEveningNews/videos/chinese-humanoid-robots-perform-in-lunar-new-year-show/1270566704950877/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Robert Playter, CEO of Boston Dynamics, says the company is ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/60minutes/videos/robert-playter-ceo-of-boston-dynamics-says-the-company-is-building-robots-capabl/1529348408177484/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Sam #Altman says the world isn't ready ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/marcocamisanicalzolari/posts/sam-altman-says-the-world-isnt-ready-for-humanoidrobots-not-because-they-wont-be/1245866503574392/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Mastering the Hype Cycle: How Cybersecurity Leaders Win ...",
+        "provider": "internal",
+        "sourceUrl": "https://podcasts.apple.com/de/podcast/mastering-the-hype-cycle-how-cybersecurity-leaders/id1144653856?i=1000752840358",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "First lady Melania Trump entered the East Room of the White House ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/CSPAN/videos/first-lady-melania-trump-entered-the-east-room-of-the-white-house-on-wednesday-a/1600746220980541/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Humanoid robotics: A deep dive…–Making Sense – Apple Podcasts",
+        "provider": "internal",
+        "sourceUrl": "https://podcasts.apple.com/ba/podcast/humanoid-robotics-a-deep-dive-into-automations-next/id1456184829?i=1000708687283",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "My interview just got to 9 Million... - Roman V. Yampolskiy | Facebook",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/roman.yampolskiy/posts/my-interview-just-got-to-9-million-views-the-only-one-to-do-better-in-the-last-1/10236571518000236/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Figure AI unveils humanoid robot for home chores - LinkedIn",
+        "provider": "internal",
+        "sourceUrl": "https://www.linkedin.com/posts/evolving-ai_wow-figure-ai-just-revealed-figure-03-activity-7382055444820676608-LacA",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Humanoid Robot Fails in Real-World Test, Raises ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.linkedin.com/posts/jeremyprasetyo_break-the-robot-reveal-the-truth-about-ai-activity-7438197517629968384-Fd1R",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "Chinese humanoid robots are having a moment ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/cnbcinternational/videos/chinese-humanoid-robots-are-having-a-moment-in-the-spotlight-after-a-standout-pe/1272128091499101/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "(CNN) — The White House on Friday released its long",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/ActionNewsNow/posts/cnn-the-white-house-on-friday-released-its-long-awaited-national-artificial-inte/1351524737006156/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "First Lady Melania Trump - Facebook",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/flotus/posts/america-tonight-lets-make-a-personal-pledge-to-celebrate-ambition-and-scale-imag/122159205374729065/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "The White House",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/whitehouse",
+        "channelOrContributor": null,
+        "reason": "Not a direct YouTube video URL."
+      },
+      {
+        "title": "First lady Melania Trump entered the East Room of the White House ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.tiktok.com/@cspanofficial/video/7621228475147357454",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      },
+      {
+        "title": "C-SPAN - YouTube",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/user/CSPAN",
+        "channelOrContributor": null,
+        "reason": "Not a direct YouTube video URL."
+      },
+      {
+        "title": "MAKING WORLD HISTORY Presiding over the U.N. Security ...",
+        "provider": "internal",
+        "sourceUrl": "https://www.facebook.com/MelaniaTrump/posts/making-world-history-presiding-over-the-un-security-council-as-our-nation-assume/1504913527657876/",
+        "channelOrContributor": null,
+        "reason": "Included in inventory, but not transcript-scanned in this pass."
+      }
+    ],
+    "transcriptedNoTalkingPoints": [
+      {
+        "title": "Optimus - Gen 2 | Tesla",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=cpraXaw7dyc",
+        "channelOrContributor": "Tesla"
+      },
+      {
+        "title": "A 7-hour marathon interview with Saining Xie: World Models, AMI Labs, Yann LeCun, Fei-Fei Li, and 42",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=rIwgZWzUKm8",
+        "channelOrContributor": "Zhang Xiaojun Podcast"
+      },
+      {
+        "title": "Morning News NOW Full Episode – March 25",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=hXdSvWroD6o",
+        "channelOrContributor": "NBC News"
+      },
+      {
+        "title": "LIVE Melania Trump hosts meeting on Artificial Intelligence education",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=EIgGYmACLN4",
+        "channelOrContributor": null
+      },
+      {
+        "title": "Senate hosts Elon Musk and other tech leaders for AI regulation talks",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=oeJZ1U1atIU",
+        "channelOrContributor": "CBS News"
+      },
+      {
+        "title": "ABC World News Tonight with David Muir Full Broadcast - Jan. 14, 2026",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=LwD0WOrgepo",
+        "channelOrContributor": "ABC News"
+      },
+      {
+        "title": "FULL SPEECH: Melania Trump Addresses Guests at Premiere of ...",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=RIlnClB82xQ",
+        "channelOrContributor": null
+      },
+      {
+        "title": "Morning News NOW Full Episode – March 20",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=ENs0ap9U5rg",
+        "channelOrContributor": "NBC News"
+      },
+      {
+        "title": "First lady Melania Trump meets with White House AI task force",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=8O59bEPFNnc",
+        "channelOrContributor": null
+      },
+      {
+        "title": "First Lady Melania Trump Speaks At White House AI ... - YouTube",
+        "provider": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=wvzSEfDh_FE",
+        "channelOrContributor": null
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "order": 1,
+      "heading": "The Wrong Robot",
+      "purpose": "Anomaly beat. Open on the destabilizing contradiction without setup: a humanoid robot walked into the White House on March 25, 2026, and most of the internet immediately assumed it was Tesla's Optimus. It wasn't. Establish the event in precise factual terms first — the date, the East Room, the robot's exact words, Melania Trump's exact framing — then land the contradiction hard. The public's default mental model of humanoid robotics is so thoroughly Musk-shaped that a different company's machine walked into the most symbolically loaded building in America and a significant portion of the audience didn't register the difference.",
+      "beatGoal": "Viewer is immediately disoriented by the gap between what they assumed and what actually happened. They want to know who built this thing, why it was there, and why they didn't know the difference.",
+      "whyItMattersNow": "Viewer is immediately disoriented by the gap between what they assumed and what actually happened. They want to know who built this thing, why it was there, and why they didn't know the difference.",
+      "openingMove": "Open mid-scene, no setup. March 25, 2026. A humanoid robot walks down the Cross Hall of the White House alongside the First Lady of the United States. The internet immediately starts asking: is that Elon's robot? It is not. Name the company — Figure AI — and the model — Figure 03 — in the first breath. Then drop the robot's exact words on camera as the first hard receipt. The contradiction is already live: the most-watched humanoid robot moment in American political history, and most people got the basic fact wrong.",
+      "closingMove": "Close by sharpening the confusion into a question that forces the next section: if the public doesn't know who built this machine, who invited it, or why it was there — what exactly did they just watch? Hand off to the factual reconstruction of the event.",
+      "evidenceSlots": [
+        {
+          "label": "Figure 03 robot speech transcript — exact words on camera: 'Thank you, First Lady Melania Trump, for inviting me to the White House. It is an honor to be at Fostering the Future Together's Global Coalition inaugural meeting. I'm Figure 3, a humanoid built in the United States of America. I am grateful to be part of this historic movement to empower children with technology and education.' [youtube.com/watch?v=7sHSBgU5p4Y, t=61 — primary clip target, highest-value visual anchor]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "First Lady Melania Trump walks with robot to White House ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=7sHSBgU5p4Y&t=61",
+          "note": "Matched to transcript passage"
+        },
+        {
+          "label": "Melania Trump exact quote: 'Figure 3, it's fair to state: you are my first American-made humanoid guest in the White House.' [Reuters, 2026-03-25 — use as the first hard receipt after the robot's speech]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump pitches robots as potential educators for ...",
+          "sourceUrl": "https://www.cbsnews.com/amp/news/melania-trump-robots-educators-kids-humanoid-systems/",
+          "note": "Matched to article source"
+        },
+        {
+          "label": "Social media confusion receipt: X post from @CyberRobooo, March 2026 — 'Figure 03 first caught Elon's attention. Besides China's humanoid robots, Figure may have been added to Tesla's list of competitors.' [x.com/CyberRobooo/status/2031201736376176905] — use to illustrate how even robot-adjacent accounts framed Figure 03 through the Tesla/Elon lens",
+          "sourceType": "social",
+          "sourceTitle": "Figure 03 first caught Elon's attention. Besides China's humanoid ...",
+          "sourceUrl": "https://x.com/CyberRobooo/status/2031201736376176905",
+          "note": "Matched to social source"
+        },
+        {
+          "label": "Tesla Optimus X account framing for contrast: 'Optimus will be the biggest product ever made. A general-purpose humanoid robot that can do useful work at scale will change the economics of labor.' [x.com/Tesla_Optimus] — use as the cultural default the public was operating from",
+          "sourceType": "social",
+          "sourceTitle": "Tesla Optimus (@Tesla_Optimus) / Posts / X",
+          "sourceUrl": "https://x.com/Tesla_Optimus",
+          "note": "Matched to social source"
+        }
+      ],
+      "bestQuotes": [
+        {
+          "provenance": "packet_transcript",
+          "sourceTitle": "First Lady Melania Trump walks with robot to White House ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=7sHSBgU5p4Y&t=61",
+          "speaker": null,
+          "quoteText": "Thank you, First Lady Melania Trump, for inviting me to the White House. It is an honor to be at Fostering the Future Together's Global Coalition inaugural meeting. I'm Figure 3, a humanoid built in the United States of America. I am grateful to be part of this historic movement to empower children with technology and education.",
+          "context": "Long transcript window anchored to research phrase: white house",
+          "relevanceScore": 100,
+          "startMs": 61800,
+          "endMs": 81120
+        }
+      ],
+      "bestClips": [
+        {
+          "title": "Elon Musk REVEALS Tesla Bot (full presentation) - YouTube",
+          "sourceUrl": "https://www.youtube.com/watch?v=HUP6Z5voiS8&t=8",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump unveils a talking robot at a children's ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w&t=10",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Humanoid Robot Walks With Melania Trump at White ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=upQCCdIt0QQ&t=3",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "AI robot steals spotlight at White House",
+          "sourceUrl": "https://www.youtube.com/watch?v=Ke2nrNLTTC0&t=2",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "FULL: Melania Trump showcases humanoid robot guest at ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=sJRjwzPK_y8&t=1",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "sourceUrl": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "provider": "parallel",
+          "channelOrContributor": "cnn",
+          "transcriptStatus": "unknown",
+          "talkingPointCount": 0,
+          "relevanceScore": 100
+        },
+        {
+          "title": "\"I'm Figure 03, a humanoid built in the United States of ...",
+          "sourceUrl": "https://www.facebook.com/ABC7NY/posts/im-figure-03-a-humanoid-built-in-the-united-states-of-america-the-robot-said-nex/1581813926644394/",
+          "provider": "parallel",
+          "channelOrContributor": "facebook",
+          "transcriptStatus": "skipped",
+          "talkingPointCount": 0,
+          "relevanceScore": 93
+        },
+        {
+          "title": "powered robot capable of walking, speaking, and thinking ...",
+          "sourceUrl": "https://www.facebook.com/joshrinconofficial/posts/surreal-and-unprecedented-moment-just-happened-at-the-white-house-melania-trump-/903201092478283/",
+          "provider": "parallel",
+          "channelOrContributor": "facebook",
+          "transcriptStatus": "skipped",
+          "talkingPointCount": 0,
+          "relevanceScore": 86
+        }
+      ],
+      "articles": [
+        {
+          "title": "Introducing Figure 03",
+          "url": "https://www.figure.ai/news/introducing-figure-03",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Figure 03 is Figure's 3rd generation humanoid robot designed to operate at home and at scale.",
+          "publishedAt": null,
+          "keyPoints": [
+            "Figure 03 is Figure's 3rd generation humanoid robot designed to operate at home and at scale.",
+            "It features a redesigned sensory suite and hand system built specifically to enable Helix, Figure's proprietary vision-language-action AI.",
+            "The new vision system doubles frame rate, reduces latency to one-quarter, and widens field of view by 60% per camera, enhancing navigation and manipulation in complex spaces.",
+            "Embedded palm cameras on each hand provide close-range visual feedback even when main cameras are occluded.",
+            "The robot hands feature a first-generation tactile sensor developed in-house, detecting forces as small as three grams for precise grip control."
+          ]
+        },
+        {
+          "title": "Figure 03 | Figure",
+          "url": "https://www.figure.ai/figure",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Figure is a household robot that autonomously handles tasks like laundry, cleaning, and doing dishes.",
+          "publishedAt": null,
+          "keyPoints": [
+            "Figure is a household robot that autonomously handles tasks like laundry, cleaning, and doing dishes.",
+            "Figure can be interacted with like a human; it understands speech and takes action accordingly.",
+            "Figure is powered by an AI named Helix which enables it to learn and adapt to the complexities of everyday home life.",
+            "Figure is engineered to navigate real home environments including stairs, tight corners, and shifting layouts.",
+            "The robotics team behind Figure has over 100 years of combined AI and humanoid robotics experience."
+          ]
+        },
+        {
+          "title": "Figure",
+          "url": "https://www.figure.ai/",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Figure 03 is a general purpose humanoid robot designed for everyday home help.",
+          "publishedAt": null,
+          "keyPoints": [
+            "Figure 03 is a general purpose humanoid robot designed for everyday home help.",
+            "Figure uses Helix, an AI system that enables it to navigate unpredictable and ever-changing home environments.",
+            "Figure 03 is human-shaped and AI-powered to handle household tasks the way a person would.",
+            "The company employs a leading robotics team with over 100 years of combined AI and humanoid robotics experience.",
+            "Figure 03 robot operates in home environments with adaptability thanks to Helix AI."
+          ]
+        },
+        {
+          "title": "Melania Trump pitches robots as potential educators for ...",
+          "url": "https://www.cbsnews.com/amp/news/melania-trump-robots-educators-kids-humanoid-systems/",
+          "source": "perplexity",
+          "role": "background",
+          "snippet": "First lady Melania Trump argued that humanoids can help children develop critical thinking skills — and robots never get impatient.",
+          "publishedAt": null,
+          "keyPoints": [
+            "For the first time, a robot escorted First Lady Melania Trump at the White House.",
+            "Melania Trump promoted AI robots as personalized educators for children during the 'Fostering the Future Together Global Coalition Summit'.",
+            "She emphasized AI's ability to help children develop critical thinking, independent reasoning, and a well-rounded lifestyle.",
+            "The AI-powered robot named 'Plato' was described as a humanoid educator providing personalized education in classical studies and adapting to each student’s needs."
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "title": "Tesla Optimus (@Tesla_Optimus) / Posts / X",
+          "url": "https://x.com/Tesla_Optimus",
+          "snippet": "Optimus will be the biggest product ever made. A general-purpose humanoid robot that can do useful work at scale will change the economics of labor",
+          "publishedAt": null,
+          "relevanceScore": 65
+        },
+        {
+          "title": "Figure 03 first caught Elon's attention. Besides China's humanoid ...",
+          "url": "https://x.com/CyberRobooo/status/2031201736376176905",
+          "snippet": "Mar 9, 2026 · Figure 03 first caught Elon's attention. Besides China's humanoid robots, Figure may have been added to Tesla's list of competitors.",
+          "publishedAt": null,
+          "relevanceScore": 93
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "order": 2,
+      "heading": "What Actually Happened in That Room",
+      "purpose": "Mechanism beat. Reconstruct the event with precision: the Fostering the Future Together Global Coalition Summit, 45 nations, first spouses including Brigitte Macron, Sara Netanyahu, and Olena Zelenska, the Cross Hall walk, the East Room address, the 11-language greeting, the scripted speech. Establish Figure AI as the builder — not Tesla, not Boston Dynamics, not a government lab. Then establish what Figure AI actually is: a well-funded American startup valued at $39 billion after a September 2025 Series C, not a household name. The robot's movements were described by CNN as stiff and tentative. The speech was pre-scripted. The 11-language demo was a controlled capability showcase. None of that context was disclosed in the room. The setting did the interpretive work the technology could not do on its own.",
+      "beatGoal": "Viewer has the factual record straight. They understand the gap between the polished spectacle and the actual state of the technology. The elite setting is carrying meaning the robot cannot generate independently.",
+      "whyItMattersNow": "Viewer has the factual record straight. They understand the gap between the polished spectacle and the actual state of the technology. The elite setting is carrying meaning the robot cannot generate independently.",
+      "openingMove": "Open by zooming in on the room itself — the East Room, the Cross Hall, the red carpet, the audience of international first spouses. Make the setting concrete before expanding outward. Then introduce Figure AI as a company most of the people in that room, and most people watching at home, had never heard of — and establish its valuation and investor list to show this is not a garage project. The robot's speech is the first hard receipt; drop it here so the viewer hears the 'humanoid built in the United States of America' line in context.",
+      "closingMove": "Close on the Russian stumble contrast — the implicit reminder that one bad step would have shattered the entire frame. That fragility is real. But the White House setting made fragility invisible. Hand off to the section that explains why the 'American-made' framing was not accidental.",
+      "evidenceSlots": [
+        {
+          "label": "CNN characterization: robot moved 'tentatively on two feet,' remarks 'clearly pre-scripted' [cnn.com/2026/03/25/politics/melania-trump-ai-robot — use as the grounding corrective to the White House framing; attribute to CNN explicitly]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "LIVE Melania Trump hosts meeting on Artificial Intelligence ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=EIgGYmACLN4&t=40",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "Reuters event scope: summit gathered first spouses from 45 nations and representatives from 28 technology organizations including Microsoft, Google, and OpenAI [reuters.com/world/us/robot-joins-melania-trump-white-house-event-tout-ai-teachers-2026-03-25/ and foxbaltimore.com Fostering the Future summit piece]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump hosts 45 nations in historic 'Fostering the Future' summit",
+          "sourceUrl": "https://foxbaltimore.com/news/nation-world/first-lady-melania-trump-hosts-45-nations-in-historic-fostering-the-future-summit-state-department-white-house-empower-children-education-technology-foster-care-system-be-best-initiative",
+          "note": "Matched to article source"
+        },
+        {
+          "label": "Figure AI Series C receipt: raised over $1 billion at a $39 billion post-money valuation, led by Parkway Venture Capital, with Nvidia, Intel Capital, LG Technology Ventures, Salesforce, Qualcomm Ventures among investors — up from a $2.6 billion valuation the prior year [reuters.com/business/robotics-startup-figure-valued-39-billion-latest-funding-round-2025-09-16/]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "sourceUrl": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "note": "Matched to article source"
+        },
+        {
+          "label": "CNN contrast: 'recent disaster at a Moscow tech summit, where a Russian-made humanoid robot unceremoniously stumbled and fell before a crowd' [cnn.com/2026/03/25/politics/melania-trump-ai-robot — use as the implicit stakes of the White House demo: one stumble and the entire narrative collapses]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "sourceUrl": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "note": "Matched to article source"
+        }
+      ],
+      "bestQuotes": [
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "LIVE Melania Trump hosts meeting on Artificial Intelligence ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=EIgGYmACLN4&t=419",
+          "speaker": null,
+          "quoteText": "future in the most real sense imaginable. How America's children can be prepared to build our country tomorrow with the cutting edge tools of today. We are proud and grateful to announce new steps in fulfilling the mission of this task force and the president's vision for this AI challenge",
+          "context": "The transcript provides a highly polished and optimistic framing of the AI event hosted by Melania Trump, emphasizing AI's transformative potential on education and the economy. Key direct quotes highlight the elite gathering, with first spouses from 45 nations and top private sector leaders like Mr. Pichai (Google), and reference the \"robots are here\" motif. However, the transcript does not show any direct mention of the tangible limitations or the tentative behavior of the robot, nor does it provide any statements reflecting the gap between the polished spectacle and the actual technology state. CNN's characterization that the robot moved 'tentatively on two feet' and had 'clearly pre-scripted' remarks is not echoed here but serves as external grounding to understand the setting's performative nature. Reuters' note about the summit gathering leading tech reps and the involvement of Figure AI—with its recent $1 billion Series C at a $39 billion valuation backed by top venture capitals—is supported indirectly by the presence of industry leaders mentioned. Hence, the most relevant direct moments focus on the elite participants and the framing of AI's importance, but the transcript itself does not disclose the robot's actual technical limitations or explicitly distinguish spectacle from reality.",
+          "relevanceScore": 85,
+          "startMs": 419440,
+          "endMs": 440880
+        }
+      ],
+      "bestClips": [
+        {
+          "title": "Russia's first AI humanoid robot falls on stage",
+          "sourceUrl": "https://www.youtube.com/watch?v=s8hABHmA_NE&t=0",
+          "provider": "youtube",
+          "channelOrContributor": "NBC News",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump addresses global leaders on 'Fostering the Future Together'",
+          "sourceUrl": "https://www.youtube.com/watch?v=47HST6lrPeQ&t=330",
+          "provider": "youtube",
+          "channelOrContributor": "Fox News",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "First lady Melania Trump walks with robot during White ...",
+          "sourceUrl": "https://www.youtube.com/shorts/SbPi9mVFZzs?t=35",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump unveils a talking robot at a children's ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w&t=10",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Is the Figure 03 Robot Ready to Clean Your House?",
+          "sourceUrl": "https://www.youtube.com/watch?v=4ZP943-gARQ&t=7",
+          "provider": "youtube",
+          "channelOrContributor": "TIME",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Remarks: Melania Trump Addresses the Fostering the Future ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=XF6-_1e7NrA&t=49",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "FULL: Melania Trump showcases humanoid robot guest at ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=sJRjwzPK_y8&t=1",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "LIVE Melania Trump hosts meeting on Artificial Intelligence ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=EIgGYmACLN4&t=40",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        }
+      ],
+      "articles": [
+        {
+          "title": "Melania Trump hosts 45 nations in historic 'Fostering the Future' summit",
+          "url": "https://foxbaltimore.com/news/nation-world/first-lady-melania-trump-hosts-45-nations-in-historic-fostering-the-future-summit-state-department-white-house-empower-children-education-technology-foster-care-system-be-best-initiative",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "First Lady Melania Trump hosted the 'Fostering the Future Together Global Coalition Summit' at the State Department on March 24, 2026.",
+          "publishedAt": null,
+          "keyPoints": [
+            "First Lady Melania Trump hosted the 'Fostering the Future Together Global Coalition Summit' at the State Department on March 24, 2026.",
+            "The summit gathered representatives from 45 nations and 28 major tech companies including Microsoft, Google, and OpenAI.",
+            "It marked the first time a U.S. First Lady hosted representatives from 45 nations at the White House in a single day.",
+            "The initiative is described as a global coalition aligned to empower children through education and technology.",
+            "Melania Trump's 'Fostering the Future' initiative focuses on well-being, online safety, and opioid abuse prevention and is part of her 'Be Best' campaign launched in May 2018."
+          ]
+        },
+        {
+          "title": "First Lady Melania Trump’s Fostering the Future Together Assembles Leaders from 45 Nations and 28 Tech Entities – The White House",
+          "url": "https://www.whitehouse.gov/briefings-statements/2026/03/first-lady-melania-trumps-fostering-the-future-together-assembles-leaders-from-45-nations-and-28-tech-entities/",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Fostering the Future Together is a global coalition aligned to empower children through education and technology.",
+          "publishedAt": "2026-03-20",
+          "keyPoints": [
+            "Fostering the Future Together is a global coalition aligned to empower children through education and technology.",
+            "The coalition includes leaders from 45 nations and 28 tech companies.",
+            "This is the first time a U.S. First Lady hosts representatives from 45 nations at the White House in a single day.",
+            "The inaugural meeting is a two-day event starting March 24, 2026 at the U.S. Department of State and ending on March 25, 2026 at the White House.",
+            "Member nations include the United States, France, Poland, Panama, Ukraine, United Arab Emirates, Lithuania, Nigeria, Paraguay, Saudi Arabia, Aruba, Morocco, Kenya, and Israel."
+          ]
+        },
+        {
+          "title": "Global Coalition Summit” began on Tuesday, with first ...",
+          "url": "https://www.facebook.com/DailyStarNews/posts/the-two-day-fostering-the-future-together-global-coalition-summit-began-on-tuesd/1283591370588806/",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "She will attend the Fostering the Future Together Coalition Summit on March 24–25, 2026.",
+          "publishedAt": null,
+          "keyPoints": [
+            "She will attend the Fostering the Future Together Coalition Summit on March 24–25, 2026.",
+            "Dr Fatima Maada Bio is scheduled to speak at the"
+          ]
+        },
+        {
+          "title": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "url": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Ad Feedback\n\n### CNN values your feedback\n\n1\\. How relevant is this ad to you?\n\n2\\. Did you encounter any technical issues?\n\nVideo player was slow to load content Video content never loaded Ad froze or did not finish loading Video content did not start after ad Audio on ad was too loud Other issues\n\nAd never loaded Ad prevented/slowed the page from loading Content moved around while ad loaded Ad was repetitive to ads I've seen previously Other issues\n\nCancel Submit\n\nThank You!\n\nYour effort and contribution in providing this feedback is much\nappreciated.\n\nClose\n\n[](https://www.cnn.com \"CNN logo\") [Politics](https://www.cnn.com/politics)\n\n[Trump](https://www.cnn.com/politics/president-donald-trump-47)\n\n[Facts First](https://www.cnn.com/politics/fact-check)\n\n[CNN Polls](https://www.cnn.com/polling)\n\n[2026 Elections](https://www.cnn.com/election/2026)\n\n[Redistricting Tracker](https://www.cnn",
+          "publishedAt": "2026-03-25",
+          "keyPoints": [
+            "An American-made humanoid robot named 'Figure 3' spoke at the White House during first lady Melania Trump's AI education and safety summit for children.",
+            "The robot delivered a speech introducing itself and gave welcomes in 11 different languages with perfect pronunciation.",
+            "The robot moved tentatively on two feet, marking a success contrasting a recent Russian humanoid robot that stumbled at a Moscow tech summit.",
+            "Melania Trump described 'Figure 3' as her first American-made humanoid guest in the White House and sees humanoid AI as a future classroom fixture."
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "title": "it's like someone at the White House has a button that just ...",
+          "url": "https://x.com/kevsaucebro/status/2036153476577677385",
+          "snippet": "Every Deportation is a Policy Failure (@kevsaucebro). 64 views. it's like someone at the White House has a button that just pops out bad ideas.",
+          "publishedAt": null,
+          "relevanceScore": 79
+        },
+        {
+          "title": "Figure's latest demo shows the Figure 03 tackling a living ...",
+          "url": "https://x.com/humanoidsdaily/status/2031147040827211864",
+          "snippet": "Figure's latest demo shows the Figure 03 tackling a living room, and the fluidity is undeniably impressive. From \"towel whips\" to pillow",
+          "publishedAt": null,
+          "relevanceScore": 58
+        },
+        {
+          "title": "Three-minute uncut video of the Figure 03 humanoid ...",
+          "url": "https://www.reddit.com/r/robotics/comments/1qedmih/threeminute_uncut_video_of_the_figure_03_humanoid/",
+          "snippet": "Skip to main content Open menu Open navigation  Go to Reddit Home\n\nr/robotics\n\nExpand user menu Open settings menu\n\nGo to robotics r/robotics\n\nr/robotics\n\n* * *\n\nWeekly visitors Weekly contributions •\n\nNunki08 Top 1% Poster\n\n# Three-minute uncut video of the Figure 03 humanoid running around the San Jose campus\n\nNews From Brett Adcock on 𝕏: [https://x.com/adcock\\_brett/status/2011880712220393592](https://x.com/adcock_brett/status/2011880712220393592) Share\n\n# Related Answers Section\n\nRelated Ans",
+          "publishedAt": null,
+          "relevanceScore": 86
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "order": 3,
+      "heading": "The American-Made Frame",
+      "purpose": "System beat, first layer. Unpack why 'first American-made humanoid guest' is not a throwaway compliment but a deliberate political frame. Connect it to the administration's simultaneous moves: the same day, Trump appointed Zuckerberg, Ellison, Jensen Huang, Sergey Brin, and Lisa Su to a new AI policy council co-chaired by AI czar David Sacks. Five days earlier, the White House released a national AI legislative framework explicitly aimed at preempting state regulations and framing AI as a strategic competition with China. The robot appearance was not a standalone event — it was one piece of a coordinated week of AI nationalism signaling. Melania's 'long-term economic superiority' line and her 'humanoid educator named Plato' vision were the soft-power complement to the hard policy moves happening in parallel. The robot was doing symbolic work the policy announcements alone could not do.",
+      "beatGoal": "Viewer understands this was not a novelty stunt. It was one node in a deliberate political infrastructure being assembled around AI and robotics. The ceremony and the policy were moving together.",
+      "whyItMattersNow": "Viewer understands this was not a novelty stunt. It was one node in a deliberate political infrastructure being assembled around AI and robotics. The ceremony and the policy were moving together.",
+      "openingMove": "Open by repeating the 'American-made' phrase and asking what it is actually doing in that sentence. It is not describing a product feature. It is attaching a commercial startup's hardware to national identity at the highest symbolic level available. Then widen immediately to the same-day policy moves — the PCAST appointments — to show this was not a standalone ceremony.",
+      "closingMove": "Close by noting that the robot appearance and the policy council appointments happened on the same day, and the AI legislative framework had dropped five days earlier. This was a coordinated week. The question is not whether the administration believes in humanoid robots — it is what they are using that belief to build. Hand off to the section that maps the commercial race the Musk-shaped narrative has been obscuring.",
+      "evidenceSlots": [
+        {
+          "label": "Melania Trump quote: 'Very soon artificial intelligence will move from our mobile phones to humanoids that deliver utility.' [Reuters, 2026-03-25]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "sourceUrl": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "note": "Matched to article source"
+        },
+        {
+          "label": "Melania Trump quote: 'We can accelerate civilization's march forward when enterprise delivers innovation, government creates scale and our capital markets finance the distribution of these emerging technologies.' [Reuters, 2026-03-25]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "FULL: Melania Trump showcases humanoid robot guest at ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=sJRjwzPK_y8&t=173",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "Melania Trump quote: embracing AI-directed learning will bolster U.S. 'long-term economic superiority.' [Reuters, 2026-03-25]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "sourceUrl": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "note": "Matched to article source"
+        },
+        {
+          "label": "Reuters: Trump appointed Zuckerberg, Ellison, Huang, Brin, and Su to PCAST on the same day as the robot appearance — council co-chaired by David Sacks and Michael Kratsios, expected to grow to 24 members [reuters.com/business/trump-name-zuckerberg-ellison-huang-tech-panel-wsj-reports-2026-03-25/]",
+          "sourceType": "article",
+          "sourceTitle": "\"I'm Figure 03, a humanoid built in the United States of ...",
+          "sourceUrl": "https://www.facebook.com/ABC7NY/posts/im-figure-03-a-humanoid-built-in-the-united-states-of-america-the-robot-said-nex/1581813926644394/",
+          "note": "Matched to article source"
+        }
+      ],
+      "bestQuotes": [
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "FULL: Melania Trump showcases humanoid robot guest at ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=sJRjwzPK_y8&t=173",
+          "speaker": null,
+          "quoteText": "leaders today. 45 of you have traveled from every corner of the planet to represent your nation as a part of this new coalition. also a first. I hope you found yesterday four-part working session at tech expo at the state department insightful.",
+          "context": "Several direct remarks from Melania Trump in the transcript explicitly connect the ceremony to a deliberate political infrastructure around AI and robotics, highlighting that this was not a novelty stunt but a coordinated movement involving policy and technology advancing together. She states, \"Very soon artificial intelligence will move from our mobile phones to humanoids that deliver utility\" at 4:32, showing the imminent integration of AI into daily life as humanoid robots. She also says, \"We can accelerate civilization's march forward when enterprise delivers innovation, government creates scale, and our capital markets finance the distribution of these emerging technologies\" at 7:16, directly linking private enterprise, government policy, and capital markets in fostering AI technologies. Lastly, Melania emphasizes embracing AI-directed learning to ensure long-term U.S. economic superiority at 8:50, saying the coalition's efforts will \"secure long-term and economic superiority.\" These quotes underscore that the event was part of a strategic political framework advancing AI and robotics policy in sync with ceremonies and initiatives.",
+          "relevanceScore": 85,
+          "startMs": 173760,
+          "endMs": 202080
+        }
+      ],
+      "bestClips": [
+        {
+          "title": "FULL SPEECH: Melania Trump Launches Global AI & ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=R-L-hXEc3Is&t=146",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "White House AI Summit LIVE: 'Robots Are Here'",
+          "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM&t=4",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump addresses global leaders on 'Fostering the Future Together'",
+          "sourceUrl": "https://www.youtube.com/watch?v=47HST6lrPeQ&t=447",
+          "provider": "youtube",
+          "channelOrContributor": "Fox News",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "WATCH: Melania Trump Delivers Opening Remarks at Fostering the Future Summit - 03/24/26",
+          "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA&t=54",
+          "provider": "youtube",
+          "channelOrContributor": "Right Side Broadcasting Network",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "FULL SPEECH: U.S. First Lady Melania Trump Hosts ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=3arIrgp1CSw&t=223",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Fostering the Future Together Global Coalition Summit: First ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SSrtDkVeTKI&t=0",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump on Children's Digital Future at Historic ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=d1ThhDWZOWA&t=164",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump unveils a talking robot at a children's ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w&t=10",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        }
+      ],
+      "articles": [
+        {
+          "title": "\"I'm Figure 03, a humanoid built in the United States of ...",
+          "url": "https://www.facebook.com/ABC7NY/posts/im-figure-03-a-humanoid-built-in-the-united-states-of-america-the-robot-said-nex/1581813926644394/",
+          "source": "parallel",
+          "role": "core_receipts",
+          "snippet": "\"I'm Figure 03, a humanoid built in the United States of America,\" the robot said next to Melania Trump.",
+          "publishedAt": null,
+          "keyPoints": [
+            "\"I'm Figure 03, a humanoid built in the United States of America,\" the robot said next to Melania Trump.",
+            "First lady Melania Trump enters White"
+          ]
+        },
+        {
+          "title": "The Racist Tesla Bot - by Virginia Heffernan - Magic + Loss",
+          "url": "https://virginiaheffernan.substack.com/p/the-racist-tesla-bot",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "The article originally appeared in Wired.",
+          "publishedAt": null,
+          "keyPoints": [
+            "The article originally appeared in Wired.",
+            "The Tesla Bot, named Optimus, was showcased at Tesla's AI Day 2022.",
+            "The author revisits previous writing on AI, focusing on a series that critiques the Tesla Bot.",
+            "The article discusses the concept of a 'racist Tesla Bot,' implying concerns about bias or problematic design related to race.",
+            "The historical context of AI and social implications related to race are touched upon in the article."
+          ]
+        },
+        {
+          "title": "The History—and Disturbing Resurrection—of Black Androids | WIRED",
+          "url": "https://www.wired.com/story/history-disturbing-resurrection-black-androids/",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Alondra Nelson's 2002 essay 'Future Texts' argued that the idea technology would eliminate race and gender distinctions was a fiction.",
+          "publishedAt": null,
+          "keyPoints": [
+            "Alondra Nelson's 2002 essay 'Future Texts' argued that the idea technology would eliminate race and gender distinctions was a fiction.",
+            "Edward Jones-Imhotep researches 'Black androids'—machines from the 18th to 20th centuries modeled as racist caricatures of Black people performing menial tasks.",
+            "Dederick's Steam Man (1868) was a Black man-shaped steam-powered android used to pull carts, reflecting racist spectacle in 19th-century New York.",
+            "In the 1930s, Westinghouse produced 'the mechanical Negro,' an electric android that performed subservient, degrading actions like bowing and inviting play shooting, reinforcing racist tropes.",
+            "Black androids represented Black people as naive and non-technological while internally embodying advanced technologies like steam and electricity, denying true Black technological agency."
+          ]
+        },
+        {
+          "title": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "url": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Ad Feedback\n\n### CNN values your feedback\n\n1\\. How relevant is this ad to you?\n\n2\\. Did you encounter any technical issues?\n\nVideo player was slow to load content Video content never loaded Ad froze or did not finish loading Video content did not start after ad Audio on ad was too loud Other issues\n\nAd never loaded Ad prevented/slowed the page from loading Content moved around while ad loaded Ad was repetitive to ads I've seen previously Other issues\n\nCancel Submit\n\nThank You!\n\nYour effort and contribution in providing this feedback is much\nappreciated.\n\nClose\n\n[](https://www.cnn.com \"CNN logo\") [Politics](https://www.cnn.com/politics)\n\n[Trump](https://www.cnn.com/politics/president-donald-trump-47)\n\n[Facts First](https://www.cnn.com/politics/fact-check)\n\n[CNN Polls](https://www.cnn.com/polling)\n\n[2026 Elections](https://www.cnn.com/election/2026)\n\n[Redistricting Tracker](https://www.cnn",
+          "publishedAt": "2026-03-25",
+          "keyPoints": [
+            "An American-made humanoid robot named 'Figure 3' spoke at the White House during first lady Melania Trump's AI education and safety summit for children.",
+            "The robot delivered a speech introducing itself and gave welcomes in 11 different languages with perfect pronunciation.",
+            "The robot moved tentatively on two feet, marking a success contrasting a recent Russian humanoid robot that stumbled at a Moscow tech summit.",
+            "Melania Trump described 'Figure 3' as her first American-made humanoid guest in the White House and sees humanoid AI as a future classroom fixture."
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "title": "What can go wrong?",
+          "url": "https://x.com/priceactionkim/status/2036800899721699430",
+          "snippet": "Exclusive: President Trump plans to install some of the biggest names in tech—including Mark Zuckerberg , Larry Ellison and Jensen Huang —to",
+          "publishedAt": null,
+          "relevanceScore": 86
+        },
+        {
+          "title": "Figure 03 first caught Elon's attention. Besides China's humanoid ...",
+          "url": "https://x.com/CyberRobooo/status/2031201736376176905",
+          "snippet": "Mar 9, 2026 · Figure 03 first caught Elon's attention. Besides China's humanoid robots, Figure may have been added to Tesla's list of competitors.",
+          "publishedAt": null,
+          "relevanceScore": 93
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "order": 4,
+      "heading": "The Race Nobody Is Covering",
+      "purpose": "System beat, second layer. Widen from the White House event into the broader commercial race for humanoid robotics legitimacy that the Musk-shaped public narrative has been obscuring. The actual competitive field includes Figure AI, Boston Dynamics, Agility Robotics, and a wave of Chinese state-backed competitors. Figure AI's White House appearance gave it something no trade show or factory pilot can provide: proximity to state power, which functions simultaneously as a credibility signal to investors, enterprise customers, and regulators. Introduce the China dimension concretely — Chinese humanoid robots performed at the Lunar New Year state broadcast, a direct structural parallel to the White House appearance as state-sponsored normalization. The race is not just for market share; it is for which country's robots become the default symbol of the future, and both governments understand that.",
+      "beatGoal": "Viewer sees the White House event as a calculated move in a geopolitical and commercial competition they didn't know was this advanced. The Musk-shaped narrative has been masking a much larger race with higher stakes.",
+      "whyItMattersNow": "Viewer sees the White House event as a calculated move in a geopolitical and commercial competition they didn't know was this advanced. The Musk-shaped narrative has been masking a much larger race with higher stakes.",
+      "openingMove": "Open by noting that within hours of the event, Figure AI had already converted the White House walk into a marketing claim. That speed is the tell. The appearance was not just symbolic for the administration — it was a commercial asset for the company. Then widen to the competitive field: Figure AI is one of several well-funded American startups in a race that also includes Chinese state-backed competitors who are doing the exact same thing with state television that Figure AI just did with the East Room.",
+      "closingMove": "Close on the mirror anecdote — a Chinese robot running into its own reflection because it hadn't been programmed to handle it — as the image of what both countries are papering over with their showcase moments. The technology is not ready. The symbolism is. Hand off to the section that explains why the symbolism is the actual product being manufactured.",
+      "evidenceSlots": [
+        {
+          "label": "Figure AI LinkedIn post from Mike Kalil: 'The Figure 03 just became the first humanoid robot to visit the White House' — company converted the appearance into a marketing claim within hours of the event [linkedin.com/posts/mikekalil_the-figure-03-just-became-the-first-humanoid-activity-7442602518930427905-Ym8V]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "AI robot steals spotlight at White House",
+          "sourceUrl": "https://www.youtube.com/watch?v=Ke2nrNLTTC0&t=2",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "CCTV clip: Chinese humanoid robots performing kung fu at the Lunar New Year Spring Festival Gala — state broadcast, direct parallel to White House as state-sponsored normalization [youtube.com/watch?v=NVX6vq0RSnY — clip target]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "China's humanoid robots take center stage at Lunar New Year show",
+          "sourceUrl": "https://www.youtube.com/watch?v=stNO7V8xJHk&t=1",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "NBC News: China's humanoid robots take center stage at Lunar New Year show — includes the anecdote of a Chinese robot running into a mirror because it hadn't been programmed to handle its own reflection [youtube.com/watch?v=stNO7V8xJHk, t=79 — use the mirror anecdote to illustrate the gap between showcase and readiness that both countries are papering over]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "China's humanoid robots take center stage at Lunar New Year show",
+          "sourceUrl": "https://www.youtube.com/watch?v=stNO7V8xJHk&t=41",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "X post: 'Figure 03 first caught Elon's attention. Besides China's humanoid robots, Figure may have been added to Tesla's list of competitors.' [x.com/CyberRobooo/status/2031201736376176905 — use to show the competitive framing even within the robotics-aware community defaults to the Musk axis]",
+          "sourceType": "social",
+          "sourceTitle": "Figure 03 first caught Elon's attention. Besides China's humanoid ...",
+          "sourceUrl": "https://x.com/CyberRobooo/status/2031201736376176905",
+          "note": "Matched to social source"
+        }
+      ],
+      "bestQuotes": [
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "China's humanoid robots take center stage at Lunar New Year show",
+          "sourceUrl": "https://www.youtube.com/watch?v=stNO7V8xJHk&t=41",
+          "speaker": null,
+          "quoteText": ">> Deactivate >> or Black Mirror. >> Why are we teaching the robots kung fu? How could that possibly end well for anyone? But many experts are not worried robots like these will take over the world just yet. >> They're not working out moves on the fly. It's all programmed in. It's just repetition. That's why they're all perfectly in sync. They all make the moves perfectly because they're robots. It's AI and that's how it works. >> It's worth contrasting the choreographed moves with those that are actually trying to be autonomous. Many still working out the bugs. you'll see some funny videos. Uh there's the one that's been passed around quite a bit of a robot, one of them running right into a mirror because it was",
+          "context": "The documentary section \"The Race Nobody Is Covering\" is strengthened by the following direct remarks: The CCTV clip of Chinese humanoid robots performing kung fu at the Lunar New Year Gala is captured in the opening, describing a state broadcast event showcasing China's industrial policy and robot manufacturing ambitions (0:01). The NBC News transcript includes the anecdote of a Chinese humanoid robot running into a mirror due to lack of programming for reflections, illustrating the gap between showcase and readiness (1:05). The overall framing suggests a calculated move in a geopolitical and commercial competition, with China's push heavily backed by tens of billions invested in automation and AI arms race, paralleling US Department of Defense investments (1:35, 2:07). These remarks reveal a longer, high-stakes race masked by popular narratives (like the Musk-shaped narrative) and normalized through state-sponsored shows, directly tying to the documentary section's points.",
+          "relevanceScore": 85,
+          "startMs": 41120,
+          "endMs": 88479
+        },
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "AI robot steals spotlight at White House",
+          "sourceUrl": "https://www.youtube.com/watch?v=Ke2nrNLTTC0&t=2",
+          "speaker": null,
+          "quoteText": "Ladies and gentlemen, the First Lady of the U.S. Thank you, First Lady Melania Trump, for inviting me to the White House.",
+          "context": "The direct remarks that support the documentary section \"The Race Nobody Is Covering\" include the First Lady mentioning the significance of showcasing advanced robotics at the White House, underscoring a calculated geopolitical and commercial move. The transcript highlights how the Figure 03 robot's White House visit was quickly turned into a marketing claim, akin to the Figure AI LinkedIn post by Mike Kalil. Moreover, parallels are drawn with China's state-sponsored humanoid robot performances at the Lunar New Year Gala, illustrating normalization efforts by both countries. The transcript also references the anecdote from NBC News about a Chinese robot running into a mirror, highlighting the gap between robotic showcase and readiness that both nations are attempting to mask.",
+          "relevanceScore": 85,
+          "startMs": 2770,
+          "endMs": 79420
+        }
+      ],
+      "bestClips": [
+        {
+          "title": "China's humanoid robots take center stage at Lunar New Year show",
+          "sourceUrl": "https://www.youtube.com/watch?v=stNO7V8xJHk",
+          "provider": "youtube",
+          "channelOrContributor": "NBC News",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 3,
+          "relevanceScore": 63
+        },
+        {
+          "title": "White House AI Summit LIVE: 'Robots Are Here'",
+          "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM&t=778",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump addresses global leaders on 'Fostering the Future Together'",
+          "sourceUrl": "https://www.youtube.com/watch?v=47HST6lrPeQ&t=330",
+          "provider": "youtube",
+          "channelOrContributor": "Fox News",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "WATCH: Melania Trump Delivers Opening Remarks at Fostering the Future Summit - 03/24/26",
+          "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA&t=0",
+          "provider": "youtube",
+          "channelOrContributor": "Right Side Broadcasting Network",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump unveils a talking robot at a children's ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w&t=10",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "An unfiltered conversation with Brett Adcock, CEO of Figure AI - YouTube",
+          "sourceUrl": "https://www.youtube.com/watch?v=_Xct1BCLylc&t=0",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Humanoid Robot Walks With Melania Trump at White ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=upQCCdIt0QQ&t=3",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Remarks: Melania Trump Addresses the Fostering the Future ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=XF6-_1e7NrA&t=68",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        }
+      ],
+      "articles": [
+        {
+          "title": "Figure Exceeds $1B in Series C Funding at $39B Post-Money Valuation",
+          "url": "https://www.figure.ai/news/series-c",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Figure raised over $1 billion in Series C funding at a $39 billion post-money valuation.",
+          "publishedAt": null,
+          "keyPoints": [
+            "Figure raised over $1 billion in Series C funding at a $39 billion post-money valuation.",
+            "The funding round was led by Parkway Venture Capital with significant investment from Brookfield Asset Management, NVIDIA, Macquarie Capital, Intel Capital, Align Ventures, Tamarack Global, LG Technology Ventures, Salesforce, T-Mobile Ventures, and Qualcomm Ventures.",
+            "The capital will accelerate efforts to scale general-purpose humanoid robots into real-world environments.",
+            "Figure’s AI platform is called Helix.",
+            "The company plans to scale production manufacturing at BotQ and increase real-world robot deployments in homes and commercial operations."
+          ]
+        },
+        {
+          "title": "Robotics startup Figure valued at $39 billion in latest funding round | Reuters",
+          "url": "https://www.reuters.com/business/robotics-startup-figure-valued-39-billion-latest-funding-round-2025-09-16/",
+          "source": "parallel",
+          "role": "system",
+          "snippet": "Figure, an AI robotics company, raised over $1 billion in its latest Series C funding round.",
+          "publishedAt": "2025-09-16",
+          "keyPoints": [
+            "Figure, an AI robotics company, raised over $1 billion in its latest Series C funding round.",
+            "The funding round valued Figure at $39 billion post money, a sharp increase from $2.6 billion valuation last year.",
+            "The Series C round was led by Parkway Venture Capital.",
+            "Notable investors in this round include Nvidia, Intel Capital, LG Technology Ventures, Salesforce, T-Mobile Ventures, Qualcomm Ventures, Brookfield Asset Management, Macquarie Capital, Align Ventures, and Tamarack Global.",
+            "Last year, Figure raised $675 million with investors including Microsoft and Jeff Bezos (Amazon.com founder)."
+          ]
+        },
+        {
+          "title": "The History—and Disturbing Resurrection—of Black Androids | WIRED",
+          "url": "https://www.wired.com/story/history-disturbing-resurrection-black-androids/",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Black androids are historically machines that take Black human forms, often as racist caricatures, dating back to the 18th century.",
+          "publishedAt": null,
+          "keyPoints": [
+            "Black androids are historically machines that take Black human forms, often as racist caricatures, dating back to the 18th century.",
+            "Dederick's Steam Man (1868) was a Black android powered by steam, depicted as a Black man pulling a cart, replacing a draft horse.",
+            "Westinghouse produced a 1930s Black android known as “the mechanical Negro,” powered by electricity and designed to be subservient and abused.",
+            "Elon Musk unveiled the Tesla bot in 2021, which some observers and historians likened to minstrel shows and racist Black androids of the past due to its appearance and presentation.",
+            "Tesla bot is 5'8\", 125 pounds, designed to perform \"dangerous, repetitive, and boring\" tasks like deadlifting and is programmable to be \"friendly\" and easily overpowered."
+          ]
+        },
+        {
+          "title": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "url": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Ad Feedback\n\n### CNN values your feedback\n\n1\\. How relevant is this ad to you?\n\n2\\. Did you encounter any technical issues?\n\nVideo player was slow to load content Video content never loaded Ad froze or did not finish loading Video content did not start after ad Audio on ad was too loud Other issues\n\nAd never loaded Ad prevented/slowed the page from loading Content moved around while ad loaded Ad was repetitive to ads I've seen previously Other issues\n\nCancel Submit\n\nThank You!\n\nYour effort and contribution in providing this feedback is much\nappreciated.\n\nClose\n\n[](https://www.cnn.com \"CNN logo\") [Politics](https://www.cnn.com/politics)\n\n[Trump](https://www.cnn.com/politics/president-donald-trump-47)\n\n[Facts First](https://www.cnn.com/politics/fact-check)\n\n[CNN Polls](https://www.cnn.com/polling)\n\n[2026 Elections](https://www.cnn.com/election/2026)\n\n[Redistricting Tracker](https://www.cnn",
+          "publishedAt": "2026-03-25",
+          "keyPoints": [
+            "An American-made humanoid robot named 'Figure 3' spoke at the White House during first lady Melania Trump's AI education and safety summit for children.",
+            "The robot delivered a speech introducing itself and gave welcomes in 11 different languages with perfect pronunciation.",
+            "The robot moved tentatively on two feet, marking a success contrasting a recent Russian humanoid robot that stumbled at a Moscow tech summit.",
+            "Melania Trump described 'Figure 3' as her first American-made humanoid guest in the White House and sees humanoid AI as a future classroom fixture."
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "title": "Opinion: The 10/10 'We, Robot' event was not for YOU.",
+          "url": "https://www.reddit.com/r/teslainvestorsclub/comments/1g43zvi/opinion_the_1010_we_robot_event_was_not_for_you/",
+          "snippet": "The 10/10 'We, Robot ' event was a big party to get these people to understand that the future is within our grasp, and that Tesla is doing its part to make it",
+          "publishedAt": null,
+          "relevanceScore": 79
+        },
+        {
+          "title": "Figure 03 first caught Elon's attention. Besides China's humanoid ...",
+          "url": "https://x.com/CyberRobooo/status/2031201736376176905",
+          "snippet": "Mar 9, 2026 · Figure 03 first caught Elon's attention. Besides China's humanoid robots, Figure may have been added to Tesla's list of competitors.",
+          "publishedAt": null,
+          "relevanceScore": 93
+        }
+      ]
+    },
+    {
+      "id": "section-5",
+      "order": 5,
+      "heading": "The Turn: Inevitability Is the Product",
+      "purpose": "Turn beat. The structural reveal. The robot's actual capabilities are secondary to what the setting communicates. When a technology appears in the White House, flanked by the First Lady, before an audience of 45 nations' first spouses, with the explicit framing of 'American-made' and 'historic movement,' it stops being a product and becomes a symbol of the inevitable. That is the mechanism of normalization: not persuasion, but staging. The administration is not arguing that humanoid robots are ready — it is demonstrating that they belong here, at this level of ceremony. Once that demonstration happens, the burden of proof shifts. Critics are no longer questioning an unproven technology; they are questioning American progress. The Plato-the-humanoid-educator scenario Melania described was not a policy proposal — it was a vision implant, designed to make the question 'should we do this?' feel like it has already been answered.",
+      "beatGoal": "Viewer has the interpretive key. The event was not about the robot's capabilities. It was about relocating the robot from the category of 'unproven technology' to the category of 'American future.' That relocation is the real product being manufactured, and the White House was the factory.",
+      "whyItMattersNow": "Viewer has the interpretive key. The event was not about the robot's capabilities. It was about relocating the robot from the category of 'unproven technology' to the category of 'American future.' That relocation is the real product being manufactured, and the White House was the factory.",
+      "openingMove": "Open by naming the mechanism directly: the White House is not a product demo venue. It is a legitimacy machine. When something appears there, in that setting, with that framing, it is no longer being evaluated — it is being endorsed. Then drop Q3 — 'very soon artificial intelligence will move from our mobile phones to humanoids that deliver utility' — as the proof that the administration is not hedging. It is declaring.",
+      "closingMove": "Close on the dissent quotes from the AI framework critics — 'no path to accountability,' 'saccharine' — as the voices that exist but are structurally positioned to lose this argument once the ceremony has already happened. The burden of proof has shifted. Hand off to the final section, which asks what questions were never raised in that room.",
+      "evidenceSlots": [
+        {
+          "label": "Melania Trump quote on humanoid educators: described a future 'humanoid educator named Plato' delivering personalized lessons in classical studies and mathematics, adapting to a student's learning speed and emotional state [cnn.com/2026/03/25/politics/melania-trump-ai-robot and Reuters 2026-03-25 — use as the clearest example of vision implanting rather than policy proposing]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "First Lady Melania Trump hosts the White House Task ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=O0Ooq9g9vkU&t=3",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "Melania Trump quote: 'Since our environment is designed for people, humanoid systems are uniquely suited to navigate and operate within our world. They fit well.' [cnn.com/2026/03/25/politics/melania-trump-ai-robot — use as the rhetorical move that pre-answers the question of fit before anyone has asked it]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "WATCH: Melania Trump Delivers Opening Remarks at Fostering the Future Summit - 03/24/26",
+          "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA&t=49",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "White House AI framework critic quote: the framework provides 'no path to accountability' for harms caused by the technology [cnn.com/2026/03/20/tech/white-house-ai-framework — Brendan Steinhauser; use as the counter-voice that the spectacle is designed to drown out]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "White House AI Summit LIVE: 'Robots Are Here'",
+          "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM&t=4",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "White House AI framework critic quote: '(It)'s like saccharine: empty of nutrition, certain to leave a bitter aftertaste, and probably carcinogenic.' [cnn.com/2026/03/20/tech/white-house-ai-framework — Brad Carson; use as the sharpest available dissent receipt against the week's AI theater]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "OpenAI exec on AI political impact, “elitist approach” of ... - YouTube",
+          "sourceUrl": "https://www.youtube.com/watch?v=lVSFozkFGXA&t=971",
+          "note": "Matched to verified mission-scan quote"
+        }
+      ],
+      "bestQuotes": [
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "White House AI Summit LIVE: 'Robots Are Here'",
+          "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM&t=304",
+          "speaker": null,
+          "quoteText": "joining us. Um, it is an honor to have the support and advice of the first lady as we seek to implement the president's plans to give America's children the chance to learn how to navigate our everchanging technological world. As AI reshapes how people learn, work, and communicate, President Trump is committed to ensuring that Americans are equipped to lead the world in harnessing",
+          "context": "The transcript contains several direct remarks that support the documentary section \"The Turn: Inevitability Is the Product,\" by illustrating how the White House event is framed not about proving robot capabilities, but about positioning AI and robots as an inevitable part of America's future. Notably, the repeated emphasis on AI as the \"American future\" and a growth engine underlines this relocation. The First Lady's leadership introduces AI education as a patriotic, forward-looking effort. The event showcases a fabricated vision of AI's positive impact with no direct critical engagement on accountability. The implicit message is that AI integration into society and education is both inevitable and beneficial, exemplified by the Presidential AI Challenge and private sector pledges. This framing effectively shifts AI from unproven tech to a culturally accepted cornerstone of the future, with the White House as the factory producing this acceptance. \n\nKey moments include: \n\n1. The framing of the event as embracing AI and robots as here now and foundational to America's future economy and society (e.g., \"The robots are here. Our future is no longer science fiction,\" 0:51–2:49).\n\n2. The First Lady and officials emphasizing AI education as a way to prepare America's youth, not about critiquing AI itself, embodying the relocation of AI into the \"American future\" category (4:17–6:57).\n\n3. Statements championing private sector and government partnership pledges to expand AI education, underscoring the manufacturing of an AI future and acceptance (29:45–39:30).\n\n4. The lack of any mention of regulation, accountability, or dissenting voices about AI risks or harms, aligning with the critic's point that the framework provides \"no path to accountability\" and such concerns are drowned out (not addressed in transcript, indicating absence of counter-voice).\n\nThe Melania Trump quotes requested are not verbatim in the transcript provided but align closely with themes here: promoting a future where humanoid systems fit naturally into environments designed for people and serve educational roles with personalized adaptive teaching (alluded to in the strong emphasis on AI education and future storytellings).",
+          "relevanceScore": 85,
+          "startMs": 304400,
+          "endMs": 331280
+        },
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "First Lady Melania Trump hosts the White House Task ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=O0Ooq9g9vkU&t=277",
+          "speaker": null,
+          "quoteText": "is filled with the brightest minds of our time. As such, I challenge you to focus on three strategic priorities of AI's ecosystem so America can lead in shaping a new magnificent world. Infrastructure and energy, national security, and of course, talent. We must ensure America's talent, our workforce, is prepared to sustain AI's",
+          "context": "The transcript contains key remarks that reflect the interpretive framework \"The Turn: Inevitability Is the Product,\" where the event focuses on embedding AI as the \"American future\" rather than just showcasing its capabilities. First Lady Melania Trump describes a vision of \"a humanoid educator named Plato delivering personalized lessons in classical studies and mathematics, adapting to a student's learning speed and emotional state,\" directly illustrating a future where humanoid AI fits naturally into human environments. She also states, \"Since our environment is designed for people, humanoid systems are uniquely suited to navigate and operate within our world. They fit well,\" rhetorically asserting the \"fit\" of humanoid AI before it is questioned, reflecting a strategic move to normalize these technologies. Finally, as a counterpoint, the transcript does not include direct criticism such as that from White House AI framework critics providing “no path to accountability,” indicating that such dissenting voices are muted or excluded in this setting, reinforcing the spectacle's manufactured consensus.",
+          "relevanceScore": 85,
+          "startMs": 277199,
+          "endMs": 310800
+        },
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "WATCH: Melania Trump Delivers Opening Remarks at Fostering the Future Summit - 03/24/26",
+          "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA&t=237",
+          "speaker": null,
+          "quoteText": "justices. To turn this vision into action, I invite each of you to participate. Commit to hosting a regional meeting. Conduct a re research study. Advance new partnerships. Collaborate with another member nation in your region of the world. Magic happens in our nation's capital, particularly when the private and public sectors join forces. Today's meeting is unprecedented. I commend America's leading companies for convening with us today. Never before have so many tech",
+          "context": "Melania Trump's speech at the summit centers not on showcasing the robot's technological capabilities but on positioning advanced technology, including AI and humanoid systems, as an inevitable and integral part of America's future. She notably envisions a 'humanoid educator named Plato' delivering personalized lessons, which illustrates the vision-implanting rhetorical move shifting AI from unproven tech to an American future fixture. Additionally, her statement that 'Since our environment is designed for people, humanoid systems are uniquely suited to navigate and operate within our world. They fit well.' preempts questions about how such technology fits into society. These remarks embody the documentary section's theme that the event's real product is relocating the robot into the category of future American identity. The transcript, however, does not contain the White House AI framework critic quote about lack of accountability, so that counter-voice is absent here.",
+          "relevanceScore": 85,
+          "startMs": 237760,
+          "endMs": 285120
+        },
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "OpenAI exec on AI political impact, “elitist approach” of ... - YouTube",
+          "sourceUrl": "https://www.youtube.com/watch?v=lVSFozkFGXA&t=971",
+          "speaker": null,
+          "quoteText": "actually think about uh distributing economics in a more democratic way. That's what we're focused on. Um, you know, if the elitist and undemocratic entities want to take those shots, they can. We're focused on making sure that everyday people are actually going to have a fair shot and a fair chance to participate in in the AI economy. I just want to understand what do you mean that anthropics products like Claude and others are elitist >> because they're generally focused on keeping into the hands of the few not necessarily really making it widely accessible uh and certainly not in the way that you know an open AI is really trying to put this into the hands of everyday folks. um you know they often talk about how uh you know their products and services are going to lead to like significant job displacement but that's because in some ways that's what",
+          "context": "The transcript contains direct remarks from Chris Leane, OpenAI's head of global policy, that align with the documentary section \"The Turn: Inevitability Is the Product.\" He stresses that the event (and broader AI rollout) is not about the mere capabilities of the AI (the robot analog) but about normalizing and positioning AI as an integral part of the American future, emphasizing accessibility and economic participation for everyday people rather than an \"elitist\" restricted approach. This mirrors the idea that the White House was the \"factory\" manufacturing the event to relocate AI from unproven technology to an accepted American future. He calls out the \"elitist approach\" of some competitors who keep AI in \"the hands of a few,\" contrasting OpenAI's democratized access strategy. Additionally, the critique that the White House AI framework provides \"no path to accountability\" is captured indirectly by juxtaposition with OpenAI's open accessibility efforts. While the transcript does not mention Melania Trump's quotes about humanoid educators or humanoid systems fitting the environment, the remarks on inclusivity, access, and dismantling elitism offer strong interpretive keys for the documentary section \"The Turn.\"",
+          "relevanceScore": 85,
+          "startMs": 971920,
+          "endMs": 1019440
+        },
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "FULL SUMMIT: Melania Trump Hosts First Spouses & ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=IqXmZ7FdGAU&t=246",
+          "speaker": null,
+          "quoteText": "people, humanoid system are uniquely suited to navigate and operate within our world. They fit well. Imagine an humanoid educator named Plato. Access to the classical studies is now instantaneous. literature, science, art, philosophy, mathematics, and history. Humanity's entire corpus of information is available in the comfort of your home. Plato will provide a p personalized",
+          "context": "The transcript includes direct remarks from First Lady Melania Trump that exemplify the interpretive key to the documentary section \"The Turn: Inevitability Is the Product.\" Specifically, Melania Trump describes a humanoid educator named Plato delivering personalized lessons by adapting to students' pace and emotional state, emphasizing that humanoid systems 'fit well' into our human-designed environment. This rhetoric relocates AI humanoids from unproven technology to a vision of the \"American future,\" with the White House serving as the factory of this manufactured inevitability. The transcript also signals an optimistic spectacle around AI, which contrasts with counter-voices noted externally but not directly quoted here. The following moments are the strongest exact quotes reflecting this.",
+          "relevanceScore": 85,
+          "startMs": 246799,
+          "endMs": 290880
+        }
+      ],
+      "bestClips": [
+        {
+          "title": "White House AI Summit LIVE: 'Robots Are Here'",
+          "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM&t=4",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "WATCH: Melania Trump Delivers Opening Remarks at Fostering the Future Summit - 03/24/26",
+          "sourceUrl": "https://www.youtube.com/watch?v=bobYZ7VDhJA&t=49",
+          "provider": "youtube",
+          "channelOrContributor": "Right Side Broadcasting Network",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump unveils a talking robot at a children's ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w&t=10",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Is the Figure 03 Robot Ready to Clean Your House?",
+          "sourceUrl": "https://www.youtube.com/watch?v=4ZP943-gARQ&t=7",
+          "provider": "youtube",
+          "channelOrContributor": "TIME",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Humanoid Robot Walks With Melania Trump at White ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=upQCCdIt0QQ&t=3",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "AI robot steals spotlight at White House",
+          "sourceUrl": "https://www.youtube.com/watch?v=Ke2nrNLTTC0&t=2",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "FULL: Melania Trump showcases humanoid robot guest at ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=sJRjwzPK_y8&t=183",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "OpenAI exec on AI political impact, “elitist approach” of ... - YouTube",
+          "sourceUrl": "https://www.youtube.com/watch?v=lVSFozkFGXA&t=810",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        }
+      ],
+      "articles": [
+        {
+          "title": "For Better or Worse, Tesla Bot Is Exactly What We Expected - IEEE Spectrum",
+          "url": "https://spectrum.ieee.org/tesla-optimus-robot",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Tesla Bot, also called Optimus, is an electromechanically actuated, autonomous bipedal 'general purpose' humanoid robot introduced by Elon Musk at Tesla's AI Day 2021 and shown as a prototype in 2022.",
+          "publishedAt": "2023-04-20",
+          "keyPoints": [
+            "Tesla Bot, also called Optimus, is an electromechanically actuated, autonomous bipedal 'general purpose' humanoid robot introduced by Elon Musk at Tesla's AI Day 2021 and shown as a prototype in 2022.",
+            "The 2022 prototype was the first time Tesla demonstrated Optimus walking untethered and unsupported, which was also the first public 'live' walking demo of the robot.",
+            "Tesla Bot's design resembles past humanoid robots like those in the 2015 DARPA Robotics Challenge, with no notably innovative form factor and relatively slow, scripted movements on stage.",
+            "Tesla showed videos of the robot performing tasks such as watering plants, carrying a box, picking up a metal bar, and attempting to place objects in bins; however, the autonomy and number of attempts are unknown and likely controlled scenarios.",
+            "Tesla developed a version of Optimus with fully Tesla-designed actuators, battery pack, and control system, signaling steps toward production readiness."
+          ]
+        },
+        {
+          "title": "Humanoid Robot Fails in Real-World Test, Raises Questions on AI Readiness | Jeremy Prasetyo posted on the topic | LinkedIn",
+          "url": "https://www.linkedin.com/posts/jeremyprasetyo_break-the-robot-reveal-the-truth-about-ai-activity-7438197517629968384-Fd1R",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "A YouTuber conducted a stress test on an $80,000 humanoid robot by physically pushing, shoving, and even hitting it with a truck to observe its real-world performance.",
+          "publishedAt": null,
+          "keyPoints": [
+            "A YouTuber conducted a stress test on an $80,000 humanoid robot by physically pushing, shoving, and even hitting it with a truck to observe its real-world performance.",
+            "Millions viewed the robot struggling to stay upright through chaotic, unpredictable interactions.",
+            "The robot displayed impressive balance recovery engineering but revealed deficits in judgment and understanding of messy real-world situations.",
+            "Current AI excels at reaction speed but struggles with judgment and adaptability in unpredictable environments beyond scripted demos.",
+            "Spectacular, polished demonstrations of AI do not equate to real-world readiness or trustworthiness in practical applications such as homes and streets."
+          ]
+        },
+        {
+          "title": "The Three Exponentials Behind Tesla’s Optimus Robot | by James Fahey | Mar, 2026 | Medium",
+          "url": "https://medium.com/@fahey_james/the-three-exponentials-behind-teslas-optimus-robot-f6b88007b32c",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Tesla Optimus robot is described by Elon Musk as the “infinite money glitch.”",
+          "publishedAt": null,
+          "keyPoints": [
+            "Tesla Optimus robot is described by Elon Musk as the “infinite money glitch.”",
+            "Three technologies improving exponentially drive humanoid robot advancement: digital intelligence (AI), AI chip capability, and electromechanical dexterity.",
+            "Multiplying exponential improvements in these technologies leads to rapid compounded progress in robot capabilities.",
+            "Once robots are capable enough, they can help manufacture more robots creating a recursive multiplicative exponential growth (robots build factories, factories build robots).",
+            "This feedback loop could drastically increase the labor supply, challenging the economic assumption that human labor is scarce."
+          ]
+        },
+        {
+          "title": "The White House just laid out how it wants to regulate AI | CNN Business",
+          "url": "https://www.cnn.com/2026/03/20/tech/white-house-ai-framework",
+          "source": "parallel",
+          "role": "system",
+          "snippet": "The White House’s framework could have far-reaching effects on US efforts to dominate AI, which is starting to play a bigger role in everything from jobs to the stock market and the way people find information. But the technology still poses safety risks as companies race to adopt it and infuse it into their products.\n\nThe administration [outlined](https://www.whitehouse.gov/wp-content/uploads/2026/03/03.20.26-National-Policy-Framework-for-Artificial-Intelligence-Legislative-Recommendations.pdf?utm_source=newsletter&utm_medium=email&utm_campaign=newsletter_axiosai_govt&stream=top) six objectives for Congress intended to balance rapid innovation with public trust, from data centers to government censorship.",
+          "publishedAt": "2026-03-20",
+          "keyPoints": [
+            "The White House released a national AI legislative framework to prevent states from enacting their own AI laws and to enforce the Trump administration’s light-touch regulation approach.",
+            "The framework originates from a December executive order by President Donald Trump blocking state AI regulations.",
+            "The framework addresses a broad set of AI issues, including data centers and AI-enabled scams.",
+            "It sets six objectives for Congress to balance AI innovation with public trust."
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "title": "Opinion: The 10/10 'We, Robot' event was not for YOU.",
+          "url": "https://www.reddit.com/r/teslainvestorsclub/comments/1g43zvi/opinion_the_1010_we_robot_event_was_not_for_you/",
+          "snippet": "The 10/10 'We, Robot' event was a big party to get these people to understand that the future is within our grasp, and that Tesla is doing its part to make it",
+          "publishedAt": null,
+          "relevanceScore": 86
+        },
+        {
+          "title": "Here are some key responses to the White House AI ...",
+          "url": "https://x.com/BenBrodyDC/status/2035000446301913376",
+          "snippet": "Ben Brody (@BenBrodyDC). 15 likes 5 replies. Here are some key responses to the White House AI framework:",
+          "publishedAt": null,
+          "relevanceScore": 79
+        }
+      ]
+    },
+    {
+      "id": "section-6",
+      "order": 6,
+      "heading": "What Hasn't Been Asked",
+      "purpose": "Consequence beat. Land the unresolved pressure without a clean moral. The questions that were not asked in the East Room: Who owns Figure AI and what are their financial interests in this normalization? What happens to manufacturing labor when the 'American-made' robot replaces the American worker? What does it mean that the AI policy council is composed entirely of tech industry executives with direct financial stakes in the outcome, with no labor, civil society, or independent safety representation mentioned? The White House AI framework explicitly preempts state-level regulation — meaning the political infrastructure for a light-touch robot future is being locked in at the same moment the symbolic theater is making that future feel settled. End not with a recap but with the observation that the hardest moment to ask these questions is after the robot has already walked down the Cross Hall, spoken in 11 languages, and been called a historic guest. That moment has passed. The next one is already being planned.",
+      "beatGoal": "Viewer leaves with unresolved pressure. The normalization has already happened. The questions that should have preceded it are now playing catch-up against a political and commercial infrastructure that has no structural incentive to slow down.",
+      "whyItMattersNow": "Viewer leaves with unresolved pressure. The normalization has already happened. The questions that should have preceded it are now playing catch-up against a political and commercial infrastructure that has no structural incentive to slow down.",
+      "openingMove": "Open by noting what was not in the room: no labor economists, no independent safety researchers, no representatives of the workers whose jobs are the actual subject of this technology. The audience was 45 nations' first spouses and 28 tech organizations. That is not an accident — it is a selection. Then move through the unanswered questions in sequence, each one grounded in a specific receipt.",
+      "closingMove": "Close on the Figure AI LinkedIn post — the marketing claim published within hours of the event — as the final image. The ceremony is over. The press release is already live. The credibility has already been banked. Do not summarize. Do not moralize. Leave the pressure unresolved: the next robot appearance is already being planned, and the questions that should have come first are now running behind.",
+      "evidenceSlots": [
+        {
+          "label": "Reuters: PCAST council 'could ultimately include up to 24 members' from the tech industry — no labor, civil society, or independent safety representation mentioned in the article [reuters.com/business/trump-name-zuckerberg-ellison-huang-tech-panel-wsj-reports-2026-03-25/]",
+          "sourceType": "article",
+          "sourceTitle": "Robot joins Melania Trump at White House event to tout AI teachers | Reuters",
+          "sourceUrl": "https://www.reuters.com/world/us/robot-joins-melania-trump-white-house-event-tout-ai-teachers-2026-03-25/",
+          "note": "Matched to article source"
+        },
+        {
+          "label": "CNN AI framework: Congress directed to preempt state laws regulating AI model development — regulatory floor being removed at the same moment symbolic legitimacy is being constructed [cnn.com/2026/03/20/tech/white-house-ai-framework]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "Demis Hassabis On The Future of Work in the Age of AI",
+          "sourceUrl": "https://www.youtube.com/watch?v=CRraHg4Ks_g&t=272",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "Boston Dynamics CEO Robert Playter on labor displacement: 'The really repetitive, really back-breaking labor is really going to end up being done by robots.' [facebook.com/60minutes/posts/1233203245341723/ — 60 Minutes clip; use as the moment where reassurance and displacement are the same sentence]",
+          "sourceType": "clip_transcript",
+          "sourceTitle": "Demis Hassabis On The Future of Work in the Age of AI",
+          "sourceUrl": "https://www.youtube.com/watch?v=CRraHg4Ks_g&t=351",
+          "note": "Matched to verified mission-scan quote"
+        },
+        {
+          "label": "Figure AI LinkedIn post as closing receipt: 'first humanoid robot to visit the White House' converted into a marketing claim within hours of the event [linkedin.com/posts/mikekalil_the-figure-03-just-became-the-first-humanoid-activity-7442602518930427905-Ym8V — use as the final image: the ceremony is over, the press release is already live, and the credibility has already been banked]",
+          "sourceType": "article",
+          "sourceTitle": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "sourceUrl": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "note": "Matched to article source"
+        }
+      ],
+      "bestQuotes": [
+        {
+          "provenance": "mission_scan",
+          "sourceTitle": "Demis Hassabis On The Future of Work in the Age of AI",
+          "sourceUrl": "https://www.youtube.com/watch?v=CRraHg4Ks_g&t=272",
+          "speaker": null,
+          "quoteText": "that you know that's sometimes called the hard takeoff scenario where you know the idea there is that these AGI systems they're able to self-improve maybe code themselves future versions of themselves that maybe extremely fast at doing that. So what would be a a slight lead, let's say, you know, a few days could be could suddenly become a chasm if that was true. But there are many other ways it could go too where it's more incremental. Some of these self-improvement things are not able to kind of um accelerate in that way. Uh then you know being around the same time uh would not make much difference. But it's important I mean these issues and the geopolitical issues I think the systems that are being built they'll have some imprint of the values and the kind of norms of the designers and the culture that they were uh embedded in.",
+          "context": "Demis Hassabis directly acknowledges the intense pressure and speed at which AI development is advancing, reflecting an unresolved tension about governance and safety. He highlights the competing geopolitical and commercial imperatives that make regulation challenging, emphasizing the need for international cooperation but recognizing current difficulties. While he stresses optimism and the promise of AI, he also expresses worry about bad actors and the risks of unsafe AI systems. On the future of work, Hassabis cautions that while AI tools are additive now, significant changes are expected in the next 5-10 years, implying displacement concerns remain unresolved. This mirrors the documentary's theme of normalization with lingering pressures and catch-up on crucial questions. However, the transcript does not mention the specific composition of advisory councils excluding labor or civil society, nor does it address congressional AI frameworks preempting state laws, or the Boston Dynamics CEO's remarks on labor displacement and robot reassurance. Those points are absent from this transcript.",
+          "relevanceScore": 85,
+          "startMs": 272240,
+          "endMs": 320479
+        }
+      ],
+      "bestClips": [
+        {
+          "title": "White House AI Summit LIVE: 'Robots Are Here'",
+          "sourceUrl": "https://www.youtube.com/watch?v=iV6KiyRZTsM&t=4",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump unveils a talking robot at a children's ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=SKNU8lSMU5w&t=10",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Is the Figure 03 Robot Ready to Clean Your House?",
+          "sourceUrl": "https://www.youtube.com/watch?v=4ZP943-gARQ&t=142",
+          "provider": "youtube",
+          "channelOrContributor": "TIME",
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "The White House's New AI Framework",
+          "sourceUrl": "https://www.youtube.com/watch?v=emEJf6uCYKA&t=0",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "WATCH LIVE: Melania Trump Leads White House Task ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=vz8Hc81MxCI&t=0",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "LIVE| Melania Trump Leads White House AI Education ...",
+          "sourceUrl": "https://www.youtube.com/watch?v=6N1x_Ypa_yg&t=0",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "LIVE: Melania Trump at White House AI Task Force",
+          "sourceUrl": "https://www.youtube.com/watch?v=FFb1CsJ0KXs&t=1601",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        },
+        {
+          "title": "Melania Trump launches nationwide presidential AI challenge",
+          "sourceUrl": "https://www.youtube.com/watch?v=cvbxcwzKWc0&t=0",
+          "provider": "youtube",
+          "channelOrContributor": null,
+          "transcriptStatus": "complete",
+          "talkingPointCount": 1,
+          "relevanceScore": 85
+        }
+      ],
+      "articles": [
+        {
+          "title": "The White House just laid out how it wants to regulate AI | CNN Business",
+          "url": "https://www.cnn.com/2026/03/20/tech/white-house-ai-framework",
+          "source": "parallel",
+          "role": "system",
+          "snippet": "The White House’s framework could have far-reaching effects on US efforts to dominate AI, which is starting to play a bigger role in everything from jobs to the stock market and the way people find information. But the technology still poses safety risks as companies race to adopt it and infuse it into their products.\n\nThe administration [outlined](https://www.whitehouse.gov/wp-content/uploads/2026/03/03.20.26-National-Policy-Framework-for-Artificial-Intelligence-Legislative-Recommendations.pdf?utm_source=newsletter&utm_medium=email&utm_campaign=newsletter_axiosai_govt&stream=top) six objectives for Congress intended to balance rapid innovation with public trust, from data centers to government censorship.",
+          "publishedAt": "2026-03-20",
+          "keyPoints": [
+            "The White House released a national AI legislative framework to prevent states from enacting their own AI laws and to enforce the Trump administration’s light-touch regulation approach.",
+            "The framework originates from a December executive order by President Donald Trump blocking state AI regulations.",
+            "The framework addresses a broad set of AI issues, including data centers and AI-enabled scams.",
+            "It sets six objectives for Congress to balance AI innovation with public trust."
+          ]
+        },
+        {
+          "title": "Melania Trump’s very robotic White House guest | CNN Politics",
+          "url": "https://www.cnn.com/2026/03/25/politics/melania-trump-ai-robot",
+          "source": "parallel",
+          "role": "background",
+          "snippet": "Ad Feedback\n\n### CNN values your feedback\n\n1\\. How relevant is this ad to you?\n\n2\\. Did you encounter any technical issues?\n\nVideo player was slow to load content Video content never loaded Ad froze or did not finish loading Video content did not start after ad Audio on ad was too loud Other issues\n\nAd never loaded Ad prevented/slowed the page from loading Content moved around while ad loaded Ad was repetitive to ads I've seen previously Other issues\n\nCancel Submit\n\nThank You!\n\nYour effort and contribution in providing this feedback is much\nappreciated.\n\nClose\n\n[](https://www.cnn.com \"CNN logo\") [Politics](https://www.cnn.com/politics)\n\n[Trump](https://www.cnn.com/politics/president-donald-trump-47)\n\n[Facts First](https://www.cnn.com/politics/fact-check)\n\n[CNN Polls](https://www.cnn.com/polling)\n\n[2026 Elections](https://www.cnn.com/election/2026)\n\n[Redistricting Tracker](https://www.cnn",
+          "publishedAt": "2026-03-25",
+          "keyPoints": [
+            "An American-made humanoid robot named 'Figure 3' spoke at the White House during first lady Melania Trump's AI education and safety summit for children.",
+            "The robot delivered a speech introducing itself and gave welcomes in 11 different languages with perfect pronunciation.",
+            "The robot moved tentatively on two feet, marking a success contrasting a recent Russian humanoid robot that stumbled at a Moscow tech summit.",
+            "Melania Trump described 'Figure 3' as her first American-made humanoid guest in the White House and sees humanoid AI as a future classroom fixture."
+          ]
+        },
+        {
+          "title": "Robot joins Melania Trump at White House event to tout AI teachers | Reuters",
+          "url": "https://www.reuters.com/world/us/robot-joins-melania-trump-white-house-event-tout-ai-teachers-2026-03-25/",
+          "source": "parallel",
+          "role": "system",
+          "snippet": "Exclusive news, data and analytics for financial market professionals Learn more about Refinitiv\n\n* World\n  \n  ## Browse World\n  \n    + Africa\n    + Americas\n    + Asia Pacific\n    + China\n    + Europe\n    + India\n    + Israel and Hamas at War\n    + Japan\n    + Middle East\n    + Ukraine and Russia at War\n    + United Kingdom\n    + United States\n    + Reuters NEXT New York\n* Business\n  \n  ## Browse Business\n  \n    + Aerospace & Defense\n    + Autos & Transportation\n    + Davos\n    + Energy\n    + Environment\n    + Finance\n    + Healthcare & Pharmaceuticals\n    + Media & Telecom\n    + Retail & Consumer\n    + Future of Health\n    + Future of Money\n    + Take Five\n    + World at Work\n* Markets\n  \n  ## Browse Markets\n  \n    + On the Money\n    + Asian Markets\n    + Carbon Markets\n    + Commodities\n    + Currencies\n    + Deals\n    + Emerging Markets\n    + ETFs\n    + European Markets\n    + Funds",
+          "publishedAt": "2026-03-25",
+          "keyPoints": [
+            "A humanoid robot named 'Figure 03' attended a White House event with U.S. first lady Melania Trump on March 24, 2026.",
+            "The event was called 'Fostering the Future Together' summit, held at the U.S. State Department in Washington, D.C.",
+            "Figure 03 greeted guests in 11 languages and is described as the first American-made humanoid guest at the White House.",
+            "Melania Trump used the robot's appearance to promote increased use of artificial intelligence (AI) in education, urging cooperation between governments and major technology companies."
+          ]
+        },
+        {
+          "title": "Melania Trump pitches robots as potential educators for ...",
+          "url": "https://www.cbsnews.com/amp/news/melania-trump-robots-educators-kids-humanoid-systems/",
+          "source": "perplexity",
+          "role": "background",
+          "snippet": "First lady Melania Trump argued that humanoids can help children develop critical thinking skills — and robots never get impatient.",
+          "publishedAt": null,
+          "keyPoints": [
+            "For the first time, a robot escorted First Lady Melania Trump at the White House.",
+            "Melania Trump promoted AI robots as personalized educators for children during the 'Fostering the Future Together Global Coalition Summit'.",
+            "She emphasized AI's ability to help children develop critical thinking, independent reasoning, and a well-rounded lifestyle.",
+            "The AI-powered robot named 'Plato' was described as a humanoid educator providing personalized education in classical studies and adapting to each student’s needs."
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "title": "Opinion: The 10/10 'We, Robot' event was not for YOU.",
+          "url": "https://www.reddit.com/r/teslainvestorsclub/comments/1g43zvi/opinion_the_1010_we_robot_event_was_not_for_you/",
+          "snippet": "The 10/10 'We, Robot' event was a big party to get these people to understand that the future is within our grasp, and that Tesla is doing its part to make it",
+          "publishedAt": null,
+          "relevanceScore": 79
+        },
+        {
+          "title": "Figure 03 first caught Elon's attention. Besides China's humanoid ...",
+          "url": "https://x.com/CyberRobooo/status/2031201736376176905",
+          "snippet": "Mar 9, 2026 · Figure 03 first caught Elon's attention. Besides China's humanoid robots, Figure may have been added to Tesla's list of competitors.",
+          "publishedAt": null,
+          "relevanceScore": 93
+        },
+        {
+          "title": "The creators behind a wave of trolling, attention-seeking social ...",
+          "url": "https://x.com/TheFP/status/2036367482424799663",
+          "snippet": "1 day ago · The creators behind a wave of trolling, attention-seeking social media posts tell Madeleine Rowley that they have the same goal as their",
+          "publishedAt": null,
+          "relevanceScore": 50
+        }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,6 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { promises as fs } from "node:fs";
 
-import { query, type SDKMessage, type SDKResultSuccess } from "@anthropic-ai/claude-agent-sdk";
 import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -1774,175 +1773,83 @@ async function writeTranscriptArtifacts(args: {
   );
 }
 
-async function runClaudeStructuredQuery(args: {
+/**
+ * Call the Anthropic Messages API directly for structured JSON output.
+ * Avoids the Agent SDK which enters plan mode and tries to use tools.
+ */
+async function runAnthropicJsonQuery(args: {
   systemPrompt: string;
   userPrompt: string;
   outputSchema: Record<string, unknown>;
-  env: Record<string, string | undefined>;
-  cwd: string;
 }) {
-  const abortController = new AbortController();
-  const timeoutHandle = setTimeout(() => abortController.abort(), CLAUDE_SYNTHESIS_TIMEOUT_MS);
-  let resultMessage: SDKResultSuccess | null = null;
-  let lastErrorMessage: string | null = null;
+  const apiKey = requireEnv("ANTHROPIC_API_KEY");
+  const model = getEnv().ANTHROPIC_MODEL;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), CLAUDE_SYNTHESIS_TIMEOUT_MS);
 
   try {
-    const stream = query({
-      prompt: args.userPrompt,
-      options: {
-        model: getEnv().ANTHROPIC_MODEL,
-        maxTurns: 6,
-        tools: [],
-        allowedTools: [],
-        permissionMode: "plan",
-        systemPrompt: args.systemPrompt,
-        cwd: args.cwd,
-        abortController,
-        outputFormat: {
-          type: "json_schema",
-          schema: args.outputSchema,
-        },
-        env: args.env,
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        max_tokens: 16384,
+        system: args.systemPrompt,
+        messages: [
+          {
+            role: "user",
+            content: `${args.userPrompt}\n\nReturn a single valid JSON object matching this schema. No markdown fences, no prose — only the JSON object.\n\nSchema:\n${JSON.stringify(args.outputSchema, null, 2)}`,
+          },
+        ],
+      }),
     });
 
-    for await (const message of stream as AsyncIterable<SDKMessage>) {
-      if (message.type === "result") {
-        if (message.subtype === "success") {
-          resultMessage = message;
-          stream.close();
-          break;
-        } else {
-          lastErrorMessage = message.errors.join(" | ") || message.subtype;
-          stream.close();
-          break;
-        }
-      }
+    if (!res.ok) {
+      const errText = await res.text().catch(() => `status ${res.status}`);
+      throw new Error(`Anthropic API error (${res.status}): ${errText.slice(0, 400)}`);
     }
-  } catch (error) {
-    if (abortController.signal.aborted) {
+
+    const data = await res.json();
+    const textBlock = data.content?.find(
+      (b: { type: string }) => b.type === "text"
+    );
+
+    if (!textBlock?.text?.trim()) {
       throw new Error(
-        `Claude Agent SDK timed out after ${Math.round(CLAUDE_SYNTHESIS_TIMEOUT_MS / 1000)}s.`
+        `Anthropic API returned empty response (stop_reason=${data.stop_reason ?? "unknown"})`
       );
     }
-    throw error;
-  } finally {
-    clearTimeout(timeoutHandle);
-  }
 
-  if (!resultMessage) {
-    throw new Error(lastErrorMessage ?? "Claude Agent SDK did not return a successful result.");
-  }
+    // Extract JSON — strip markdown fences if the model wrapped it
+    let jsonText = textBlock.text.trim();
+    const fenceMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
+    if (fenceMatch) {
+      jsonText = fenceMatch[1].trim();
+    }
 
-  if (resultMessage.structured_output !== undefined) {
-    return resultMessage.structured_output;
-  }
-
-  if (resultMessage.result.trim().length > 0) {
     try {
-      return JSON.parse(resultMessage.result);
+      return JSON.parse(jsonText);
     } catch {
       throw new Error(
-        `Claude Agent SDK returned non-JSON report output: ${truncateText(
-          resultMessage.result,
-          360
-        )}`
+        `Anthropic API returned non-JSON: ${truncateText(jsonText, 360)}`
       );
     }
-  }
-
-  throw new Error(
-    `Claude Agent SDK returned an empty success payload (stop_reason=${resultMessage.stop_reason ?? "unknown"}).`
-  );
-}
-
-async function runClaudeJsonQuery(args: {
-  systemPrompt: string;
-  userPrompt: string;
-  outputSchema: Record<string, unknown>;
-  env: Record<string, string | undefined>;
-  cwd: string;
-}) {
-  const prompt = `${args.userPrompt}
-
-Return a single valid JSON object only. Do not use markdown fences. Do not add any prose before or after the JSON.
-
-JSON schema reference:
-${JSON.stringify(args.outputSchema, null, 2)}`;
-  const abortController = new AbortController();
-  const timeoutHandle = setTimeout(() => abortController.abort(), CLAUDE_SYNTHESIS_TIMEOUT_MS);
-  let resultMessage: SDKResultSuccess | null = null;
-  let lastErrorMessage: string | null = null;
-
-  try {
-    const stream = query({
-      prompt,
-      options: {
-        model: getEnv().ANTHROPIC_MODEL,
-        maxTurns: 6,
-        tools: [],
-        allowedTools: [],
-        permissionMode: "plan",
-        systemPrompt: args.systemPrompt,
-        cwd: args.cwd,
-        abortController,
-        env: args.env,
-      },
-    });
-
-    for await (const message of stream as AsyncIterable<SDKMessage>) {
-      if (message.type === "result") {
-        if (message.subtype === "success") {
-          resultMessage = message;
-          stream.close();
-          break;
-        } else {
-          lastErrorMessage = message.errors.join(" | ") || message.subtype;
-          stream.close();
-          break;
-        }
-      }
-    }
-  } catch (error) {
-    if (abortController.signal.aborted) {
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
       throw new Error(
-        `Claude Agent SDK timed out after ${Math.round(CLAUDE_SYNTHESIS_TIMEOUT_MS / 1000)}s.`
+        `Anthropic API timed out after ${Math.round(CLAUDE_SYNTHESIS_TIMEOUT_MS / 1000)}s.`
       );
     }
-    throw error;
+    throw err;
   } finally {
-    clearTimeout(timeoutHandle);
+    clearTimeout(timeout);
   }
-
-  if (!resultMessage) {
-    throw new Error(lastErrorMessage ?? "Claude Agent SDK did not return a successful JSON result.");
-  }
-
-  if (!resultMessage.result.trim()) {
-    throw new Error(
-      `Claude Agent SDK returned an empty JSON response (stop_reason=${resultMessage.stop_reason ?? "unknown"}).`
-    );
-  }
-
-  try {
-    return JSON.parse(resultMessage.result);
-  } catch {
-    throw new Error(
-      `Claude Agent SDK returned invalid JSON text: ${truncateText(
-        resultMessage.result,
-        360
-      )}`
-    );
-  }
-}
-
-function shouldRetryWithoutStructuredOutput(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  return (
-    message.includes("empty success payload") ||
-    message.includes("non-JSON report output") ||
-    message.includes("error_max_structured_output_retries")
-  );
 }
 
 async function synthesizeMoonAnalysisReport(args: {
@@ -1974,55 +1881,13 @@ Return a structured report with these requirements:
 - ` + "`externalSignals`" + ` should only include genuinely Moon-fit external outliers.
  - ` + "`ideaDirections`" + ` must be actionable, evidence-backed video directions.
  - Keep every field concrete and specific to Moon.`;
-  const baseEnv: Record<string, string | undefined> = {
-    ...process.env,
-    CLAUDE_AGENT_SDK_CLIENT_APP: "moon-news/moon-analysis",
-  };
+  const payload = await runAnthropicJsonQuery({
+    systemPrompt,
+    userPrompt,
+    outputSchema: outputSchema as Record<string, unknown>,
+  });
 
-  async function runWithEnv(env: Record<string, string | undefined>) {
-    try {
-      const payload = await runClaudeStructuredQuery({
-        systemPrompt,
-        userPrompt,
-        outputSchema: outputSchema as Record<string, unknown>,
-        env,
-        cwd: args.artifactDir,
-      });
-
-      return moonAnalysisReportSchema.parse(payload);
-    } catch (error) {
-      if (!shouldRetryWithoutStructuredOutput(error)) {
-        throw error;
-      }
-
-      const payload = await runClaudeJsonQuery({
-        systemPrompt,
-        userPrompt,
-        outputSchema: outputSchema as Record<string, unknown>,
-        env,
-        cwd: args.artifactDir,
-      });
-
-      return moonAnalysisReportSchema.parse(payload);
-    }
-  }
-
-  try {
-    return await runWithEnv(baseEnv);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (!message.includes("Invalid API key") || !baseEnv.ANTHROPIC_API_KEY) {
-      throw error;
-    }
-
-    console.warn(
-      "[moon-analysis] Claude SDK rejected ANTHROPIC_API_KEY; retrying with local Claude Code auth"
-    );
-    const retryEnv = { ...baseEnv };
-    delete retryEnv.ANTHROPIC_API_KEY;
-
-    return await runWithEnv(retryEnv);
-  }
+  return moonAnalysisReportSchema.parse(payload);
 }
 
 export async function createMoonAnalysisRun(input: MoonAnalysisRequest) {

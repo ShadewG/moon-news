@@ -31,6 +31,17 @@ export interface BoardAiGenerationSourceContext {
   summary?: string | null;
 }
 
+export interface BoardAiGenerationMoonContext {
+  moonFitScore: number;
+  moonFitBand: string;
+  clusterLabel: string | null;
+  coverageMode: string | null;
+  analogTitles: string[];
+  dominantCoverageModes: string[];
+  exemplarTitles: string[];
+  storySpecificNotes: string[];
+}
+
 export interface GeneratedBoardAiOutput {
   kind: BoardAiGenerationKind;
   content: string;
@@ -42,9 +53,9 @@ export interface GeneratedBoardAiOutput {
 }
 
 const BOARD_AI_PROMPT_VERSION: Record<BoardAiGenerationKind, string> = {
-  brief: "v2-brief",
-  script_starter: "v2-script-starter",
-  titles: "v2-titles",
+  brief: "v3-brief",
+  script_starter: "v3-script-starter",
+  titles: "v3-titles",
 };
 
 const BOARD_AI_TTL_MS: Record<BoardAiGenerationKind, number> = {
@@ -52,6 +63,10 @@ const BOARD_AI_TTL_MS: Record<BoardAiGenerationKind, number> = {
   script_starter: 12 * 60 * 60 * 1000,
   titles: 12 * 60 * 60 * 1000,
 };
+
+export function getBoardAiPromptVersion(kind: BoardAiGenerationKind) {
+  return BOARD_AI_PROMPT_VERSION[kind];
+}
 
 let openaiClient: OpenAI | undefined;
 
@@ -69,6 +84,7 @@ function buildStoryContextBlock(args: {
   story: BoardAiGenerationStoryContext;
   sources: BoardAiGenerationSourceContext[];
   recommendation: BoardFormatRecommendation;
+  moonContext?: BoardAiGenerationMoonContext | null;
 }) {
   const sources = args.sources
     .slice(0, 6)
@@ -78,6 +94,35 @@ function buildStoryContextBlock(args: {
       return `${index + 1}. ${source.name} (${source.sourceType ?? "source"}, weight ${source.sourceWeight})${publishedAt}\n${source.title}\n${source.url}${summary}`;
     })
     .join("\n\n");
+
+  const moonContextBlock = args.moonContext
+    ? [
+        "",
+        "Moon Performance Weighting:",
+        `Moon fit: ${Math.round(args.moonContext.moonFitScore)}/100 (${args.moonContext.moonFitBand})`,
+        args.moonContext.clusterLabel
+          ? `Likely Moon cluster: ${args.moonContext.clusterLabel}`
+          : null,
+        args.moonContext.coverageMode
+          ? `Likely Moon winner lane: ${args.moonContext.coverageMode}`
+          : null,
+        args.moonContext.dominantCoverageModes.length > 0
+          ? `Top Moon winner lanes: ${args.moonContext.dominantCoverageModes.join(" | ")}`
+          : null,
+        args.moonContext.analogTitles.length > 0
+          ? `Closest Moon analogs: ${args.moonContext.analogTitles.join(" | ")}`
+          : null,
+        args.moonContext.exemplarTitles.length > 0
+          ? `Reference Moon winners: ${args.moonContext.exemplarTitles.join(" | ")}`
+          : null,
+        args.moonContext.storySpecificNotes.length > 0
+          ? `Analog notes: ${args.moonContext.storySpecificNotes.join(" | ")}`
+          : null,
+        "Weight the output toward the strongest Moon-performing lane and the closest analogs above. Reuse framing logic and category fit, not exact wording.",
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : null;
 
   return [
     `Story: ${args.story.canonicalTitle}`,
@@ -90,6 +135,7 @@ function buildStoryContextBlock(args: {
     `Correction flag: ${args.story.correction ? "yes" : "no"}`,
     `Recommended package: ${args.recommendation.packageLabel} (${args.recommendation.urgency} urgency, ${args.recommendation.confidence}% confidence)`,
     `Recommendation reasons: ${args.recommendation.reasons.join("; ")}`,
+    moonContextBlock,
     "",
     "Sources:",
     sources || "No sources available.",
@@ -103,19 +149,19 @@ function buildInstruction(kind: BoardAiGenerationKind) {
     case "brief":
       return {
         instruction:
-          "Write a grounded editorial brief in Moon News voice. Be precise, skeptical, and concise. Return JSON with `content` as 2-3 short paragraphs and `items` as 4-6 key editorial beats.",
+          "Write a grounded editorial brief in Moon News voice. Be precise, skeptical, and concise. Weight the angle toward the Moon winner lanes and closest analogs provided in the prompt, but do not force a mismatch if the fit is weak. Return JSON with `content` as 2-3 short paragraphs and `items` as 4-6 key editorial beats.",
         temperature: 0.5,
       };
     case "script_starter":
       return {
         instruction:
-          "Write a documentary-style opening hook for this story. Return JSON with `content` as 2-3 paragraphs and `items` as 3-5 hook beats used to build it.",
+          "Write a documentary-style opening hook for this story. Use the provided Moon winner lanes and analogs to bias the framing toward what historically works on Moon. Return JSON with `content` as 2-3 paragraphs and `items` as 3-5 hook beats used to build it.",
         temperature: 0.75,
       };
     case "titles":
       return {
         instruction:
-          "Generate 6 YouTube title options tuned for Moon News. Mix safer and more aggressive options, avoid generic slop, and keep them grounded in the actual evidence. Return JSON with `content` as newline-separated titles and `items` as an array of the same titles.",
+          "Generate 6 YouTube title options tuned for Moon News. Weight the set toward the top-performing Moon lanes and closest analog titles supplied in the prompt. Mix safer and more aggressive options, avoid generic slop, keep them grounded in the actual evidence, and never copy a reference title verbatim. Return JSON with `content` as newline-separated titles and `items` as an array of the same titles.",
         temperature: 0.9,
       };
   }
@@ -185,6 +231,7 @@ export async function generateBoardAiOutput(args: {
   story: BoardAiGenerationStoryContext;
   sources: BoardAiGenerationSourceContext[];
   recommendation: BoardFormatRecommendation;
+  moonContext?: BoardAiGenerationMoonContext | null;
 }): Promise<GeneratedBoardAiOutput> {
   const ai = getOpenAIClient();
   const model = getEnv().OPENAI_RESEARCH_MODEL;
@@ -234,7 +281,7 @@ export async function generateBoardAiOutput(args: {
     model,
     promptVersion,
     expiresAt,
-    metadataJson: {
+      metadataJson: {
       items,
       expiresAt,
       generatedFrom: "openai",
@@ -244,6 +291,16 @@ export async function generateBoardAiOutput(args: {
         urgency: args.recommendation.urgency,
       },
       sourceCount: args.sources.length,
+      moonContext: args.moonContext
+        ? {
+            moonFitScore: Math.round(args.moonContext.moonFitScore),
+            moonFitBand: args.moonContext.moonFitBand,
+            clusterLabel: args.moonContext.clusterLabel,
+            coverageMode: args.moonContext.coverageMode,
+            analogTitles: args.moonContext.analogTitles.slice(0, 5),
+            dominantCoverageModes: args.moonContext.dominantCoverageModes.slice(0, 4),
+          }
+        : null,
     },
   };
 }

@@ -1,0 +1,63 @@
+{
+  "version": "1",
+  "meta": {
+    "slug": "the-white-house-robot-wasnt-even-tesla",
+    "title": "The White House Robot Wasn't Even Tesla",
+    "generatedAt": "2026-03-26T12:31:09.678Z"
+  },
+  "summary": {
+    "totalSections": 6,
+    "totalTranscriptedClips": 40,
+    "totalSectionQuotes": 0
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "order": 1,
+      "heading": "The Wrong Robot",
+      "candidateClipCount": 10,
+      "transcriptedClipCount": 2,
+      "quotes": []
+    },
+    {
+      "id": "section-2",
+      "order": 2,
+      "heading": "What Actually Happened in That Room",
+      "candidateClipCount": 10,
+      "transcriptedClipCount": 5,
+      "quotes": []
+    },
+    {
+      "id": "section-3",
+      "order": 3,
+      "heading": "The American-Made Frame",
+      "candidateClipCount": 10,
+      "transcriptedClipCount": 5,
+      "quotes": []
+    },
+    {
+      "id": "section-4",
+      "order": 4,
+      "heading": "The Race Nobody Is Covering",
+      "candidateClipCount": 10,
+      "transcriptedClipCount": 4,
+      "quotes": []
+    },
+    {
+      "id": "section-5",
+      "order": 5,
+      "heading": "The Turn: Inevitability Is the Product",
+      "candidateClipCount": 8,
+      "transcriptedClipCount": 3,
+      "quotes": []
+    },
+    {
+      "id": "section-6",
+      "order": 6,
+      "heading": "What Hasn't Been Asked",
+      "candidateClipCount": 7,
+      "transcriptedClipCount": 1,
+      "quotes": []
+    }
+  ]
+}

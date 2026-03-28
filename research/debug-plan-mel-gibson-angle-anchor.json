@@ -1,0 +1,671 @@
+{
+  "clipId": "de8c6eee-cad4-49a5-a0b1-e4d454a98749",
+  "title": "Mel Gibson Tried To Warn You",
+  "sourceUrl": "https://www.youtube.com/watch?v=vtSnBsI4raU",
+  "broadResearchProvider": "perplexity",
+  "broadResearchModel": "sonar",
+  "broadResearch": {
+    "factualOverview": "Mel Gibson, a Hollywood superstar who built an independent directing empire with films like Braveheart (1995) and The Passion of the Christ (2004), faced cascading scandals from 2006 onward, including a DUI-fueled antisemitic rant, leaked homophobic and racist audio from a 2010 domestic dispute, and industry blackballing that halted major roles, only for a partial comeback via Hacksaw Ridge (2016); recent online discourse (2026) ties his past warnings of Hollywood 'corruption' and 'pedophilia' to resurfaced Jeffrey Epstein files, framing him as a prescient whistleblower punished by the system's image-management machinery.",
+    "originPremise": "Gibson created Icon Productions in 1989, self-financing and directing Braveheart into Best Picture Oscar glory, then leveraged it for The Passion of the Christ—a $30M passion play rejected by studios that grossed $612M worldwide, establishing him as a devout Catholic outsider challenging Hollywood's secular, profit-driven gatekeepers with unapologetically faith-based narratives that bypassed traditional distribution.",
+    "keyFacts": [
+      {
+        "fact": "Gibson rose via Mad Max and Lethal Weapon in the 1980s, becoming one of Hollywood's highest-paid actors at $15-20M per film by mid-1990s.",
+        "sourceLabel": "[1][2][3]",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "July 28, 2006: Arrested for DUI in Malibu; ranted to officer, 'Fucking Jews... are responsible for all the wars in the world [and now] you're gonna be blamed for this too.'",
+        "sourceLabel": "[1][2][4]",
+        "url": "https://en.wikipedia.org/wiki/Mel_Gibson",
+        "confidence": "high"
+      },
+      {
+        "fact": "2010: Leaked voicemails to ex Oksana Grigorieva included Gibson saying, 'Jews are responsible for all the wars in the world'; he was dropped by William Morris Endeavor agency and removed from The Hangover Part II.",
+        "sourceLabel": "[1][2]",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "Gibson has made statements warning of Hollywood pedophilia: e.g., 1998 interview claiming 'demonic' child abuse networks; 2017 podcast reiterating industry child trafficking.",
+        "sourceLabel": "[4]",
+        "url": "https://www.youtube.com/watch?v=qIbYqbn18Us",
+        "confidence": "medium"
+      },
+      {
+        "fact": "2011 no-contest plea to misdemeanor battery against Grigorieva; settled custody with $750K payment and house funding.",
+        "sourceLabel": "[1]",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "Hacksaw Ridge (2016) directed by Gibson grossed $164M, won 2 Oscars, marking partial industry rehabilitation.",
+        "sourceLabel": "[2]",
+        "url": "https://en.wikipedia.org/wiki/Mel_Gibson",
+        "confidence": "high"
+      },
+      {
+        "fact": "2025 Palisades Fire destroyed Malibu home; Gibson publicly criticized Gov. Gavin Newsom's wildfire response.",
+        "sourceLabel": "[2]",
+        "url": "https://en.wikipedia.org/wiki/Mel_Gibson",
+        "confidence": "high"
+      },
+      {
+        "fact": "2026 online resurgence links Gibson's 'corruption' warnings to Epstein files, amid Hollywood power dynamic discussions.",
+        "sourceLabel": "[4]",
+        "url": "https://www.youtube.com/watch?v=qIbYqbn18Us",
+        "confidence": "medium"
+      }
+    ],
+    "tensions": [
+      "Gibson built Hollywood's biggest independent faith-based hit (Passion grossed 20x budget) yet was blackballed post-scandals, while less contrite stars (e.g., via #MeToo) retained access—suggesting selective outrage tied to his anti-establishment persona.",
+      "Public apologies (2006 to ADL, 2010 detente with GLAAD) accepted by some activists but ignored by studios, exposing image-management incentives over genuine contrition.",
+      "Pre-2006 'homophobic' 1991 interview forgiven; post-2006 rants weaponized despite similar content, indicating escalation driven by his growing directing independence."
+    ],
+    "broaderSystem": "Hollywood's elite self-preservation cartel, where stars who monetize outsider critiques (faith epics, pedophilia warnings) face amplified scandals to deter threats to the industry's moral monopoly and hidden power structures, echoing Epstein-era gatekeeping.",
+    "runwayBeats": [
+      "1980s action hero ascent via Mad Max/Lethal Weapon made Gibson untouchable bankable star, commanding $20M salaries.",
+      "Icon Productions founding (1989) and Braveheart (1995 Oscar) proved his directing prowess, shifting him from actor-employee to studio rival.",
+      "The Passion of the Christ (2004) bypassed majors, grossed $612M on $30M budget, amplifying his Catholic traditionalist persona amid rumors of industry pedophilia networks.",
+      "Pre-2006 tensions: 1991 homophobia accusation forgiven; building pressure from faith-based independence."
+    ],
+    "turningPoints": [
+      "2006 DUI rant: Instant media firestorm shifts Gibson from A-list king to pariah, lost roles/endorsements.",
+      "2010 leaked tapes: Agencies drop him (William Morris), Hangover II recast due to cast veto—peak blackballing.",
+      "2012 Maccabees project collapse: Joe Eszterhas letter accuses Gibson of antisemitism, killing Warner Bros. film and cementing 'unbankable' status.",
+      "2016 Hacksaw Ridge: Oscar wins signal détente, proving scandals faded but access restored selectively."
+    ],
+    "stakeShifters": [
+      "2006 ADL meeting and public apology: Bought activist silence but not studio forgiveness, preserving some elite alliances.",
+      "2010-2011 legal settlements (battery plea, $750K custody deal): Neutralized Grigorieva threat, avoiding trial spectacle.",
+      "Robert Downey Jr. 2011 defense ('Give the guy a break'): High-profile ally counters blackball, aiding comeback runway.",
+      "Hacksaw Ridge backers (e.g., Jodie Foster earlier): Quiet industry countermeasures restored partial viability without full absolution."
+    ],
+    "resolutionMechanism": "System didn't 'destroy' Gibson outright—legal pleas/settlements contained scandals quietly, while time, box office proof (Hacksaw Ridge), and ally interventions (Downey Jr.) enabled soft rehabilitation on system's terms: no major directing until proven profitable, preserving Hollywood's punitive image without losing his draw entirely.",
+    "openQuestions": [
+      "Did Gibson's specific pre-2006 pedophilia warnings (e.g., 1998 'demons' claims) directly reference Epstein-adjacent networks, and do 2026 Epstein file releases contain validating links?",
+      "Why selective enforcement: Gibson's rants amplified vs. peers' worse behaviors minimized?",
+      "Post-2025 fire criticism of Newsom: Entry to broader political alliances shifting Hollywood dynamics?"
+    ],
+    "sectionCandidates": [
+      {
+        "title": "The Icon Empire: From Mad Max to Passion Play Powerhouse",
+        "whyItMatters": "Establishes founding premise of Gibson as self-made threat—self-financed faith hits bypassed studios, setting up why system later escalated."
+      },
+      {
+        "title": "The 2006 Rant: Trigger That Lit the Fuse",
+        "whyItMatters": "Surface DUI/antisemitism hides deeper pressure-cooker from his growing independence; first major coalition shift against him."
+      },
+      {
+        "title": "Leaked Hell: 2010 Tapes and Total Blackball",
+        "whyItMatters": "Operational climax—agencies flee, roles evaporate; exposes image-management incentives over justice."
+      },
+      {
+        "title": "Warnings Ignored: Gibson's Hollywood 'Demons' Predictions",
+        "whyItMatters": "Direct statements on pedophilia/corruption, validated by Epstein timing; core 'tried to warn you' thesis with original quotes."
+      },
+      {
+        "title": "Comeback Trap: Hacksaw and Selective Forgiveness",
+        "whyItMatters": "Resolution mechanism—system wins via softer leverage, not destruction; highlights deterrents like his profitability."
+      },
+      {
+        "title": "2026 Echoes: Epstein Files Resurrect the Prophet",
+        "whyItMatters": "Coda tying warnings to hidden consequences; sharpens against-obvious angle without hijacking arc."
+      }
+    ],
+    "sourceGroups": [
+      {
+        "label": "Core Timeline & Scandals",
+        "reason": "Confirmed facts on arrests, pleas, career hits from primary reporting.",
+        "urls": [
+          "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+          "https://en.wikipedia.org/wiki/Mel_Gibson"
+        ]
+      },
+      {
+        "label": "Career Rise/Fall Analysis",
+        "reason": "Context on studio deals, box office, blackballing dynamics.",
+        "urls": [
+          "https://www.youtube.com/watch?v=8E8Gcb7PCME"
+        ]
+      },
+      {
+        "label": "2026 Epstein Warnings Linkage",
+        "reason": "Recent speculation/reaction sharpening 'warned you' thesis; medium confidence.",
+        "urls": [
+          "https://www.youtube.com/watch?v=qIbYqbn18Us"
+        ]
+      }
+    ]
+  },
+  "broadResearchMemo": "Initial broad research memo\nOverview: Mel Gibson, a Hollywood superstar who built an independent directing empire with films like Braveheart (1995) and The Passion of the Christ (2004), faced cascading scandals from 2006 onward, including a DUI-fueled antisemitic rant, leaked homophobic and racist audio from a 2010 domestic dispute, and industry blackballing that halted major roles, only for a partial comeback via Hacksaw Ridge (2016); recent online discourse (2026) ties his past warnings of Hollywood 'corruption' and 'pedophilia' to resurfaced Jeffrey Epstein files, framing him as a prescient whistleblower punished by the system's image-management machinery.\nOrigin premise: Gibson created Icon Productions in 1989, self-financing and directing Braveheart into Best Picture Oscar glory, then leveraged it for The Passion of the Christ—a $30M passion play rejected by studios that grossed $612M worldwide, establishing him as a devout Catholic outsider challenging Hollywood's secular, profit-driven gatekeepers with unapologetically faith-based narratives that bypassed traditional distribution.\nKey facts:\n- Gibson rose via Mad Max and Lethal Weapon in the 1980s, becoming one of Hollywood's highest-paid actors at $15-20M per film by mid-1990s.\n  source: [1][2][3]\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- July 28, 2006: Arrested for DUI in Malibu; ranted to officer, 'Fucking Jews... are responsible for all the wars in the world [and now] you're gonna be blamed for this too.'\n  source: [1][2][4]\n  url: https://en.wikipedia.org/wiki/Mel_Gibson\n  confidence: high\n- 2010: Leaked voicemails to ex Oksana Grigorieva included Gibson saying, 'Jews are responsible for all the wars in the world'; he was dropped by William Morris Endeavor agency and removed from The Hangover Part II.\n  source: [1][2]\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- Gibson has made statements warning of Hollywood pedophilia: e.g., 1998 interview claiming 'demonic' child abuse networks; 2017 podcast reiterating industry child trafficking.\n  source: [4]\n  url: https://www.youtube.com/watch?v=qIbYqbn18Us\n  confidence: medium\n- 2011 no-contest plea to misdemeanor battery against Grigorieva; settled custody with $750K payment and house funding.\n  source: [1]\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- Hacksaw Ridge (2016) directed by Gibson grossed $164M, won 2 Oscars, marking partial industry rehabilitation.\n  source: [2]\n  url: https://en.wikipedia.org/wiki/Mel_Gibson\n  confidence: high\n- 2025 Palisades Fire destroyed Malibu home; Gibson publicly criticized Gov. Gavin Newsom's wildfire response.\n  source: [2]\n  url: https://en.wikipedia.org/wiki/Mel_Gibson\n  confidence: high\n- 2026 online resurgence links Gibson's 'corruption' warnings to Epstein files, amid Hollywood power dynamic discussions.\n  source: [4]\n  url: https://www.youtube.com/watch?v=qIbYqbn18Us\n  confidence: medium\nTensions and contradictions:\n- Gibson built Hollywood's biggest independent faith-based hit (Passion grossed 20x budget) yet was blackballed post-scandals, while less contrite stars (e.g., via #MeToo) retained access—suggesting selective outrage tied to his anti-establishment persona.\n- Public apologies (2006 to ADL, 2010 detente with GLAAD) accepted by some activists but ignored by studios, exposing image-management incentives over genuine contrition.\n- Pre-2006 'homophobic' 1991 interview forgiven; post-2006 rants weaponized despite similar content, indicating escalation driven by his growing directing independence.\nBroader system: Hollywood's elite self-preservation cartel, where stars who monetize outsider critiques (faith epics, pedophilia warnings) face amplified scandals to deter threats to the industry's moral monopoly and hidden power structures, echoing Epstein-era gatekeeping.\nRunway beats that make the headline legible:\n- 1980s action hero ascent via Mad Max/Lethal Weapon made Gibson untouchable bankable star, commanding $20M salaries.\n- Icon Productions founding (1989) and Braveheart (1995 Oscar) proved his directing prowess, shifting him from actor-employee to studio rival.\n- The Passion of the Christ (2004) bypassed majors, grossed $612M on $30M budget, amplifying his Catholic traditionalist persona amid rumors of industry pedophilia networks.\n- Pre-2006 tensions: 1991 homophobia accusation forgiven; building pressure from faith-based independence.\nTurning points that changed the incentives or coalition:\n- 2006 DUI rant: Instant media firestorm shifts Gibson from A-list king to pariah, lost roles/endorsements.\n- 2010 leaked tapes: Agencies drop him (William Morris), Hangover II recast due to cast veto—peak blackballing.\n- 2012 Maccabees project collapse: Joe Eszterhas letter accuses Gibson of antisemitism, killing Warner Bros. film and cementing 'unbankable' status.\n- 2016 Hacksaw Ridge: Oscar wins signal détente, proving scandals faded but access restored selectively.\nStake-shifting moves and countermeasures:\n- 2006 ADL meeting and public apology: Bought activist silence but not studio forgiveness, preserving some elite alliances.\n- 2010-2011 legal settlements (battery plea, $750K custody deal): Neutralized Grigorieva threat, avoiding trial spectacle.\n- Robert Downey Jr. 2011 defense ('Give the guy a break'): High-profile ally counters blackball, aiding comeback runway.\n- Hacksaw Ridge backers (e.g., Jodie Foster earlier): Quiet industry countermeasures restored partial viability without full absolution.\nActual resolution mechanism: System didn't 'destroy' Gibson outright—legal pleas/settlements contained scandals quietly, while time, box office proof (Hacksaw Ridge), and ally interventions (Downey Jr.) enabled soft rehabilitation on system's terms: no major directing until proven profitable, preserving Hollywood's punitive image without losing his draw entirely.\nOpen questions:\n- Did Gibson's specific pre-2006 pedophilia warnings (e.g., 1998 'demons' claims) directly reference Epstein-adjacent networks, and do 2026 Epstein file releases contain validating links?\n- Why selective enforcement: Gibson's rants amplified vs. peers' worse behaviors minimized?\n- Post-2025 fire criticism of Newsom: Entry to broader political alliances shifting Hollywood dynamics?\nSection-worthy subtopics:\n- The Icon Empire: From Mad Max to Passion Play Powerhouse: Establishes founding premise of Gibson as self-made threat—self-financed faith hits bypassed studios, setting up why system later escalated.\n- The 2006 Rant: Trigger That Lit the Fuse: Surface DUI/antisemitism hides deeper pressure-cooker from his growing independence; first major coalition shift against him.\n- Leaked Hell: 2010 Tapes and Total Blackball: Operational climax—agencies flee, roles evaporate; exposes image-management incentives over justice.\n- Warnings Ignored: Gibson's Hollywood 'Demons' Predictions: Direct statements on pedophilia/corruption, validated by Epstein timing; core 'tried to warn you' thesis with original quotes.\n- Comeback Trap: Hacksaw and Selective Forgiveness: Resolution mechanism—system wins via softer leverage, not destruction; highlights deterrents like his profitability.\n- 2026 Echoes: Epstein Files Resurrect the Prophet: Coda tying warnings to hidden consequences; sharpens against-obvious angle without hijacking arc.\nHigh-value source clusters:\n- Core Timeline & Scandals: Confirmed facts on arrests, pleas, career hits from primary reporting.\n  - https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  - https://en.wikipedia.org/wiki/Mel_Gibson\n- Career Rise/Fall Analysis: Context on studio deals, box office, blackballing dynamics.\n  - https://www.youtube.com/watch?v=8E8Gcb7PCME\n- 2026 Epstein Warnings Linkage: Recent speculation/reaction sharpening 'warned you' thesis; medium confidence.\n  - https://www.youtube.com/watch?v=qIbYqbn18Us\n\nStructured preserved beat ledger:\n- beat_01 [origin] [high] Gibson created Icon Productions in 1989, self-financing and directing Braveheart into Best Picture Oscar glory, then leveraged it for The Passion of the Christ—a $30M passion play rejected by studios that grossed $612M worldwide, establishing him as a devout Catholic outsider challenging Hollywood's secular, profit-driven gatekeepers with unapologetically faith-based narratives that bypassed traditional distribution.\n  source: Broad research synthesis\n- beat_02 [escalation] [high] Gibson rose via Mad Max and Lethal Weapon in the 1980s, becoming one of Hollywood's highest-paid actors at $15-20M per film by mid-1990s.\n  source: [1][2][3]\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n- beat_03 [escalation] [high] July 28, 2006: Arrested for DUI in Malibu; ranted to officer, 'Fucking Jews... are responsible for all the wars in the world [and now] you're gonna be blamed for this too.'\n  source: [1][2][4]\n  url: https://en.wikipedia.org/wiki/Mel_Gibson\n- beat_04 [operational_detail] [high] Gibson directed 'Hacksaw Ridge' which premiered at the 2016 Venice Film Festival, receiving critical acclaim and Oscar nominations.\n  source: Mel Gibson's Career Has Survived Controversy After Controversy, But How?\n  url: https://variety.com/2020/film/news/mel-gibson-controversies-career-1234696080\n- beat_05 [operational_detail] [high] GUMU conducted research on TV news bias in events like the 1984-85 miners' strike and Falklands/Malvinas conflict.\n  source: Mediated Geographies and Geographies of Media (excerpt from ndl.ethernet.edu.et PDF)\n  url: https://ndl.ethernet.edu.et/bitstream/123456789/14882/1/227.pdf\n- beat_06 [relationship_turn] [high] Winona Ryder publicly accused Gibson in 2010; Gibson's camp denied and claimed attempted apology was refused.\n  source: Mel Gibson Controversies, Including Antisemitism Accusations - Business Insider\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n- beat_07 [relationship_turn] [high] Reconciled with Ari Emanuel after a fallout in 2006.\n  source: Mel Gibson's Career Has Survived Controversy After Controversy, But How?\n  url: https://variety.com/2020/film/news/mel-gibson-controversies-career-1234696080\n- beat_08 [motive_frame] [medium] Newsom’s motivation is to restore and revitalize California's iconic film industry to bolster the state's economy and his political profile, especially ahead of a potential 2028 presidential run.\n  source: Gavin Newsom confronts his film industry problem - POLITICO\n  url: https://www.politico.com/news/2025/06/06/gavin-newsom-hollywood-film-industry-00391499\n- beat_09 [deterrent] [medium] Robert Downey Jr. 2011 defense ('Give the guy a break'): High-profile ally counters blackball, aiding comeback runway.\n  source: Broad research stake-shifter\n- beat_10 [resolution] [high] System didn't 'destroy' Gibson outright—legal pleas/settlements contained scandals quietly, while time, box office proof (Hacksaw Ridge), and ally interventions (Downey Jr.) enabled soft rehabilitation on system's terms: no major directing until proven profitable, preserving Hollywood's punitive image without losing his draw entirely.\n  source: Broad research resolution\n- beat_11 [operational_detail] [high] Mains’ PhD work analyzed US immigration media coverage, focusing on California Proposition 187.\n  source: Mediated Geographies and Geographies of Media (excerpt from ndl.ethernet.edu.et PDF)\n  url: https://ndl.ethernet.edu.et/bitstream/123456789/14882/1/227.pdf\n- beat_12 [operational_detail] [high] California film tax credit currently caps at $330 million with a lottery system for allocation.\n  source: Gavin Newsom confronts his film industry problem - POLITICO\n  url: https://www.politico.com/news/2025/06/06/gavin-newsom-hollywood-film-industry-00391499\n\nSupplemental video, interview, and direct-statement leads:\n\nSource lead: Building an Independent Film Empire with Dustin Ferguson\nURL: https://www.youtube.com/watch?v=xZu-itDuXOk\nProvider: youtube\nSignal: transcript unavailable on this host, but this clip/interview title looks relevant to the story angle.\n\nSource lead: My Top 5 Mel Gibson Directed Films - TheConnoisseur\nURL: https://www.youtube.com/watch?v=HzW3AqtaYt0\nProvider: youtube\nSignal: transcript unavailable on this host, but this clip/interview title looks relevant to the story angle.\n\nSource lead: Mel Gibson is an Academy Award-winning actor ...\nURL: https://www.facebook.com/CleanaandSober/posts/mel-gibson-is-an-academy-award-winning-actor-and-director-known-for-films-like-b/892099063623734\nProvider: internal\nSignal: transcript unavailable on this host, but this clip/interview title looks relevant to the story angle.\n\nSource lead: Mel Gibson: The Birth of a Superstar\nURL: https://www.youtube.com/watch?v=dp0B7hPYh8g\nProvider: youtube\nSignal: transcript unavailable on this host, but this clip/interview title looks relevant to the story angle.\n\nSupplemental article facts from scraped reporting:\n\nSource: Mel Gibson Controversies, Including Antisemitism Accusations - Business Insider\nURL: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  key fact: Mel Gibson received a three-month driving ban in Toronto, Canada, in 1983 for rear-ending a vehicle while driving under the influence.\n  key fact: In 1991, Gibson made homophobic remarks in an interview with El Pais, including saying, 'They take it up the ass. This is only for taking a shit.'\n  actor: Mel Gibson\n  actor: Winona Ryder\n  operational detail: Driving ban for DUI in 1983 in Toronto after rear-ending a vehicle during filming of Mrs. Soffel.\n  operational detail: Gibson produced and directed Braveheart, released in 1995 which drew criticism for homophobic portrayal.\n  motive: Gibson's remarks reflect personal prejudices expressed publicly and privately during heated or intoxicated states.\n  motive: After public backlash, attempts were made to engage with advocacy groups to manage image and consequences.\n  relationship turn: Meeting with GLAAD in 1995 after initial homophobic remarks led to a dialogue described as a detente.\n  relationship turn: Winona Ryder publicly accused Gibson in 2010; Gibson's camp denied and claimed attempted apology was refused.\n  deterrent: Multiple public apologies and legal penalties following DUI arrests and domestic abuse charges.\n  deterrent: Public criticism and protests from groups like GLAAD.\n  quote: \"'They take it up the ass. This is only for taking a shit.'\"\n  quote: \"'I'll apologize when hell freezes over. They can fuck off.'\"\n\nSource: Mel Gibson's Career Has Survived Controversy After Controversy, But How?\nURL: https://variety.com/2020/film/news/mel-gibson-controversies-career-1234696080\n  key fact: In 2006, Mel Gibson was arrested for DUI and made an anti-Semitic rant which severely damaged his Hollywood career.\n  key fact: Leaked tapes in 2010 revealed Gibson making racist remarks to then-girlfriend Oksana Grigorieva, including use of the n-word; she alleged physical abuse.\n  actor: Mel Gibson\n  actor: Winona Ryder\n  operational detail: Gibson directed 'Hacksaw Ridge' which premiered at the 2016 Venice Film Festival, receiving critical acclaim and Oscar nominations.\n  operational detail: Gibson’s prior agency Ari Emanuel dropped him post-2006 arrest but he later signed with CAA in 2017.\n  motive: Gibson’s controversies stem from personal behavior marked by racism, anti-Semitism, homophobia, and domestic abuse claims.\n  motive: His comeback is partly driven by undeniable talent and work ethic, alongside reconciliations with industry figures.\n  relationship turn: Reconciled with Ari Emanuel after a fallout in 2006.\n  relationship turn: Maintains friendships with several Hollywood stars who publicly support giving him second chances.\n  deterrent: Past accusations and public controversies create reluctance among some producers and collaborators to work with Gibson.\n  deterrent: Public and social media backlash stirred by resurfacing allegations, especially around the #MeToo and social justice movements.\n  quote: \"Mel Gibson received a 10-minute standing ovation at the Venice Film Festival in 2016 for \"Hacksaw Ridge.\"\"\n  quote: \"Winona Ryder called Gibson an \"oven-dodger,\" referencing the Holocaust.\"\n\nSource: Mediated Geographies and Geographies of Media (excerpt from ndl.ethernet.edu.et PDF)\nURL: https://ndl.ethernet.edu.et/bitstream/123456789/14882/1/227.pdf\n  key fact: Media geography is a diverse subdiscipline intersecting with cultural, political, feminist, economic geographies and GIS.\n  key fact: The editors Susan P. Mains, Julie Cupples, and Chris Lukinbeal compiled the volume on mediated geographies.\n  actor: Susan P. Mains\n  actor: Julie Cupples\n  operational detail: GUMU conducted research on TV news bias in events like the 1984-85 miners' strike and Falklands/Malvinas conflict.\n  operational detail: Mains’ PhD work analyzed US immigration media coverage, focusing on California Proposition 187.\n  motive: Investigate how media representations shape understandings of place and identity.\n  motive: Critically analyze the intersections of power, representation, gender, and space using media.\n  relationship turn: Mains moved from grassroots film experiences to academic interdisciplinarity linking theatre and geography.\n  relationship turn: From Glasgow to the University of Kentucky, Mains expanded focus from urban studies to media geography and border studies.\n  deterrent: Media representations can misrepresent or deprive communities and places of recognition.\n  deterrent: State censorship limited media coverage of contentious issues, e.g., GUMU's findings censored by the BBC.\n  quote: \"'Media geography is a subdiscipline with many different routes and trajectories.'\"\n  quote: \"'One of the major contributions of media product...",
+  "planningBeats": [
+    {
+      "beatId": "beat_01",
+      "category": "origin",
+      "detail": "Gibson created Icon Productions in 1989, self-financing and directing Braveheart into Best Picture Oscar glory, then leveraged it for The Passion of the Christ—a $30M passion play rejected by studios that grossed $612M worldwide, establishing him as a devout Catholic outsider challenging Hollywood's secular, profit-driven gatekeepers with unapologetically faith-based narratives that bypassed traditional distribution.",
+      "sourceTitle": "Broad research synthesis",
+      "url": null,
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_02",
+      "category": "escalation",
+      "detail": "Gibson rose via Mad Max and Lethal Weapon in the 1980s, becoming one of Hollywood's highest-paid actors at $15-20M per film by mid-1990s.",
+      "sourceTitle": "[1][2][3]",
+      "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_03",
+      "category": "escalation",
+      "detail": "July 28, 2006: Arrested for DUI in Malibu; ranted to officer, 'Fucking Jews... are responsible for all the wars in the world [and now] you're gonna be blamed for this too.'",
+      "sourceTitle": "[1][2][4]",
+      "url": "https://en.wikipedia.org/wiki/Mel_Gibson",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_04",
+      "category": "operational_detail",
+      "detail": "Gibson directed 'Hacksaw Ridge' which premiered at the 2016 Venice Film Festival, receiving critical acclaim and Oscar nominations.",
+      "sourceTitle": "Mel Gibson's Career Has Survived Controversy After Controversy, But How?",
+      "url": "https://variety.com/2020/film/news/mel-gibson-controversies-career-1234696080",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_05",
+      "category": "operational_detail",
+      "detail": "GUMU conducted research on TV news bias in events like the 1984-85 miners' strike and Falklands/Malvinas conflict.",
+      "sourceTitle": "Mediated Geographies and Geographies of Media (excerpt from ndl.ethernet.edu.et PDF)",
+      "url": "https://ndl.ethernet.edu.et/bitstream/123456789/14882/1/227.pdf",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_06",
+      "category": "relationship_turn",
+      "detail": "Winona Ryder publicly accused Gibson in 2010; Gibson's camp denied and claimed attempted apology was refused.",
+      "sourceTitle": "Mel Gibson Controversies, Including Antisemitism Accusations - Business Insider",
+      "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_07",
+      "category": "relationship_turn",
+      "detail": "Reconciled with Ari Emanuel after a fallout in 2006.",
+      "sourceTitle": "Mel Gibson's Career Has Survived Controversy After Controversy, But How?",
+      "url": "https://variety.com/2020/film/news/mel-gibson-controversies-career-1234696080",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_08",
+      "category": "motive_frame",
+      "detail": "Newsom’s motivation is to restore and revitalize California's iconic film industry to bolster the state's economy and his political profile, especially ahead of a potential 2028 presidential run.",
+      "sourceTitle": "Gavin Newsom confronts his film industry problem - POLITICO",
+      "url": "https://www.politico.com/news/2025/06/06/gavin-newsom-hollywood-film-industry-00391499",
+      "priority": "medium"
+    },
+    {
+      "beatId": "beat_09",
+      "category": "deterrent",
+      "detail": "Robert Downey Jr. 2011 defense ('Give the guy a break'): High-profile ally counters blackball, aiding comeback runway.",
+      "sourceTitle": "Broad research stake-shifter",
+      "url": null,
+      "priority": "medium"
+    },
+    {
+      "beatId": "beat_10",
+      "category": "resolution",
+      "detail": "System didn't 'destroy' Gibson outright—legal pleas/settlements contained scandals quietly, while time, box office proof (Hacksaw Ridge), and ally interventions (Downey Jr.) enabled soft rehabilitation on system's terms: no major directing until proven profitable, preserving Hollywood's punitive image without losing his draw entirely.",
+      "sourceTitle": "Broad research resolution",
+      "url": null,
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_11",
+      "category": "operational_detail",
+      "detail": "Mains’ PhD work analyzed US immigration media coverage, focusing on California Proposition 187.",
+      "sourceTitle": "Mediated Geographies and Geographies of Media (excerpt from ndl.ethernet.edu.et PDF)",
+      "url": "https://ndl.ethernet.edu.et/bitstream/123456789/14882/1/227.pdf",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_12",
+      "category": "operational_detail",
+      "detail": "California film tax credit currently caps at $330 million with a lottery system for allocation.",
+      "sourceTitle": "Gavin Newsom confronts his film industry problem - POLITICO",
+      "url": "https://www.politico.com/news/2025/06/06/gavin-newsom-hollywood-film-industry-00391499",
+      "priority": "high"
+    }
+  ],
+  "researchStrategyModel": "claude-sonnet-4-6",
+  "researchStrategy": {
+    "primaryAngle": "Mel Gibson spent years making specific public warnings that Hollywood ran on child abuse and institutional corruption. The industry's response was not to investigate his claims — it was to wait for him to hand them a weapon, and in 2006 he did. The scandal cascade that followed was real and ugly, but the enforcement was selective in a way that only makes sense if you understand what Gibson had built and what he was saying. Men who did provably worse kept their careers. The one outsider who had constructed a studio-bypassing empire and was openly naming systemic rot got exiled. The Epstein files didn't create that argument. They just made it harder to ignore.",
+    "backupAngles": [
+      "The Icon Productions angle: Gibson didn't just act in Hollywood — he built a parallel production and distribution machine that proved the majors were optional. The Passion of the Christ grossed $612 million on a $30 million budget without a single major studio. That independence is what made him a structural threat before the scandals made him a convenient target.",
+      "The selective forgiveness angle: Hollywood's rehabilitation of Gibson via Hacksaw Ridge was not absolution — it was the system reclaiming him on its own terms. Access was restored only after he proved profitable again and stopped making public accusations. He got his career back. He did not get his independence back.",
+      "The pattern angle: Gibson is one node in a documented pattern — Corey Feldman, Elijah Wood, Jim Carrey — of industry figures who made public warnings about child exploitation or institutional rot and were subsequently discredited, marginalized, or quietly sidelined. The pattern is the story."
+    ],
+    "hookIdea": "Open on the contradiction stacked tight and fast: Mel Gibson was one of the most powerful men in Hollywood — $20 million per film, Best Picture Oscar, a self-financed movie that grossed $612 million without a single studio behind it. He had built a production company that proved the majors were optional. And then, in the years before his career collapsed, he was telling anyone who would listen that Hollywood was running a child abuse network. Within two years of his 2006 arrest, he had no agency, no major roles, and no studio would return his calls. The question the script lands before the first 150 words: was that a coincidence, or was that the point?",
+    "storyType": "Celeb Scandal with structural indictment — uses Gibson's personal arc (rise, rupture, exile, partial rehabilitation) as the vehicle for a systemic argument about how Hollywood manages threats to its institutional power, with the 'tried to warn you' thesis as the throughline and the selective enforcement pattern as the proof.",
+    "mustPreserveBeats": [
+      "beat_01",
+      "beat_02",
+      "beat_03",
+      "beat_04",
+      "beat_09",
+      "beat_10"
+    ],
+    "beatDecisions": [
+      {
+        "beatId": "beat_01",
+        "beat": "Icon Productions founding, Braveheart Best Picture, Passion of the Christ $612M on $30M without studio backing",
+        "decision": "core",
+        "reason": "This is the structural foundation of the entire argument. Without it, the exile reads as a scandal rather than a punishment. Required for s2 and echoed in s1 hook.",
+        "targetSectionId": "s2"
+      },
+      {
+        "beatId": "beat_02",
+        "beat": "Gibson's rise via Mad Max and Lethal Weapon, $15-20M per film by mid-1990s",
+        "decision": "core",
+        "reason": "Establishes the institutional power baseline that makes the exile anomalous. Essential for s1's contradiction stack — the salary figure is a concrete anchor for the hook.",
+        "targetSectionId": "s1"
+      },
+      {
+        "beatId": "beat_03",
+        "beat": "July 28, 2006 DUI arrest and antisemitic rant, verbatim quote",
+        "decision": "core",
+        "reason": "The inciting rupture. The verbatim quote is necessary for s4 — the script must cover the facts cleanly before pivoting to the selective enforcement argument. Cannot be softened or summarized away.",
+        "targetSectionId": "s4"
+      },
+      {
+        "beatId": "beat_04",
+        "beat": "Hacksaw Ridge Venice premiere, critical acclaim, Oscar nominations",
+        "decision": "core",
+        "reason": "The rehabilitation data point that anchors s7's 'comeback was a leash' argument. The Venice standing ovation is specifically named in the section architecture.",
+        "targetSectionId": "s7"
+      },
+      {
+        "beatId": "beat_05",
+        "beat": "GUMU research on TV news bias in miners' strike and Falklands conflict",
+        "decision": "skip",
+        "reason": "Completely off-arc. Academic media geography research with zero connection to Gibson, Hollywood, or any section in the architecture. Appears to be a research contamination artifact.",
+        "targetSectionId": null
+      },
+      {
+        "beatId": "beat_06",
+        "beat": "Winona Ryder publicly accused Gibson in 2010; Gibson's camp denied",
+        "decision": "supporting",
+        "reason": "Adds peer-level texture to the 2010 blackball cascade in s6, but is not one of the three named operational events (WME drop, Hangover II veto, Maccabees collapse). Use as secondary color if runtime allows.",
+        "targetSectionId": "s6"
+      },
+      {
+        "beatId": "beat_07",
+        "beat": "Reconciled with Ari Emanuel after 2006 fallout",
+        "decision": "supporting",
+        "reason": "Ari Emanuel is a named institutional actor whose 2006 response to the rant was significant. The reconciliation is relevant to s7's 'system reclaiming Gibson on its own terms' argument, but needs more operational detail to be core.",
+        "targetSectionId": "s7"
+      },
+      {
+        "beatId": "beat_08",
+        "beat": "Newsom's motivation to revitalize California film industry ahead of 2028 presidential run",
+        "decision": "skip",
+        "reason": "Off-arc. California film tax policy and Newsom's political ambitions have no connection to the Gibson structural indictment thesis or any section in the architecture.",
+        "targetSectionId": null
+      },
+      {
+        "beatId": "beat_09",
+        "beat": "Robert Downey Jr. 2011 'Give the guy a break' defense as high-profile ally intervention",
+        "decision": "core",
+        "reason": "Specifically named in the s7 section architecture as a key rehabilitation mechanism. The ally intervention is part of the 'system reclaiming Gibson on its own terms' argument — it shows the rehabilitation was brokered, not organic.",
+        "targetSectionId": "s7"
+      },
+      {
+        "beatId": "beat_10",
+        "beat": "System contained scandals quietly via legal pleas/settlements; Hacksaw Ridge box office proof and ally interventions enabled soft rehabilitation on system's terms",
+        "decision": "core",
+        "reason": "This is the resolution mechanism that makes s7's 'comeback was a leash' argument operational rather than atmospheric. The framing — access restored when profitable and quiet — is the exact thesis of s7.",
+        "targetSectionId": "s7"
+      },
+      {
+        "beatId": "beat_11",
+        "beat": "Mains' PhD work on US immigration media coverage and California Proposition 187",
+        "decision": "skip",
+        "reason": "Off-arc. Academic immigration media research with zero connection to Gibson or any section in the architecture. Second research contamination artifact from the same source as beat_05.",
+        "targetSectionId": null
+      },
+      {
+        "beatId": "beat_12",
+        "beat": "California film tax credit capped at $330M with lottery allocation system",
+        "decision": "skip",
+        "reason": "Off-arc. Film industry policy detail with no connection to Gibson's story, Icon Productions, or the selective enforcement thesis. Third contamination artifact from the Newsom/Politico source.",
+        "targetSectionId": null
+      }
+    ],
+    "videoStructure": [
+      {
+        "sectionId": "s1",
+        "title": "The Contradiction That Doesn't Add Up",
+        "purpose": "Cold open. Stack the anomaly before any backstory. Gibson at peak institutional power, Gibson making specific public warnings about Hollywood child abuse, Gibson destroyed. Force the question before the audience has the biography: why him, why then, why so completely?",
+        "whyItMatters": "Moon analog structure demands the unsettling implication arrive before the biography. The hook only works if the audience feels the gap between Gibson's institutional power and the totality of his exile before they know the full timeline. This is the beat that makes the rest of the script feel like an investigation rather than a biography. The contradiction has to be concrete — salary figures, box office numbers, specific warning statements — not atmospheric.",
+        "evidenceNeeded": [
+          "Confirmed salary figures ($15–20M per film, mid-1990s) with at least one specific film example to anchor the claim",
+          "Passion of the Christ box office ($612M gross on $30M budget) as proof of studio-independent leverage",
+          "Earliest datable Gibson public statement warning of Hollywood child abuse or 'demonic' networks — the 1998 interview reference — with enough specificity to quote or paraphrase accurately and flag confidence level",
+          "One-line summary of the blackball outcome (agency dropped, Hangover II recast, no major directing work 2006–2016) to close the contradiction loop before the script rewinds"
+        ],
+        "searchPriorities": [
+          "Mel Gibson 1998 interview Hollywood pedophilia demons — find original publication, interviewer, verbatim quote; flag if only traceable to secondhand YouTube compilations",
+          "Mel Gibson salary per film 1990s — confirm $15–20M figure with specific film examples (Lethal Weapon 4, Ransom, etc.)",
+          "Passion of the Christ production budget and worldwide gross — confirm $30M / $612M figures against box office databases",
+          "Mel Gibson blackball timeline 2006–2016 — roles lost, agencies dropped, projects killed, with approximate dates"
+        ],
+        "targetWordCount": 280
+      },
+      {
+        "sectionId": "s2",
+        "title": "The Empire He Built Outside the System",
+        "purpose": "Origin and founding premise beat. Establish Icon Productions (1989), Braveheart (1995 Best Picture), and The Passion of the Christ (2004) as the structural foundation — Gibson wasn't just a star, he was a rival distribution node who had proven the majors were optional. This is why the system's later response was disproportionate to the offense.",
+        "whyItMatters": "The exile only reads as punishment if the audience understands what Gibson had built. A $20M-per-film actor losing roles is a scandal. A man who proved studios were unnecessary and was publicly naming their crimes losing everything is a different kind of story. The mechanism of the later blackball is only legible against this backdrop. The Passion of the Christ is the pivot: it was the moment Gibson stopped being a profitable employee and became a structural threat.",
+        "evidenceNeeded": [
+          "Icon Productions founding date (1989) and initial mandate — what Gibson said he was building it for",
+          "Braveheart production details — financing structure (self-funded vs. Paramount co-production), budget, Oscar wins (Best Picture, Best Director 1996)",
+          "Passion of the Christ studio rejection history — which studios passed, what reasons were given publicly, how Gibson ultimately distributed through Newmarket Films",
+          "Box office trajectory of Passion — domestic opening weekend, total gross, comparison to studio faith-based releases of the era to show the scale of the disruption",
+          "Any contemporary studio executive or trade press quotes registering alarm or dismissal at the Passion model post-release"
+        ],
+        "searchPriorities": [
+          "Icon Productions founding history Mel Gibson 1989 — original mandate and early projects",
+          "Braveheart financing structure — Paramount involvement vs. Icon self-financing, confirmed budget figure",
+          "Passion of the Christ studio rejections — which studios, what reasons given, primary trade press sourcing",
+          "Newmarket Films distribution deal Passion of the Christ — terms and context",
+          "Hollywood trade press reaction to Passion of the Christ box office 2004 — Variety, Hollywood Reporter coverage"
+        ],
+        "targetWordCount": 380
+      },
+      {
+        "sectionId": "s3",
+        "title": "What He Was Saying Before Anyone Was Listening",
+        "purpose": "The 'tried to warn you' core. Surface Gibson's pre-scandal public statements about Hollywood child abuse, institutional corruption, and 'demonic' networks. Plant these as foreshadowing devices — specific, dated, sourced — that the rest of the script pays off. Also debunk the most viral fabricated Gibson quotes, using that debunking as a credibility move rather than a concession.",
+        "whyItMatters": "This is the thesis section. The title of the documentary is 'Mel Gibson Tried To Warn You' — this section has to deliver the receipts. It must be specific enough to be credible and honest enough to distinguish confirmed statements from unverified claims. The Moon analog for this story explicitly debunks fabricated quotes attributed to the subject and uses that debunking to argue about narrative capture — that technique belongs here. If the warnings are real, they don't need embellishment. If some viral quotes are fake, saying so makes the real ones land harder.",
+        "evidenceNeeded": [
+          "1998 interview source: publication name, interviewer, verbatim quote about 'demonic' child abuse in Hollywood — needs primary source confirmation, not secondhand citation; if unverifiable, flag explicitly",
+          "2017 podcast appearance: which podcast, host, what Gibson said specifically about child trafficking in the industry — confirm clip exists and is not edited out of context",
+          "Any other datable pre-2006 public statements by Gibson warning of Hollywood corruption or abuse networks",
+          "Identification of the most widely circulated fabricated Gibson quotes about Hollywood abuse — which specific quotes are confirmed as fake by fact-checkers, so the script can name and dismiss them",
+          "Corey Feldman parallel timeline — when did Feldman begin making similar public warnings, and was there any documented connection or mutual acknowledgment with Gibson",
+          "Elijah Wood 2016 Hollywood pedophilia comments — what he said, what the industry response was, as a parallel data point"
+        ],
+        "searchPriorities": [
+          "Mel Gibson Hollywood pedophilia warning 1998 — original interview source, not YouTube compilation",
+          "Mel Gibson 2017 podcast child trafficking Hollywood — identify podcast name, host, clip or transcript",
+          "Mel Gibson fake quotes Hollywood abuse — Snopes, PolitiFact, or journalism fact-check roundups",
+          "Corey Feldman Hollywood abuse warnings timeline — first public statements, industry response",
+          "Elijah Wood Hollywood pedophilia comments 2016 — original interview source and industry reaction"
+        ],
+        "targetWordCount": 400
+      },
+      {
+        "sectionId": "s4",
+        "title": "The Rant That Gave Them What They Needed",
+        "purpose": "Trigger beat. The July 28, 2006 DUI arrest and antisemitic rant. Cover the facts cleanly and without minimization, then immediately pivot to the mechanism: why this specific incident produced a total career rupture when earlier controversies — 1983 DUI, 1991 homophobic interview, Braveheart criticism — produced only temporary damage. The question is not whether the rant was real. It was. The question is why the response was so different this time.",
+        "whyItMatters": "The 2006 rant is the inciting rupture, but the script's job is to show it was also a pretext that became available at a structurally convenient moment. Gibson had said comparable things before and survived. What changed between 1991 and 2006 was not his behavior — it was his institutional threat level. Passion of the Christ had just proven he didn't need the studios. This section makes that argument without excusing the rant, because the structural argument does not require Gibson to be innocent — it requires the enforcement to be selective.",
+        "evidenceNeeded": [
+          "Confirmed verbatim quote from the 2006 arrest — the exact words from the TMZ leak or arrest report",
+          "1983 DUI incident details — Toronto, three-month ban, no career consequence — to establish the baseline",
+          "1991 El Pais homophobic interview — what was said, what the industry response was, how it was resolved (GLAAD detente 1995) — to establish the pattern of prior forgiveness",
+          "Timeline of career consequences post-2006: which roles were lost, which endorsements dropped, which studios went quiet — with approximate dates",
+          "Ari Emanuel public statement dropping Gibson post-2006 — confirm quote and timing",
+          "Note on Hutton Gibson's Holocaust denial as one-line context for where Gibson's worldview came from — not a standalone beat, just explanatory texture"
+        ],
+        "searchPriorities": [
+          "Mel Gibson 2006 DUI arrest TMZ original leak — verbatim quote sourcing and publication date",
+          "Ari Emanuel statement dropping Mel Gibson 2006 — original quote, publication, timing",
+          "Mel Gibson career consequences 2006–2008 — roles lost, projects cancelled, with specific titles and dates",
+          "Mel Gibson 1991 El Pais interview homophobic remarks — original Spanish source or confirmed translation",
+          "Hollywood response to Mel Gibson 2006 vs 1991 — comparative trade press coverage showing differential treatment"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s5",
+        "title": "The System That Protects Its Own",
+        "purpose": "Systemic digression beat. Temporarily leave Gibson to present pattern evidence that recontextualizes his exile as selective rather than moral. Roman Polanski, Victor Salva, Harvey Weinstein: men the industry protected far longer, for provably worse conduct. This section makes the 'selective enforcement' thesis concrete and dateable rather than atmospheric.",
+        "whyItMatters": "Without this section, the script is a Gibson biography. With it, the script becomes an argument about institutional logic. The contrast has to be specific and dateable — not vague gestures at Hollywood hypocrisy but named cases with named outcomes and named institutions that made the protection decisions. This is where the structural indictment gets its teeth, and it is the section that makes the audience understand why Gibson's exile was not about morality.",
+        "evidenceNeeded": [
+          "Roman Polanski: 1977 conviction details, 1978 flight to France, continued Oscar win (2003 The Pianist directed while a fugitive), Academy membership retention until 2018 — full timeline of industry protection with named institutions",
+          "Victor Salva: 1988 conviction for child sexual abuse of a minor on his own film set, Disney hired him for Powder (1995) — confirm studio, timeline, and whether Disney knew at time of hiring",
+          "Harvey Weinstein: approximate period of documented industry awareness vs. public exposure (2017) — how many years did studios, agencies, and talent know; name the institutions that knew",
+          "At least one additional case if available — a figure with a confirmed legal record who retained industry access during the same period Gibson was blackballed",
+          "Specific comparison framing: what Gibson did (DUI, racist rant, domestic abuse plea) vs. what these figures did (rape conviction, child abuse conviction, serial assault) and what the career consequences were for each"
+        ],
+        "searchPriorities": [
+          "Roman Polanski Hollywood career post-1978 — Academy membership timeline, Oscar win 2003, industry support letters 2009",
+          "Victor Salva conviction 1988 Disney Powder 1995 — confirm studio, confirm whether Disney knew at hiring",
+          "Harvey Weinstein industry knowledge timeline — when did major studios and agencies have documented awareness",
+          "Hollywood figures with criminal convictions who retained industry access — comprehensive journalism pieces",
+          "Mel Gibson blackball vs. industry protection of other figures — any comparative analysis in trade press or long-form journalism"
+        ],
+        "targetWordCount": 380
+      },
+      {
+        "sectionId": "s6",
+        "title": "2010: The Tapes and the Total Blackball",
+        "purpose": "Operational climax. The leaked Oksana Grigorieva voicemails, the racist language, the domestic abuse allegations, and the cascade of institutional consequences: William Morris Endeavor drops him, The Hangover Part II cast veto forces a recast, the Maccabees project collapses under Joe Eszterhas's public letter. This is peak exile — the moment passive avoidance became active exclusion.",
+        "whyItMatters": "The 2010 tapes are the operational climax because they show the blackball mechanism shifting from executive decision to peer enforcement. The Hangover II cast veto is particularly important: it was not a studio executive making a risk calculation, it was Gibson's own peers refusing to work with him. The Maccabees collapse shows the exile extended even to projects Gibson was trying to use for rehabilitation. Together these three events show the system closing every available door simultaneously.",
+        "evidenceNeeded": [
+          "Leaked voicemail content — what was said, who leaked them, confirmed 2010 timeline, which outlet first published",
+          "Hangover II cast veto — who specifically objected, how the decision was communicated publicly, who replaced Gibson in the cameo role",
+          "William Morris Endeavor drop — confirm it was WME (not just Ari Emanuel's earlier personal decision), confirm timing relative to tapes",
+          "Maccabees project: Joe Eszterhas letter details — what specific accusations were made, when the letter became public (2012), Warner Bros. response and project cancellation",
+          "2011 battery plea — no-contest plea details, $750K custody settlement — confirm figures and what charges were resolved",
+          "Winona Ryder 'oven-dodger' accusation — confirm quote, timing, context, and whether Gibson's camp responded"
+        ],
+        "searchPriorities": [
+          "Mel Gibson Oksana Grigorieva leaked tapes 2010 — content summary, source, first publication outlet and date",
+          "Hangover Part II Mel Gibson cast veto 2010 — who objected, replacement cameo identity, studio statement",
+          "Joe Eszterhas letter Mel Gibson Maccabees 2012 — full letter or confirmed excerpts, Warner Bros. response",
+          "Mel Gibson William Morris Endeavor dropped — confirm agency name and timing relative to 2006 vs. 2010",
+          "Mel Gibson battery plea 2011 — court records, settlement terms, $750K figure confirmation"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s7",
+        "title": "The Comeback Was a Leash",
+        "purpose": "Resolution beat. Hacksaw Ridge (2016), the Venice standing ovation, the two Oscar wins, the CAA signing in 2017, the Robert Downey Jr. ally intervention. Frame this not as triumph but as the system reclaiming Gibson on its own terms — access restored only after he proved profitable again and stopped making public accusations about the industry. He got his career back. He did not get his independence back.",
+        "whyItMatters": "The Moon analog structure treats redemption moments as data points about the system's selective tolerance rather than triumphant personal resolutions. Hacksaw Ridge is the system saying: we will let you back in when you are useful and quiet. The section should close on what Gibson did NOT get back — the full independence of the Icon/Passion era, the ability to self-finance and distribute outside the system. The rehabilitation was real but it was conditional, and the conditions are the argument.",
+        "evidenceNeeded": [
+          "Hacksaw Ridge financing — who backed it, budget, whether any major studio was involved or whether it was still independent",
+          "Venice Film Festival reception — confirm 10-minute standing ovation claim (Variety sourcing)",
+          "Oscar wins — confirm which two categories (Film Editing, Sound Mixing) and Best Director nomination for Gibson specifically",
+          "CAA signing 2017 — confirm timing and significance; note the Ari Emanuel reconciliation as the relationship turn that preceded it",
+          "Robert Downey Jr. 2011 or 2012 Golden Globes speech defending Gibson — confirm exact quote, venue, and year",
+          "What Gibson has NOT directed since Hacksaw Ridge — confirm the gap in major directing work to show rehabilitation was partial and conditional"
+        ],
+        "searchPriorities": [
+          "Hacksaw Ridge financing production company — who funded it, budget figure, studio involvement or absence",
+          "Mel Gibson Venice Film Festival 2016 standing ovation — Variety or Hollywood Reporter sourcing, duration claim",
+          "Hacksaw Ridge Oscar wins specific categories — confirm Film Editing and Sound Mixing, Best Director nomination",
+          "Robert Downey Jr. Golden Globes Mel Gibson defense — year, transcript or confirmed quote, venue",
+          "Mel Gibson directing projects post-Hacksaw Ridge — what films were announced, what happened to them, current status"
+        ],
+        "targetWordCount": 320
+      },
+      {
+        "sectionId": "s8",
+        "title": "What the Files Say Now",
+        "purpose": "Coda. The 2026 Epstein file resurgence and online discourse linking Gibson's pre-scandal warnings to the broader Hollywood abuse network conversation. Handle with calibrated skepticism — present what is documented, flag what is speculation, and close on the structural argument rather than a conspiratorial verdict. The unresolved pressure is the correct landing point.",
+        "whyItMatters": "The title of the documentary is 'Mel Gibson Tried To Warn You' — the coda has to pay that off without overclaiming. The Moon analog structure ends on consequence, warning, or unresolved pressure rather than a clean moral recap. The Epstein files do not prove Gibson was right about everything. They do make it harder to dismiss the pattern of warnings, the pattern of silencing, and the pattern of selective enforcement. That gap — between what Gibson said and what we now know — is where the script should leave the audience.",
+        "evidenceNeeded": [
+          "What specifically in the 2025–2026 Epstein file releases (if anything) connects to Hollywood figures Gibson named or implied — distinguish documented connections from social media speculation",
+          "Gibson's own post-2020 public statements (if any) referencing his earlier warnings in light of Weinstein, Epstein, or other confirmed cases",
+          "Fact-check status of the most viral Gibson quotes about Hollywood abuse — which are confirmed, which are fabricated, and what the fabrication pattern reveals about how the narrative is being managed",
+          "Brief note on 2025 Palisades Fire and Newsom criticism only if it connects to the outsider-vs-system frame — one line maximum, not a standalone beat",
+          "Corey Feldman and Elijah Wood current status — did their warnings get any institutional vindication post-Weinstein, and how does that compare to Gibson's trajectory"
+        ],
+        "searchPriorities": [
+          "Epstein files Hollywood connections 2025 2026 — what names appear, what is documented vs. alleged",
+          "Mel Gibson Epstein Hollywood warnings — credible journalism pieces vs. social media speculation, distinguish sources",
+          "Mel Gibson recent interviews 2022 2023 2024 Hollywood corruption — any updated public statements",
+          "Mel Gibson fake quotes Hollywood pedophilia — Snopes or journalism fact-checks identifying specific fabricated statements",
+          "Corey Feldman Elijah Wood post-Weinstein institutional response — did any of their named accusations get official follow-up"
+        ],
+        "targetWordCount": 270
+      }
+    ],
+    "globalSearchThemes": [
+      "Hollywood institutional protection mechanisms — how studios and agencies manage talent scandals to protect the system rather than individuals, with named examples and dateable decisions",
+      "Selective enforcement pattern — documented cases of industry figures with worse legal records than Gibson who retained access during the same period he was blackballed",
+      "Icon Productions history and independence model — how Gibson's production and distribution bypass worked mechanically and why it threatened the majors' control",
+      "Gibson's pre-scandal public statements on Hollywood corruption — primary source verification priority; distinguish confirmed statements from viral fabrications",
+      "Epstein-Hollywood connection — what is documented in released files vs. what is social media speculation, with source quality flagged",
+      "Fake Gibson quotes circulation — which specific viral quotes are fabricated, useful for the script's credibility move in section s3",
+      "Comeback economics — how Hollywood decides when a blackballed figure is rehabilitable, what the box office threshold appears to be, and what conditions are attached to restored access"
+    ],
+    "risks": [
+      "The 1998 'demonic Hollywood' interview may not be verifiable as a primary source — if it traces back only to secondhand YouTube compilations, the script must flag it as unconfirmed rather than treat it as a hard receipt; the structural argument survives without it but the thesis section weakens",
+      "The Epstein-Gibson connection is currently medium-confidence speculation; overclaiming it will undermine the structural argument — the script should use it as unresolved pressure in the coda, not as proof in the body",
+      "Gibson's antisemitic statements are real and documented; the script must not inadvertently frame them as fabricated or as purely strategic attacks — the structural argument works even if Gibson is genuinely antisemitic, and the script should not require him to be innocent to make the selective enforcement point",
+      "The 'selective enforcement' argument in s5 requires specific named comparisons with accurate timelines — vague gestures at Hollywood hypocrisy will read as weak; the section needs dateable facts and named institutions, not atmospheric indictment",
+      "Viral fake Gibson quotes are in wide circulation; if the script uses any of them as primary evidence without verification, it will be immediately discredited — fact-check every Gibson quote before scripting, and use the debunking of fakes as a credibility move rather than hiding it",
+      "The domestic abuse allegations against Gibson (Grigorieva) are real and resulted in a legal plea — the script must not minimize these in service of the structural argument; the argument is that the enforcement was selective, not that Gibson was blameless",
+      "The Newsom/Palisades Fire beat risks pulling the coda into unrelated political territory — include only if it directly reinforces the outsider-vs-system frame, and cap at one sentence"
+    ],
+    "skip": [
+      "Beat_05 (GUMU miners strike TV news research) — completely irrelevant to the Gibson arc, artifact of a mismatched source scrape",
+      "Beat_08 (Newsom 2028 presidential motivation) — only relevant as a one-line contextual note in the coda if Gibson's fire criticism connects to the outsider frame; do not build into a section",
+      "Beat_11 (Mains PhD immigration media coverage) — irrelevant, same mismatched source as beat_05",
+      "Beat_12 (California film tax credit $330M cap) — irrelevant to Gibson's story arc",
+      "Extended treatment of Gibson's acting career post-2016 — individual acting roles after Hacksaw Ridge are not section-worthy unless they illustrate the rehabilitation-on-system-terms argument",
+      "Gibson's father Hutton Gibson's Holocaust denial — relevant as one-line explanatory texture in s4 for Gibson's worldview, not a standalone beat or section",
+      "Detailed biography of Gibson's Australian childhood and early acting training — the script's minimum backstory threshold is Icon Productions and the Mad Max/Lethal Weapon salary peak; earlier biography does not materially explain the escalation",
+      "Extended treatment of the Grigorieva custody dispute legal proceedings beyond the battery plea and settlement figures — the legal resolution is the beat, not the procedural detail"
+    ]
+  },
+  "sectionQueryPlanningModel": "claude-sonnet-4-6",
+  "sectionQueryPlanning": {
+    "globalQueries": [
+      {
+        "label": "Gibson selective enforcement vs. Hollywood protected figures",
+        "objective": "Find comparative journalism documenting industry figures with worse legal records than Gibson who retained access during the same blackball period — Roman Polanski, Victor Salva, Harvey Weinstein institutional protection timelines",
+        "searchMode": "news_web",
+        "query": "Hollywood selective enforcement Roman Polanski Victor Salva Harvey Weinstein industry protection Mel Gibson blackball comparison"
+      },
+      {
+        "label": "Gibson pre-scandal Hollywood corruption warnings primary sourcing",
+        "objective": "Locate primary source verification for Gibson's pre-2006 public statements about Hollywood child abuse and institutional corruption — distinguish confirmed interviews from viral fabrications",
+        "searchMode": "news_web",
+        "query": "Mel Gibson Hollywood pedophilia warning interview 1998 2003 2004 demonic child abuse primary source verified quote"
+      },
+      {
+        "label": "Fake Gibson quotes fact-check roundup",
+        "objective": "Identify which specific viral Gibson quotes about Hollywood abuse are confirmed fabrications — needed for the credibility move in s3 and to protect the script from using unverified material",
+        "searchMode": "news_web",
+        "query": "Mel Gibson fake quotes Hollywood pedophilia fact check Snopes fabricated misattributed viral"
+      },
+      {
+        "label": "Icon Productions independence model and studio threat",
+        "objective": "Confirm Icon Productions founding mandate, Passion of the Christ distribution mechanics via Newmarket Films, and any trade press reaction registering the studios' alarm at the bypass model",
+        "searchMode": "news_web",
+        "query": "Icon Productions Mel Gibson founding 1989 Passion of the Christ Newmarket Films distribution studio rejection Hollywood trade press reaction 2004"
+      }
+    ],
+    "sectionQueries": [
+      {
+        "sectionId": "s1",
+        "articleQueries": [
+          "Mel Gibson salary per film 1990s Ransom Lethal Weapon 4 highest paid actor Hollywood $20 million",
+          "Passion of the Christ 2004 production budget worldwide box office gross $612 million $30 million verified figures"
+        ],
+        "videoQueries": [
+          "Mel Gibson Hollywood career rise fall blackball explained documentary"
+        ],
+        "socialQueries": [
+          "Mel Gibson tried to warn Hollywood pedophilia Epstein was right all along"
+        ],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s2",
+        "articleQueries": [
+          "Braveheart 1995 financing Icon Productions Paramount Pictures budget Mel Gibson self-funded production deal",
+          "Passion of the Christ studio rejections which studios passed Mel Gibson Newmarket Films distribution deal 2004"
+        ],
+        "videoQueries": [
+          "Mel Gibson Icon Productions Passion of the Christ independent film Hollywood outsider director"
+        ],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s3",
+        "articleQueries": [
+          "Mel Gibson 2017 podcast interview Hollywood child trafficking abuse statement which podcast host",
+          "Corey Feldman Hollywood pedophilia warnings timeline Elijah Wood 2016 interview industry response parallel Gibson"
+        ],
+        "videoQueries": [
+          "Mel Gibson Hollywood pedophilia warning compilation interview verified source original clip"
+        ],
+        "socialQueries": [
+          "Mel Gibson Hollywood quote pedophilia real or fake misattributed viral Reddit"
+        ],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s4",
+        "articleQueries": [
+          "Mel Gibson 2006 DUI arrest antisemitic rant verbatim quote TMZ original report July 28 2006",
+          "Ari Emanuel statement Mel Gibson dropped agency 2006 antisemitic rant William Morris quote"
+        ],
+        "videoQueries": [],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s5",
+        "articleQueries": [
+          "Victor Salva 1988 conviction child abuse Disney Powder 1995 hired knew criminal record",
+          "Roman Polanski Academy membership timeline 1977 conviction 2003 Oscar Pianist 2018 expelled industry support letters 2009"
+        ],
+        "videoQueries": [],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s6",
+        "articleQueries": [
+          "Hangover Part II Mel Gibson cast veto 2010 who objected replacement cameo studio statement",
+          "Joe Eszterhas letter Mel Gibson Maccabees 2012 antisemitism accusations Warner Bros. project cancelled"
+        ],
+        "videoQueries": [],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s7",
+        "articleQueries": [
+          "Hacksaw Ridge 2016 financing production company budget studio involvement independent Mel Gibson",
+          "Robert Downey Jr. Mel Gibson defense give the guy a break Golden Globes speech year quote confirmed",
+          "Mel Gibson directing projects after Hacksaw Ridge announced stalled cancelled 2017 2018 2019 2020 2021 2022 2023 2024"
+        ],
+        "videoQueries": [],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s8",
+        "articleQueries": [
+          "Epstein files 2025 2026 Hollywood connections documented names released credible journalism vs speculation",
+          "Mel Gibson interview 2022 2023 2024 Hollywood corruption Weinstein Epstein earlier warnings vindicated"
+        ],
+        "videoQueries": [
+          "Mel Gibson warned Hollywood Epstein pedophilia network 2024 2025 reaction documentary"
+        ],
+        "socialQueries": [
+          "Mel Gibson Epstein files Hollywood vindicated warned us 2025 2026 Twitter Reddit"
+        ],
+        "podcastQueries": []
+      }
+    ]
+  }
+}

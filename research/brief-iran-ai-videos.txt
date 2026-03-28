@@ -1,0 +1,21 @@
+This should be a flat writer-facing research pack about the recent wave of AI-generated Iran war / Iran conflict videos that went viral across X, TikTok, YouTube, Reddit, and news coverage.
+
+Do not over-structure this as a documentary outline first. The main goal is to collect the strongest material on the internet and compile it cleanly for a writer.
+
+Priority:
+1. Find the most viral, most dramatic, most backlash-heavy AI Iran videos and any direct uploads or reposts of them.
+2. Find news segments, fact checks, podcasts, interviews, and commentary where people explicitly discuss these Iran AI videos, whether they were fake, why they spread, who believed them, and what they say about the information environment.
+3. Find audience reaction: tweets/X posts, Reddit posts, YouTube comments if available, creator reactions, media reactions, and any notable backlash or confusion.
+4. Find the hardest reporting receipts and fact-based articles that explain what the videos were, when they spread, what claims they made, and why they mattered.
+
+The final output should feel like a writer desk:
+- a short summary at the top
+- the craziest story points
+- an insane clips section with the best links to potentially use in the edit
+- an important quotes section with the most usable lines from videos, interviews, podcasts, or articles
+- an audience reaction section
+- article receipts
+
+Prefer direct/source videos and major reporting whenever possible. Keep track of notable fake clips, backlash clips, fact-check clips, news explainer clips, and podcast/interview clips.
+
+This is a current media/manipulation story, so the pack should focus on what actually happened online, why the videos spread, who amplified them, how people reacted, and what the strongest receipts/clips are.

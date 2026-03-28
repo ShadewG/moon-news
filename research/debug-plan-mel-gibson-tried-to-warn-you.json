@@ -1,0 +1,622 @@
+{
+  "clipId": "de8c6eee-cad4-49a5-a0b1-e4d454a98749",
+  "title": "Mel Gibson Tried To Warn You",
+  "sourceUrl": "https://www.youtube.com/watch?v=vtSnBsI4raU",
+  "broadResearchProvider": "perplexity",
+  "broadResearchModel": "sonar-pro",
+  "broadResearch": {
+    "factualOverview": "Mel Gibson, a Hollywood superstar who built a career on action blockbusters like Mad Max and Lethal Weapon before directing the ultra-conservative religious epic The Passion of the Christ, faced a cascade of scandals from the mid-2000s onward, including a 2006 DUI arrest with antisemitic rants, homophobic comments traced to the 1990s, and leaked 2010 audio of racist and abusive tirades toward ex-girlfriend Oksana Grigorieva amid domestic violence allegations; these triggered industry blacklisting by agencies and casts, yet he staged a quiet reinvention through indie directing like Hacksaw Ridge, exposing Hollywood's image-management incentives where overt bigotry justifies cancellation but financial viability prompts selective forgiveness.",
+    "originPremise": "Gibson created Icon Productions in 1989, self-financing and directing The Passion of the Christ (2004) as an Aramaic-language epic portraying Christ's Passion from a traditionalist Catholic viewpoint, grossing $612 million worldwide despite pre-release boycotts over his father's Holocaust denial, establishing him as a financier of countercultural faith-based films that challenged Hollywood's secular liberal consensus.",
+    "keyFacts": [
+      {
+        "fact": "In 1983, Gibson received a three-month driving ban in Toronto for DUI while filming Mrs. Soffel.",
+        "sourceLabel": "Business Insider timeline",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "1991 El Pais interview: Gibson made homophobic remarks, e.g., 'They take it up the ass. This is only for taking a shit,' drawing LGBTQ+ backlash; refused Playboy apology in 1995 but met GLAAD for detente.",
+        "sourceLabel": "Business Insider; Wikipedia",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "July 28, 2006: Arrested in Malibu for DUI, ranted antisemitic slurs to officer ('Fucking Jews... Jews are responsible for all the wars in the world'), later apologized citing alcoholism relapse.",
+        "sourceLabel": "Business Insider; Wikipedia",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "2010: Leaked tapes of Gibson abusing Oksana Grigorieva with racist slurs ('Take that n***** baby out of here') and threats; she filed restraining order; he pleaded no contest to misdemeanor battery in 2011, got probation, anger management, $750k settlement.",
+        "sourceLabel": "Business Insider; Wikipedia",
+        "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+        "confidence": "high"
+      },
+      {
+        "fact": "Post-2006/2010 scandals: Dropped by William Morris Endeavor agency; removed from Hangover II due to cast objection; career declined but revived with Hacksaw Ridge (2016, two Oscars).",
+        "sourceLabel": "Wikipedia; Business Insider",
+        "url": "https://en.wikipedia.org/wiki/Mel_Gibson",
+        "confidence": "high"
+      }
+    ],
+    "tensions": [
+      "Hollywood blacklists Gibson for bigotry (e.g., agency drop, Hangover II ouster) but rehabilitates him when films profit (Hacksaw Ridge Oscars), revealing profit-over-principle incentives.",
+      "Gibson's public apologies frame scandals as 'alcoholism relapses' or 'edited tapes,' contradicting raw audio evidence and prior unrepentant statements (e.g., 1995 Playboy refusal)."
+    ],
+    "broaderSystem": "Hollywood's selective moral enforcement: a power structure that weaponizes scandals for image-management and coalition control, escalating against independent financiers of conservative/religious content (e.g., Passion of the Christ) while hesitating against bankable talents, driven by institutional drift toward advertiser-friendly optics over consistent ethics.",
+    "runwayBeats": [
+      "Gibson as 1980s-90s action icon (Mad Max, Lethal Weapon) and Icon Productions founder, rising to Passion of the Christ financier-director, embodying self-reliant conservative Catholicism amid liberal Hollywood.",
+      "1990s homophobia accusations build pattern of inflammatory persona, escalating scrutiny tied to family Holocaust denial leaks.",
+      "2006 DUI as pressure-cooker trigger: career-peak arrest exposes antisemitism, igniting media pile-on amid alcoholism history."
+    ],
+    "turningPoints": [
+      "2006 DUI arrest and antisemitic rant: shifts Hollywood from tolerance (prior DUIs, homophobia) to active shunning, linking Gibson to father's denialism.",
+      "2010 Grigorieva tapes leak: escalates to domestic/racist crisis, prompting agency drop and role losses, redefining him as untouchable pariah.",
+      "2016 Hacksaw Ridge release: Oscar wins mark forgiveness pivot, altering industry coalition from blacklist to selective embrace."
+    ],
+    "stakeShifters": [
+      "Gibson's Icon Productions financial independence deterred total cancellation, allowing direct-to-profit directing comeback.",
+      "Grigorieva's restraining order and custody settlement (2011): legal maneuver extracts $750k+ concessions, neutralizing her as leak source.",
+      "Apology tour and sobriety claims (post-2006): publicist-managed detente (e.g., GLAAD 1995) buys time, while indie allies like Jodie Foster enable roles like The Beaver."
+    ],
+    "resolutionMechanism": "System failed dramatic total erasure (due to Gibson's self-financing via Icon and proven box-office draw) but won quieter leverage through sustained blacklisting from A-list starring roles and agency representation until 2016, forcing career pivot to directing while extracting apologies, probation, and fines that managed public image without killing profitability.",
+    "openQuestions": [
+      "Did Hollywood hesitate full cancellation due to unrevealed financial ties (e.g., Warner Bros. distribution of planned Maccabees project)?",
+      "How did Gibson's traditionalist Catholicism and father's influence shape the 'threatening' persona beyond surface bigotry?"
+    ],
+    "sectionCandidates": [
+      {
+        "title": "The Icon Empire: Building Hollywood's Outsider Fortress",
+        "whyItMatters": "Establishes founding premise of self-financed religious epics like Passion, explaining why Gibson menaced the secular studio system and deterred total war."
+      },
+      {
+        "title": "Pattern of Provocations: From 90s Slurs to the 2006 Trigger",
+        "whyItMatters": "Runway beats showing prehistory of homophobia/DUI tolerance turning to escalation, surfacing contradictions in Hollywood's selective outrage."
+      },
+      {
+        "title": "Tapes and Blacklist: The 2010 Pressure Cooker Explodes",
+        "whyItMatters": "Operational climax with leaks, agency drops, and role losses; highlights stake-shifters like restraining orders reshaping leverage."
+      },
+      {
+        "title": "Quiet Reinvention: How the System Settled for Half-Victory",
+        "whyItMatters": "Resolution mechanism via indie pivot and Oscars, exposing incentives where profit trumps permanent cancellation."
+      },
+      {
+        "title": "The Real Warning: Hollywood's Moral Machinery Exposed",
+        "whyItMatters": "Synthesizes broader system, contradictions, and hidden consequences for Moon's against-obvious angle on image-management power."
+      }
+    ],
+    "sourceGroups": [
+      {
+        "label": "Core Timeline and Confirmed Incidents",
+        "reason": "Primary factual backbone separating scandals from speculation",
+        "urls": [
+          "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10"
+        ]
+      },
+      {
+        "label": "Career Arc and Industry Fallout",
+        "reason": "Context on rise, blacklist, reinvention with Wikipedia reliability",
+        "urls": [
+          "https://en.wikipedia.org/wiki/Mel_Gibson"
+        ]
+      },
+      {
+        "label": "Recent Commentary Videos",
+        "reason": "Sharpens Hollywood 'turn against' debate for reaction analysis",
+        "urls": [
+          "https://www.youtube.com/watch?v=qIbYqbn18Us"
+        ]
+      },
+      {
+        "label": "Reinvention Overviews",
+        "reason": "Post-2023 perspectives on quieter resolution",
+        "urls": [
+          "https://greekcitytimes.com/2026/01/05/the-turbulent-life-of-mel-gibson-stardom-scandal-and-reinvention/"
+        ]
+      }
+    ]
+  },
+  "broadResearchMemo": "Initial broad research memo\nOverview: Mel Gibson, a Hollywood superstar who built a career on action blockbusters like Mad Max and Lethal Weapon before directing the ultra-conservative religious epic The Passion of the Christ, faced a cascade of scandals from the mid-2000s onward, including a 2006 DUI arrest with antisemitic rants, homophobic comments traced to the 1990s, and leaked 2010 audio of racist and abusive tirades toward ex-girlfriend Oksana Grigorieva amid domestic violence allegations; these triggered industry blacklisting by agencies and casts, yet he staged a quiet reinvention through indie directing like Hacksaw Ridge, exposing Hollywood's image-management incentives where overt bigotry justifies cancellation but financial viability prompts selective forgiveness.\nOrigin premise: Gibson created Icon Productions in 1989, self-financing and directing The Passion of the Christ (2004) as an Aramaic-language epic portraying Christ's Passion from a traditionalist Catholic viewpoint, grossing $612 million worldwide despite pre-release boycotts over his father's Holocaust denial, establishing him as a financier of countercultural faith-based films that challenged Hollywood's secular liberal consensus.\nKey facts:\n- In 1983, Gibson received a three-month driving ban in Toronto for DUI while filming Mrs. Soffel.\n  source: Business Insider timeline\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- 1991 El Pais interview: Gibson made homophobic remarks, e.g., 'They take it up the ass. This is only for taking a shit,' drawing LGBTQ+ backlash; refused Playboy apology in 1995 but met GLAAD for detente.\n  source: Business Insider; Wikipedia\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- July 28, 2006: Arrested in Malibu for DUI, ranted antisemitic slurs to officer ('Fucking Jews... Jews are responsible for all the wars in the world'), later apologized citing alcoholism relapse.\n  source: Business Insider; Wikipedia\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- 2010: Leaked tapes of Gibson abusing Oksana Grigorieva with racist slurs ('Take that n***** baby out of here') and threats; she filed restraining order; he pleaded no contest to misdemeanor battery in 2011, got probation, anger management, $750k settlement.\n  source: Business Insider; Wikipedia\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  confidence: high\n- Post-2006/2010 scandals: Dropped by William Morris Endeavor agency; removed from Hangover II due to cast objection; career declined but revived with Hacksaw Ridge (2016, two Oscars).\n  source: Wikipedia; Business Insider\n  url: https://en.wikipedia.org/wiki/Mel_Gibson\n  confidence: high\nTensions and contradictions:\n- Hollywood blacklists Gibson for bigotry (e.g., agency drop, Hangover II ouster) but rehabilitates him when films profit (Hacksaw Ridge Oscars), revealing profit-over-principle incentives.\n- Gibson's public apologies frame scandals as 'alcoholism relapses' or 'edited tapes,' contradicting raw audio evidence and prior unrepentant statements (e.g., 1995 Playboy refusal).\nBroader system: Hollywood's selective moral enforcement: a power structure that weaponizes scandals for image-management and coalition control, escalating against independent financiers of conservative/religious content (e.g., Passion of the Christ) while hesitating against bankable talents, driven by institutional drift toward advertiser-friendly optics over consistent ethics.\nRunway beats that make the headline legible:\n- Gibson as 1980s-90s action icon (Mad Max, Lethal Weapon) and Icon Productions founder, rising to Passion of the Christ financier-director, embodying self-reliant conservative Catholicism amid liberal Hollywood.\n- 1990s homophobia accusations build pattern of inflammatory persona, escalating scrutiny tied to family Holocaust denial leaks.\n- 2006 DUI as pressure-cooker trigger: career-peak arrest exposes antisemitism, igniting media pile-on amid alcoholism history.\nTurning points that changed the incentives or coalition:\n- 2006 DUI arrest and antisemitic rant: shifts Hollywood from tolerance (prior DUIs, homophobia) to active shunning, linking Gibson to father's denialism.\n- 2010 Grigorieva tapes leak: escalates to domestic/racist crisis, prompting agency drop and role losses, redefining him as untouchable pariah.\n- 2016 Hacksaw Ridge release: Oscar wins mark forgiveness pivot, altering industry coalition from blacklist to selective embrace.\nStake-shifting moves and countermeasures:\n- Gibson's Icon Productions financial independence deterred total cancellation, allowing direct-to-profit directing comeback.\n- Grigorieva's restraining order and custody settlement (2011): legal maneuver extracts $750k+ concessions, neutralizing her as leak source.\n- Apology tour and sobriety claims (post-2006): publicist-managed detente (e.g., GLAAD 1995) buys time, while indie allies like Jodie Foster enable roles like The Beaver.\nActual resolution mechanism: System failed dramatic total erasure (due to Gibson's self-financing via Icon and proven box-office draw) but won quieter leverage through sustained blacklisting from A-list starring roles and agency representation until 2016, forcing career pivot to directing while extracting apologies, probation, and fines that managed public image without killing profitability.\nOpen questions:\n- Did Hollywood hesitate full cancellation due to unrevealed financial ties (e.g., Warner Bros. distribution of planned Maccabees project)?\n- How did Gibson's traditionalist Catholicism and father's influence shape the 'threatening' persona beyond surface bigotry?\nSection-worthy subtopics:\n- The Icon Empire: Building Hollywood's Outsider Fortress: Establishes founding premise of self-financed religious epics like Passion, explaining why Gibson menaced the secular studio system and deterred total war.\n- Pattern of Provocations: From 90s Slurs to the 2006 Trigger: Runway beats showing prehistory of homophobia/DUI tolerance turning to escalation, surfacing contradictions in Hollywood's selective outrage.\n- Tapes and Blacklist: The 2010 Pressure Cooker Explodes: Operational climax with leaks, agency drops, and role losses; highlights stake-shifters like restraining orders reshaping leverage.\n- Quiet Reinvention: How the System Settled for Half-Victory: Resolution mechanism via indie pivot and Oscars, exposing incentives where profit trumps permanent cancellation.\n- The Real Warning: Hollywood's Moral Machinery Exposed: Synthesizes broader system, contradictions, and hidden consequences for Moon's against-obvious angle on image-management power.\nHigh-value source clusters:\n- Core Timeline and Confirmed Incidents: Primary factual backbone separating scandals from speculation\n  - https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n- Career Arc and Industry Fallout: Context on rise, blacklist, reinvention with Wikipedia reliability\n  - https://en.wikipedia.org/wiki/Mel_Gibson\n- Recent Commentary Videos: Sharpens Hollywood 'turn against' debate for reaction analysis\n  - https://www.youtube.com/watch?v=qIbYqbn18Us\n- Reinvention Overviews: Post-2023 perspectives on quieter resolution\n  - https://greekcitytimes.com/2026/01/05/the-turbulent-life-of-mel-gibson-stardom-scandal-and-reinvention/\n\nStructured preserved beat ledger:\n- beat_01 [origin] [high] Gibson created Icon Productions in 1989, self-financing and directing The Passion of the Christ (2004) as an Aramaic-language epic portraying Christ's Passion from a traditionalist Catholic viewpoint, grossing $612 million worldwide despite pre-release boycotts over his father's Holocaust denial, establishing him as a financier of countercultural faith-based films that challenged Hollywood's secular liberal consensus.\n  source: Broad research synthesis\n- beat_02 [escalation] [high] July 28, 2006: Arrested in Malibu for DUI, ranted antisemitic slurs to officer ('Fucking Jews... Jews are responsible for all the wars in the world'), later apologized citing alcoholism relapse.\n  source: Business Insider; Wikipedia\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n- beat_03 [escalation] [high] 2006 DUI arrest and antisemitic rant: shifts Hollywood from tolerance (prior DUIs, homophobia) to active shunning, linking Gibson to father's denialism.\n  source: Broad research turning point\n- beat_04 [operational_detail] [high] Gibson is in talks to direct 'Lethal Weapon 5' as of December 2021.\n  source: Cancel Mel Gibson, Hollywood's Leading Anti-Semite - The Atlantic\n  url: https://www.theatlantic.com/culture/archive/2021/12/mel-gibson-anti-semitism/620873\n- beat_05 [operational_detail] [high] Gibson was arrested on Malibu's Pacific Coast Highway for drunk driving in 2006.\n  source: Cancel Mel Gibson, Hollywood's Leading Anti-Semite - The Atlantic\n  url: https://www.theatlantic.com/culture/archive/2021/12/mel-gibson-anti-semitism/620873\n- beat_06 [relationship_turn] [high] Initially collaborating on the project, Eszterhas became concerned about Gibson's alleged prejudices and felt trapped due to contractual/moral constraints.\n  source: Mel Gibson in 'anti-Jewish' row with writer Joe Eszterhas - BBC News\n  url: https://www.bbc.com/news/entertainment-arts-17692563\n- beat_07 [relationship_turn] [high] Collaboration between some Catholic scholars and the ADL to attack Gibson's movie behind his back.\n  source: MALIGNING MEL GIBSON - Catholic League\n  url: https://www.catholicleague.org/maligning-mel-gibson-3\n- beat_08 [motive_frame] [medium] Opposition to globalisation, neoliberalism, and the 'woke agenda' aligned with traditionalist views.\n  source: The Turbulent Life of Mel Gibson: Stardom, Scandal and Reinvention\n  url: https://greekcitytimes.com/2026/01/05/the-turbulent-life-of-mel-gibson-stardom-scandal-and-reinvention\n- beat_09 [deterrent] [medium] Grigorieva's restraining order and custody settlement (2011): legal maneuver extracts $750k+ concessions, neutralizing her as leak source.\n  source: Broad research stake-shifter\n- beat_10 [resolution] [high] System failed dramatic total erasure (due to Gibson's self-financing via Icon and proven box-office draw) but won quieter leverage through sustained blacklisting from A-list starring roles and agency representation until 2016, forcing career pivot to directing while extracting apologies, probation, and fines that managed public image without killing profitability.\n  source: Broad research resolution\n- beat_11 [operational_detail] [high] 1983: DUI-related incident in Toronto led to 3-month driving ban.\n  source: Mel Gibson Controversies, Including Antisemitism Accusations - Business Insider\n  url: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n- beat_12 [operational_detail] [high] Joe Eszterhas was hired to write the screenplay for 'The Maccabees'.\n  source: Mel Gibson in 'anti-Jewish' row with writer Joe Eszterhas - BBC News\n  url: https://www.bbc.com/news/entertainment-arts-17692563\n\nSupplemental article facts from scraped reporting:\n\nSource: Mel Gibson Controversies, Including Antisemitism Accusations - Business Insider\nURL: https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10\n  key fact: Mel Gibson was banned from driving in 1983 in Toronto for three months after a DUI-related rear-end accident.\n  key fact: In 1991, Gibson made homophobic comments in an interview which sparked backlash from the LGBTQ+ community.\n  actor: Mel Gibson\n  actor: Winona Ryder\n  operational detail: 1983: DUI-related incident in Toronto led to 3-month driving ban.\n  operational detail: 1991: Homophobic remarks made in El Pais interview.\n  motive: Struggles with alcoholism leading to loss of control and offensive remarks.\n  motive: Hostility and bigotry manifesting in antisemitic and homophobic slurs.\n  relationship turn: Initial confrontational and offensive remarks towards LGBTQ+ and Jewish communities.\n  relationship turn: Later engagement in dialogue with GLAAD leading to some reconciliation.\n  deterrent: Public backlash and criticism from LGBTQ+ organizations and Jewish community.\n  deterrent: Legal consequences including arrest, probation, counseling, fines, and restraining orders.\n  quote: \"\"They take it up the ass. This is only for taking a shit.\"\"\n  quote: \"\"With this look, who's going to think I'm gay? I don't lend myself to that type of confusion.\"\"\n\nSource: The Turbulent Life of Mel Gibson: Stardom, Scandal and Reinvention\nURL: https://greekcitytimes.com/2026/01/05/the-turbulent-life-of-mel-gibson-stardom-scandal-and-reinvention\n  key fact: Mel Gibson is marking his 70th birthday in 2026.\n  key fact: He has been scouting locations at Mount Athos and Rome for the sequel to The Passion of the Christ.\n  actor: Mel Gibson\n  actor: George Miller\n  operational detail: Spent several days at Mount Athos and Rome recently scouting locations for The Passion of the Christ sequel.\n  operational detail: Gained breakthrough role as Max Rockatansky in Mad Max, a low-budget dystopian film.\n  motive: Opposition to globalisation, neoliberalism, and the 'woke agenda' aligned with traditionalist views.\n  motive: His move to Sydney was motivated by family desire to avoid Vietnam War conscription for his brother.\n  relationship turn: Initially a global film star with mainstream Hollywood success.\n  relationship turn: Career damaged by public scandals and controversy, leading to near-blacklisting.\n  deterrent: Publicized antisemitic remarks damaging his reputation.\n  deterrent: Struggles with alcoholism affecting career.\n  quote: \"Gibson has long positioned himself against globalisation, neoliberalism and what he has described as the “woke agenda.”\"\n  quote: \"Despite earning just $9,000 for the role, the film grossed more than $100 million worldwide.\"\n\nSource: Mel Gibson in 'anti-Jewish' row with writer Joe Eszterhas - BBC News\nURL: https://www.bbc.com/news/entertainment-arts-17692563\n  key fact: Hollywood screenwriter Joe Eszterhas accused Mel Gibson of shelving the film 'The Maccabees' because Gibson 'hates Jews'.\n  key fact: Warner Bros halted production on 'The Maccabees' due to Eszterhas' script lacking 'a sense of triumph'.\n  actor: Mel Gibson\n  actor: Joe Eszterhas\n  operational detail: Joe Eszterhas was hired to write the screenplay for 'The Maccabees'.\n  operational detail: Warner Bros halted production citing script quality issues.\n  motive: Eszterhas alleges Gibson announced 'The Maccabees' project to deflect charges of anti-Semitism affecting his career.\n  motive: Gibson's decision to halt the project with Eszterhas was based on dissatisfaction with the script's quality, not prejudice.\n  relationship turn: Initially collaborating on the project, Eszterhas became concerned about Gibson's alleged prejudices and felt trapped due to contractual/moral constraints.\n  relationship turn: Their relationship deteriorated into public accusation and denial, with Eszterhas accusing Gibson of anti-Semitism, and Gibson refuting this and blaming script quality for halting the project.\n  deterrent: Warner Bros' rejection of Eszterhas' script was a key factor in shelving the project.\n  deterrent: Gibson’s 2006 anti-Semitic remarks during his arrest hurt his industry reputation, adding context to accusations.\n  quote: \"'the reason you won't make [it] is the ugliest possible one. You hate Jews' - Joe Eszterhas\"\n  quote: \"'I became increasingly worried that I'd made a grave mistake hooking up with you' - Joe Eszterhas\"\n\nSource: Cancel Mel Gibson, Hollywood's Leading Anti-Semite - The Atlantic\nURL: https://www.theatlantic.com/culture/archive/2021/12/mel-gibson-anti-semitism/620873\n  key fact: Mel Gibson is widely recognized for anti-Semitic views and statements.\n  key fact: Gibson has been reported making racist slurs and sexist remarks.\n  actor: Mel Gibson\n  actor: Joshua Malina\n  operational detail: Gibson is in talks to direct 'Lethal Weapon 5' as of December 2021.\n  operational detail: Gibson was arrested on Malibu's Pacific Coast Highway for drunk driving in 2006.\n  motive: Hollywood appears to overlook Gibson's prejudices due to his box-office draw.\n  motive: The lack of a strict cancel culture implies societal tolerance of anti-Semitism in entertainment.\n  relationship turn: Joshua Malina personally refuses to work with Mel Gibson despite respecting the Lethal Weapon franchise and Danny Glover.\n  relationship turn: Warner Bros. and other Hollywood executives seem to overlook Gibson’s bigotry when deciding hiring.\n  deterrent: Public outrage and calls for cancellation have failed to prevent Gibson from receiving major directing and acting roles.\n  deterrent: Hollywood’s powerful executives' willingness to employ Gibson despite his controversial history.\n  quote: \"Mel Gibson is a well-known Jew-hater (anti-Semite is too mild).\"\n  quote: \"Fucking Jews. The Jews are responsible for all the wars in the world.\"\n\nSource: MALIGNING MEL GIBSON - Catholic League\nURL: https://www.catholicleague.org/maligning-mel-gibson-3\n  key fact: Mel Gibson's movie 'The Passion' has been criticized primarily due to his depiction as a traditional Catholic and the film's alleged portrayal of Jews.\n  key fact: A controversial March New York Times Magazine article depicted Mel Gibson as an ultra-conservative Catholic following his elderly father Hutton Gibson's footsteps.\n  actor: Mel Gibson\n  actor: Hutton Gibson\n  operational detail: The New York Times Magazine published a piece in March framing Gibson as a retro and ultra-conservative Catholic.\n  operational detail: Catholic scholars and the ADL used a stolen script of the film to launch public criticisms before its release.\n  motive: Secular elites...",
+  "planningBeats": [
+    {
+      "beatId": "beat_01",
+      "category": "origin",
+      "detail": "Gibson created Icon Productions in 1989, self-financing and directing The Passion of the Christ (2004) as an Aramaic-language epic portraying Christ's Passion from a traditionalist Catholic viewpoint, grossing $612 million worldwide despite pre-release boycotts over his father's Holocaust denial, establishing him as a financier of countercultural faith-based films that challenged Hollywood's secular liberal consensus.",
+      "sourceTitle": "Broad research synthesis",
+      "url": null,
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_02",
+      "category": "escalation",
+      "detail": "July 28, 2006: Arrested in Malibu for DUI, ranted antisemitic slurs to officer ('Fucking Jews... Jews are responsible for all the wars in the world'), later apologized citing alcoholism relapse.",
+      "sourceTitle": "Business Insider; Wikipedia",
+      "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_03",
+      "category": "escalation",
+      "detail": "2006 DUI arrest and antisemitic rant: shifts Hollywood from tolerance (prior DUIs, homophobia) to active shunning, linking Gibson to father's denialism.",
+      "sourceTitle": "Broad research turning point",
+      "url": null,
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_04",
+      "category": "operational_detail",
+      "detail": "Gibson is in talks to direct 'Lethal Weapon 5' as of December 2021.",
+      "sourceTitle": "Cancel Mel Gibson, Hollywood's Leading Anti-Semite - The Atlantic",
+      "url": "https://www.theatlantic.com/culture/archive/2021/12/mel-gibson-anti-semitism/620873",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_05",
+      "category": "operational_detail",
+      "detail": "Gibson was arrested on Malibu's Pacific Coast Highway for drunk driving in 2006.",
+      "sourceTitle": "Cancel Mel Gibson, Hollywood's Leading Anti-Semite - The Atlantic",
+      "url": "https://www.theatlantic.com/culture/archive/2021/12/mel-gibson-anti-semitism/620873",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_06",
+      "category": "relationship_turn",
+      "detail": "Initially collaborating on the project, Eszterhas became concerned about Gibson's alleged prejudices and felt trapped due to contractual/moral constraints.",
+      "sourceTitle": "Mel Gibson in 'anti-Jewish' row with writer Joe Eszterhas - BBC News",
+      "url": "https://www.bbc.com/news/entertainment-arts-17692563",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_07",
+      "category": "relationship_turn",
+      "detail": "Collaboration between some Catholic scholars and the ADL to attack Gibson's movie behind his back.",
+      "sourceTitle": "MALIGNING MEL GIBSON - Catholic League",
+      "url": "https://www.catholicleague.org/maligning-mel-gibson-3",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_08",
+      "category": "motive_frame",
+      "detail": "Opposition to globalisation, neoliberalism, and the 'woke agenda' aligned with traditionalist views.",
+      "sourceTitle": "The Turbulent Life of Mel Gibson: Stardom, Scandal and Reinvention",
+      "url": "https://greekcitytimes.com/2026/01/05/the-turbulent-life-of-mel-gibson-stardom-scandal-and-reinvention",
+      "priority": "medium"
+    },
+    {
+      "beatId": "beat_09",
+      "category": "deterrent",
+      "detail": "Grigorieva's restraining order and custody settlement (2011): legal maneuver extracts $750k+ concessions, neutralizing her as leak source.",
+      "sourceTitle": "Broad research stake-shifter",
+      "url": null,
+      "priority": "medium"
+    },
+    {
+      "beatId": "beat_10",
+      "category": "resolution",
+      "detail": "System failed dramatic total erasure (due to Gibson's self-financing via Icon and proven box-office draw) but won quieter leverage through sustained blacklisting from A-list starring roles and agency representation until 2016, forcing career pivot to directing while extracting apologies, probation, and fines that managed public image without killing profitability.",
+      "sourceTitle": "Broad research resolution",
+      "url": null,
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_11",
+      "category": "operational_detail",
+      "detail": "1983: DUI-related incident in Toronto led to 3-month driving ban.",
+      "sourceTitle": "Mel Gibson Controversies, Including Antisemitism Accusations - Business Insider",
+      "url": "https://www.businessinsider.com/mel-gibson-controversies-timeline-antisemitism-dui-2023-10",
+      "priority": "high"
+    },
+    {
+      "beatId": "beat_12",
+      "category": "operational_detail",
+      "detail": "Joe Eszterhas was hired to write the screenplay for 'The Maccabees'.",
+      "sourceTitle": "Mel Gibson in 'anti-Jewish' row with writer Joe Eszterhas - BBC News",
+      "url": "https://www.bbc.com/news/entertainment-arts-17692563",
+      "priority": "high"
+    }
+  ],
+  "researchStrategyModel": "claude-sonnet-4-6",
+  "researchStrategy": {
+    "primaryAngle": "Hollywood didn't cancel Mel Gibson because he was a bigot — they tolerated his bigotry for decades, then weaponized it selectively when he became financially and ideologically inconvenient. The real story is how the industry's moral machinery works: not as a justice system, but as a leverage system that activates when control is threatened and deactivates when profitability returns.",
+    "backupAngles": [
+      "Gibson as the outsider who built his own studio fortress precisely because he understood Hollywood would eventually come for anyone who operated outside its financial and ideological consensus — and was proven right",
+      "The Passion of the Christ as the actual trigger point: a $612 million proof-of-concept that a traditionalist Catholic could bypass the studio system entirely, which made Gibson dangerous before the 2006 arrest made him disposable",
+      "The Maccabees project as the clearest evidence of Hollywood's double game: attaching Warner Bros. to a Gibson-directed Jewish heroism epic as reputation rehab, then quietly burying it when the optics math no longer worked for either side"
+    ],
+    "hookIdea": "Open on the contradiction stacked tight and chronological: Mel Gibson got a DUI in 1983 — Hollywood kept hiring him. He made homophobic slurs in a 1991 interview — Hollywood kept hiring him. His father publicly denied the Holocaust while Gibson was directing a film about the death of Christ — Hollywood distributed it and watched it gross $612 million. Then on July 28, 2006, he got pulled over on Pacific Coast Highway, told a sheriff's deputy that Jews are responsible for all the wars in the world, and suddenly Hollywood had a principle. The question is not what Gibson did. The question is why that night, after all of it, was the line.",
+    "storyType": "Celeb Scandal as systemic indictment — uses Gibson's personal arc (outsider rise, ideological collision with Hollywood, scandal cascade, selective exile, quiet reinvention) as a lens to expose how Hollywood's moral enforcement is a coalition-management and financial-leverage operation, not an ethics system",
+    "mustPreserveBeats": [
+      "beat_01",
+      "beat_02",
+      "beat_03",
+      "beat_05",
+      "beat_06",
+      "beat_10",
+      "beat_11",
+      "beat_12"
+    ],
+    "beatDecisions": [
+      {
+        "beatId": "beat_01",
+        "beat": "Icon Productions, self-financing, Passion of the Christ, $612M gross, traditionalist Catholic countercultural positioning",
+        "decision": "core",
+        "reason": "Foundational mechanism beat. Explains why Gibson was both threatening and hard to fully erase. Without it, the blacklist reads as moral response rather than leverage operation.",
+        "targetSectionId": "s2"
+      },
+      {
+        "beatId": "beat_02",
+        "beat": "July 28, 2006 arrest, antisemitic rant to officer, apology citing alcoholism",
+        "decision": "core",
+        "reason": "The central trigger event. Granular detail of the rant and the apology framing are both essential to s4's argument that the content and timing — not the offense category — changed the math.",
+        "targetSectionId": "s4"
+      },
+      {
+        "beatId": "beat_03",
+        "beat": "2006 arrest as shift from tolerance to active shunning, linking to father's denialism",
+        "decision": "core",
+        "reason": "Connective tissue beat that explicitly names the tolerance-to-enforcement transition. Needed to bridge s3 and s4 without the audience having to infer the shift themselves.",
+        "targetSectionId": "s4"
+      },
+      {
+        "beatId": "beat_04",
+        "beat": "Gibson in talks to direct Lethal Weapon 5 as of December 2021",
+        "decision": "supporting",
+        "reason": "Concrete evidence that leverage expired and rehabilitation was real, not cosmetic. Supports s6's argument that the system settled for a half-victory once financial math shifted. Not core because Hacksaw Ridge already carries the resolution weight.",
+        "targetSectionId": "s6"
+      },
+      {
+        "beatId": "beat_05",
+        "beat": "Gibson arrested on Pacific Coast Highway, Malibu, 2006",
+        "decision": "core",
+        "reason": "Specific location detail (PCH) is used in the hook and s4. Keeps the arrest grounded and cinematic rather than abstract. Redundant with beat_02 in content but the sourced PCH specificity is needed for the cold open.",
+        "targetSectionId": "s1"
+      },
+      {
+        "beatId": "beat_06",
+        "beat": "Eszterhas felt trapped by contractual/moral constraints, grew concerned about Gibson's prejudices during Maccabees collaboration",
+        "decision": "core",
+        "reason": "Operational detail inside the Maccabees gambit. The 'felt trapped' framing shows the collaboration was already unstable before the public rupture — essential to s5's double-game argument.",
+        "targetSectionId": "s5"
+      },
+      {
+        "beatId": "beat_07",
+        "beat": "Catholic scholars and ADL collaborated to attack Gibson's Passion behind his back",
+        "decision": "supporting",
+        "reason": "Adds texture to the pre-2006 adversarial coalition forming around Gibson, but risks pulling focus toward a religious culture-war subplot. Useful as a single sentence in s2 or s3 to show institutional opposition was already organized before the arrest.",
+        "targetSectionId": "s3"
+      },
+      {
+        "beatId": "beat_08",
+        "beat": "Gibson's opposition to globalisation, neoliberalism, and 'woke agenda' aligned with traditionalist views",
+        "decision": "skip",
+        "reason": "Too abstract and ideologically framed for this arc. The documentary's thesis is about financial leverage, not culture-war positioning. This beat risks muddying the mechanism argument with a political overlay that isn't sourced to a specific incident or decision.",
+        "targetSectionId": null
+      },
+      {
+        "beatId": "beat_09",
+        "beat": "Grigorieva restraining order and $750k+ custody settlement, neutralizing her as leak source",
+        "decision": "supporting",
+        "reason": "The settlement detail is operationally relevant to s5 — it shows Gibson's legal team was managing the 2010 fallout as a leverage problem, not just a personal one. Not core because the tapes and Hangover II removal carry more structural weight in s5.",
+        "targetSectionId": "s5"
+      },
+      {
+        "beatId": "beat_10",
+        "beat": "System failed total erasure due to Icon and box-office draw; won quieter leverage through blacklisting from A-list starring roles until 2016, forcing pivot to directing",
+        "decision": "core",
+        "reason": "This is the resolution thesis stated explicitly. The 'pivot to directing' framing is the clearest evidence that the system extracted a structural concession without killing profitability. Essential to s6 and s7.",
+        "targetSectionId": "s6"
+      },
+      {
+        "beatId": "beat_11",
+        "beat": "1983 DUI-related incident in Toronto, 3-month driving ban",
+        "decision": "core",
+        "reason": "First data point in the tolerance stack. The cold open in s1 explicitly references the 1983 DUI as the earliest tolerated offense. Without this sourced detail, the chronological contradiction argument loses its anchor.",
+        "targetSectionId": "s1"
+      },
+      {
+        "beatId": "beat_12",
+        "beat": "Joe Eszterhas hired to write The Maccabees screenplay",
+        "decision": "core",
+        "reason": "Names the operational actor in the Maccabees gambit. Eszterhas is not a background figure — his hiring, his open letter, and his accusation that Gibson announced the project to deflect antisemitism charges are the mechanism of s5's double-game argument.",
+        "targetSectionId": "s5"
+      }
+    ],
+    "videoStructure": [
+      {
+        "sectionId": "s1",
+        "title": "The Line That Wasn't a Line Until It Was",
+        "purpose": "Contradiction-led cold open. Stack the tolerated offenses chronologically — 1983 DUI ban, 1991 homophobic slurs in print, father's Holocaust denial running parallel to Passion pre-release, studios distributing the film anyway — then land on July 28, 2006 as the moment Hollywood suddenly discovered a principle. The hook forces the audience to ask what actually changed, not what Gibson did.",
+        "whyItMatters": "Establishes the central anomaly immediately. The audience needs to feel the inconsistency before any explanation arrives. If the opener describes Gibson's scandals in chronological order without the contradiction framing, it reads as biography. The opener has to make the selective enforcement feel strange and deliberate — because it was.",
+        "evidenceNeeded": [
+          "Confirmed 1983 Toronto DUI ban — three months, rear-end accident, Business Insider timeline",
+          "1991 El Pais homophobic quotes verbatim: 'They take it up the ass. This is only for taking a shit'",
+          "Hutton Gibson Holocaust denial public record and timing relative to Passion pre-release boycotts",
+          "July 28 2006 arrest on Pacific Coast Highway — exact quote to deputy, immediate industry response timeline",
+          "Confirmation Gibson was still represented by William Morris Endeavor and actively employed up to the 2006 arrest"
+        ],
+        "searchPriorities": [
+          "William Morris Endeavor client list or representation confirmation pre-2006",
+          "Hollywood trade coverage of Gibson between 2004 Passion release and 2006 arrest — was he in active development on new projects",
+          "Hutton Gibson Holocaust denial interview dates and whether major studios were aware before agreeing to distribute Passion"
+        ],
+        "targetWordCount": 320
+      },
+      {
+        "sectionId": "s2",
+        "title": "The Fortress He Built Before They Could Lock Him Out",
+        "purpose": "Origin and founding premise beat. Establish Icon Productions (1989) and The Passion of the Christ — self-financed, shot in Aramaic, released through Newmarket after every major studio passed, grossing $612 million worldwide — as Gibson's deliberate construction of financial independence from Hollywood. This is not disposable backstory. It explains why total cancellation was structurally difficult and why the industry's posture toward Gibson was already adversarial before 2006.",
+        "whyItMatters": "Without this beat, the 2006 blacklist looks like a moral response to a moral offense. With it, the blacklist looks like an institution finally finding a pretext to move against someone who had been operating outside its control for years and had just proven that control was not necessary to make $612 million. Icon Productions is the mechanism that made Gibson both threatening and hard to fully erase — and the industry knew it.",
+        "evidenceNeeded": [
+          "Icon Productions founding year (1989) and initial mandate",
+          "Passion of the Christ financing structure — how much was Gibson's own money, whether outside investors were involved",
+          "Pre-release boycott details: ADL and Catholic scholars using a stolen script to launch public criticism before release, as reported by Catholic League",
+          "Why major studios passed on distribution and how Newmarket Films came to distribute",
+          "Final worldwide gross ($612 million confirmed) and domestic breakdown",
+          "Any studio executive quotes from 2003-2004 expressing concern about Gibson's independence or the film's content"
+        ],
+        "searchPriorities": [
+          "Icon Productions founding and financing history — trade press 1989-2004",
+          "Newmarket Films distribution deal for Passion — reported reasons major studios declined",
+          "ADL and Catholic scholars pre-release campaign — stolen script claim sourced to Catholic League, needs independent corroboration",
+          "Gibson quotes about why he self-financed rather than going through studio system"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s3",
+        "title": "Twenty Years of Warning Signs Hollywood Chose to Ignore",
+        "purpose": "Pattern and escalation beat. Walk the pre-2006 offense history — 1983 DUI, 1991 homophobia, 1995 Playboy refusal to apologize, GLAAD detente that changed nothing operationally, father's denialism — and show that each incident was absorbed without consequence while Gibson's box office value kept rising. This section's job is to make the tolerance feel as deliberate as the eventual punishment.",
+        "whyItMatters": "The tolerance is the story, not just the scandals. If Hollywood had a consistent ethics standard, Gibson would have faced consequences in 1991 or 1995. The fact that he kept getting major studio deals — Lethal Weapon sequels, Braveheart, What Women Want — means the industry knew exactly who Gibson was and made a calculation each time. The 2006 response was a choice, not an automatic moral reflex. This section builds that case.",
+        "evidenceNeeded": [
+          "1991 El Pais interview full context and immediate industry response — or documented absence of response",
+          "1995 Playboy interview — Gibson's refusal to apologize for homophobic remarks, exact framing",
+          "GLAAD detente details — what was agreed, whether it was publicized, whether it changed anything operationally for Gibson's career",
+          "Gibson's major studio projects between 1991 and 2006 with approximate box office figures — to quantify his financial value during the tolerance period",
+          "Any documented complaints from industry figures during this period that were ignored or suppressed"
+        ],
+        "searchPriorities": [
+          "GLAAD 1995 meeting with Gibson — outcome and whether it was reported at the time",
+          "Hollywood trade coverage of 1991 homophobia incident — how it was handled versus 2006 response",
+          "Gibson box office performance 1991-2005 to quantify financial value during tolerance period",
+          "Any industry figures who publicly objected to Gibson's continued employment before 2006"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s4",
+        "title": "July 28, 2006: The Night the Math Changed",
+        "purpose": "Climax trigger beat. The 2006 arrest in granular detail — PCH stop, the rant to the deputy, the report leak, the 48-hour media explosion. Then the immediate industry response: apology tour, agency posture shift, casting decisions. This is where the story shifts from tolerance to active management, and the section needs to show that the response was fast and coordinated in a way that prior incidents never triggered.",
+        "whyItMatters": "The arrest itself is not the story — Gibson had been arrested before. What matters is the specific content (antisemitic, on the record, to a law enforcement officer, immediately leaked to press) and the timing (post-Passion, when Gibson had already proven he could operate independently and profit without Hollywood's blessing). The speed and coordination of the industry response is the tell.",
+        "evidenceNeeded": [
+          "Deputy's arrest report details and how it became public — TMZ's role in publishing the deputy's notes",
+          "Gibson's initial statement versus his formal apology — timeline and language differences",
+          "William Morris Endeavor response timeline — when they dropped him and the stated reason",
+          "Immediate casting and project fallout in the weeks after the arrest",
+          "ADL and Jewish community organization formal responses — statements, demands, whether Gibson met with them"
+        ],
+        "searchPriorities": [
+          "TMZ original 2006 arrest report publication — how the deputy's notes became public and the timeline",
+          "WME official statement on dropping Gibson — exact language and date",
+          "Gibson apology statement full text and date",
+          "Any projects in development that were quietly shelved in the weeks after July 2006"
+        ],
+        "targetWordCount": 360
+      },
+      {
+        "sectionId": "s5",
+        "title": "The Tapes, the Blacklist Made Structural, and the Maccabees Gambit",
+        "purpose": "Escalation and hidden-layer beat combined. The 2010 Oksana Grigorieva tape leaks — racist slurs, domestic violence threats, restraining order, $750k settlement, no-contest plea — arrive when Gibson is already weakened and convert the informal blacklist into something structural: removed from Hangover II by cast objection, agency representation gone, A-list starring roles dried up. Then the Maccabees project — Gibson hiring Joe Eszterhas to write a Jewish heroism film with Warner Bros. attached — is introduced as the rehabilitation gambit that exposes the double game. Eszterhas later accused Gibson of announcing the project purely to deflect antisemitism charges, then sabotaging it. Warner Bros. cited script quality. The project died. Both beats belong together because they show the same dynamic from opposite directions: the blacklist tightening while the rehabilitation performance was already underway.",
+        "whyItMatters": "The 2010 tapes matter not just because they were worse than 2006 but because they arrived when Gibson was already weakened and spread the social cost of association beyond executives to talent — the Hangover II removal was a cast decision, not a studio decision. The Maccabees story is the clearest evidence that the blacklist was never absolute, it was negotiable: Warner Bros. was willing to attach itself to a Gibson-directed Jewish heroism film, which means the exile was always conditional. When the negotiation broke down publicly via Eszterhas's open letter, both sides retreated. The episode shows the industry's relationship with Gibson was always about managing appearances.",
+        "evidenceNeeded": [
+          "Tape leak timeline — outlet (Radaronline), timing, and reported source",
+          "Racist slur and domestic violence threat characterization from tapes as reported — characterize rather than quote extensively",
+          "Hangover II removal details — which cast members objected, how the decision was communicated",
+          "No-contest plea details — date, charges, probation terms, anger management requirement",
+          "$750k settlement confirmation",
+          "Maccabees development timeline — when Gibson announced it, when Eszterhas was hired, when Warner Bros. attached",
+          "Eszterhas open letter key accusation: Gibson announced the project to deflect antisemitism charges",
+          "Gibson's counter-statement blaming script quality"
+        ],
+        "searchPriorities": [
+          "Radaronline tape leak origin — reported source and circumstances",
+          "Hangover II cast objection — Todd Phillips and cast statements at the time",
+          "Gibson 2011 court appearance and plea details",
+          "Joe Eszterhas open letter full text — publication date and outlet",
+          "Warner Bros. statement on Maccabees development halt",
+          "Whether Maccabees announcement timing was reported as connected to Gibson's post-2006 rehabilitation effort"
+        ],
+        "targetWordCount": 420
+      },
+      {
+        "sectionId": "s6",
+        "title": "Hacksaw Ridge and the Terms of Forgiveness",
+        "purpose": "Resolution beat. Hacksaw Ridge (2016) — directed by Gibson, two Oscars, critical rehabilitation. But the terms matter: Gibson directed, he did not star. He was back in the room but not on the poster. By 2021 he was in talks to direct Lethal Weapon 5. By 2026 he is scouting locations for a Passion sequel at Mount Athos and Rome. The system settled for a half-victory — it extracted apologies, probation, fines, and a decade of reduced leverage, then let the leverage expire when the financial math shifted back.",
+        "whyItMatters": "The rehabilitation arc is not a redemption story — it is proof of the original thesis. Gibson came back not because the industry decided his offenses were forgivable on moral grounds, but because he remained financially viable as a director and because enough time had passed for the optics to reset. The Oscars for Hacksaw Ridge were awarded by the same industry that had blacklisted him six years earlier. Nothing structural changed. The leverage just expired.",
+        "evidenceNeeded": [
+          "Hacksaw Ridge production financing — Icon Productions involvement versus studio backing, Lionsgate distribution",
+          "Oscar nominations and wins — categories, whether Gibson was nominated for directing",
+          "Industry reception at the 2017 ceremony — any protests or statements",
+          "Lethal Weapon 5 talks confirmation and current status as of 2021 Atlantic reporting",
+          "Passion of the Christ sequel scouting details — Mount Athos and Rome, sourced to Greek City Times 2026",
+          "Whether Gibson has been represented by a major agency since the blacklist period"
+        ],
+        "searchPriorities": [
+          "Hacksaw Ridge financing and Lionsgate distribution deal",
+          "2017 Oscar ceremony — Gibson directing nomination reception and any industry statements",
+          "Current agency representation status for Gibson post-Hacksaw",
+          "Gibson statements about his relationship with Hollywood post-2016 — any interviews on the exile period or cancel culture"
+        ],
+        "targetWordCount": 300
+      },
+      {
+        "sectionId": "s7",
+        "title": "What the Warning Actually Was",
+        "purpose": "Closing consequence beat — unresolved pressure, not clean moral recap. The warning Gibson's story delivers is not about his innocence. It is structural: Hollywood's moral enforcement activates when financial or ideological control is threatened and deactivates when profitability returns. The industry did not cancel Gibson. It managed him. The management worked until it no longer needed to. And the same machinery is still running.",
+        "whyItMatters": "The Moon move is to refuse both obvious endings — Gibson as martyr or Gibson as cautionary tale — and land on the mechanism instead. The audience should leave understanding that the system that punished Gibson also protected others, rehabilitated Gibson when convenient, and will apply the same logic to the next person who becomes simultaneously valuable and inconvenient. That is the unresolved pressure. The warning was never about Mel Gibson specifically. It was about how the room decides who gets to stay in it.",
+        "evidenceNeeded": [
+          "Gibson post-2016 quotes about Hollywood's power structure, his exile period, or cancel culture — any available interviews",
+          "Contrast cases: other industry figures with documented bigotry or abuse who retained full representation during the 2006-2016 period — factual and public record only",
+          "Icon Productions filmography and financing structure 1989-2016 — to quantify his actual financial independence from the studio system",
+          "Gibson's own framing of the Passion as a challenge to Hollywood consensus — any quotes from the 2003-2004 press period"
+        ],
+        "searchPriorities": [
+          "Gibson post-2016 interviews on Hollywood, cancel culture, or his own blacklist period",
+          "Comparative cases of industry figures with similar documented offenses who retained full representation 2006-2016 — public record only",
+          "Icon Productions full filmography 1989-2016 with financing and distribution breakdown",
+          "Gibson quotes from 2003-2004 Passion press framing the film as a challenge to secular Hollywood"
+        ],
+        "targetWordCount": 300
+      }
+    ],
+    "globalSearchThemes": [
+      "Hollywood agency representation norms — what triggers a client drop and what the industry standard was in 2006-2010",
+      "Icon Productions full filmography and financing structure 1989-2016 — to quantify Gibson's actual financial independence from the studio system",
+      "Comparative blacklist cases: who was and was not blacklisted for similar documented offenses in the same period",
+      "Gibson's father Hutton Gibson — Holocaust denial public record, interview dates, and whether studios were aware before agreeing to distribute Passion",
+      "TMZ and Radaronline role in both the 2006 and 2010 leaks — reported circumstances of each publication",
+      "ADL and Jewish community organization formal positions on Gibson across the full timeline — 2004 Passion, 2006 arrest, 2012 Maccabees, 2016 Hacksaw",
+      "Gibson's own statements about his faith, his father's influence, and his view of Hollywood's power structure — interviews across the full arc",
+      "Hacksaw Ridge awards season campaign — who ran it, whether Gibson's rehabilitation was actively managed by a PR operation, and how the industry positioned the film"
+    ],
+    "risks": [
+      "The story can tip into Gibson-as-martyr framing if the systemic critique is not balanced with clear acknowledgment that his offenses were real, documented, and serious — the Moon move is to hold both simultaneously without resolving the tension",
+      "The combined s5 section (tapes plus Maccabees) is the longest and most complex beat — it needs tight internal sequencing so the two threads reinforce rather than compete with each other",
+      "Comparative cases of unpunished offenders are high-value for the systemic argument but legally and editorially sensitive — use only cases with documented public record, not allegation or rumor",
+      "The 2010 tapes section contains extremely graphic content — the script should characterize rather than quote extensively, using the existence and nature of the recordings as evidence rather than replaying them",
+      "Gibson's current Passion sequel development (2026) is sourced to a single outlet (Greek City Times) and should be treated as reported but flagged as unverified until corroborated",
+      "The Catholic League source is an advocacy publication defending Gibson — use only for factual operational details (stolen script claim) and flag the source's position explicitly in the script"
+    ],
+    "skip": [
+      "Deep biographical childhood material — Gibson's Australian upbringing and family Vietnam War draft avoidance is color, not causal; one sentence maximum if used at all",
+      "Mad Max and Lethal Weapon plot summaries — the career arc can be established with franchise names and box office figures without scene description",
+      "Gibson's personal religious practice details beyond what directly connects to Passion financing and the industry's reaction to it",
+      "The Winona Ryder party anecdote — reported but unverified, and including it risks making the pattern section feel like a pile-on rather than a structural argument",
+      "Extended treatment of Gibson's acting roles post-2016 — the directing comeback is the resolution mechanism; his acting work is a footnote unless it directly illustrates the conditional terms of rehabilitation",
+      "The Maccabees as a standalone section — it works better as the hidden-layer reveal inside the escalation beat rather than as its own structural unit, which would over-promote a supporting mechanism"
+    ]
+  },
+  "sectionQueryPlanningModel": "claude-sonnet-4-6",
+  "sectionQueryPlanning": {
+    "globalQueries": [
+      {
+        "label": "Hollywood agency representation norms 2006 client drop",
+        "objective": "Establish what triggered WME dropping Gibson and whether agency client drops for public bigotry were standard practice or exceptional in 2006-2010",
+        "searchMode": "news_web",
+        "query": "William Morris Endeavor dropped Mel Gibson 2006 antisemitic agency statement"
+      },
+      {
+        "label": "Icon Productions filmography financing 1989-2016",
+        "objective": "Quantify Gibson's actual financial independence from the studio system across the full arc to support the leverage-not-morality thesis",
+        "searchMode": "news_web",
+        "query": "Icon Productions Mel Gibson filmography self-financed films 1989 2016 distribution deals"
+      },
+      {
+        "label": "Comparative blacklist cases same period",
+        "objective": "Identify documented cases of industry figures with similar public offenses who retained full representation 2006-2016, supporting the selective enforcement argument",
+        "searchMode": "news_web",
+        "query": "Hollywood executives directors retained employment despite racism antisemitism documented 2006 2010 double standard"
+      },
+      {
+        "label": "ADL formal positions on Gibson full timeline",
+        "objective": "Track ADL responses across 2004 Passion, 2006 arrest, 2012 Maccabees, and 2016 Hacksaw to show how institutional pressure varied with Gibson's financial leverage",
+        "searchMode": "news_web",
+        "query": "ADL Anti-Defamation League Mel Gibson statements 2004 2006 2012 2016 Passion antisemitism response"
+      }
+    ],
+    "sectionQueries": [
+      {
+        "sectionId": "s1",
+        "articleQueries": [
+          "TMZ Mel Gibson 2006 arrest report deputy notes published antisemitic rant leak timeline",
+          "Mel Gibson William Morris agency represented projects development 2004 2005 2006 before arrest"
+        ],
+        "videoQueries": [
+          "Mel Gibson 2006 DUI arrest antisemitic rant what happened that night Hollywood reaction"
+        ],
+        "socialQueries": [
+          "Mel Gibson Hollywood tolerated homophobia DUI before 2006 why cancelled then"
+        ],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s2",
+        "articleQueries": [
+          "Passion of the Christ financing Mel Gibson self-funded Icon Productions Newmarket distribution studios passed 2004",
+          "Passion of the Christ ADL Catholic scholars script leaked pre-release criticism boycott 2003 2004"
+        ],
+        "videoQueries": [
+          "Passion of the Christ how Mel Gibson bypassed Hollywood studios self-financed $612 million documentary"
+        ],
+        "socialQueries": [],
+        "podcastQueries": [
+          "Passion of the Christ Newmarket Films distribution deal Hollywood studios refused Mel Gibson podcast"
+        ]
+      },
+      {
+        "sectionId": "s3",
+        "articleQueries": [
+          "Mel Gibson 1991 El Pais homophobic interview Hollywood response GLAAD career impact",
+          "Mel Gibson box office earnings 1991 2005 Lethal Weapon Braveheart What Women Want grossing career peak"
+        ],
+        "videoQueries": [
+          "Mel Gibson controversies timeline 1990s homophobia DUI career Hollywood ignored warning signs"
+        ],
+        "socialQueries": [
+          "site:reddit.com Mel Gibson Hollywood ignored controversies before 2006 box office protected"
+        ],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s4",
+        "articleQueries": [
+          "Mel Gibson apology statement July 2006 full text William Morris dropped date antisemitic arrest",
+          "Hutton Gibson Holocaust denial interview dates 2003 2004 statements Mel Gibson father"
+        ],
+        "videoQueries": [
+          "Mel Gibson 2006 arrest Hollywood blacklist how industry responded antisemitism career turning point"
+        ],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s5",
+        "articleQueries": [
+          "Joe Eszterhas open letter Mel Gibson Maccabees full text 2012 hates Jews deflect antisemitism",
+          "Mel Gibson Hangover 2 removed cast objection Todd Phillips statement 2010 2011",
+          "Radaronline Oksana Grigorieva tapes leak 2010 Mel Gibson racist domestic violence source circumstances"
+        ],
+        "videoQueries": [
+          "Mel Gibson Maccabees Joe Eszterhas fallout Warner Bros 2012 antisemitism rehabilitation project collapsed"
+        ],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s6",
+        "articleQueries": [
+          "Hacksaw Ridge 2016 financing Icon Productions Lionsgate distribution Oscar campaign Mel Gibson directing nomination",
+          "Mel Gibson talent agency representation 2016 2017 2018 post Hacksaw Ridge WME CAA signed"
+        ],
+        "videoQueries": [
+          "Mel Gibson Hacksaw Ridge Hollywood comeback 2016 Oscars reaction industry rehabilitation controversy"
+        ],
+        "socialQueries": [],
+        "podcastQueries": []
+      },
+      {
+        "sectionId": "s7",
+        "articleQueries": [
+          "Mel Gibson interview Hollywood cancel culture blacklist exile 2017 2018 2019 2020 his own words"
+        ],
+        "videoQueries": [
+          "Mel Gibson interview Hollywood system power structure woke agenda cancel culture podcast 2018 2020 2022"
+        ],
+        "socialQueries": [
+          "Mel Gibson tried to warn us Hollywood system moral enforcement selective cancel culture Reddit Twitter"
+        ],
+        "podcastQueries": []
+      }
+    ]
+  }
+}

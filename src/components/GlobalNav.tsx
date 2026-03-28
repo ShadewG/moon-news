@@ -4,26 +4,38 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const NAV_ITEMS = [
-  { href: "/board", label: "Board", icon: "◈", desc: "Story research" },
-  { href: "/library", label: "Library", icon: "▶", desc: "Clip library" },
-  { href: "/", label: "Studio", icon: "⊞", desc: "Script analysis" },
+  { href: "/board", label: "Board", icon: "◈" },
+  { href: "/library", label: "Library", icon: "▶" },
+  { href: "/", label: "Studio", icon: "⊞" },
+  { href: "/script-lab", label: "Generate", icon: "✦" },
+  { href: "/moon-analysis", label: "Analysis", icon: "◌" },
+  { href: "/intake", label: "Intake", icon: "⟐" },
+];
+
+const IDEATION_ITEMS = [
+  { href: "/ideation", label: "Ideation" },
 ];
 
 export default function GlobalNav() {
   const pathname = usePathname();
 
-  // Show on all pages
-
-  // Determine active section
   const activeSection = pathname.startsWith("/board")
     ? "/board"
     : pathname.startsWith("/library") || pathname.startsWith("/clips")
       ? "/library"
       : pathname.startsWith("/search")
         ? "/library"
-        : pathname.startsWith("/reports")
-          ? "/"
-          : pathname;
+        : pathname.startsWith("/script-lab")
+          ? "/script-lab"
+          : pathname.startsWith("/moon-analysis")
+            ? "/moon-analysis"
+            : pathname.startsWith("/intake")
+              ? "/intake"
+              : pathname.startsWith("/ideation")
+                ? "/ideation"
+                : pathname.startsWith("/script-agent") || pathname.startsWith("/reports")
+                  ? "/"
+                  : pathname;
 
   return (
     <nav className="global-nav">
@@ -42,6 +54,16 @@ export default function GlobalNav() {
         </Link>
       ))}
       <div className="global-nav-spacer" />
+      <div className="global-nav-sep" />
+      {IDEATION_ITEMS.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={`global-nav-ext${activeSection === "/ideation" ? " global-nav-ext-active" : ""}`}
+        >
+          {item.label}
+        </Link>
+      ))}
       <Link href="/library" className="global-nav-search">
         search
       </Link>
@@ -84,22 +106,29 @@ export default function GlobalNav() {
           border-radius: 3px;
           transition: all 0.12s;
         }
-        .global-nav-item:hover {
-          color: #999;
-          background: #111;
-        }
-        .global-nav-item.active {
-          color: #ccc;
-          background: #151515;
-        }
-        .global-nav-icon {
+        .global-nav-item:hover { color: #999; background: #111; }
+        .global-nav-item.active { color: #ccc; background: #151515; }
+        .global-nav-icon { font-size: 10px; }
+        .global-nav-label { font-size: 11px; }
+        .global-nav-spacer { flex: 1; }
+        .global-nav-ext {
+          padding: 3px 9px;
+          color: #3a6e5a;
+          text-decoration: none;
+          border-radius: 3px;
           font-size: 10px;
+          transition: all 0.12s;
+          border: 1px solid transparent;
         }
-        .global-nav-label {
-          font-size: 11px;
+        .global-nav-ext:hover {
+          color: #5b9;
+          border-color: #1a3a2a;
+          background: #0a1a12;
         }
-        .global-nav-spacer {
-          flex: 1;
+        .global-nav-ext-active {
+          color: #5b9 !important;
+          border-color: #1a3a2a;
+          background: #0a1a12;
         }
         .global-nav-search {
           color: #333;
@@ -109,11 +138,9 @@ export default function GlobalNav() {
           border-radius: 3px;
           font-size: 10px;
           transition: all 0.12s;
+          margin-left: 6px;
         }
-        .global-nav-search:hover {
-          color: #666;
-          border-color: #333;
-        }
+        .global-nav-search:hover { color: #666; border-color: #333; }
       `}</style>
     </nav>
   );

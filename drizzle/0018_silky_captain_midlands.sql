@@ -1,0 +1,2 @@
+ALTER TYPE "public"."script_agent_stage" ADD VALUE 'select_quotes' BEFORE 'build_outline';--> statement-breakpoint
+ALTER TYPE "public"."script_agent_stage" ADD VALUE 'place_quotes' BEFORE 'build_storyboard';

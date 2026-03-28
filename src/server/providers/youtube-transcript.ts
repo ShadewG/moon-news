@@ -1,13 +1,21 @@
 import "server-only";
 
 import { execFile } from "node:child_process";
-import { readFile, unlink } from "node:fs/promises";
+import { readdir, readFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { randomUUID } from "node:crypto";
 
+import { getEnv } from "@/server/config/env";
+
 const execFileAsync = promisify(execFile);
+
+interface YtDlpInvocation {
+  bin: string;
+  prefixArgs: string[];
+  label: string;
+}
 
 export interface TranscriptSegment {
   text: string;
@@ -29,57 +37,121 @@ export async function extractYouTubeTranscript(
   }
 
   const tmpFile = join(tmpdir(), `yt-transcript-${randomUUID()}`);
-  const jsonPath = `${tmpFile}.en.json3`;
+  const tmpDir = dirname(tmpFile);
+  const tmpBase = basename(tmpFile);
+
+  const env = getEnv();
+  const invocations: YtDlpInvocation[] = [
+    {
+      bin: env.MOON_YTDLP_BIN,
+      prefixArgs: [],
+      label: "moon-wrapper",
+    },
+  ];
+
+  if (env.MOON_YTDLP_BIN !== "yt-dlp") {
+    invocations.push({
+      bin: "yt-dlp",
+      prefixArgs: ["--js-runtimes", "node"],
+      label: "agent-reach-compatible-path-yt-dlp",
+    });
+  }
+
+  const errors: string[] = [];
 
   try {
-    // execFile passes args as array — no shell injection possible
-    await execFileAsync("yt-dlp", [
+    for (const invocation of invocations) {
+      try {
+        await runYtDlpTranscriptExtraction(invocation, videoId, tmpFile);
+        return await loadTranscriptSegmentsFromTmpDir(tmpDir, tmpBase);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        errors.push(`${invocation.label}: ${msg}`);
+        await cleanupTmpSubtitleFiles(tmpDir, tmpBase);
+      }
+    }
+
+    throw new Error(errors.join(" | "));
+  } catch (error) {
+    await cleanupTmpSubtitleFiles(tmpDir, tmpBase);
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(`Transcript extraction failed: ${msg}`);
+  }
+}
+
+async function runYtDlpTranscriptExtraction(
+  invocation: YtDlpInvocation,
+  videoId: string,
+  outputPath: string,
+) {
+  await execFileAsync(
+    invocation.bin,
+    [
+      ...invocation.prefixArgs,
+      "--write-sub",
       "--write-auto-sub",
       "--sub-lang", "en",
       "--sub-format", "json3",
       "--skip-download",
       "--no-warnings",
       "--quiet",
-      "-o", tmpFile,
+      "-o", outputPath,
       `https://www.youtube.com/watch?v=${videoId}`,
-    ], { timeout: 30000 });
+    ],
+    { timeout: 30000 },
+  );
+}
 
-    const content = await readFile(jsonPath, "utf8");
-    await unlink(jsonPath).catch(() => {});
+async function cleanupTmpSubtitleFiles(tmpDir: string, tmpBase: string) {
+  const leftoverFiles = await readdir(tmpDir).catch(() => []);
+  await Promise.all(
+    leftoverFiles
+      .filter((name) => name.startsWith(`${tmpBase}.`) && name.endsWith(".json3"))
+      .map((name) => unlink(join(tmpDir, name)).catch(() => {}))
+  );
+}
 
-    const data = JSON.parse(content) as {
-      events?: Array<{
-        tStartMs?: number;
-        dDurationMs?: number;
-        segs?: Array<{ utf8?: string }>;
-      }>;
-    };
+async function loadTranscriptSegmentsFromTmpDir(tmpDir: string, tmpBase: string) {
+  const subtitleFiles = (await readdir(tmpDir))
+    .filter((name) => name.startsWith(`${tmpBase}.`) && name.endsWith(".json3"))
+    .sort();
 
-    const segments: TranscriptSegment[] = [];
-    for (const event of data.events ?? []) {
-      if (!event.segs || event.tStartMs === undefined) continue;
-
-      const text = event.segs
-        .map((s) => s.utf8 ?? "")
-        .join("")
-        .replace(/\n/g, " ")
-        .trim();
-
-      if (!text) continue;
-
-      segments.push({
-        text,
-        startMs: event.tStartMs,
-        durationMs: event.dDurationMs ?? 0,
-      });
-    }
-
-    return segments;
-  } catch (error) {
-    await unlink(jsonPath).catch(() => {});
-    const msg = error instanceof Error ? error.message : String(error);
-    throw new Error(`Transcript extraction failed: ${msg}`);
+  if (subtitleFiles.length === 0) {
+    throw new Error("yt-dlp did not produce a json3 subtitle file");
   }
+
+  const jsonPath = join(tmpDir, subtitleFiles[0]);
+  const content = await readFile(jsonPath, "utf8");
+  await cleanupTmpSubtitleFiles(tmpDir, tmpBase);
+
+  const data = JSON.parse(content) as {
+    events?: Array<{
+      tStartMs?: number;
+      dDurationMs?: number;
+      segs?: Array<{ utf8?: string }>;
+    }>;
+  };
+
+  const segments: TranscriptSegment[] = [];
+  for (const event of data.events ?? []) {
+    if (!event.segs || event.tStartMs === undefined) continue;
+
+    const text = event.segs
+      .map((s) => s.utf8 ?? "")
+      .join("")
+      .replace(/\n/g, " ")
+      .trim();
+
+    if (!text) continue;
+
+    segments.push({
+      text,
+      startMs: event.tStartMs,
+      durationMs: event.dDurationMs ?? 0,
+    });
+  }
+
+  return segments;
 }
 
 /**

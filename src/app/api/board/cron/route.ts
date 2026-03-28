@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getEnv } from "@/server/config/env";
 import {
   runBoardSourcePollCycle,
   runBoardCompetitorRefreshCycle,
@@ -19,6 +20,13 @@ import {
  * - refresh-board-competitors (every 30 min) → runBoardCompetitorRefreshCycle
  */
 export async function POST(request: Request) {
+  if (!getEnv().ENABLE_BOARD_CRON_POLL) {
+    return NextResponse.json({
+      status: "disabled",
+      reason: "ENABLE_BOARD_CRON_POLL is false",
+    });
+  }
+
   // Optional auth check via secret header
   const authHeader = request.headers.get("x-cron-secret");
   const cronSecret = process.env.CRON_SECRET;
