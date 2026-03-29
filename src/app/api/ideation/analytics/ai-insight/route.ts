@@ -7,14 +7,31 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, views, avgRetention, likes, comments, shares, netSubs, duration, channelAvgViews, performance, topComments, deepAnalysis } = body;
+    const { title, views, avgRetention, likes, comments, shares, netSubs, duration, channelAvgViews, performance, topComments, deepAnalysis, commentAnalysis } = body;
     const apiKey = getEnv().ANTHROPIC_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Anthropic API key not configured" }, { status: 500 });
 
     let prompt: string;
     let maxTokens: number;
 
-    if (deepAnalysis) {
+    if (commentAnalysis) {
+      // Comment sentiment analysis mode
+      const commentTexts: string[] = body.comments ?? [];
+      maxTokens = 800;
+      prompt = `You are a YouTube comment analyst for Moon, a documentary-style channel with 1.6M subscribers. Analyze the sentiment and themes of these viewer comments for the video "${title}".
+
+Comments:
+${commentTexts.slice(0, 20).map((c: string, i: number) => `${i + 1}. "${c.slice(0, 200)}"`).join("\n")}
+
+Respond in EXACTLY this JSON format (no markdown, no code fences, just raw JSON):
+{
+  "sentiment": "Positive" or "Mixed" or "Negative",
+  "sentimentScore": number from 0 to 100 (100 = most positive),
+  "themes": ["theme1", "theme2", "theme3"],
+  "keyFeedback": ["feedback point 1", "feedback point 2", "feedback point 3"],
+  "summary": "1-2 sentence summary of overall audience reaction"
+}`;
+    } else if (deepAnalysis) {
       maxTokens = 1200;
       prompt = `You are a senior YouTube channel analyst for Moon, a documentary-style channel with 1.6M subscribers. Provide a comprehensive deep analysis of this video.
 

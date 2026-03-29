@@ -167,18 +167,45 @@ function parseDeepInsight(raw: string): DeepInsight | null {
   return sections;
 }
 
+interface AnalysisReport {
+  title: string;
+  dek: string;
+  summary: string;
+  pills: string[];
+  keyTakeaways: string[];
+  numbersThatMatter: Array<{ label: string; value: string; note: string }>;
+  transcriptFindings: Array<{ heading: string; body: string }>;
+  retentionFindings: Array<{ heading: string; body: string }>;
+  targetDiagnosis: { title: string; summary: string; bullets: string[] } | null;
+  winnerPatterns: Array<{ heading: string; body: string }>;
+  ideaDirections: Array<{ title: string; whyNow: string; evidence: string }>;
+  footerNote: string;
+}
+
 export default function VideoDetailClient({
-  video, retention, comments, recentVideos,
+  video, retention, comments, recentVideos, analysisReport, analysisRunId,
 }: {
   video: VideoAnalytics;
   retention: RetentionPoint[];
   comments: Comment[];
   recentVideos: VideoAnalytics[];
+  analysisReport?: AnalysisReport | null;
+  analysisRunId?: string | null;
 }) {
-  const [activeTab, setActiveTab] = useState<"retention" | "comments" | "compare" | "similar">("retention");
+  const [activeTab, setActiveTab] = useState<"retention" | "comments" | "compare" | "similar" | "analysis" | "lifecycle">(
+    analysisReport ? "analysis" : "retention"
+  );
   const [deepInsight, setDeepInsight] = useState<string | null>(null);
   const [parsedInsight, setParsedInsight] = useState<DeepInsight | null>(null);
   const [insightLoading, setInsightLoading] = useState(false);
+
+  // Lifecycle tracking (Feature 3)
+  const [lifecycleSnapshots, setLifecycleSnapshots] = useState<Array<{ collected_at: string; video_age_hours: number; view_count: number; like_count: number; comment_count: number }>>([]);
+  const [lifecycleLoading, setLifecycleLoading] = useState(false);
+
+  // Comment sentiment analysis (Feature 4)
+  const [sentimentData, setSentimentData] = useState<{ sentiment: string; sentimentScore: number; themes: string[]; keyFeedback: string[]; summary: string } | null>(null);
+  const [sentimentLoading, setSentimentLoading] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState("");
   const [similarVideos, setSimilarVideos] = useState<VideoAnalytics[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
@@ -218,6 +245,64 @@ export default function VideoDetailClient({
     setSimilarVideos(scored);
     setSimilarLoading(false);
   }, [titleKeywords, recentVideos, video.youtube_video_id]);
+
+  // Fetch lifecycle snapshots when LIFECYCLE tab is active (Feature 3)
+  useEffect(() => {
+    if (activeTab !== "lifecycle") return;
+    if (lifecycleSnapshots.length > 0) return;
+    let cancelled = false;
+    setLifecycleLoading(true);
+    fetch(`/api/ideation/videos/${video.youtube_video_id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled) return;
+        setLifecycleSnapshots(data.snapshots ?? []);
+        setLifecycleLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLifecycleLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [activeTab, video.youtube_video_id, lifecycleSnapshots.length]);
+
+  // Comment sentiment analysis (Feature 4)
+  const analyzeSentiment = useCallback(async () => {
+    if (comments.length === 0) return;
+    setSentimentLoading(true);
+    try {
+      const res = await fetch("/api/ideation/analytics/ai-insight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          commentAnalysis: true,
+          title: video.title,
+          comments: comments.slice(0, 20).map(c => c.text),
+        }),
+      });
+      const data = await res.json();
+      const raw = data.insight ?? data.error ?? "";
+      // Try to parse JSON from the response
+      try {
+        const parsed = JSON.parse(raw);
+        setSentimentData(parsed);
+      } catch {
+        // If not valid JSON, try to extract from response
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            setSentimentData(JSON.parse(jsonMatch[0]));
+          } catch {
+            setSentimentData({ sentiment: "Unknown", sentimentScore: 50, themes: [], keyFeedback: [raw], summary: raw });
+          }
+        } else {
+          setSentimentData({ sentiment: "Unknown", sentimentScore: 50, themes: [], keyFeedback: [raw], summary: raw });
+        }
+      }
+    } catch {
+      setSentimentData({ sentiment: "Error", sentimentScore: 0, themes: [], keyFeedback: ["Failed to analyze sentiment"], summary: "Analysis failed" });
+    }
+    setSentimentLoading(false);
+  }, [comments, video.title]);
 
   const startAnalysis = useCallback(async (scope: "video" | "weekly") => {
     setAnalysisStatus("Starting...");
@@ -445,12 +530,143 @@ export default function VideoDetailClient({
 
       {/* Tabs */}
       <div className="ib-window-tabs" style={{ marginBottom: 16 }}>
-        {(["retention", "comments", "similar", "compare"] as const).map(t => (
+        {(["analysis", "retention", "lifecycle", "comments", "similar", "compare"] as const).map(t => (
           <button key={t} className={activeTab === t ? "active" : ""} onClick={() => setActiveTab(t)}>
-            {t === "retention" ? "RETENTION CURVE" : t === "comments" ? `COMMENTS (${comments.length})` : t === "similar" ? `SIMILAR (${similarVideos.length})` : "COMPARE"}
+            {t === "analysis" ? "ANALYSIS" : t === "retention" ? "RETENTION CURVE" : t === "lifecycle" ? "LIFECYCLE" : t === "comments" ? `COMMENTS (${comments.length})` : t === "similar" ? `SIMILAR (${similarVideos.length})` : "COMPARE"}
           </button>
         ))}
       </div>
+
+      {/* Analysis Report */}
+      {activeTab === "analysis" && (
+        analysisReport ? (
+          <div>
+            {/* Summary */}
+            <div className="ib-panel" style={{ marginBottom: 12 }}>
+              <div className="ib-panel-head">
+                <h3>{analysisReport.title}</h3>
+                {analysisReport.pills?.length > 0 && (
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {analysisReport.pills.map((p, i) => <span key={i} className="ib-tag" style={{ borderColor: "var(--ib-positive)", color: "var(--ib-positive-text)" }}>{p}</span>)}
+                  </div>
+                )}
+              </div>
+              <div style={{ padding: 14 }}>
+                <div style={{ fontSize: 13, color: "var(--ib-text-bright)", marginBottom: 8, fontStyle: "italic" }}>{analysisReport.dek}</div>
+                <div style={{ fontSize: 12, color: "var(--ib-text)", lineHeight: 1.7 }}>{analysisReport.summary}</div>
+              </div>
+            </div>
+
+            {/* Key Takeaways */}
+            {analysisReport.keyTakeaways?.length > 0 && (
+              <div className="ib-panel" style={{ marginBottom: 12 }}>
+                <div className="ib-panel-head"><h3>Key Takeaways</h3></div>
+                <div style={{ padding: 14 }}>
+                  {analysisReport.keyTakeaways.map((t, i) => (
+                    <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--ib-border)", fontSize: 12, color: "var(--ib-text)", lineHeight: 1.6, display: "flex", gap: 8 }}>
+                      <span style={{ fontFamily: "var(--ib-mono)", color: "var(--ib-positive-text)", flexShrink: 0, fontSize: 11 }}>{i + 1}.</span>
+                      {t}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Numbers That Matter */}
+            {analysisReport.numbersThatMatter?.length > 0 && (
+              <div className="ib-stat-row" style={{ marginBottom: 12 }}>
+                {analysisReport.numbersThatMatter.map((n, i) => (
+                  <div key={i} className="ib-stat-cell">
+                    <div className="ib-stat-label">{n.label}</div>
+                    <div className="ib-stat-value" style={{ fontSize: 16 }}>{n.value}</div>
+                    <div className="ib-meta" style={{ marginTop: 2 }}>{n.note}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Target Diagnosis */}
+            {analysisReport.targetDiagnosis && (
+              <div className="ib-panel" style={{ marginBottom: 12, borderLeftColor: "var(--ib-cool)", borderLeftWidth: 3 }}>
+                <div className="ib-panel-head"><h3>{analysisReport.targetDiagnosis.title}</h3></div>
+                <div style={{ padding: 14 }}>
+                  <div style={{ fontSize: 12, color: "var(--ib-text)", lineHeight: 1.6, marginBottom: 10 }}>{analysisReport.targetDiagnosis.summary}</div>
+                  {analysisReport.targetDiagnosis.bullets.map((b, i) => (
+                    <div key={i} style={{ padding: "4px 0 4px 12px", borderLeft: "2px solid var(--ib-border)", fontSize: 12, color: "var(--ib-text)", lineHeight: 1.5, marginBottom: 4 }}>{b}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="ib-grid-2" style={{ marginBottom: 12 }}>
+              {/* Transcript Findings */}
+              {analysisReport.transcriptFindings?.length > 0 && (
+                <div className="ib-panel">
+                  <div className="ib-panel-head"><h3>Transcript Findings</h3></div>
+                  {analysisReport.transcriptFindings.map((f, i) => (
+                    <div key={i} style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)" }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ib-text-bright)", marginBottom: 4 }}>{f.heading}</div>
+                      <div style={{ fontSize: 11, color: "var(--ib-text)", lineHeight: 1.6 }}>{f.body}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Retention Findings */}
+              {analysisReport.retentionFindings?.length > 0 && (
+                <div className="ib-panel">
+                  <div className="ib-panel-head"><h3>Retention Findings</h3></div>
+                  {analysisReport.retentionFindings.map((f, i) => (
+                    <div key={i} style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)" }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ib-text-bright)", marginBottom: 4 }}>{f.heading}</div>
+                      <div style={{ fontSize: 11, color: "var(--ib-text)", lineHeight: 1.6 }}>{f.body}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Winner Patterns */}
+            {analysisReport.winnerPatterns?.length > 0 && (
+              <div className="ib-panel" style={{ marginBottom: 12 }}>
+                <div className="ib-panel-head"><h3>Winner Patterns</h3></div>
+                {analysisReport.winnerPatterns.map((p, i) => (
+                  <div key={i} style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ib-positive-text)", marginBottom: 4 }}>{p.heading}</div>
+                    <div style={{ fontSize: 11, color: "var(--ib-text)", lineHeight: 1.6 }}>{p.body}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Idea Directions */}
+            {analysisReport.ideaDirections?.length > 0 && (
+              <div className="ib-panel" style={{ marginBottom: 12 }}>
+                <div className="ib-panel-head"><h3>Idea Directions</h3></div>
+                {analysisReport.ideaDirections.map((idea, i) => (
+                  <div key={i} style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)" }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ib-text-bright)", marginBottom: 2 }}>{idea.title}</div>
+                    <div style={{ fontSize: 11, color: "var(--ib-warn-text)", marginBottom: 2 }}>{idea.whyNow}</div>
+                    <div style={{ fontSize: 11, color: "var(--ib-text-dim)" }}>{idea.evidence}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {analysisReport.footerNote && (
+              <div className="ib-meta" style={{ marginBottom: 16 }}>{analysisReport.footerNote}</div>
+            )}
+          </div>
+        ) : (
+          <div className="ib-panel" style={{ padding: 30, textAlign: "center" }}>
+            <div style={{ color: "var(--ib-text-dim)", marginBottom: 12, fontSize: 12 }}>No analysis report yet for this video.</div>
+            <button className="ib-btn ib-btn-primary" onClick={() => startAnalysis("video")}>
+              RUN DEEP ANALYSIS
+            </button>
+            <div className="ib-meta" style={{ marginTop: 8 }}>Takes 2-5 minutes. Opens in a new tab — come back when done.</div>
+          </div>
+        )
+      )}
 
       {/* Retention */}
       {activeTab === "retention" && (
@@ -475,6 +691,127 @@ export default function VideoDetailClient({
         </div>
       )}
 
+      {/* Lifecycle (Feature 3) */}
+      {activeTab === "lifecycle" && (
+        <div className="ib-panel">
+          <div className="ib-panel-head">
+            <h3>Video Lifecycle</h3>
+            <span className="ib-meta">View accumulation over time</span>
+          </div>
+          {lifecycleLoading ? (
+            <div className="ib-meta" style={{ padding: 20, textAlign: "center" }}>Loading snapshots...</div>
+          ) : lifecycleSnapshots.length === 0 ? (
+            <div className="ib-meta" style={{ padding: 20, textAlign: "center" }}>No snapshot data available. The video tracker collects snapshots over time -- check back later.</div>
+          ) : (
+            <div style={{ padding: 14 }}>
+              {/* SVG line chart */}
+              {(() => {
+                const sorted = [...lifecycleSnapshots].sort((a, b) => a.video_age_hours - b.video_age_hours);
+                const w = 700, h = 220, pad = { t: 15, r: 15, b: 35, l: 55 };
+                const plotW = w - pad.l - pad.r, plotH = h - pad.t - pad.b;
+                const maxHours = sorted[sorted.length - 1]?.video_age_hours ?? 1;
+                const maxViews = Math.max(...sorted.map(s => s.view_count), 1);
+                const toX = (hours: number) => pad.l + (hours / maxHours) * plotW;
+                const toY = (views: number) => pad.t + plotH - (views / maxViews) * plotH;
+
+                const pathD = sorted.map((s, i) => `${i === 0 ? "M" : "L"}${toX(s.video_age_hours).toFixed(1)},${toY(s.view_count).toFixed(1)}`).join(" ");
+
+                // Find milestone values
+                const milestones = [
+                  { label: "24h", hours: 24 },
+                  { label: "48h", hours: 48 },
+                  { label: "7d", hours: 168 },
+                  { label: "30d", hours: 720 },
+                ];
+                const milestoneValues = milestones.map(m => {
+                  const closest = sorted.reduce((best, s) => {
+                    if (Math.abs(s.video_age_hours - m.hours) < Math.abs(best.video_age_hours - m.hours)) return s;
+                    return best;
+                  }, sorted[0]);
+                  return {
+                    ...m,
+                    views: closest && Math.abs(closest.video_age_hours - m.hours) < m.hours * 0.3 ? closest.view_count : null,
+                    actualHours: closest?.video_age_hours ?? 0,
+                  };
+                }).filter(m => m.views != null && m.actualHours <= maxHours);
+
+                // X-axis labels
+                const xTicks = [0, 0.25, 0.5, 0.75, 1].map(r => Math.round(r * maxHours));
+                const formatHours = (hrs: number) => hrs < 48 ? `${hrs}h` : `${Math.round(hrs / 24)}d`;
+
+                return (
+                  <div>
+                    <div style={{ overflowX: "auto" }}>
+                      <svg width={w} height={h} style={{ display: "block", fontFamily: "var(--ib-mono)", fontSize: 9, fill: "#444" }}>
+                        {/* Y gridlines */}
+                        {[0, 0.25, 0.5, 0.75, 1].map(r => (
+                          <g key={r}>
+                            <line x1={pad.l} y1={toY(r * maxViews)} x2={w - pad.r} y2={toY(r * maxViews)} stroke="#1a1a1a" />
+                            <text x={pad.l - 6} y={toY(r * maxViews) + 3} textAnchor="end">{fmtNum(Math.round(r * maxViews))}</text>
+                          </g>
+                        ))}
+                        {/* X labels */}
+                        {xTicks.map(hrs => (
+                          <text key={hrs} x={toX(hrs)} y={h - 5} textAnchor="middle">{formatHours(hrs)}</text>
+                        ))}
+                        {/* Main line */}
+                        <path d={pathD} fill="none" stroke="#5b9" strokeWidth={2} />
+                        {/* Milestone dots */}
+                        {milestoneValues.map(m => (
+                          <g key={m.label}>
+                            <circle cx={toX(m.actualHours)} cy={toY(m.views!)} r={4} fill="#5b9" stroke="#0a0a0a" strokeWidth={1.5} />
+                            <text x={toX(m.actualHours)} y={toY(m.views!) - 8} textAnchor="middle" fill="#5b9" fontSize={9} fontWeight={700}>
+                              {m.label}
+                            </text>
+                          </g>
+                        ))}
+                        {/* Data points */}
+                        {sorted.map((s, i) => (
+                          <circle key={i} cx={toX(s.video_age_hours)} cy={toY(s.view_count)} r={2} fill="#5b9" opacity={0.5} />
+                        ))}
+                      </svg>
+                    </div>
+
+                    {/* Milestone stats */}
+                    {milestoneValues.length > 0 && (
+                      <div className="ib-stat-row" style={{ marginTop: 12 }}>
+                        {milestoneValues.map(m => (
+                          <div key={m.label} className="ib-stat-cell">
+                            <div className="ib-stat-label">Views at {m.label}</div>
+                            <div className="ib-stat-value">{fmtNum(m.views)}</div>
+                          </div>
+                        ))}
+                        {/* Growth rate */}
+                        {milestoneValues.length >= 2 && (
+                          <div className="ib-stat-cell">
+                            <div className="ib-stat-label">Growth Rate</div>
+                            <div className="ib-stat-value" style={{ color: "var(--ib-positive-text)" }}>
+                              {(() => {
+                                const first = milestoneValues[0];
+                                const last = milestoneValues[milestoneValues.length - 1];
+                                if (!first.views || !last.views || first.views === 0) return "\u2014";
+                                const mult = last.views / first.views;
+                                return `${mult.toFixed(1)}x`;
+                              })()}
+                            </div>
+                            <div className="ib-meta">{milestoneValues[0].label} to {milestoneValues[milestoneValues.length - 1].label}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Snapshot count */}
+                    <div className="ib-meta" style={{ marginTop: 8 }}>
+                      {sorted.length} snapshots collected over {formatHours(maxHours)}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Comments */}
       {activeTab === "comments" && (
         <div className="ib-panel">
@@ -482,6 +819,61 @@ export default function VideoDetailClient({
             <h3>Top Comments</h3>
             <span className="ib-meta">{comments.length} loaded</span>
           </div>
+          {/* Sentiment Analysis (Feature 4) */}
+          {comments.length > 0 && (
+            <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)", display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <button
+                className="ib-btn ib-btn-primary"
+                onClick={analyzeSentiment}
+                disabled={sentimentLoading}
+                style={{ fontSize: 10, padding: "6px 14px", flexShrink: 0 }}
+              >
+                {sentimentLoading ? "ANALYZING..." : sentimentData ? "RE-ANALYZE" : "ANALYZE SENTIMENT"}
+              </button>
+              {sentimentData && (
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
+                    <span style={{
+                      fontFamily: "var(--ib-mono)", fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 2,
+                      background: sentimentData.sentiment === "Positive" ? "rgba(74,122,74,0.15)" : sentimentData.sentiment === "Negative" ? "rgba(170,68,68,0.15)" : "rgba(180,160,100,0.15)",
+                      color: sentimentData.sentiment === "Positive" ? "#5b9" : sentimentData.sentiment === "Negative" ? "#c55" : "#b8a86a",
+                      border: `1px solid ${sentimentData.sentiment === "Positive" ? "#2a3a2e" : sentimentData.sentiment === "Negative" ? "#3a2a2a" : "#3a3520"}`,
+                    }}>
+                      {sentimentData.sentiment}
+                    </span>
+                    {sentimentData.sentimentScore != null && (
+                      <span className="ib-meta">Score: {sentimentData.sentimentScore}/100</span>
+                    )}
+                  </div>
+                  {sentimentData.themes.length > 0 && (
+                    <div style={{ marginBottom: 6 }}>
+                      <div style={{ fontFamily: "var(--ib-mono)", fontSize: 9, textTransform: "uppercase", letterSpacing: 1, color: "var(--ib-text-dim)", marginBottom: 4 }}>Top Themes</div>
+                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                        {sentimentData.themes.map((t, i) => (
+                          <span key={i} className="ib-tag" style={{ fontSize: 10 }}>{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {sentimentData.keyFeedback.length > 0 && (
+                    <div style={{ marginBottom: 4 }}>
+                      <div style={{ fontFamily: "var(--ib-mono)", fontSize: 9, textTransform: "uppercase", letterSpacing: 1, color: "var(--ib-text-dim)", marginBottom: 4 }}>Key Feedback</div>
+                      {sentimentData.keyFeedback.map((f, i) => (
+                        <div key={i} style={{ fontSize: 11, color: "var(--ib-text)", lineHeight: 1.6, paddingLeft: 10, borderLeft: "2px solid var(--ib-border)", marginBottom: 3 }}>
+                          {f}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {sentimentData.summary && (
+                    <div style={{ fontSize: 11, color: "var(--ib-text-dim)", lineHeight: 1.5, fontStyle: "italic" }}>
+                      {sentimentData.summary}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           {comments.length === 0 ? (
             <div className="ib-meta" style={{ padding: 20, textAlign: "center" }}>No comments available</div>
           ) : (

@@ -109,6 +109,20 @@ function ago(dateStr: string | null | undefined): string {
   return `${days}d ago`;
 }
 
+function DeltaBadge({ current, previous, suffix = "", isPercentage = false }: { current: number; previous: number | null | undefined; suffix?: string; isPercentage?: boolean }) {
+  if (previous == null || previous === 0) return null;
+  const pctChange = isPercentage ? current - previous : ((current - previous) / Math.abs(previous)) * 100;
+  const isUp = pctChange > 0;
+  const color = isUp ? "#5b9" : "#c55";
+  const arrow = isUp ? "\u2191" : "\u2193";
+  const display = isPercentage ? `${Math.abs(pctChange).toFixed(1)}pp` : `${Math.abs(pctChange).toFixed(0)}%`;
+  return (
+    <span style={{ fontFamily: "var(--ib-mono)", fontSize: 10, color, marginLeft: 6, fontWeight: 600 }}>
+      {arrow}{display}{suffix}
+    </span>
+  );
+}
+
 function classifyVideo(v: VideoAnalytics, allRecent: VideoAnalytics[]): { label: string; color: string } {
   const avg = allRecent.reduce((s, x) => s + (x.views ?? 0), 0) / (allRecent.length || 1);
   const views = v.views ?? 0;
@@ -164,7 +178,7 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
   const [aiLoading, setAiLoading] = useState(false);
   const [videoInsights, setVideoInsights] = useState<Record<string, string>>({});
   const [insightLoading, setInsightLoading] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"recent" | "top" | "traffic" | "audience">("recent");
+  const [activeTab, setActiveTab] = useState<"recent" | "top" | "traffic" | "audience" | "schedule" | "competitors">("recent");
   const [syncing, setSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState("");
   const [analysisStatus, setAnalysisStatus] = useState("");
@@ -180,6 +194,14 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
 
   // Daily data
   const [dailyData] = useState<DailyMetric[]>(initialDailyData);
+
+  // Period comparison data (Feature 1)
+  const [prevPeriodVideos, setPrevPeriodVideos] = useState<VideoAnalytics[] | null>(null);
+
+  // Competitor data (Feature 5)
+  const [competitorOutliers, setCompetitorOutliers] = useState<any[]>([]);
+  const [watchlistChannels, setWatchlistChannels] = useState<any[]>([]);
+  const [competitorsLoading, setCompetitorsLoading] = useState(false);
 
   // Chat state -- persisted to localStorage
   const [chatOpen, setChatOpen] = useState(false);
@@ -259,34 +281,63 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
     }
   }, []);
 
-  // Fetch videos for period
+  // Fetch videos for period — merges analytics + real-time tracker
+  // Also fetches previous period for comparison (Feature 1)
   useEffect(() => {
     const days = periodToDays(period);
     if (days === null) {
-      // ALL period: use the initial data
       setPeriodVideos(null);
+      setPrevPeriodVideos(null);
       return;
     }
     let cancelled = false;
     setPeriodLoading(true);
     const end = dateStr(new Date());
     const start = dateStr(new Date(Date.now() - days * 86400000));
-    fetch(`/api/ideation/youtube-analytics/local-videos?start_date=${start}&end_date=${end}&sort=published_desc&limit=100`)
-      .then(r => r.json())
-      .then(data => {
-        if (!cancelled) {
-          setPeriodVideos(data.videos ?? []);
-          setPeriodLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setPeriodVideos(null);
-          setPeriodLoading(false);
-        }
-      });
+    const prevEnd = dateStr(new Date(Date.now() - days * 86400000));
+    const prevStart = dateStr(new Date(Date.now() - days * 2 * 86400000));
+    Promise.all([
+      fetch(`/api/ideation/youtube-analytics/local-videos?start_date=${start}&end_date=${end}&sort=published_desc&limit=100`).then(r => r.json()).catch(() => ({ videos: [] })),
+      fetch(`/api/ideation/videos?page=1&page_size=10&window=7d&channel_id=2`).then(r => r.json()).catch(() => ({ items: [] })),
+      fetch(`/api/ideation/youtube-analytics/local-videos?start_date=${prevStart}&end_date=${prevEnd}&sort=published_desc&limit=100`).then(r => r.json()).catch(() => ({ videos: [] })),
+    ]).then(([analyticsData, trackerData, prevData]) => {
+      if (cancelled) return;
+      const analytics: VideoAnalytics[] = analyticsData.videos ?? [];
+      const analyticsIds = new Set(analytics.map(v => v.youtube_video_id));
+      const missing: VideoAnalytics[] = (trackerData.items ?? [])
+        .filter((v: any) => !analyticsIds.has(v.youtube_video_id))
+        .map((v: any) => ({
+          youtube_video_id: v.youtube_video_id, title: v.title,
+          published_at: v.published_at, duration_seconds: v.duration_seconds,
+          views: v.latest_view_count, estimated_minutes_watched: null,
+          average_view_duration_seconds: null, average_view_percentage: null,
+          likes: null, dislikes: null, comments: null, shares: null,
+          subscribers_gained: null, subscribers_lost: null, net_subscribers: null,
+        }));
+      setPeriodVideos([...missing, ...analytics]);
+      setPrevPeriodVideos(prevData.videos ?? []);
+      setPeriodLoading(false);
+    });
     return () => { cancelled = true; };
   }, [period]);
+
+  // Fetch competitor data when COMPETITORS tab is active (Feature 5)
+  useEffect(() => {
+    if (activeTab !== "competitors") return;
+    if (competitorOutliers.length > 0) return; // already loaded
+    let cancelled = false;
+    setCompetitorsLoading(true);
+    Promise.all([
+      fetch("/api/ideation/outliers?window=7d&limit=50&positive_only=true").then(r => r.json()).catch(() => ({ items: [] })),
+      fetch("/api/ideation/watchlist").then(r => r.json()).catch(() => ({ items: [] })),
+    ]).then(([outlierData, watchlistData]) => {
+      if (cancelled) return;
+      setCompetitorOutliers(outlierData.items ?? outlierData ?? []);
+      setWatchlistChannels(watchlistData.items ?? watchlistData ?? []);
+      setCompetitorsLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [activeTab, competitorOutliers.length]);
 
   // Active videos for display
   const activeVideos = periodVideos ?? initialRecentVideos;
@@ -338,6 +389,50 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
       totalComments: vids.reduce((s, v) => s + (v.comments ?? 0), 0),
       totalWatchHours: vids.reduce((s, v) => s + (v.estimated_minutes_watched ?? 0), 0) / 60,
     };
+  }, [activeVideos]);
+
+  // Previous period stats for comparison deltas (Feature 1)
+  const prevStats = useMemo(() => {
+    if (!prevPeriodVideos || prevPeriodVideos.length === 0) return null;
+    const vids = prevPeriodVideos;
+    const withRetention = vids.filter(v => v.average_view_percentage);
+    return {
+      totalViews: vids.reduce((s, v) => s + (v.views ?? 0), 0),
+      totalSubs: vids.reduce((s, v) => s + (v.net_subscribers ?? 0), 0),
+      avgRetention: withRetention.reduce((s, v) => s + (v.average_view_percentage ?? 0), 0) / (withRetention.length || 1),
+      totalShares: vids.reduce((s, v) => s + (v.shares ?? 0), 0),
+      totalComments: vids.reduce((s, v) => s + (v.comments ?? 0), 0),
+      totalWatchHours: vids.reduce((s, v) => s + (v.estimated_minutes_watched ?? 0), 0) / 60,
+    };
+  }, [prevPeriodVideos]);
+
+  // Schedule insights (Feature 2) — group by day of week
+  const scheduleData = useMemo(() => {
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const buckets: Record<number, { views: number[]; retention: number[]; subs: number[] }> = {};
+    for (let i = 0; i < 7; i++) buckets[i] = { views: [], retention: [], subs: [] };
+
+    for (const v of activeVideos) {
+      if (!v.published_at) continue;
+      const dayOfWeek = new Date(v.published_at).getDay();
+      buckets[dayOfWeek].views.push(v.views ?? 0);
+      if (v.average_view_percentage != null) buckets[dayOfWeek].retention.push(v.average_view_percentage);
+      buckets[dayOfWeek].subs.push(v.net_subscribers ?? 0);
+    }
+
+    const days = [1, 2, 3, 4, 5, 6, 0].map(d => {
+      const b = buckets[d];
+      const avgViews = b.views.length > 0 ? b.views.reduce((s, v) => s + v, 0) / b.views.length : 0;
+      const avgRetention = b.retention.length > 0 ? b.retention.reduce((s, v) => s + v, 0) / b.retention.length : 0;
+      const avgSubs = b.subs.length > 0 ? b.subs.reduce((s, v) => s + v, 0) / b.subs.length : 0;
+      return { day: dayNames[d], dayIndex: d, count: b.views.length, avgViews, avgRetention, avgSubs };
+    });
+
+    const maxViews = Math.max(...days.map(d => d.avgViews), 1);
+    const bestDay = days.reduce((best, d) => d.avgViews > best.avgViews ? d : best, days[0]);
+    const worstDay = days.filter(d => d.count > 0).reduce((worst, d) => d.avgViews < worst.avgViews ? d : worst, days.find(d => d.count > 0) ?? days[0]);
+
+    return { days, maxViews, bestDay, worstDay };
   }, [activeVideos]);
 
   // Best/worst performers
@@ -458,36 +553,54 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
         </div>
       )}
 
-      {/* Recent performance summary with sparklines */}
+      {/* Recent performance summary with sparklines + period comparison deltas */}
       <div className="ib-stat-row">
         <div className="ib-stat-cell">
           <div className="ib-stat-label">Views ({period === "all" ? "all" : period})</div>
-          <div className="ib-stat-value">{fmtNum(recentStats.totalViews)}</div>
+          <div className="ib-stat-value">
+            {fmtNum(recentStats.totalViews)}
+            <DeltaBadge current={recentStats.totalViews} previous={prevStats?.totalViews} />
+          </div>
           <Sparkline values={dailyViews} color="#5b9" />
         </div>
         <div className="ib-stat-cell">
           <div className="ib-stat-label">Net Subscribers</div>
           <div className="ib-stat-value" style={{ color: recentStats.totalSubs > 0 ? "var(--ib-positive-text)" : "var(--ib-negative-text)" }}>
             {recentStats.totalSubs > 0 ? "+" : ""}{fmtNum(recentStats.totalSubs)}
+            <DeltaBadge current={recentStats.totalSubs} previous={prevStats?.totalSubs} />
           </div>
           <Sparkline values={dailySubs} color="#7ab87a" />
         </div>
         <div className="ib-stat-cell">
           <div className="ib-stat-label">Watch Hours</div>
-          <div className="ib-stat-value">{fmtNum(Math.round(recentStats.totalWatchHours))}</div>
+          <div className="ib-stat-value">
+            {fmtNum(Math.round(recentStats.totalWatchHours))}
+            <DeltaBadge current={recentStats.totalWatchHours} previous={prevStats?.totalWatchHours} />
+          </div>
           <Sparkline values={dailyWatchMins} color="#6a8ab8" />
         </div>
         <div className="ib-stat-cell">
           <div className="ib-stat-label">Total Shares</div>
-          <div className="ib-stat-value">{fmtNum(recentStats.totalShares)}</div>
+          <div className="ib-stat-value">
+            {fmtNum(recentStats.totalShares)}
+            <DeltaBadge current={recentStats.totalShares} previous={prevStats?.totalShares} />
+          </div>
           <Sparkline values={dailyShares} color="#b8a86a" />
         </div>
         <div className="ib-stat-cell">
           <div className="ib-stat-label">Comments</div>
-          <div className="ib-stat-value">{fmtNum(recentStats.totalComments)}</div>
+          <div className="ib-stat-value">
+            {fmtNum(recentStats.totalComments)}
+            <DeltaBadge current={recentStats.totalComments} previous={prevStats?.totalComments} />
+          </div>
           <Sparkline values={dailyComments} color="#b87a7a" />
         </div>
       </div>
+      {prevStats && period !== "all" && (
+        <div className="ib-meta" style={{ marginBottom: 8, fontSize: 10 }}>
+          Compared to previous {period} &middot; {prevPeriodVideos?.length ?? 0} videos in prior period
+        </div>
+      )}
 
       {/* AI Overview */}
       <div className="ib-panel" style={{ marginBottom: 16 }}>
@@ -506,9 +619,9 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
 
       {/* Tab bar */}
       <div className="ib-window-tabs" style={{ marginBottom: 16 }}>
-        {(["recent", "top", "traffic", "audience"] as const).map(t => (
+        {(["recent", "top", "schedule", "competitors", "traffic", "audience"] as const).map(t => (
           <button key={t} className={activeTab === t ? "active" : ""} onClick={() => setActiveTab(t)}>
-            {t === "recent" ? "RECENT VIDEOS" : t === "top" ? "ALL-TIME TOP" : t === "traffic" ? "TRAFFIC" : "AUDIENCE"}
+            {t === "recent" ? "RECENT VIDEOS" : t === "top" ? "ALL-TIME TOP" : t === "schedule" ? "SCHEDULE" : t === "competitors" ? "COMPETITORS" : t === "traffic" ? "TRAFFIC" : "AUDIENCE"}
           </button>
         ))}
       </div>
@@ -749,6 +862,223 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
               {breakdowns.demographics.length === 0 && <tr><td colSpan={4} className="ib-meta" style={{ textAlign: "center", padding: 20 }}>No demographic data</td></tr>}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Schedule Insights (Feature 2) */}
+      {activeTab === "schedule" && (
+        <div className="ib-panel">
+          <div className="ib-panel-head">
+            <h3>Upload Schedule Insights</h3>
+            <span className="ib-meta">Based on {activeVideos.length} videos</span>
+          </div>
+          {/* Optimal day callout */}
+          {scheduleData.bestDay.count > 0 && (
+            <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--ib-border)", background: "rgba(74,122,74,0.06)" }}>
+              <div style={{ fontSize: 12, color: "var(--ib-text)", lineHeight: 1.6 }}>
+                Your best performing uploads are on <strong style={{ color: "#5b9" }}>{scheduleData.bestDay.day}</strong> with avg <strong style={{ color: "#5b9" }}>{fmtNum(Math.round(scheduleData.bestDay.avgViews))}</strong> views
+                {scheduleData.bestDay.avgRetention > 0 && <> and <strong style={{ color: "#5b9" }}>{scheduleData.bestDay.avgRetention.toFixed(1)}%</strong> retention</>}.
+                {scheduleData.worstDay.count > 0 && scheduleData.worstDay.day !== scheduleData.bestDay.day && (
+                  <> Avoid <strong style={{ color: "#c55" }}>{scheduleData.worstDay.day}</strong> ({fmtNum(Math.round(scheduleData.worstDay.avgViews))} avg views).</>
+                )}
+              </div>
+            </div>
+          )}
+          {/* Day of week bars */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, padding: 14, background: "var(--ib-border)" }}>
+            {scheduleData.days.map(d => {
+              const barHeight = scheduleData.maxViews > 0 ? (d.avgViews / scheduleData.maxViews) * 120 : 0;
+              const isBest = d.day === scheduleData.bestDay.day && d.count > 0;
+              const isWorst = d.day === scheduleData.worstDay.day && d.count > 0 && scheduleData.days.filter(x => x.count > 0).length > 1;
+              const barColor = isBest ? "#5b9" : isWorst ? "#c55" : "#445";
+              return (
+                <div key={d.day} style={{ background: "var(--ib-surface)", padding: "10px 6px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", minHeight: 180 }}>
+                  <div style={{ fontFamily: "var(--ib-mono)", fontSize: 11, color: "var(--ib-highlight)", marginBottom: 4 }}>
+                    {d.count > 0 ? fmtNum(Math.round(d.avgViews)) : "\u2014"}
+                  </div>
+                  <div style={{ width: 32, height: Math.max(4, barHeight), background: barColor, borderRadius: 2, marginBottom: 8, transition: "height 0.3s" }} />
+                  <div style={{ fontFamily: "var(--ib-mono)", fontSize: 10, fontWeight: 700, color: isBest ? "#5b9" : isWorst ? "#c55" : "var(--ib-text-dim)", marginBottom: 2 }}>
+                    {d.day}
+                  </div>
+                  <div style={{ fontFamily: "var(--ib-mono)", fontSize: 9, color: "var(--ib-text-dim)" }}>
+                    {d.count} video{d.count !== 1 ? "s" : ""}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Detailed day stats table */}
+          <table className="ib-table">
+            <thead>
+              <tr><th>Day</th><th>Videos</th><th>Avg Views</th><th>Avg Retention</th><th>Avg Net Subs</th></tr>
+            </thead>
+            <tbody>
+              {scheduleData.days.map(d => {
+                const isBest = d.day === scheduleData.bestDay.day && d.count > 0;
+                const isWorst = d.day === scheduleData.worstDay.day && d.count > 0 && scheduleData.days.filter(x => x.count > 0).length > 1;
+                return (
+                  <tr key={d.day} style={{ background: isBest ? "rgba(74,122,74,0.05)" : isWorst ? "rgba(122,74,74,0.05)" : undefined }}>
+                    <td style={{ fontWeight: 600, color: isBest ? "#5b9" : isWorst ? "#c55" : "var(--ib-text)" }}>{d.day}</td>
+                    <td style={{ fontFamily: "var(--ib-mono)" }}>{d.count}</td>
+                    <td style={{ fontFamily: "var(--ib-mono)", color: "var(--ib-highlight)" }}>{d.count > 0 ? fmtNum(Math.round(d.avgViews)) : "\u2014"}</td>
+                    <td style={{ fontFamily: "var(--ib-mono)", color: d.avgRetention > 40 ? "var(--ib-positive-text)" : "var(--ib-text-dim)" }}>
+                      {d.avgRetention > 0 ? d.avgRetention.toFixed(1) + "%" : "\u2014"}
+                    </td>
+                    <td style={{ fontFamily: "var(--ib-mono)", color: d.avgSubs > 0 ? "var(--ib-positive-text)" : d.avgSubs < 0 ? "var(--ib-negative-text)" : "var(--ib-text-dim)" }}>
+                      {d.count > 0 ? (d.avgSubs > 0 ? "+" : "") + fmtNum(Math.round(d.avgSubs)) : "\u2014"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Competitor Benchmarking (Feature 5) */}
+      {activeTab === "competitors" && (
+        <div>
+          {competitorsLoading ? (
+            <div className="ib-panel" style={{ padding: 30, textAlign: "center" }}>
+              <div className="ib-meta">Loading competitor data...</div>
+            </div>
+          ) : (
+            <>
+              {/* Moon vs Competitors summary */}
+              <div className="ib-panel" style={{ marginBottom: 12 }}>
+                <div className="ib-panel-head">
+                  <h3>Moon vs Competitors (Last 7 Days)</h3>
+                </div>
+                <div style={{ padding: 14 }}>
+                  {(() => {
+                    const moonAvgViews = activeVideos.length > 0
+                      ? activeVideos.reduce((s, v) => s + (v.views ?? 0), 0) / activeVideos.length
+                      : 0;
+
+                    // Group outlier videos by channel
+                    const channelMap: Record<string, { name: string; videos: any[]; totalViews: number }> = {};
+                    for (const o of competitorOutliers) {
+                      const chName = o.channel_title ?? o.channel_name ?? "Unknown";
+                      const chId = o.channel_id ?? chName;
+                      if (!channelMap[chId]) channelMap[chId] = { name: chName, videos: [], totalViews: 0 };
+                      channelMap[chId].videos.push(o);
+                      channelMap[chId].totalViews += o.view_count ?? o.views ?? 0;
+                    }
+                    const channels = Object.values(channelMap).sort((a, b) => {
+                      const aAvg = a.totalViews / (a.videos.length || 1);
+                      const bAvg = b.totalViews / (b.videos.length || 1);
+                      return bAvg - aAvg;
+                    });
+
+                    // Find Moon's rank
+                    const moonEntry = { name: "Moon", avgViews: moonAvgViews };
+                    const allEntries = [...channels.map(c => ({ name: c.name, avgViews: c.totalViews / (c.videos.length || 1) })), moonEntry].sort((a, b) => b.avgViews - a.avgViews);
+                    const moonRank = allEntries.findIndex(e => e.name === "Moon") + 1;
+
+                    return (
+                      <div>
+                        <div className="ib-stat-row" style={{ marginBottom: 12 }}>
+                          <div className="ib-stat-cell">
+                            <div className="ib-stat-label">Moon Avg Views</div>
+                            <div className="ib-stat-value">{fmtNum(Math.round(moonAvgViews))}</div>
+                          </div>
+                          <div className="ib-stat-cell">
+                            <div className="ib-stat-label">Rank Among Tracked</div>
+                            <div className="ib-stat-value" style={{ color: moonRank <= 3 ? "var(--ib-positive-text)" : moonRank > channels.length / 2 ? "var(--ib-negative-text)" : "var(--ib-warn-text)" }}>
+                              #{moonRank} of {allEntries.length}
+                            </div>
+                          </div>
+                          <div className="ib-stat-cell">
+                            <div className="ib-stat-label">Competitor Outliers</div>
+                            <div className="ib-stat-value">{competitorOutliers.length}</div>
+                          </div>
+                          <div className="ib-stat-cell">
+                            <div className="ib-stat-label">Tracked Channels</div>
+                            <div className="ib-stat-value">{watchlistChannels.length}</div>
+                          </div>
+                        </div>
+
+                        {/* Channel comparison table */}
+                        <table className="ib-table">
+                          <thead>
+                            <tr><th>#</th><th>Channel</th><th>Videos This Week</th><th>Avg Views</th><th>vs Moon</th></tr>
+                          </thead>
+                          <tbody>
+                            {allEntries.slice(0, 15).map((entry, i) => {
+                              const isMoon = entry.name === "Moon";
+                              const diff = moonAvgViews > 0 ? ((entry.avgViews / moonAvgViews) * 100 - 100) : 0;
+                              const chData = channels.find(c => c.name === entry.name);
+                              return (
+                                <tr key={entry.name} style={{ background: isMoon ? "rgba(85,187,153,0.08)" : undefined }}>
+                                  <td style={{ fontFamily: "var(--ib-mono)", color: "var(--ib-text-dim)" }}>{i + 1}</td>
+                                  <td style={{ color: isMoon ? "#5b9" : "var(--ib-text)", fontWeight: isMoon ? 700 : 400 }}>
+                                    {entry.name}{isMoon ? " (You)" : ""}
+                                  </td>
+                                  <td style={{ fontFamily: "var(--ib-mono)" }}>{isMoon ? activeVideos.length : (chData?.videos.length ?? 0)}</td>
+                                  <td style={{ fontFamily: "var(--ib-mono)", color: "var(--ib-highlight)" }}>{fmtNum(Math.round(entry.avgViews))}</td>
+                                  <td style={{ fontFamily: "var(--ib-mono)", color: isMoon ? "var(--ib-text-dim)" : diff > 0 ? "var(--ib-negative-text)" : "var(--ib-positive-text)" }}>
+                                    {isMoon ? "\u2014" : `${diff > 0 ? "+" : ""}${diff.toFixed(0)}%`}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Top competitor videos this week */}
+              <div className="ib-panel">
+                <div className="ib-panel-head">
+                  <h3>Top Competitor Videos This Week</h3>
+                  <span className="ib-meta">{competitorOutliers.length} outlier videos</span>
+                </div>
+                {competitorOutliers.slice(0, 10).map((o: any, i: number) => (
+                  <div key={i} style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)", display: "flex", gap: 12, alignItems: "center" }}>
+                    <div style={{ fontFamily: "var(--ib-mono)", fontSize: 11, color: "var(--ib-text-dim)", width: 20, flexShrink: 0 }}>{i + 1}</div>
+                    {o.youtube_video_id && (
+                      <img
+                        src={`https://i.ytimg.com/vi/${o.youtube_video_id}/mqdefault.jpg`}
+                        alt="" width={100} height={56}
+                        style={{ objectFit: "cover", borderRadius: 2, flexShrink: 0 }}
+                        loading="lazy"
+                      />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: "var(--ib-text-bright)", fontSize: 12, fontWeight: 500, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {o.title ?? "Untitled"}
+                      </div>
+                      <div className="ib-meta">
+                        {o.channel_title ?? o.channel_name ?? "Unknown"} &middot; {o.published_at ? ago(o.published_at) : ""}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 16, flexShrink: 0 }}>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontFamily: "var(--ib-mono)", fontSize: 13, fontWeight: 600, color: "var(--ib-highlight)" }}>
+                          {fmtNum(o.view_count ?? o.views)}
+                        </div>
+                        <div className="ib-meta">views</div>
+                      </div>
+                      {o.outlier_score != null && (
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontFamily: "var(--ib-mono)", fontSize: 12, color: o.outlier_score > 5 ? "var(--ib-positive-text)" : "var(--ib-warn-text)" }}>
+                            {typeof o.outlier_score === "number" ? o.outlier_score.toFixed(1) : o.outlier_score}x
+                          </div>
+                          <div className="ib-meta">score</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {competitorOutliers.length === 0 && (
+                  <div className="ib-meta" style={{ padding: 20, textAlign: "center" }}>No competitor outliers found this week</div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
 
