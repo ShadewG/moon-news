@@ -406,13 +406,23 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
     };
   }, [prevPeriodVideos]);
 
-  // Schedule insights (Feature 2) — group by day of week
+  // Schedule insights (Feature 2) — uses ALL videos for reliable day-of-week analysis
+  const [allScheduleVideos, setAllScheduleVideos] = useState<VideoAnalytics[]>([]);
+  useEffect(() => {
+    fetch("/api/ideation/youtube-analytics/local-videos?sort=published_desc&limit=500")
+      .then(r => r.json())
+      .then(d => setAllScheduleVideos(d.videos ?? []))
+      .catch(() => {});
+  }, []);
+
+  const scheduleVideos = allScheduleVideos.length > 0 ? allScheduleVideos : [...initialRecentVideos, ...topVideos.filter(v => !initialRecentVideos.some(r => r.youtube_video_id === v.youtube_video_id))];
+
   const scheduleData = useMemo(() => {
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const buckets: Record<number, { views: number[]; retention: number[]; subs: number[] }> = {};
     for (let i = 0; i < 7; i++) buckets[i] = { views: [], retention: [], subs: [] };
 
-    for (const v of activeVideos) {
+    for (const v of scheduleVideos) {
       if (!v.published_at) continue;
       const dayOfWeek = new Date(v.published_at).getDay();
       buckets[dayOfWeek].views.push(v.views ?? 0);
@@ -432,8 +442,8 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
     const bestDay = days.reduce((best, d) => d.avgViews > best.avgViews ? d : best, days[0]);
     const worstDay = days.filter(d => d.count > 0).reduce((worst, d) => d.avgViews < worst.avgViews ? d : worst, days.find(d => d.count > 0) ?? days[0]);
 
-    return { days, maxViews, bestDay, worstDay };
-  }, [activeVideos]);
+    return { days, maxViews, bestDay, worstDay, totalVideos: scheduleVideos.length };
+  }, [scheduleVideos]);
 
   // Best/worst performers
   const { best, worst } = useMemo(() => {
@@ -840,37 +850,342 @@ export default function AnalyticsClient({ channelInfo, localStats, recentVideos:
         </div>
       )}
 
-      {/* Audience Demographics */}
-      {activeTab === "audience" && breakdowns && (
-        <div className="ib-panel">
-          <div className="ib-panel-head"><h3>Audience Demographics</h3></div>
-          <table className="ib-table">
-            <thead><tr><th>Age Group</th><th>Gender</th><th>Viewer %</th><th></th></tr></thead>
-            <tbody>
-              {breakdowns.demographics.sort((a, b) => b.viewer_percentage - a.viewer_percentage).map((d, i) => (
-                <tr key={i}>
-                  <td style={{ color: "var(--ib-text)" }}>{d.age_group}</td>
-                  <td style={{ color: "var(--ib-text-dim)" }}>{d.gender}</td>
-                  <td style={{ fontFamily: "var(--ib-mono)", fontWeight: 600 }}>{d.viewer_percentage.toFixed(1)}%</td>
-                  <td style={{ width: 120 }}>
-                    <div style={{ height: 6, background: "var(--ib-border)", borderRadius: 2, overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${Math.min(d.viewer_percentage * 4, 100)}%`, background: d.viewer_percentage > 10 ? "var(--ib-positive-text)" : "var(--ib-text-dim)", borderRadius: 2 }} />
+      {/* Audience Insights */}
+      {activeTab === "audience" && breakdowns && (() => {
+        const countryNames: Record<string, string> = {
+          US: "United States", GB: "United Kingdom", CA: "Canada", AU: "Australia", IN: "India",
+          DE: "Germany", FR: "France", BR: "Brazil", MX: "Mexico", JP: "Japan", KR: "South Korea",
+          PH: "Philippines", ID: "Indonesia", NL: "Netherlands", SE: "Sweden", NO: "Norway",
+          DK: "Denmark", FI: "Finland", PL: "Poland", IT: "Italy", ES: "Spain", PT: "Portugal",
+          RU: "Russia", UA: "Ukraine", TR: "Turkey", ZA: "South Africa", NG: "Nigeria",
+          EG: "Egypt", SA: "Saudi Arabia", AE: "UAE", PK: "Pakistan", BD: "Bangladesh",
+          TH: "Thailand", VN: "Vietnam", MY: "Malaysia", SG: "Singapore", NZ: "New Zealand",
+          IE: "Ireland", AT: "Austria", CH: "Switzerland", BE: "Belgium", CZ: "Czech Republic",
+          RO: "Romania", HU: "Hungary", GR: "Greece", CL: "Chile", AR: "Argentina", CO: "Colombia",
+          PE: "Peru", TW: "Taiwan", HK: "Hong Kong", IL: "Israel",
+        };
+        const getCountryName = (code: string) => countryNames[code] || code;
+
+        const regionMap: Record<string, string> = {
+          US: "Americas", CA: "Americas", BR: "Americas", MX: "Americas", AR: "Americas", CL: "Americas", CO: "Americas", PE: "Americas",
+          GB: "Europe", DE: "Europe", FR: "Europe", NL: "Europe", SE: "Europe", NO: "Europe", DK: "Europe", FI: "Europe",
+          PL: "Europe", IT: "Europe", ES: "Europe", PT: "Europe", RU: "Europe", UA: "Europe", IE: "Europe", AT: "Europe",
+          CH: "Europe", BE: "Europe", CZ: "Europe", RO: "Europe", HU: "Europe", GR: "Europe", TR: "Europe",
+          IN: "Asia Pacific", JP: "Asia Pacific", KR: "Asia Pacific", PH: "Asia Pacific", ID: "Asia Pacific",
+          TH: "Asia Pacific", VN: "Asia Pacific", MY: "Asia Pacific", SG: "Asia Pacific", AU: "Asia Pacific",
+          NZ: "Asia Pacific", TW: "Asia Pacific", HK: "Asia Pacific", PK: "Asia Pacific", BD: "Asia Pacific",
+          SA: "Middle East & Africa", AE: "Middle East & Africa", IL: "Middle East & Africa", ZA: "Middle East & Africa",
+          NG: "Middle East & Africa", EG: "Middle East & Africa",
+        };
+        const getRegion = (code: string) => regionMap[code] || "Other";
+
+        const sourceNames: Record<string, string> = {
+          SUBSCRIBER: "Subscribers", RELATED_VIDEO: "Suggested Videos", YT_SEARCH: "YouTube Search",
+          EXTERNAL: "External Sources", BROWSE_FEATURES: "Browse Features", NOTIFICATION: "Notifications",
+          PLAYLIST: "Playlists", CHANNEL: "Channel Page", END_SCREEN: "End Screens",
+          ADVERTISING: "Advertising", SHORTS: "Shorts Feed", NO_LINK_OTHER: "Other (Direct)",
+          HASHTAGS: "Hashtags", LIVE: "Live", PRODUCT_PAGE: "Product Page", CAMPAIGN_CARD: "Campaign Card",
+          NO_LINK_EMBEDDED: "Embedded (No Link)", ANNOTATION: "Annotations",
+        };
+        const humanizeSource = (s: string) => sourceNames[s] || s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+        // Demographics aggregation
+        const genderTotals: Record<string, number> = {};
+        const ageGroupTotals: Record<string, number> = {};
+        for (const d of breakdowns.demographics) {
+          genderTotals[d.gender] = (genderTotals[d.gender] || 0) + d.viewer_percentage;
+          const ageLabel = d.age_group.replace("age", "").replace("-", "-");
+          ageGroupTotals[ageLabel] = (ageGroupTotals[ageLabel] || 0) + d.viewer_percentage;
+        }
+        const malePercentage = genderTotals["male"] || 0;
+        const femalePercentage = genderTotals["female"] || 0;
+        const sortedAgeGroups = Object.entries(ageGroupTotals).sort((a, b) => {
+          const aNum = parseInt(a[0]);
+          const bNum = parseInt(b[0]);
+          return aNum - bNum;
+        });
+        const maxAgeGroupPct = Math.max(...sortedAgeGroups.map(([, v]) => v), 1);
+        const topDemographic = breakdowns.demographics.sort((a, b) => b.viewer_percentage - a.viewer_percentage)[0];
+
+        // Day-of-week heatmap from dailyData
+        const dayBuckets: Record<number, { views: number[]; watchMins: number[]; comments: number[] }> = {};
+        for (let i = 0; i < 7; i++) dayBuckets[i] = { views: [], watchMins: [], comments: [] };
+        for (const d of dailyData) {
+          const dow = new Date(d.date).getDay();
+          dayBuckets[dow].views.push(d.views);
+          dayBuckets[dow].watchMins.push(d.estimated_minutes_watched);
+          dayBuckets[dow].comments.push(d.comments);
+        }
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const dayFullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const dayStats = [1, 2, 3, 4, 5, 6, 0].map(i => {
+          const b = dayBuckets[i];
+          const avg = (arr: number[]) => arr.length > 0 ? arr.reduce((s, v) => s + v, 0) / arr.length : 0;
+          return { day: dayNames[i], dayFull: dayFullNames[i], dayIndex: i, avgViews: avg(b.views), avgWatchHours: avg(b.watchMins) / 60, avgComments: avg(b.comments), count: b.views.length };
+        });
+        const maxDayViews = Math.max(...dayStats.map(d => d.avgViews), 1);
+        const bestDayOfWeek = dayStats.reduce((best, d) => d.avgViews > best.avgViews ? d : best, dayStats[0]);
+
+        // Monthly trends from dailyData
+        const monthBuckets: Record<string, { views: number; watchMins: number; subsGained: number; subsLost: number; days: number }> = {};
+        for (const d of dailyData) {
+          const monthKey = d.date.slice(0, 7);
+          if (!monthBuckets[monthKey]) monthBuckets[monthKey] = { views: 0, watchMins: 0, subsGained: 0, subsLost: 0, days: 0 };
+          monthBuckets[monthKey].views += d.views;
+          monthBuckets[monthKey].watchMins += d.estimated_minutes_watched;
+          monthBuckets[monthKey].subsGained += d.subscribers_gained;
+          monthBuckets[monthKey].subsLost += d.subscribers_lost;
+          monthBuckets[monthKey].days += 1;
+        }
+        const monthRows = Object.entries(monthBuckets).sort((a, b) => b[0].localeCompare(a[0])).map(([month, data], idx, arr) => {
+          const prevMonth = arr[idx + 1]?.[1];
+          const viewsChange = prevMonth ? ((data.views - prevMonth.views) / (prevMonth.views || 1)) * 100 : null;
+          return { month, ...data, netSubs: data.subsGained - data.subsLost, avgDailyViews: Math.round(data.views / (data.days || 1)), viewsChange };
+        });
+
+        // Geography data
+        const sortedGeo = [...breakdowns.geography].sort((a, b) => b.views - a.views);
+        const totalGeoViews = sortedGeo.reduce((s, g) => s + g.views, 0);
+        const maxGeoViews = sortedGeo[0]?.views || 1;
+        const top20Geo = sortedGeo.slice(0, 20);
+
+        // Group by region
+        const regionGroups: Record<string, { views: number; watchMins: number; countries: number }> = {};
+        for (const g of sortedGeo) {
+          const region = getRegion(g.country);
+          if (!regionGroups[region]) regionGroups[region] = { views: 0, watchMins: 0, countries: 0 };
+          regionGroups[region].views += g.views;
+          regionGroups[region].watchMins += g.estimated_minutes_watched;
+          regionGroups[region].countries += 1;
+        }
+        const sortedRegions = Object.entries(regionGroups).sort((a, b) => b[1].views - a[1].views);
+
+        // Traffic / Discovery sources
+        const sortedTraffic = [...breakdowns.traffic].sort((a, b) => b.views - a.views);
+        const totalTrafficViews = sortedTraffic.reduce((s, t) => s + t.views, 0);
+        const maxTrafficViews = sortedTraffic[0]?.views || 1;
+
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+            {/* Section 1: Viewer Profile Summary */}
+            <div className="ib-panel">
+              <div className="ib-panel-head"><h3>Viewer Profile</h3></div>
+              <div style={{ padding: 14 }}>
+                {/* Top demographic callout */}
+                {topDemographic && (
+                  <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(74,122,74,0.06)", borderRadius: 4, border: "1px solid var(--ib-border)" }}>
+                    <div style={{ fontSize: 11, color: "var(--ib-text-dim)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Typical Moon Viewer</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "var(--ib-highlight)" }}>
+                      {topDemographic.gender === "male" ? "Male" : "Female"}, {topDemographic.age_group.replace("age", "")}
+                      <span style={{ fontSize: 12, fontWeight: 400, color: "var(--ib-positive-text)", marginLeft: 8 }}>{topDemographic.viewer_percentage.toFixed(1)}% of viewers</span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-              {breakdowns.demographics.length === 0 && <tr><td colSpan={4} className="ib-meta" style={{ textAlign: "center", padding: 20 }}>No demographic data</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  </div>
+                )}
+
+                {/* Gender split bar */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, color: "var(--ib-text-dim)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Gender Split</div>
+                  <div style={{ display: "flex", height: 28, borderRadius: 4, overflow: "hidden", marginBottom: 6 }}>
+                    <div style={{ width: `${malePercentage}%`, background: "#4a7aaa", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: "#fff", minWidth: malePercentage > 5 ? "auto" : 0 }}>
+                      {malePercentage > 10 ? `${malePercentage.toFixed(0)}% Male` : ""}
+                    </div>
+                    <div style={{ width: `${femalePercentage}%`, background: "#aa4a7a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: "#fff", minWidth: femalePercentage > 5 ? "auto" : 0 }}>
+                      {femalePercentage > 10 ? `${femalePercentage.toFixed(0)}% Female` : ""}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--ib-text)" }}>
+                    Core audience: <strong style={{ color: "var(--ib-highlight)" }}>{malePercentage.toFixed(0)}% male</strong>, <strong style={{ color: "var(--ib-highlight)" }}>{femalePercentage.toFixed(0)}% female</strong>
+                  </div>
+                </div>
+
+                {/* Age distribution bars */}
+                <div>
+                  <div style={{ fontSize: 11, color: "var(--ib-text-dim)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Age Distribution</div>
+                  {sortedAgeGroups.map(([ageGroup, pct]) => (
+                    <div key={ageGroup} style={{ display: "flex", alignItems: "center", marginBottom: 6, gap: 8 }}>
+                      <div style={{ width: 60, fontSize: 12, fontFamily: "var(--ib-mono)", color: "var(--ib-text)", flexShrink: 0 }}>{ageGroup}</div>
+                      <div style={{ flex: 1, height: 18, background: "var(--ib-border)", borderRadius: 3, overflow: "hidden", position: "relative" }}>
+                        <div style={{
+                          height: "100%",
+                          width: `${(pct / maxAgeGroupPct) * 100}%`,
+                          background: pct === maxAgeGroupPct ? "var(--ib-positive-text)" : "#445566",
+                          borderRadius: 3,
+                          transition: "width 0.3s",
+                        }} />
+                      </div>
+                      <div style={{ width: 50, fontSize: 12, fontFamily: "var(--ib-mono)", color: pct === maxAgeGroupPct ? "var(--ib-positive-text)" : "var(--ib-text)", fontWeight: pct === maxAgeGroupPct ? 700 : 400, textAlign: "right", flexShrink: 0 }}>
+                        {pct.toFixed(1)}%
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Viewing Day Heatmap */}
+            <div className="ib-panel">
+              <div className="ib-panel-head"><h3>Viewing Day Heatmap</h3><span className="ib-meta">Based on {dailyData.length} days of data</span></div>
+              {/* Insight callout */}
+              <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--ib-border)", background: "rgba(74,122,74,0.06)" }}>
+                <div style={{ fontSize: 12, color: "var(--ib-text)", lineHeight: 1.6 }}>
+                  Your audience is most active on <strong style={{ color: "var(--ib-positive-text)" }}>{bestDayOfWeek.dayFull}s</strong> ({fmtNum(Math.round(bestDayOfWeek.avgViews))} avg views)
+                </div>
+              </div>
+              {/* 7-column heatmap */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, padding: 14 }}>
+                {dayStats.map(d => {
+                  const intensity = d.avgViews / maxDayViews;
+                  const bgColor = `rgba(122, 184, 122, ${0.05 + intensity * 0.2})`;
+                  const isBest = d.day === bestDayOfWeek.day;
+                  return (
+                    <div key={d.day} style={{
+                      background: bgColor,
+                      border: isBest ? "1px solid var(--ib-positive-text)" : "1px solid var(--ib-border)",
+                      borderRadius: 4,
+                      padding: "10px 6px",
+                      textAlign: "center",
+                    }}>
+                      <div style={{ fontFamily: "var(--ib-mono)", fontSize: 11, fontWeight: 700, color: isBest ? "var(--ib-positive-text)" : "var(--ib-text)", marginBottom: 8 }}>{d.day}</div>
+                      <div style={{ fontSize: 10, color: "var(--ib-text-dim)", marginBottom: 2 }}>Avg Views</div>
+                      <div style={{ fontFamily: "var(--ib-mono)", fontSize: 13, fontWeight: 600, color: "var(--ib-highlight)", marginBottom: 6 }}>{fmtNum(Math.round(d.avgViews))}</div>
+                      <div style={{ fontSize: 10, color: "var(--ib-text-dim)", marginBottom: 2 }}>Watch Hrs</div>
+                      <div style={{ fontFamily: "var(--ib-mono)", fontSize: 11, color: "var(--ib-text)" }}>{fmtNum(Math.round(d.avgWatchHours))}</div>
+                      <div style={{ fontSize: 10, color: "var(--ib-text-dim)", marginTop: 4, marginBottom: 2 }}>Comments</div>
+                      <div style={{ fontFamily: "var(--ib-mono)", fontSize: 11, color: "var(--ib-text)" }}>{fmtNum(Math.round(d.avgComments))}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 3: Monthly Trends */}
+            <div className="ib-panel">
+              <div className="ib-panel-head"><h3>Monthly Trends</h3><span className="ib-meta">{monthRows.length} months</span></div>
+              <div style={{ overflowX: "auto" }}>
+                <table className="ib-table">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Total Views</th>
+                      <th>Avg Daily Views</th>
+                      <th>Net Subs</th>
+                      <th>Watch Hours</th>
+                      <th>vs Prev Month</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {monthRows.map(m => {
+                      const changeColor = m.viewsChange === null ? "var(--ib-text-dim)" : m.viewsChange > 0 ? "var(--ib-positive-text)" : m.viewsChange < 0 ? "var(--ib-negative-text)" : "var(--ib-text-dim)";
+                      return (
+                        <tr key={m.month}>
+                          <td style={{ fontWeight: 600, color: "var(--ib-text)" }}>{m.month}</td>
+                          <td style={{ fontFamily: "var(--ib-mono)", color: "var(--ib-highlight)" }}>{fmtNum(m.views)}</td>
+                          <td style={{ fontFamily: "var(--ib-mono)" }}>{fmtNum(m.avgDailyViews)}</td>
+                          <td style={{ fontFamily: "var(--ib-mono)", color: m.netSubs > 0 ? "var(--ib-positive-text)" : m.netSubs < 0 ? "var(--ib-negative-text)" : "var(--ib-text-dim)" }}>
+                            {m.netSubs > 0 ? "+" : ""}{fmtNum(m.netSubs)}
+                          </td>
+                          <td style={{ fontFamily: "var(--ib-mono)", color: "var(--ib-text-dim)" }}>{fmtNum(Math.round(m.watchMins / 60))}</td>
+                          <td style={{ fontFamily: "var(--ib-mono)", color: changeColor, fontWeight: 600 }}>
+                            {m.viewsChange === null ? "\u2014" : `${m.viewsChange > 0 ? "+" : ""}${m.viewsChange.toFixed(1)}%`}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Section 4: Geographic Map (text-based) */}
+            <div className="ib-panel">
+              <div className="ib-panel-head"><h3>Geographic Distribution</h3><span className="ib-meta">Top 20 of {sortedGeo.length} countries</span></div>
+
+              {/* Region summary */}
+              <div style={{ display: "flex", gap: 1, padding: "0 14px 0 14px", flexWrap: "wrap" }}>
+                {sortedRegions.map(([region, data]) => (
+                  <div key={region} style={{ flex: 1, minWidth: 120, padding: "10px 12px", background: "var(--ib-surface)", borderBottom: "1px solid var(--ib-border)" }}>
+                    <div style={{ fontSize: 10, color: "var(--ib-text-dim)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>{region}</div>
+                    <div style={{ fontFamily: "var(--ib-mono)", fontSize: 14, fontWeight: 700, color: "var(--ib-highlight)" }}>{(data.views / totalGeoViews * 100).toFixed(1)}%</div>
+                    <div style={{ fontFamily: "var(--ib-mono)", fontSize: 10, color: "var(--ib-text-dim)" }}>{fmtNum(data.views)} views &middot; {data.countries} countries</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Country list */}
+              <div style={{ padding: 14 }}>
+                {top20Geo.map((g, i) => {
+                  const pct = totalGeoViews > 0 ? (g.views / totalGeoViews * 100) : 0;
+                  const barWidth = (g.views / maxGeoViews) * 100;
+                  return (
+                    <div key={g.country} style={{ display: "flex", alignItems: "center", marginBottom: 8, gap: 8 }}>
+                      <div style={{ width: 20, fontSize: 11, fontFamily: "var(--ib-mono)", color: "var(--ib-text-dim)", flexShrink: 0, textAlign: "right" }}>{i + 1}</div>
+                      <div style={{ width: 140, fontSize: 12, color: "var(--ib-text)", flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{getCountryName(g.country)}</div>
+                      <div style={{ flex: 1, height: 14, background: "var(--ib-border)", borderRadius: 2, overflow: "hidden", position: "relative" }}>
+                        <div style={{
+                          height: "100%",
+                          width: `${barWidth}%`,
+                          background: i === 0 ? "var(--ib-positive-text)" : i < 5 ? "#445566" : "#333a44",
+                          borderRadius: 2,
+                        }} />
+                      </div>
+                      <div style={{ width: 80, fontSize: 11, fontFamily: "var(--ib-mono)", color: "var(--ib-highlight)", textAlign: "right", flexShrink: 0 }}>{fmtNum(g.views)}</div>
+                      <div style={{ width: 45, fontSize: 11, fontFamily: "var(--ib-mono)", color: "var(--ib-text-dim)", textAlign: "right", flexShrink: 0 }}>{pct.toFixed(1)}%</div>
+                      <div style={{ width: 60, fontSize: 10, fontFamily: "var(--ib-mono)", color: "var(--ib-text-dim)", textAlign: "right", flexShrink: 0 }}>{fmtHours(g.estimated_minutes_watched)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 5: Discovery Sources */}
+            <div className="ib-panel">
+              <div className="ib-panel-head"><h3>Discovery Sources</h3><span className="ib-meta">{sortedTraffic.length} sources</span></div>
+              <div style={{ padding: 14 }}>
+                {sortedTraffic.map((t, i) => {
+                  const pct = totalTrafficViews > 0 ? (t.views / totalTrafficViews * 100) : 0;
+                  const barWidth = (t.views / maxTrafficViews) * 100;
+                  const watchHoursPerView = t.views > 0 ? (t.estimated_minutes_watched / 60) / t.views : 0;
+                  const isTopSource = i === 0;
+                  return (
+                    <div key={t.source} style={{ marginBottom: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                        <div style={{ fontSize: 12, color: isTopSource ? "var(--ib-highlight)" : "var(--ib-text)", fontWeight: isTopSource ? 700 : 400 }}>
+                          {humanizeSource(t.source)}
+                        </div>
+                        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                          <span style={{ fontFamily: "var(--ib-mono)", fontSize: 12, color: "var(--ib-highlight)" }}>{fmtNum(t.views)}</span>
+                          <span style={{ fontFamily: "var(--ib-mono)", fontSize: 11, color: "var(--ib-text-dim)" }}>{pct.toFixed(1)}%</span>
+                          <span style={{ fontFamily: "var(--ib-mono)", fontSize: 10, color: watchHoursPerView > 0.05 ? "var(--ib-positive-text)" : "var(--ib-text-dim)", minWidth: 70, textAlign: "right" }}>
+                            {watchHoursPerView > 0 ? `${(watchHoursPerView * 60).toFixed(1)} min/view` : "\u2014"}
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ height: 8, background: "var(--ib-border)", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{
+                          height: "100%",
+                          width: `${barWidth}%`,
+                          background: isTopSource ? "var(--ib-positive-text)" : i < 3 ? "#4a6a8a" : "#334",
+                          borderRadius: 3,
+                          transition: "width 0.3s",
+                        }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+        );
+      })()}
 
       {/* Schedule Insights (Feature 2) */}
       {activeTab === "schedule" && (
         <div className="ib-panel">
           <div className="ib-panel-head">
             <h3>Upload Schedule Insights</h3>
-            <span className="ib-meta">Based on {activeVideos.length} videos</span>
+            <span className="ib-meta">Based on {scheduleData.totalVideos} videos (all time)</span>
           </div>
           {/* Optimal day callout */}
           {scheduleData.bestDay.count > 0 && (
